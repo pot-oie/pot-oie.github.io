@@ -1,49 +1,64 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from "astro:content"; // 导入 Astro 的内容查询 API
+import BaseLayout from "../layouts/BaseLayout.astro"; // 1. 导入我们的“地基”
+import PostCard from "../components/PostCard.astro"; // 2. 导入我们刚做的“卡片”
+
+// 查询 'src/content/blog/' 文件夹下的所有文章
+// 1. 过滤掉草稿 (draft: true)
+// 2. 按发布日期 (pubDate) 倒序排列
+const allPosts = await getCollection("blog", ({ data }) => {
+  return data.draft !== true;
+});
+
+const sortedPosts = allPosts.sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+
+// 我们只在首页显示最新的 3 篇
+const recentPosts = sortedPosts.slice(0, 3);
+
+const pageTitle = "首页";
+const pageDescription = "Pot 的个人博客，记录技术与生活。";
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<BaseLayout title={pageTitle} description={pageDescription}>
+  
+  <section class="py-16 md:py-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl md:text-6xl font-bold text-center mb-4">
+        欢迎来到 <span class="text-primary-500">Pot</span> 的博客
+      </h1>
+      <p class="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto">
+        {pageDescription}
+      </p>
+    </div>
+  </section>
+
+  <section class="pb-16 md:pb-24">
+    <div class="max-w-6xl mx-auto px-4">
+      
+      <h2 class="text-3xl font-bold mb-8">
+        最新文章
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        
+        {recentPosts.map(post => (
+          <PostCard post={post} />
+        ))}
+        
+      </div>
+
+      <div class="text-center mt-12">
+        <a 
+          href="/blog" 
+          class="inline-block bg-primary-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 hover:bg-primary-600 hover:shadow-xl"
+        >
+          查看所有文章 &rarr;
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>
