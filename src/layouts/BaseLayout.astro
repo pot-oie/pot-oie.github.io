@@ -26,4 +26,21 @@ const { title, description } = Astro.props;
 
     <Footer />
   </body>
+  
+  <script>
+    // Astro 使用 'astro:page-load' 事件来确保在页面导航后脚本依然生效
+    document.addEventListener('astro:page-load', () => {
+      const toggleBtn = document.getElementById('theme-toggle-btn');
+      
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          // 切换 <html> 标签上的 'dark' 类
+          const isDark = document.documentElement.classList.toggle('dark');
+          
+          // 将用户的选择保存到 localStorage
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+      }
+    });
+  </script>
 </html>

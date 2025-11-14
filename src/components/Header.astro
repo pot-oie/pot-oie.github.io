@@ -1,6 +1,7 @@
 ---
 // src/components/Header.astro
-// (这里您可以删除 HeaderLink.astro 的导入，因为这个模板未使用它)
+
+import { Icon } from 'astro-icon/components'
 ---
 <header class="border-b border-zinc-200 dark:border-zinc-800 py-4">
   <div class="max-w-6xl mx-auto px-4">
@@ -65,9 +66,17 @@
           </li>
         </ul>
 
-        <button class="w-8 h-8 rounded-full border border-zinc-300 dark:border-zinc-700 text-lg">
-          🌙
+        <button 
+          id="theme-toggle-btn"
+          class="w-8 h-8 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-lg transition-colors"
+        >
+          <Icon name="mingcute:sun-fill" class="w-5 h-5 text-zinc-800 dark:hidden" />
+          
+          <Icon name="mingcute:moon-fill" class="w-5 h-5 text-zinc-200 hidden dark:block" />
+
+          <span class="sr-only">切换主题</span>
         </button>
+        
       </div>
 
     </nav>
