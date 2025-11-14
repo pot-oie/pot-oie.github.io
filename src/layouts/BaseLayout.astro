@@ -26,13 +26,16 @@ const { title, description } = Astro.props;
 
     <Footer />
   </body>
-  
+
   <script>
-    // Astro 使用 'astro:page-load' 事件来确保在页面导航后脚本依然生效
-    document.addEventListener('astro:page-load', () => {
+    // 1. 将你的逻辑封装成一个函数
+    function setupThemeToggle() {
       const toggleBtn = document.getElementById('theme-toggle-btn');
       
       if (toggleBtn) {
+        // 检查是否已经添加了监听器，防止重复绑定
+        if (toggleBtn.dataset.listenerAttached) return;
+
         toggleBtn.addEventListener('click', () => {
           // 切换 <html> 标签上的 'dark' 类
           const isDark = document.documentElement.classList.toggle('dark');
@@ -40,7 +43,16 @@ const { title, description } = Astro.props;
           // 将用户的选择保存到 localStorage
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
+        
+        // 标记该按钮已处理
+        toggleBtn.dataset.listenerAttached = 'true';
       }
-    });
+    }
+
+    // 2. 立即运行一次，处理当前页面的加载
+    setupThemeToggle();
+    
+    // 3. 仍然监听 astro:page-load 事件，为未来的 View Transitions 做准备
+    document.addEventListener('astro:page-load', setupThemeToggle);
   </script>
 </html>

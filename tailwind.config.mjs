@@ -7,6 +7,8 @@ export default {
     './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
   ],
   
+  darkMode: 'class',
+
   // theme.extend 仍然是扩展调色板（如添加 'primary'）的推荐方式
   theme: {
     extend: {
