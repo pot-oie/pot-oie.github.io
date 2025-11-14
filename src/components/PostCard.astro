@@ -1,16 +1,13 @@
 ---
-import { Image } from "astro:assets"; // 使用 Astro 100% 优化的 <Image> 组件
-import { format } from "date-fns"; // 格式化日期
+// src/components/PostCard.astro
 
-// 我们期望从父组件（比如首页）那里接收一个 'post' 对象
-// 这个 'post' 对象是 Astro 从 'src/content/blog/' 中查询到的
+import { Image } from "astro:assets";
+import FormattedDate from "./FormattedDate.astro";
+
 export interface Props {
-  post: any; // 我们先用 'any'，后面再优化
+  post: any; // 先用 'any'，后面再优化
 }
 const { post } = Astro.props;
-
-// 格式化日期，例如 "Nov 14, 2025"
-const formattedDate = format(new Date(post.data.pubDate), "MMM dd, yyyy");
 ---
 
 <a 
@@ -31,11 +28,11 @@ const formattedDate = format(new Date(post.data.pubDate), "MMM dd, yyyy");
   <div class="p-6">
     
     <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-      {formattedDate}
+      <FormattedDate date={post.data.pubDate} />
     </p>
 
     <h3 class="text-2xl font-bold mb-3 text-zinc-900 dark:text-zinc-100 group-hover:text-primary-500 transition-colors">
-      {post.data.title}
+      {post.data.shortTitle}
     </h3>
 
     <p class="text-zinc-700 dark:text-zinc-300 line-clamp-3">

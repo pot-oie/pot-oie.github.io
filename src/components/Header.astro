@@ -1,5 +1,6 @@
 ---
 // src/components/Header.astro
+// (这里您可以删除 HeaderLink.astro 的导入，因为这个模板未使用它)
 ---
 <header class="border-b border-zinc-200 dark:border-zinc-800 py-4">
   <div class="max-w-6xl mx-auto px-4">
@@ -12,7 +13,8 @@
         Pot's Blog
       </a>
 
-      <div class="flex items-center space-x-6"> <ul class="flex gap-6">
+      <div class="flex items-center space-x-6">
+        <ul class="flex gap-6">
           <li>
             <a 
               href="/" 
@@ -23,10 +25,34 @@
           </li>
           <li>
             <a 
-              href="/blog" 
+              href="/category/技术笔记" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
-              博客
+              技术笔记
+            </a>
+          </li>
+          <li>
+            <a 
+              href="/category/生活随笔" 
+              class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
+            >
+              生活随笔
+            </a>
+          </li>
+           <li>
+            <a 
+              href="/category/观影记录" 
+              class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
+            >
+              观影记录
+            </a>
+          </li>
+           <li>
+            <a 
+              href="/category/最近在听" 
+              class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
+            >
+              最近在听
             </a>
           </li>
           <li>

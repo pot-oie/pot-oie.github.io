@@ -1,4 +1,6 @@
 ---
+// src/components/FormattedDate.astro
+
 interface Props {
 	date: Date;
 }
@@ -8,9 +10,9 @@ const { date } = Astro.props;
 
 <time datetime={date.toISOString()}>
 	{
-		date.toLocaleDateString('en-us', {
+		date.toLocaleDateString('zh-CN', {
 			year: 'numeric',
-			month: 'short',
+			month: 'long',
 			day: 'numeric',
 		})
 	}
