@@ -2,10 +2,11 @@
 import { getCollection } from "astro:content"; // 导入 Astro 的内容查询 API
 import BaseLayout from "../layouts/BaseLayout.astro"; // 1. 导入我们的“地基”
 import PostCard from "../components/PostCard.astro"; // 2. 导入我们刚做的“卡片”
+import MovieCard from "../components/MovieCard.astro";
+import MusicPlayer from "../components/MusicPlayer.astro";
 
 // 查询 'src/content/blog/' 文件夹下的所有文章
-// 1. 过滤掉草稿 (draft: true)
-// 2. 按发布日期 (pubDate) 倒序排列
+// 类型过滤后按发布日期倒序排列
 const allPosts = await getCollection("blog", ({ data }) => {
   return data.draft !== true;
 });
@@ -13,9 +14,16 @@ const allPosts = await getCollection("blog", ({ data }) => {
 const sortedPosts = allPosts.sort(
   (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
-
-// 我们只在首页显示最新的 3 篇
 const recentPosts = sortedPosts.slice(0, 3);
+
+// 查询 'src/content/movie/' 文件夹下的电影
+const moviePosts = await getCollection("movie", ({ data }) => {
+  return data.draft !== true;
+});
+// 按观影时间排序
+const recentMovies = moviePosts.sort(
+  (a, b) => new Date(b.data.viewingDate).valueOf() - new Date(a.data.viewingDate).valueOf()
+).slice(0, 5); // 首页显示最新的5个
 
 const pageTitle = "首页";
 const pageDescription = "Pot 的个人博客，记录技术与生活。";
@@ -52,12 +60,40 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
       <div class="text-center mt-12">
         <a 
           href="/blog" 
-          class="inline-block bg-primary-500 text-black font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 hover:bg-primary-600 hover:shadow-xl"
+          class="inline-block bg-primary-500 dark:bg-zinc-800 text-black dark:text-zinc-100 font-bold py-3 px-6 rounded-lg shadow-lg dark:shadow-md transition-all duration-300 hover:bg-primary-600 dark:hover:bg-zinc-700 hover:shadow-xl dark:hover:shadow-zinc-700/50"
         >
           查看所有文章 &rarr;
         </a>
       </div>
 
+    </div>
+  </section>
+
+  <section class="pb-16 md:pb-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-8">
+        最近在看
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {recentMovies.length > 0 ? (
+          recentMovies.map(movie => (
+            <MovieCard post={movie} />
+          ))
+        ) : (
+          <p class="text-zinc-500 dark:text-zinc-400 col-span-full">
+            还没有观影记录，稍后添加...
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-16 md:pb-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-8">
+        最近在听
+      </h2>
+      <MusicPlayer />
     </div>
   </section>
 

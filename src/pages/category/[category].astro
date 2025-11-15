@@ -26,14 +26,20 @@ export async function getStaticPaths() {
 	});
 }
 
-// 2. 获取传递过来的文章和分类名
+// 获取传递过来的文章和分类名
 const { category } = Astro.params;
 const { posts } = Astro.props;
 
-// 3. 按日期倒序排列
+// 按日期倒序排列
 const sortedPosts = posts.sort(
   (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
+
+// 简单的中英文映射（显示标题）
+const categoryNames: Record<string, string> = {
+    'Tech': '技术笔记',
+    'Life': '生活随笔',
+};
 
 const pageTitle = `分类：${category}`;
 const pageDescription = `关于“${category}”的所有文章`;

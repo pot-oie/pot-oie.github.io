@@ -2,11 +2,9 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 // 博客内容分类枚举
-const CATEGORIES = z.enum([
+const BLOG_CATEGORIES = z.enum([
 	'Tech', // 技术
 	'Life', // 生活
-	'Movie', // 电影
-	'Music', // 音乐
 ]);
 
 const blog = defineCollection({
@@ -26,11 +24,49 @@ const blog = defineCollection({
 			// 草稿过滤
 			draft: z.boolean().optional(),
 			// 分类
-			category: CATEGORIES,
+			category: BLOG_CATEGORIES,
 			// 标签
 			// 可能会用上，再分类
 			tags: z.array(z.string()).optional(),
 		}),
 });
 
-export const collections = { blog };
+// 电影集合
+const movie = defineCollection({
+    loader: glob({ base: './src/content/movie', pattern: '**/*.{md,mdx}' }),
+    schema: ({ image }) =>
+        z.object({
+            title: z.string(),
+			// 上映时间
+            releaseDate: z.coerce.date().optional(), 
+			// 观影时间 (用于排序)
+            viewingDate: z.coerce.date(), 
+			// 评分 0-5
+            rating: z.number().min(0).max(5),
+			// 海报
+            coverImage: image(), 
+			// 首页短评
+            shortReview: z.string(), 
+        }),
+});
+
+// 音乐集合
+const music = defineCollection({
+    loader: glob({ base: './src/content/music', pattern: '**/*.{md,mdx}' }),
+    schema: ({ image }) =>
+        z.object({
+            title: z.string(),
+            artist: z.string(),
+			// 封面图
+            coverImage: image(), 
+			// 日历上的日期
+            pubDate: z.coerce.date(), 
+            audioUrl: z.string().url().optional(), // 歌曲播放链接 (可选)
+        }),
+});
+
+export const collections = { 
+	blog, 
+	movie,
+	music 
+};

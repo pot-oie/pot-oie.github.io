@@ -28,14 +28,15 @@ const { title, description } = Astro.props;
   </body>
 
   <script>
-    // 1. 将你的逻辑封装成一个函数
     function setupThemeToggle() {
       const toggleBtn = document.getElementById('theme-toggle-btn');
       
       if (toggleBtn) {
-        // 检查是否已经添加了监听器，防止重复绑定
-        if (toggleBtn.dataset.listenerAttached) return;
-
+        // 检查是否已经绑定，防止 astro:page-load 重复绑定
+        if (toggleBtn.dataset.listenerAttached === 'true') {
+          return;
+        }
+        
         toggleBtn.addEventListener('click', () => {
           // 切换 <html> 标签上的 'dark' 类
           const isDark = document.documentElement.classList.toggle('dark');
@@ -49,10 +50,10 @@ const { title, description } = Astro.props;
       }
     }
 
-    // 2. 立即运行一次，处理当前页面的加载
-    setupThemeToggle();
+    // 在 DOM 加载完毕后运行，确保按钮存在 (首次加载)
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
     
-    // 3. 仍然监听 astro:page-load 事件，为未来的 View Transitions 做准备
+    // Astro 页面跳转时再次运行 (后续导航)
     document.addEventListener('astro:page-load', setupThemeToggle);
   </script>
 </html>

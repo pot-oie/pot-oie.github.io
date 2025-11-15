@@ -1,0 +1,98 @@
+---
+// src/components/MusicPlayer.astro
+
+import { Icon } from 'astro-icon/components';
+---
+
+<div class="flex flex-col items-center justify-center p-10 bg-gray-100 dark:bg-zinc-800 rounded-lg shadow-inner transition-colors duration-300">
+  <Icon name="fa-solid:record-vinyl" class="record-player text-8xl text-[#885f40] transition-transform duration-300" id="record-player-icon" />
+  
+  <p class="text-zinc-600 dark:text-zinc-400 mt-4 mb-6">点击播放我最近喜欢的歌</p>
+  
+  <button 
+    id="play-music-btn" 
+    class="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold shadow-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    aria-label="播放/暂停"
+  >
+    <Icon name="fa-solid:play" class="w-4 h-4 block" id="play-icon-play" />
+    <Icon name="fa-solid:pause" class="w-4 h-4 hidden" id="play-icon-pause" />
+    
+    <span id="play-text">播放</span>
+  </button>
+</div>
+
+<script>
+  import * as Tone from 'tone';
+  // 获取所有需要操作的 DOM 元素
+  const playBtn = document.getElementById('play-music-btn');
+  const recordIcon = document.getElementById('record-player-icon');
+  const playIcon = document.getElementById('play-icon-play');
+  const pauseIcon = document.getElementById('play-icon-pause');
+  const playText = document.getElementById('play-text');
+  
+  let isPlaying = false;
+  let synth: Tone.Synth | null = null; // 合成器实例
+
+  // 停止播放并重置UI的函数
+  const stopMusic = () => {
+    // 切换图标
+    playIcon?.classList.remove('hidden');
+    playIcon?.classList.add('block');
+    pauseIcon?.classList.remove('block');
+    pauseIcon?.classList.add('hidden');
+    
+    if (playText) playText.innerText = "播放";
+    recordIcon?.classList.remove('playing');
+    isPlaying = false;
+  };
+
+  // 按钮点击事件
+  playBtn?.addEventListener('click', async () => {
+    if (!isPlaying) {
+      try {
+        await Tone.start();
+        if (!synth) synth = new Tone.Synth().toDestination();
+
+        const now = Tone.now();
+        synth.triggerAttackRelease("C4", "8n", now);
+        synth.triggerAttackRelease("E4", "8n", now + 0.2);
+        synth.triggerAttackRelease("G4", "8n", now + 0.4);
+        
+        // 切换图标
+        playIcon?.classList.add('hidden');
+        playIcon?.classList.remove('block');
+        pauseIcon?.classList.add('block');
+        pauseIcon?.classList.remove('hidden');
+
+        if (playText) playText.innerText = "播放中...";
+        recordIcon?.classList.add('playing');
+        isPlaying = true;
+
+        // 模拟歌曲自动停止 (1秒后)
+        setTimeout(() => {
+           if (isPlaying) stopMusic(); // 仅在仍在播放时停止
+        }, 1000); 
+
+      } catch (err) {
+        console.error('Error starting Tone.js:', err);
+        stopMusic();
+      }
+    } else {
+      // 如果正在播放，点击则立即停止 (UI)
+      stopMusic();
+      // 立即停止 Tone.js 的声音
+      if (synth) {
+        synth.triggerRelease(Tone.now());
+      }
+    }
+  });
+
+  // 在页面卸载时销毁 Tone.js 实例以释放资源
+  window.addEventListener('beforeunload', () => {
+    if (synth) {
+      synth.dispose();
+      synth = null;
+    }
+    stopMusic(); // 确保UI重置
+  });
+</script>

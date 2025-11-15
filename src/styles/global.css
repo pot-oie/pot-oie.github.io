@@ -2,6 +2,8 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --accent: #2337ff;
 	--accent-dark: #000d8a;
@@ -141,4 +143,29 @@ hr {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* 留声机动画 */
+.record-player {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.record-player:hover {
+  transform: scale(1.05) rotate(2deg);
+  color: #a1704c;
+}
+.record-player.playing {
+  animation: spin 4s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 页面淡入动画 */
+main {
+  animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
