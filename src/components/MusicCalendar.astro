@@ -1,0 +1,338 @@
+---
+// src/components/MusicCalendar.astro
+import { getCollection } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+// 1. 获取所有音乐数据
+const allMusic = await getCollection('music');
+
+// 2. 将数据处理为客户端脚本易于使用的格式
+// 键为 'YYYY-MM-DD'，值为歌曲信息
+const musicMap: Record<string, { title: string; artist: string; coverSrc: string }> = {};
+
+for (const post of allMusic) {
+  // 确保日期是标准化的 YYYY-MM-DD 格式，不受时区影响
+  const y = post.data.pubDate.getFullYear();
+  const m = String(post.data.pubDate.getMonth() + 1).padStart(2, '0');
+  const d = String(post.data.pubDate.getDate()).padStart(2, '0');
+  const dateKey = `${y}-${m}-${d}`;
+  
+  musicMap[dateKey] = {
+    title: post.data.title,
+    artist: post.data.artist,
+    // coverImage.src 是由 Astro 处理过的优化后的图片路径
+    coverSrc: post.data.coverImage.src,
+  };
+}
+
+// 今天的日期，用于高亮
+const todayKey = new Date().toISOString().split('T')[0];
+---
+<div class="calendar-container">
+  
+  <div class="calendar-header">
+    <button id="cal-prev" aria-label="上个月">
+      <Icon name="mingcute:left-fill" class="w-5 h-5" />
+    </button>
+    <h3 id="cal-month-year" class="text-xl font-bold"></h3>
+    <button id="cal-next" aria-label="下个月">
+      <Icon name="mingcute:right-fill" class="w-5 h-5" />
+    </button>
+  </div>
+
+  <div class="calendar-days-header">
+    <div>日</div>
+    <div>一</div>
+    <div>二</div>
+    <div>三</div>
+    <div>四</div>
+    <div>五</div>
+    <div>六</div>
+  </div>
+
+  <div id="cal-grid" class="calendar-grid">
+    </div>
+
+</div>
+
+<div id="music-tooltip" class="music-tooltip" role="tooltip">
+  <img id="tooltip-img" src="" alt="Album cover" />
+  <div class="tooltip-content">
+    <h4 id="tooltip-title">Song Title</h4>
+    <p id="tooltip-artist">Artist</p>
+  </div>
+</div>
+
+<script id="music-data" type="application/json">
+  {JSON.stringify(musicMap)}
+</script>
+
+<style>
+  .calendar-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--astro-colors-zinc-800); /* 深色背景 */
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--box-shadow);
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--astro-colors-zinc-100);
+  }
+  .calendar-header button {
+    background: var(--astro-colors-zinc-700);
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .calendar-header button:hover {
+    background: var(--astro-colors-zinc-600);
+  }
+
+  .calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    color: var(--astro-colors-zinc-400);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .calendar-day {
+    position: relative;
+    aspect-ratio: 1 / 1; /* 保持方块 */
+    background: var(--astro-colors-zinc-900);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    color: var(--astro-colors-zinc-300);
+    font-size: 0.875rem;
+  }
+
+  .calendar-day.other-month {
+    color: var(--astro-colors-zinc-600);
+    background: var(--astro-colors-zinc-800);
+  }
+  
+  .calendar-day.is-today {
+    /* 高亮今天 */
+    background: var(--astro-colors-blue-900);
+    font-weight: bold;
+    color: var(--astro-colors-blue-200);
+  }
+
+  .calendar-day span {
+    display: block;
+    text-align: left;
+  }
+  
+  .calendar-day .music-icon {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    cursor: help; /* 提示可悬停 */
+    transition: transform 0.2s;
+  }
+  
+  .calendar-day.has-music:hover .music-icon {
+    transform: scale(1.2);
+  }
+
+  /* 浮窗样式 */
+  .music-tooltip {
+    position: fixed; /* 使用 fixed 定位 */
+    left: 0;
+    top: 0;
+    z-index: 50;
+    background: var(--astro-colors-zinc-800);
+    color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.4);
+    display: flex;
+    width: 280px;
+    overflow: hidden;
+    
+    /* 默认隐藏，由 JS 控制 */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.95);
+  }
+  
+  .music-tooltip.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+  
+  .music-tooltip img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .tooltip-content {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .tooltip-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 0.25rem 0;
+  }
+  .tooltip-content p {
+    font-size: 0.875rem;
+    color: var(--astro-colors-zinc-400);
+    margin: 0;
+  }
+</style>
+
+<script define:vars={{ todayKey }}>
+  function initMusicCalendar() {
+    // 1. 获取数据和 DOM 元素
+    const musicDataEl = document.getElementById('music-data');
+    const musicData = JSON.parse(musicDataEl.textContent);
+    
+    const prevBtn = document.getElementById('cal-prev');
+    const nextBtn = document.getElementById('cal-next');
+    const monthYearEl = document.getElementById('cal-month-year');
+    const gridEl = document.getElementById('cal-grid');
+    
+    const tooltip = document.getElementById('music-tooltip');
+    const tooltipImg = document.getElementById('tooltip-img');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipArtist = document.getElementById('tooltip-artist');
+
+    // 检查是否已初始化，防止 astro:page-load 重复执行
+    if (gridEl.dataset.initialized === 'true') {
+      return;
+    }
+    gridEl.dataset.initialized = 'true';
+
+    // 默认显示今天的日期所在的月份
+    // 注意：JS 的 Date() 月份是从 0 开始的
+    let currentDate = new Date();
+
+    function renderCalendar(date) {
+      gridEl.innerHTML = ''; // 清空网格
+      
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-11
+      
+      // 更新头部
+      monthYearEl.textContent = `${year}年 ${month + 1}月`;
+      
+      // 计算当月的第一天是星期几 (0=周日, 1=周一...)
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      // 计算当月的总天数
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      // 1. 填充上个月的尾巴 (空白格子)
+      for (let i = 0; i < firstDayOfMonth; i++) {
+        const dayEl = document.createElement('div');
+        dayEl.classList.add('calendar-day', 'other-month');
+        gridEl.appendChild(dayEl);
+      }
+      
+      // 2. 填充当月的所有天
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement('div');
+        dayEl.classList.add('calendar-day');
+        
+        const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // 高亮今天
+        if (dayKey === todayKey) {
+          dayEl.classList.add('is-today');
+        }
+        
+        // 检查这一天是否有音乐
+        const song = musicData[dayKey];
+        if (song) {
+          dayEl.classList.add('has-music');
+          dayEl.dataset.date = dayKey; // 存储日期键
+          dayEl.innerHTML = `<span>${day}</span><div class="music-icon">🎧</div>`;
+        } else {
+          dayEl.innerHTML = `<span>${day}</span>`;
+        }
+        
+        gridEl.appendChild(dayEl);
+      }
+    }
+    
+    // 3. 事件监听
+    
+    // 月份切换
+    prevBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar(currentDate);
+    });
+    
+    // 浮窗逻辑 (使用事件委托)
+    gridEl.addEventListener('mouseover', (e) => {
+      const musicDay = e.target.closest('.has-music');
+      if (!musicDay) return;
+      
+      const song = musicData[musicDay.dataset.date];
+      if (!song) return;
+      
+      // 填充浮窗内容
+      tooltipImg.src = song.coverSrc;
+      tooltipTitle.textContent = song.title;
+      tooltipArtist.textContent = song.artist;
+      
+      // 定位浮窗 (在鼠标指针右下方)
+      const offset = 10;
+      tooltip.style.left = `${e.pageX + offset}px`;
+      tooltip.style.top = `${e.pageY + offset}px`;
+      
+      tooltip.classList.add('is-visible');
+    });
+    
+    gridEl.addEventListener('mouseout', (e) => {
+      if (e.target.closest('.has-music')) {
+        tooltip.classList.remove('is-visible');
+      }
+    });
+
+    // 您的需求：点击后播放（先不实现功能）
+    gridEl.addEventListener('click', (e) => {
+      const musicDay = e.target.closest('.has-music');
+      if (!musicDay) return;
+      
+      const song = musicData[musicDay.dataset.date];
+      console.log(`[播放逻辑] 准备播放: ${song.title} - ${song.artist}`);
+      // (此处未来可以实现播放器逻辑)
+      alert(`准备播放: ${song.title}\n(播放功能待实现)`);
+    });
+    
+    // 4. 初始渲染
+    renderCalendar(currentDate);
+  }
+
+  // Astro 页面生命周期
+  document.addEventListener('DOMContentLoaded', initMusicCalendar);
+  document.addEventListener('astro:page-load', initMusicCalendar);
+</script>

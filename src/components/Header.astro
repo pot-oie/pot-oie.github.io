@@ -2,6 +2,7 @@
 // src/components/Header.astro
 
 import { Icon } from 'astro-icon/components'
+import HeaderLink from './HeaderLink.astro';
 ---
 <header class="border-b border-zinc-200 dark:border-zinc-800 py-4">
   <div class="max-w-6xl mx-auto px-4">
@@ -17,52 +18,52 @@ import { Icon } from 'astro-icon/components'
       <div class="flex items-center space-x-6">
         <ul class="flex gap-6">
           <li>
-            <a 
+            <HeaderLink
               href="/" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               首页
-            </a>
+            </HeaderLink>
           </li>
           <li>
-            <a 
+            <HeaderLink
               href="/category/tech" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               技术笔记
-            </a>
+            </HeaderLink>
           </li>
           <li>
-            <a 
+            <HeaderLink
               href="/category/life" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               生活随笔
-            </a>
+            </HeaderLink>
           </li>
            <li>
-            <a 
-              href="/category/movie" 
+            <HeaderLink
+              href="/movie" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               观影记录
-            </a>
+            </HeaderLink>
           </li>
            <li>
-            <a 
-              href="/category/music" 
+            <HeaderLink
+              href="/music" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               最近在听
-            </a>
+            </HeaderLink>
           </li>
           <li>
-            <a 
+            <HeaderLink
               href="/about" 
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               关于
-            </a>
+            </HeaderLink>
           </li>
         </ul>
 

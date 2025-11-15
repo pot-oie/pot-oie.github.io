@@ -1,0 +1,98 @@
+---
+// src/pages/movie/index.astro
+
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import { Icon } from 'astro-icon/components';
+import FormattedDate from '../../components/FormattedDate.astro';
+
+const pageTitle = "观影记录";
+const pageDescription = "我看过的所有电影列表。";
+
+// 1. 获取所有电影
+const moviePosts = await getCollection('movie');
+// 2. 按观看日期排序
+const sortedMovies = moviePosts.sort(
+  (a, b) => new Date(b.data.viewingDate).valueOf() - new Date(a.data.viewingDate).valueOf()
+);
+
+// 3. 复用星级评分逻辑
+function generateStars(rating: number) {
+  const totalStars = 5;
+  const stars = [];
+  for (let i = 1; i <= totalStars; i++) {
+    if (rating >= i) stars.push('mingcute:star-fill');
+    else if (rating >= i - 0.5) stars.push('mingcute:star-half-fill');
+    else stars.push('mingcute:star-line');
+  }
+  return stars;
+}
+---
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <section class="py-16 md:py-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold mb-4">{pageTitle}</h1>
+      <p class="text-xl text-zinc-600 dark:text-zinc-400 mb-12">{pageDescription}</p>
+
+      <ul class="space-y-12">
+        {sortedMovies.map(post => {
+          // 准备数据
+          const slug = post.id.replace(/\.mdx?$/, '');
+          const starIcons = generateStars(post.data.rating);
+          return (
+            <li class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+              
+              <a href={`/movie/${slug}/`} class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
+                {post.data.coverImage && (
+                  <Image
+                    src={post.data.coverImage}
+                    alt={post.data.title}
+                    width={400}
+                    height={600}
+                    format="webp"
+                    class="w-full h-auto aspect-2/3 object-cover rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+                  />
+                )}
+              </a>
+              
+              <div class="grow">
+                <a href={`/movie/${slug}/`}>
+                  <h2 class="text-3xl font-bold mb-2 text-zinc-900 dark:text-zinc-100 hover:text-primary-500 transition-colors">
+                    {post.data.title}
+                  </h2>
+                </a>
+
+                <div class="flex items-center text-yellow-400 mb-3">
+                  {starIcons.map(iconName => (
+                    <Icon name={iconName} class="w-5 h-5" />
+                  ))}
+                  <span class="ml-2 text-lg text-zinc-700 dark:text-zinc-300">{post.data.rating.toFixed(1)}</span>
+                </div>
+
+                <div class="text-sm text-zinc-500 dark:text-zinc-400 space-y-1 mb-4">
+                  <p>
+                    <strong>观看于:</strong> <FormattedDate date={post.data.viewingDate} />
+                  </p>
+                  {post.data.releaseDate && (
+                    <p>
+                      <strong>上映于:</strong> <FormattedDate date={post.data.releaseDate} />
+                    </p>
+                  )}
+                </div>
+
+                <p class="text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                  {post.data.shortReview}
+                </p>
+                
+                <a href={`/movie/${slug}/`} class="inline-block mt-4 text-primary-500 hover:underline">
+                  阅读长评 &rarr;
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

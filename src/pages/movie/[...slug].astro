@@ -1,0 +1,25 @@
+---
+// src/pages/movie/[...slug].astro
+
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import MoviePost from '../../layouts/MoviePost.astro';
+
+// 1. 生成所有电影页面
+export async function getStaticPaths() {
+  const posts = await getCollection('movie');
+  return posts.map((post) => ({
+    // 移除 .mdx 后缀，匹配 MovieCard 和 MovieDeck 中的链接
+    params: { slug: post.id.replace(/\.mdx?$/, '') }, 
+    props: post,
+  }));
+}
+
+type Props = CollectionEntry<'movie'>;
+
+const post = Astro.props;
+const { Content } = await render(post);
+---
+
+<MoviePost {...post.data}>
+  <Content />
+</MoviePost>

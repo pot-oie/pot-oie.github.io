@@ -13,6 +13,7 @@
     "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
     "@iconify-json/fa-solid": "^1.2.2",
+    "@iconify-json/tabler": "^1.2.23",
     "@lucide/astro": "^0.553.0",
     "@tailwindcss/vite": "^4.1.17",
     "astro": "^5.15.6",

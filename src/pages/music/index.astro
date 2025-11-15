@@ -1,0 +1,23 @@
+---
+// src/pages/music/index.astro
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MusicCalendar from '../../components/MusicCalendar.astro';
+
+const pageTitle = "最近在听";
+const pageDescription = "我的音乐日历。";
+---
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <section class="py-16 md:py-24">
+    <div class="max-w-6xl mx-auto px-4">
+      
+      <h1 class="text-4xl font-bold mb-4">{pageTitle}</h1>
+      <p class="text-xl text-zinc-600 dark:text-zinc-400 mb-12">
+        {pageDescription}
+      </p>
+
+      <MusicCalendar />
+
+    </div>
+  </section>
+</BaseLayout>

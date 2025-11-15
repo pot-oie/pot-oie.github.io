@@ -1,0 +1,66 @@
+---
+// src/components/MovieDeck.astro
+
+import { Image } from "astro:assets";
+import type { CollectionEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  posts: CollectionEntry<'movie'>[];
+}
+const { posts } = Astro.props;
+
+function generateStars(rating: number) {
+  const totalStars = 5;
+  const stars = [];
+  for (let i = 1; i <= totalStars; i++) {
+    if (rating >= i) stars.push('mingcute:star-fill');
+    else if (rating >= i - 0.5) stars.push('mingcute:star-half-fill');
+    else stars.push('mingcute:star-line');
+  }
+  return stars;
+}
+---
+
+<div class="movie-deck-container">
+  <ul class="movie-deck">
+    {posts.map((post, index) => {
+      const slug = post.id.replace(/\.mdx?$/, '');
+      const starIcons = generateStars(post.data.rating);
+      
+      // 只显示 5 张卡片，索引限制在 0-4
+      const cardIndex = index; 
+
+      return (
+        <li 
+          class="movie-deck-card" 
+          style={`--i: ${cardIndex}`}
+        >
+          <a href={`/movie/${slug}/`}>
+            {post.data.coverImage && (
+              <Image
+                src={post.data.coverImage}
+                alt={post.data.title}
+                width={400}
+                height={600}
+                format="webp"
+                class="w-full h-full object-cover"
+              />
+            )}
+            
+            <div class="card-content">
+              <h4 class="card-title line-clamp-2">{post.data.title}</h4>
+              <div class="card-rating text-yellow-400">
+                {starIcons.map(iconName => (
+                  <Icon name={iconName} class="w-4 h-4" />
+                ))}
+                <span class="ml-1.5 text-sm text-white">{post.data.rating.toFixed(1)}</span>
+              </div>
+              <p class="text-zinc-300 text-sm mt-1 line-clamp-3">{post.data.shortReview}</p>
+            </div>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</div>

@@ -43,7 +43,7 @@ body {
 	line-height: 1.7;
 }
 main {
-	width: 720px;
+	width: 1080px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 1em;
@@ -168,4 +168,93 @@ main {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* 扑克牌布局样式 */
+.movie-deck-container {
+  position: relative;
+  width: 100%;
+  /* 高度设为 450px 以容纳卡片 */
+  height: 450px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  overflow: hidden; /* 防止悬停放大时溢出容器 */
+}
+.movie-deck {
+  position: relative;
+  width: 250px; /* 扑克牌重叠区域的宽度 */
+  height: 100%;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.movie-deck-card {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform-origin: bottom center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  aspect-ratio: 2 / 3;
+  width: 200px; /* 卡片宽度 */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  
+  /* 使用 calc 和 var(--i) 来计算每张卡片的旋转和位移
+     5 张卡片 (索引 0-4)，让中间的 (index 2) 保持直立
+  */
+  --angle: calc((var(--i) - 2) * 12deg); /* 每张卡片旋转 12 度 */
+  --translate-x: calc((var(--i) - 2) * 35%); /* 每张卡片水平移动 35% */
+  /* 使用 abs() 让两边的卡片稍微下沉，形成弧形 */
+  --translate-y: calc(abs(var(--i) - 2) * 8%); 
+  
+  transform: translateX(calc(-50% + var(--translate-x))) translateY(var(--translate-y)) rotate(var(--angle));
+}
+.movie-deck-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* 悬停效果: 容器 */
+.movie-deck-container:hover .movie-deck-card {
+  /* 鼠标悬停在父容器上时，所有卡片稍微散开 */
+  --angle: calc((var(--i) - 2) * 14deg);
+  --translate-x: calc((var(--i) - 2) * 45%);
+  transform: translateX(calc(-50% + var(--translate-x))) translateY(var(--translate-y)) rotate(var(--angle));
+}
+/* 悬停效果: 单张卡片 */
+.movie-deck-container .movie-deck-card:hover {
+  /* 鼠标悬停在特定卡片上时，将其突出显示 */
+  transform: translateX(-50%) translateY(-15%) rotate(0deg) scale(1.1);
+  z-index: 10;
+}
+/* 悬停时显示的内容 (类似 MovieCard) */
+.movie-deck-card .card-content {
+  position: absolute;
+  inset: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: white;
+  border-radius: 8px; /* 确保遮罩也是圆角 */
+}
+.movie-deck-card:hover .card-content {
+  opacity: 1;
+}
+.movie-deck-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.movie-deck-card .card-rating {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
 }

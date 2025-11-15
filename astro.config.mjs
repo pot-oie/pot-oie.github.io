@@ -14,4 +14,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+
+  // icon 配置
+  // mingcute, fa-solid
 });
