@@ -1,0 +1,29 @@
+---
+// src/components/BlogRowCard.astro
+import FormattedDate from "./FormattedDate.astro";
+import type { CollectionEntry } from "astro:content";
+
+export interface Props {
+  post: CollectionEntry<'blog'>;
+}
+const { post } = Astro.props;
+// 从 post.id (如 "tech-first-post.mdx") 中提取 slug
+const slug = post.id.replace(/\.mdx?$/, '');
+---
+
+<a 
+  href={`/blog/${slug}/`}
+  class="group block p-6 bg-white dark:bg-zinc-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg dark:hover:shadow-zinc-700/50 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+>
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+    <h3 class="text-2xl font-bold mb-2 sm:mb-0 text-zinc-900 dark:text-zinc-100 group-hover:text-primary-500 transition-colors">
+      {post.data.shortTitle || post.data.title}
+    </h3>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">
+      <FormattedDate date={post.data.pubDate} />
+    </p>
+  </div>
+  <p class="text-zinc-700 dark:text-zinc-300 mt-3 line-clamp-2">
+    {post.data.description || "这篇文章没有摘要..."}
+  </p>
+</a>

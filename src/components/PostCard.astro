@@ -8,10 +8,11 @@ export interface Props {
   post: any; // 先用 'any'，后面再优化
 }
 const { post } = Astro.props;
+const slug = post.id.replace(/\.mdx?$/, '');
 ---
 
 <a 
-  href={`/blog/${post.slug}/`}
+  href={`/blog/${slug}/`}
   class="group block rounded-lg overflow-hidden shadow-md bg-white dark:bg-zinc-800 transition-all duration-300 hover:shadow-xl dark:hover:shadow-zinc-700/50"
 >
   {post.data.image && (

@@ -18,10 +18,8 @@ const sortedPosts = allPosts.sort(
 );
 const recentPosts = sortedPosts.slice(0, 3);
 
-// 查询 'src/content/movie/' 文件夹下的电影
-const moviePosts = await getCollection("movie", ({ data }) => {
-  return ;
-});
+// 查询 'src/content/movie/' 文件夹下的所有电影
+const moviePosts = await getCollection("movie");
 // 按观影时间排序
 const recentMovies = moviePosts.sort(
   (a, b) => new Date(b.data.viewingDate).valueOf() - new Date(a.data.viewingDate).valueOf()
@@ -74,17 +72,18 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
   <section class="pb-16 md:pb-24">
     <div class="max-w-6xl mx-auto px-4">
 
-      <h2 class="text-3xl font-bold mb-8">
-        最近在看
-      </h2>
-
-      <button
-          id="movie-view-toggle"
-          aria-label="切换视图"
-          class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-        >
-          <Icon name="tabler:layout-grid" class="w-6 h-6" id="movie-icon-grid" />
-          <Icon name="tabler:play-card-q" class="w-6 h-6 hidden" id="movie-icon-deck" />
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">
+          最近在看
+        </h2>
+        
+        <button
+            id="movie-view-toggle"
+            aria-label="切换视图"
+            class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          >
+          <Icon name="tabler:layout-grid" class="w-7 h-7" id="movie-icon-grid" />
+          <Icon name="tabler:play-card-q" class="w-7 h-7 hidden" id="movie-icon-deck" />
         </button>
       </div>
 
@@ -104,7 +103,9 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
       <div id="movie-deck-view" class="hidden">
         {recentMovies.length > 0 ?
           (
-            <MovieDeck posts={recentMovies} />
+            <div class="movie-deck-wrapper flex justify-center py-8">
+               <MovieDeck posts={recentMovies} />
+            </div>
           ) : (
              <p class="text-zinc-500 dark:text-zinc-400 text-center py-16">
               还没有观影记录，稍后添加...
@@ -116,7 +117,7 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
   </section>
 
   <section class="pb-16 md:pb-24">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-2xl mx-auto px-4">
       <h2 class="text-3xl font-bold mb-8">
         最近在听
       </h2>
@@ -146,12 +147,12 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
 
     toggleBtn.addEventListener('click', () => {
       // 切换视图的 hidden 属性
-      const isGridView = gridView.classList.toggle('hidden');
-      deckView.classList.toggle('hidden', !isGridView);
+      const isGridNowHidden = gridView.classList.toggle('hidden');
+      deckView.classList.toggle('hidden', !isGridNowHidden);
 
       // 切换按钮图标的 hidden 属性
-      gridIcon.classList.toggle('hidden', !isGridView);
-      deckIcon.classList.toggle('hidden', isGridView);
+      gridIcon.classList.toggle('hidden', isGridNowHidden);
+      deckIcon.classList.toggle('hidden', !isGridNowHidden);
     });
   }
 

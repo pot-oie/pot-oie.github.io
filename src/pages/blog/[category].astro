@@ -1,24 +1,22 @@
 ---
-// src/pages/category/[category].astro
+// src/pages/blog/[category].astro
 
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
-
+import BlogRowCard from '../../components/BlogRowCard.astro';
 // 告诉 Astro 要生成哪些页面
 export async function getStaticPaths() {
 	const allPosts = await getCollection('blog');
 	
-	// 获取所有唯一的分类
-	const uniqueCategories = [...new Set(allPosts.map((post) => post.data.category))];
-
-	// 为每个分类生成一个页面
+	// 获取所有唯一的分类并转为小写
+	const uniqueCategories = [...new Set(allPosts.map((post) => post.data.category.toLowerCase()))];
+// 为每个分类生成一个页面
 	return uniqueCategories.map((category) => {
-		// 筛选出这个分类下的所有文章
-		const filteredPosts = allPosts.filter((post) => post.data.category === category);
+		// 筛选时也使用小写进行比较
+		const filteredPosts = allPosts.filter((post) => post.data.category.toLowerCase() === category);
 		
 		return {
-			params: { category: category }, // 对应文件名 [category].astro
+			params: { category: category }, // 对应文件名 [category].astro (已是小写)
 			props: {
 				posts: filteredPosts, // 将该分类的文章传递给页面
 			},
@@ -27,22 +25,19 @@ export async function getStaticPaths() {
 }
 
 // 获取传递过来的文章和分类名
-const { category } = Astro.params;
+const { category } = Astro.params; // category 会是 "tech" 或 "life"
 const { posts } = Astro.props;
-
 // 按日期倒序排列
 const sortedPosts = posts.sort(
   (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
-
-// 简单的中英文映射（显示标题）
+// 中英文映射
 const categoryNames: Record<string, string> = {
-    'Tech': '技术笔记',
-    'Life': '生活随笔',
+    'tech': '技术笔记',
+    'life': '生活随笔',
 };
-
-const pageTitle = `分类：${category}`;
-const pageDescription = `关于“${category}”的所有文章`;
+const pageTitle = `分类：${categoryNames[category] || category}`;
+const pageDescription = `关于“${categoryNames[category] || category}”的所有文章`;
 ---
 <BaseLayout title={pageTitle} description={pageDescription}>
 	<section class="py-16 md:py-24">
@@ -55,10 +50,10 @@ const pageDescription = `关于“${category}”的所有文章`;
 				{pageDescription}
 			</p>
 			
-			<div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+			<div class="mt-12 flex flex-col gap-6">
 				
 				{sortedPosts.map(post => (
-					<PostCard post={post} />
+					<BlogRowCard post={post} />
 				))}
 				
 			</div>

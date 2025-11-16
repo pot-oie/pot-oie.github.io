@@ -16,5 +16,5 @@ export default defineConfig({
   },
 
   // icon 配置
-  // mingcute, fa-solid
+  // mingcute, fa-solid, fa-regular
 });

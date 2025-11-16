@@ -1,5 +1,4 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
@@ -8,7 +7,6 @@ const BLOG_CATEGORIES = z.enum([
 ]);
 
 const blog = defineCollection({
-	loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),
@@ -33,7 +31,6 @@ const blog = defineCollection({
 
 // 电影集合
 const movie = defineCollection({
-    loader: glob({ base: './src/content/movie', pattern: '**/*.{md,mdx}' }),
     schema: ({ image }) =>
         z.object({
             title: z.string(),
@@ -52,7 +49,6 @@ const movie = defineCollection({
 
 // 音乐集合
 const music = defineCollection({
-    loader: glob({ base: './src/content/music', pattern: '**/*.{md,mdx}' }),
     schema: ({ image }) =>
         z.object({
             title: z.string(),

@@ -43,7 +43,7 @@ body {
 	line-height: 1.7;
 }
 main {
-	width: 1080px;
+	width: 720px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 1em;
@@ -174,44 +174,59 @@ main {
 .movie-deck-container {
   position: relative;
   width: 100%;
-  /* 高度设为 450px 以容纳卡片 */
-  height: 450px; 
+  height: 360px; 
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-  overflow: hidden; /* 防止悬停放大时溢出容器 */
+  align-items: flex-end;
+  padding-bottom: 20px;
 }
 .movie-deck {
-  position: relative;
-  width: 250px; /* 扑克牌重叠区域的宽度 */
-  height: 100%;
+  position: absolute;
+  bottom: 0;
   list-style-type: none;
   padding: 0;
   margin: 0;
+  display: flex; /* 让卡片在 flex 容器中排列，方便计算 */
+  justify-content: center;
+  align-items: flex-end;
+  /* 动态宽度，根据卡片数量调整 */
+  width: auto; 
+  height: 300px; /* 单个卡片的高度 */
 }
 .movie-deck-card {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform-origin: bottom center;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: absolute; /* 绝对定位，以便进行精确的 transform */
   aspect-ratio: 2 / 3;
   width: 200px; /* 卡片宽度 */
+  height: 300px; /* 卡片高度 */
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  
-  /* 使用 calc 和 var(--i) 来计算每张卡片的旋转和位移
-     5 张卡片 (索引 0-4)，让中间的 (index 2) 保持直立
-  */
-  --angle: calc((var(--i) - 2) * 12deg); /* 每张卡片旋转 12 度 */
-  --translate-x: calc((var(--i) - 2) * 35%); /* 每张卡片水平移动 35% */
-  /* 使用 abs() 让两边的卡片稍微下沉，形成弧形 */
-  --translate-y: calc(abs(var(--i) - 2) * 8%); 
-  
-  transform: translateX(calc(-50% + var(--translate-x))) translateY(var(--translate-y)) rotate(var(--angle));
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  transform-origin: bottom center; /* 旋转和缩放的中心点在底部 */
+
+  /* ------ 核心变化：扇形展开的计算逻辑 ------ */
+  /* --total-cards: 由 JS 动态注入，表示卡片总数 */
+  /* --i: 由 JS 动态注入，表示当前卡片的索引 (0-based) */
+
+  /* 基础旋转角度：从左侧负角度到右侧正角度 */
+  --base-angle: -15deg; /* 最左侧卡片的起始角度 */
+  --angle-step: 6deg; /* 每张卡片之间的角度增量 */
+  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
+
+  /* 水平位移：向外散开 */
+  --base-x-offset: -120px; /* 最左侧卡片的起始 X 偏移 */
+  --x-step: 60px; /* 每张卡片之间的 X 偏移增量 */
+  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
+
+  /* 垂直位移：让卡片底部对齐，并防止它们在展开时向上“跳动” */
+  --y-translation: 0px; 
+
+  /* 初始状态：扇形展开并稍微向上抬起 */
+  transform: 
+    translateX(var(--x-translation)) 
+    translateY(var(--y-translation)) 
+    rotate(var(--rotation));
 }
 .movie-deck-card img {
   width: 100%;
@@ -220,16 +235,30 @@ main {
 }
 /* 悬停效果: 容器 */
 .movie-deck-container:hover .movie-deck-card {
-  /* 鼠标悬停在父容器上时，所有卡片稍微散开 */
-  --angle: calc((var(--i) - 2) * 14deg);
-  --translate-x: calc((var(--i) - 2) * 45%);
-  transform: translateX(calc(-50% + var(--translate-x))) translateY(var(--translate-y)) rotate(var(--angle));
+  /* 当鼠标悬停在容器上时，所有卡片稍微散开更多 */
+  --base-angle: -20deg; /* 散开更多，起始角度更负 */
+  --angle-step: 10deg; /* 每张卡片之间的角度增量更大 */
+  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
+
+  --base-x-offset: -180px; /* 散开更多，起始 X 偏移更大 */
+  --x-step: 90px; /* 每张卡片之间的 X 偏移增量更大 */
+  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
+  
+  transform: 
+    translateX(var(--x-translation)) 
+    translateY(var(--y-translation)) 
+    rotate(var(--rotation));
 }
 /* 悬停效果: 单张卡片 */
 .movie-deck-container .movie-deck-card:hover {
-  /* 鼠标悬停在特定卡片上时，将其突出显示 */
-  transform: translateX(-50%) translateY(-15%) rotate(0deg) scale(1.1);
+  /* 鼠标悬停在特定卡片上时，将其抬起、居中并放大 */
+  transform: 
+    translateX(0) /* 居中 */
+    translateY(-60px) /* 抬高 */
+    rotate(0deg) /* 变正 */
+    scale(1.15); /* 放大 */
   z-index: 10;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 /* 悬停时显示的内容 (类似 MovieCard) */
 .movie-deck-card .card-content {
