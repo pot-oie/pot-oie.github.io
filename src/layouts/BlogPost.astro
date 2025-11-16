@@ -108,11 +108,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     }
   }
 
-  function initCopyCodeButtons() {
-    if (document.body.dataset.copyButtonsInitialized === 'true') {
-      return;
-    }
-    document.body.dataset.copyButtonsInitialized = 'true';
+  function initCodeBlockFeatures() {
+    // 防止重复初始化
+    if (document.body.dataset.codeFeaturesInitialized === 'true') return;
+    document.body.dataset.codeFeaturesInitialized = 'true';
 
     const allCodeBlocks = document.querySelectorAll('pre.astro-code');
     
@@ -126,21 +125,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
       // 创建复制按钮
       const copyButton = document.createElement('button');
-      copyButton.className = 'copy-btn';
-      
-      // 添加图标
-      const copyIcon = document.createElement('span');
-      copyIcon.className = 'mingcute--copy-line'; 
-      copyButton.appendChild(copyIcon);
+      copyButton.className = 'astro-code-icon-base astro-code-icon-btn copy-btn';
+      copyButton.innerHTML = '<span class="mingcute--copy-line"></span>';
 
       // 创建成功提示
       const successMessage = document.createElement('span');
-      successMessage.className = 'copy-success';
-
-	  // 添加图标
-	  const checkIcon = document.createElement('span');
-      checkIcon.className = 'mingcute--check-fill';
-      successMessage.appendChild(checkIcon);
+      successMessage.className = 'astro-code-icon-base copy-success';
+      successMessage.innerHTML = '<span class="mingcute--check-fill"></span>';
 
       // 添加到 DOM
       pre.appendChild(copyButton);
@@ -151,12 +142,11 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
         const codeElement = pre.querySelector('code');
         if (!codeElement) return;
 
-		// 重构文本获取方式，避免多余空行
+        // 重构文本获取方式，避免多余空行
         const allLines = codeElement.querySelectorAll('.line');
         let codeToCopy;
-        
+          
         if (allLines.length > 0) {
-			
           // 如果有 .line 元素 (Shiki)，则手动拼接
           codeToCopy = Array.from(allLines)
                             .map(line => line.textContent || '')
@@ -166,29 +156,68 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
           codeToCopy = codeElement.innerText || '';
         }
 
-		navigator.clipboard.writeText(codeToCopy).then(() => {
+        navigator.clipboard.writeText(codeToCopy).then(() => {
           successMessage.classList.add('show');
           copyButton.style.display = 'none';
-          
+            
           setTimeout(() => {
             successMessage.classList.remove('show');
-            copyButton.style.display = 'inline-block';
+            copyButton.style.display = 'flex';
           }, 2000);
         }).catch(err => {
           console.error('Failed to copy text: ', err);
           alert('复制失败!');
         });
       });
+
+      // 折叠功能
+      // 获取所有行元素 (Shiki 生成的 .line)
+      const lines = pre.querySelectorAll('.line');
+      // 阈值：12行
+      const LINE_THRESHOLD = 12;
+
+      if (lines.length > LINE_THRESHOLD) {
+        // 1. 只有超过 12 行才进行折叠处理
+        pre.classList.add('collapsed');
+
+        // 2. 创建切换按钮
+        const toggleBtn = document.createElement('button');
+        // 应用基类 + 按钮基类 + 具体的定位类(toggle-btn)
+        toggleBtn.className = 'astro-code-icon-base astro-code-icon-btn toggle-btn';
+        
+        // 3. 创建图标元素 (默认显示“向下/展开”)
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'mingcute--down-fill';
+        toggleBtn.appendChild(iconSpan);
+
+        // 4. 添加到 DOM
+        pre.appendChild(toggleBtn);
+
+        // 5. 绑定点击事件
+        toggleBtn.addEventListener('click', () => {
+          // 切换 collapsed 类
+          const isCollapsed = pre.classList.toggle('collapsed');
+
+          if (isCollapsed) {
+            // 变成了折叠状态 -> 显示“向下”箭头
+            iconSpan.className = 'mingcute--down-fill';
+            // 可选：折叠后如果你想让页面滚动回代码块顶部，可以加这一行
+            // pre.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else {
+            // 变成了展开状态 -> 显示“向上”箭头
+            iconSpan.className = 'mingcute--up-fill';
+          }
+        });
+      }
     });
   }
-
   // 页面加载生命周期
   document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
-    initCopyCodeButtons();
+    initCodeBlockFeatures();
   });
   document.addEventListener('astro:page-load', () => {
     setupThemeToggle();
-    initCopyCodeButtons();
+    initCodeBlockFeatures();
   });
 </script>

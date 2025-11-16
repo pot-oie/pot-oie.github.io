@@ -1,26 +1,58 @@
 ---
-title: '文章内嵌代码块-MacOs Style'
-shortTitle: 'MacOs 代码块'
-description: '探索如何使用 CSS 实现类似 MacOs 代码块的视觉效果。'
+title: '文章内嵌代码块-macOS Style'
+shortTitle: 'macOS 代码块'
+description: '探索如何使用 CSS 实现类似 macOS 代码块的视觉效果。'
 pubDate: '11 16 2025'
 # heroImage: '../../assets/blog-placeholder-1.jpg'
 category: 'Tech'
 tags: ["CSS"]
 ---
 
-> 作为开发者，经常需要在博客文章中展示代码片段。
+> 如果我要持续技术学习类的文章写作，将在文章中放置大量代码。
 >
-> 一个好的代码块样式不仅能提升阅读体验，还能让代码看起来更专业和美观。
+> 但是 Astro 默认的代码块样式（Shiki）不够美观，且缺少功能性。
 >
-> 我自己尝试实现了类似 MacOs 代码块的视觉效果，分享给大家。
+> 在此尝试实现了类 macOS 的视觉效果，并添加多种功能。
+>
+> 就以此作为个人博客的第一篇学习文章吧！
 
-在实现美化代码块的同时添加了行号&语言类型显示和复制代码功能：
+## 功能实现
+
+* 模拟 macOS 窗口栏
+
+* 语言类型提示
+
+* 复制按钮（手动去除 div 块带来的回车，实现紧密复制）
+
+* 下拉 / 收起代码块（已调整至合适视图）
+
+* 一定程度的抽象封装
 
 需要注意的是，Astro v5 之后代码块行号记录不再能通过 config 显式开启。
 
-原来只需 `numberedLines: true`
+原来只需要在 `shikiConfig` 中添加 `lineNumbers: true` 。
+
+现在需要通过 CSS 来实现行号显示。
+
+## 代码实现
+
+1. 容器与装饰
+
 ```css
-// in /src/styles/global.css
+/* 基础容器 */
+pre.astro-code {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  padding: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  font-size: 1rem;
+  transition: max-height 0.3s ease-out;
+}
 /* 模拟 macOS 窗口栏 */
 pre.astro-code::before {
   content: '';
@@ -28,7 +60,8 @@ pre.astro-code::before {
   top: 0;
   left: 0;
   right: 0;
-  height: 1.75rem;
+  height: 2.5rem;
+  background-color: #1e293b;
   background-image: 
     radial-gradient(circle at 1.5rem 1.25rem, #ff5f56 0.375rem, transparent 0.375rem),
     radial-gradient(circle at 2.75rem 1.25rem, #ffbd2e 0.375rem, transparent 0.375rem),
@@ -38,10 +71,10 @@ pre.astro-code::before {
 }
 /* 语言提示 */
 pre.astro-code::after {
-  content: attr(data-language); // 这个属性取决于你的具体框架
+  content: attr(data-language);
   position: absolute;
-  top: 0.9rem;
-  right: 3.5rem;
+  top: 0.375rem;
+  right: 5.5rem;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 1.25rem;
@@ -50,68 +83,82 @@ pre.astro-code::after {
   z-index: 1;
   display: inline-block;
 }
-/* 复制按钮'mingcute--copy-line' */
-/* 我的常用 ICON 包，可替换 */
-pre.astro-code .copy-btn {
+```
+
+2. 图标与按钮系统
+
+```css
+/* [抽象基类] 布局核心：负责定位、尺寸与对齐 */
+pre.astro-code .astro-code-icon-base {
   position: absolute;
-  top: 0.4rem;
-  right: 1rem;
-  width: 2rem; 
-  height: 2rem;
-  padding: 0.125rem;
-  border: none;
-  border-radius: 0.25rem;
-  background-color: transparent;
-  cursor: pointer;
-  z-index: 3;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-/* 复制按钮 hover */
-pre.astro-code .copy-btn:hover {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-/* 复制成功提示'mingcute:check-fill' */
-pre.astro-code .copy-success {
-  position: absolute;
-  top: 0.4rem;
-  right: 1rem;
+  top: 0.25rem;
   width: 2rem;
   height: 2rem;
   padding: 0.125rem;
   border-radius: 0.25rem;
-  z-index: 4;
-  opacity: 0;
-  transition: opacity 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+/* [交互组件] 按钮外观：负责点击反馈、背景与层级 */
+pre.astro-code .astro-code-icon-btn {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 3;
+  transition: background-color 0.2s;
+  outline: none;
+}
+pre.astro-code .astro-code-icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+/* [实例] 下拉/收回按钮 */
+pre.astro-code .toggle-btn {
+  right: 3.25rem;
+}
+/* [实例] 复制功能组 */
+pre.astro-code .copy-btn,
+pre.astro-code .copy-success {
+  right: 1rem;
+}
+/* 复制成功状态特有样式 */
+pre.astro-code .copy-success {
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.2s;
   pointer-events: none;
 }
-/* 复制成功时显示 */
 pre.astro-code .copy-success.show {
   opacity: 1;
 }
-/* 行号 */
+```
+
+3. 代码内容与行号
+
+```css
 pre.astro-code > code {
   display: block;
   width: 100%;
   padding: 3.5rem 1.5rem 1.5rem 3rem;
   counter-reset: line;
   box-sizing: border-box;
+  overflow: auto;
+  max-height: 49rem;
+  line-height: 0.75rem;
 }
-/* Shiki 生成的每一行 */
-/* Astro 默认 */
+/* 折叠状态逻辑 */
+pre.astro-code.collapsed > code {
+  max-height: 22rem;
+}
+/* Shiki 行容器 */
 .astro-code .line {
   display: block;
   position: relative;
   max-width: 100%;
   box-sizing: border-box;
+  min-height: 0.75rem;
 }
-/* 行号生成 */
+/* 自动行号生成 */
 .astro-code .line::before {
   content: counter(line);
   counter-increment: line;
