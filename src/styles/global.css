@@ -39,11 +39,11 @@ body {
 	text-align: left;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1.7;
 }
 main {
-	width: 720px;
+	width: 800px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 1em;
@@ -97,17 +97,131 @@ img {
 	height: auto;
 	border-radius: 8px;
 }
+
 code {
 	padding: 2px 5px;
-	border-radius: 2px;
+	border-radius: 4px;
+  background-color: rgba(107, 114, 128, 0.1);
+  border: 1px solid rgba(107, 114, 128, 0.2);
 }
-pre {
-	padding: 1.5em;
-	border-radius: 8px;
+pre.astro-code {
+  /* 基础容器 */
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  padding: 0; 
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  font-size: 1rem;
+  line-height: 0.75rem;
 }
-pre > code {
-	all: unset;
+/* 模拟 macOS 窗口栏 */
+pre.astro-code::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.75rem;
+  background-image: 
+    radial-gradient(circle at 1.5rem 1.25rem, #ff5f56 0.375rem, transparent 0.375rem),
+    radial-gradient(circle at 2.75rem 1.25rem, #ffbd2e 0.375rem, transparent 0.375rem),
+    radial-gradient(circle at 4rem 1.25rem, #27c93f 0.375rem, transparent 0.375rem);
+  background-repeat: no-repeat;
+  z-index: 1;
 }
+/* 语言提示 */
+pre.astro-code::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.9rem;
+  right: 3.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  z-index: 1;
+  display: inline-block;
+}
+/* 复制按钮'mingcute--copy-line' */
+pre.astro-code .copy-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 1rem;
+  /* 点击区域 */
+  width: 2rem; 
+  height: 2rem;
+  padding: 0.125rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 3;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+/* 复制按钮 hover 效果 */
+pre.astro-code .copy-btn:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+/* 复制成功提示'mingcute:check-fill' */
+pre.astro-code .copy-success {
+  position: absolute;
+  top: 0.4rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.125rem;
+  border-radius: 0.25rem;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+/* 复制成功时显示 */
+pre.astro-code .copy-success.show {
+  opacity: 1;
+}
+/* 行号 */
+pre.astro-code > code {
+  display: block;
+  width: 100%;
+  padding: 3.5rem 1.5rem 1.5rem 3rem;
+  counter-reset: line;
+  box-sizing: border-box;
+}
+/* Shiki 生成的每一行 */
+.astro-code .line {
+  display: block;
+  position: relative;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+/* 行号生成 */
+.astro-code .line::before {
+  content: counter(line);
+  counter-increment: line;
+  position: absolute;
+  top: 0;
+  left: -3.3rem;
+  width: 2.5rem;
+  text-align: right;
+  color: inherit;
+  opacity: 0.7;
+  user-select: none;
+  pointer-events: none;
+}
+
 blockquote {
 	border-left-width: 4px;
 	padding: 0 0 0 20px;
@@ -120,7 +234,7 @@ hr {
 }
 @media (max-width: 720px) {
 	body {
-		font-size: 18px;
+		font-size: 17px;
 	}
 	main {
 		padding: 1em;
@@ -286,4 +400,44 @@ main {
   display: flex;
   align-items: center;
   font-size: 0.9rem;
+}
+
+.mingcute--copy-line {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M19 2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2zm-4 6H5v12h10zm-5 7a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2zm9-11H9v2h6a2 2 0 0 1 2 2v8h2zm-7 7a1 1 0 0 1 .117 1.993L12 13H8a1 1 0 0 1-.117-1.993L8 11z'/%3E%3C/g%3E%3C/svg%3E");
+  background-color: currentColor;
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+.mingcute--check-fill {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-color: currentColor;
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+.mingcute--down-fill {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M13.06 16.06a1.5 1.5 0 0 1-2.12 0l-5.658-5.656a1.5 1.5 0 1 1 2.122-2.121L12 12.879l4.596-4.596a1.5 1.5 0 0 1 2.122 2.12l-5.657 5.658Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-color: currentColor;
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
 }

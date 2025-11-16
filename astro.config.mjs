@@ -9,7 +9,12 @@ import icon from 'astro-icon';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://pot-oie.github.io',
-  integrations: [mdx(), sitemap(), icon()],
+
+  integrations: [
+    mdx(),
+    sitemap(),
+    icon()
+  ],
 
   vite: {
     plugins: [tailwindcss()],
