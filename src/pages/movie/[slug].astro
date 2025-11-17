@@ -4,7 +4,7 @@
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import MoviePost from '../../layouts/MoviePost.astro';
 
-// 1. 生成所有电影页面
+// 生成所有电影页面
 export async function getStaticPaths() {
   const posts = await getCollection('movie');
   return posts.map((post) => ({

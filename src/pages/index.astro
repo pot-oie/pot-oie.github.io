@@ -18,6 +18,19 @@ const sortedPosts = allPosts.sort(
 );
 const recentPosts = sortedPosts.slice(0, 3);
 
+// 实现随机查看文章
+let randomPostUrl = "/blog"; // 默认回退链接
+if (allPosts.length > 0) {
+  // 获取一个随机索引
+  const randomIndex = Math.floor(Math.random() * allPosts.length);
+  // 选中文章
+  const randomPost = allPosts[randomIndex];
+  // 生成 slug
+  const slug = randomPost.id.replace(/\.mdx?$/, '');
+  // 创建 URL
+  randomPostUrl = `/blog/${slug}/`;
+}
+
 // 查询 'src/content/movie/' 文件夹下的所有电影
 const moviePosts = await getCollection("movie");
 // 按观影时间排序
@@ -47,7 +60,7 @@ const pageDescription = "做的还不够多，说的还不够少。";
       
       <div class="flex justify-between items-center mb-12">
         <h2 class="text-3xl font-bold">
-          最新文章
+          最近在写
         </h2>
       </div>
       
@@ -61,10 +74,11 @@ const pageDescription = "做的还不够多，说的还不够少。";
 
       <div class="text-center mt-12">
         <a 
-          href="/blog" 
-          class="inline-block bg-primary-500 dark:bg-zinc-800 text-black dark:text-zinc-100 font-bold py-3 px-6 rounded-lg shadow-lg dark:shadow-md transition-all duration-300 hover:bg-primary-600 dark:hover:bg-zinc-700 hover:shadow-xl dark:hover:shadow-zinc-700/50"
+          href={randomPostUrl}
+          class="inline-flex items-center justify-center gap-2 bg-primary-500 dark:bg-zinc-800 text-black dark:text-zinc-100 font-bold py-3 px-6 rounded-lg shadow-lg dark:shadow-md transition-all duration-300 hover:bg-primary-600 dark:hover:bg-zinc-700 hover:shadow-xl dark:hover:shadow-zinc-700/50"
         >
-          查看所有文章 &rarr;
+          <span>随机查看文章</span>
+          <Icon name="mingcute:random-line" class="w-5 h-5" />
         </a>
       </div>
 
@@ -89,7 +103,13 @@ const pageDescription = "做的还不够多，说的还不够少。";
         </button>
       </div>
 
-      <div id="movie-grid-view" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div 
+        id="movie-grid-view" 
+        class:list={[
+          "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6",
+          "transition-opacity duration-150 ease-in-out opacity-100"
+        ]}
+      >
         {recentMovies.length > 0 ?
           (
             recentMovies.map(movie => (
@@ -102,7 +122,13 @@ const pageDescription = "做的还不够多，说的还不够少。";
           )}
       </div>
 
-      <div id="movie-deck-view" class="hidden">
+      <div 
+        id="movie-deck-view"
+        class:list={[
+          "hidden",
+          "transition-opacity duration-150 ease-in-out opacity-0"
+        ]}
+      >
         {recentMovies.length > 0 ?
           (
             <div class="movie-deck-wrapper flex justify-center py-8">
@@ -138,35 +164,87 @@ const pageDescription = "做的还不够多，说的还不够少。";
 
 <script>
   function setupMovieViewToggle() {
+    // 获取DOM元素
     const toggleBtn = document.getElementById('movie-view-toggle');
     const gridView = document.getElementById('movie-grid-view');
     const deckView = document.getElementById('movie-deck-view');
     const gridIcon = document.getElementById('movie-icon-grid');
     const deckIcon = document.getElementById('movie-icon-deck');
 
+    // 元素校验：缺少必要DOM则终止执行
     if (!toggleBtn || !gridView || !deckView || !gridIcon || !deckIcon) {
       return;
     }
 
-    // 防止 astro:page-load 重复绑定
+    // 防止重复绑定事件（通过data属性标记）
     if (toggleBtn.dataset.listenerAttached === 'true') {
       return;
     }
     toggleBtn.dataset.listenerAttached = 'true';
 
-    toggleBtn.addEventListener('click', () => {
-      // 切换视图的 hidden 属性
-      const isGridNowHidden = gridView.classList.toggle('hidden');
-      deckView.classList.toggle('hidden', !isGridNowHidden);
+    // 动画过渡时长（与Tailwind的duration-150保持一致）
+    const transitionDuration = 150;
 
-      // 切换按钮图标的 hidden 属性
-      gridIcon.classList.toggle('hidden', isGridNowHidden);
-      deckIcon.classList.toggle('hidden', !isGridNowHidden);
+    toggleBtn.addEventListener('click', () => {
+      // 判断当前是否为网格视图（通过hidden类状态）
+      const isGridViewVisible = !gridView.classList.contains('hidden');
+
+      if (isGridViewVisible) {
+        // --- 从 Grid 视图切换到 Deck 视图 ---
+        // 切换图标显示状态
+        gridIcon.classList.add('hidden');
+        deckIcon.classList.remove('hidden');
+
+        // A. 网格视图开始淡出
+        gridView.classList.remove('opacity-100');
+        gridView.classList.add('opacity-0');
+
+        // B. 淡出动画结束后执行后续逻辑
+        setTimeout(() => {
+          // C. 彻底隐藏网格视图
+          gridView.classList.add('hidden');
+
+          // D. 移除Deck视图的隐藏状态（仍保持透明）
+          deckView.classList.remove('hidden');
+
+          // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
+          void deckView.offsetWidth;
+
+          // F. Deck视图开始淡入
+          deckView.classList.remove('opacity-0');
+          deckView.classList.add('opacity-100');
+        }, transitionDuration);
+      } else {
+        // --- 从 Deck 视图切换到 Grid 视图 ---
+        // 切换图标显示状态
+        gridIcon.classList.remove('hidden');
+        deckIcon.classList.add('hidden');
+
+        // A. Deck视图开始淡出
+        deckView.classList.remove('opacity-100');
+        deckView.classList.add('opacity-0');
+
+        // B. 淡出动画结束后执行后续逻辑
+        setTimeout(() => {
+          // C. 彻底隐藏Deck视图
+          deckView.classList.add('hidden');
+
+          // D. 移除网格视图的隐藏状态（仍保持透明）
+          gridView.classList.remove('hidden');
+
+          // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
+          void gridView.offsetWidth;
+
+          // F. 网格视图开始淡入
+          gridView.classList.remove('opacity-0');
+          gridView.classList.add('opacity-100');
+        }, transitionDuration);
+      }
     });
   }
 
-  // 首次加载时运行
+  // 页面初始加载时初始化
   document.addEventListener('DOMContentLoaded', setupMovieViewToggle);
-  // Astro 页面跳转时再次运行
+  // Astro 页面路由切换后重新初始化（适配SPA-like导航）
   document.addEventListener('astro:page-load', setupMovieViewToggle);
 </script>

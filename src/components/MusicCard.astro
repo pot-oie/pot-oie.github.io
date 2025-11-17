@@ -1,0 +1,60 @@
+---
+// src/components/MusicCard.astro
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'music'>;
+  optimizedImage: { src: string };
+  positionClasses: string | string[];
+}
+
+const { post, optimizedImage, positionClasses } = Astro.props;
+const { title, artist } = post.data;
+---
+
+<div class:list={[
+  "absolute z-50",
+  "w-56", // 高瘦型宽度（14rem）
+
+  "opacity-0 invisible translate-y-2",
+  "transition-all duration-300 ease-in-out",
+  "group-hover:opacity-100",
+  "group-hover:visible",
+  "group-hover:translate-y-0",
+
+  "bg-white dark:bg-zinc-800",
+  "border border-zinc-200 dark:border-zinc-700",
+  "rounded-lg shadow-xl",
+  "transition-all duration-150 ease-in-out",
+  "p-3",
+  positionClasses
+]}>
+  {/* 顶部：圆形旋转专辑封面 */}
+  <div class="flex justify-center pt-2 pb-3">
+    <img 
+      src={optimizedImage.src} 
+      alt={title} 
+      width="52" 
+      height="52" 
+      class="w-14 h-14 object-cover animate-[spin_16s_linear_infinite]"
+      style="
+        display: inline-block;
+        margin: 0;
+        border-radius: 9999px; /* 圆形样式 */
+        border: none;
+        box-shadow: none;
+        max-width: none;
+      "
+    />
+  </div>
+
+  {/* 底部：居中显示文字 */}
+  <div class="overflow-hidden text-center">
+    <h4 class="font-bold text-lg text-zinc-900 dark:text-zinc-100 whitespace-normal overflow-hidden" title={title}>
+      {title}
+    </h4>
+    <p class="text-sm text-zinc-600 dark:text-zinc-400 truncate mt-1" title={artist}>
+      {artist}
+    </p>
+  </div>
+</div>

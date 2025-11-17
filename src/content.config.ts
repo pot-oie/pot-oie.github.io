@@ -44,6 +44,8 @@ const movie = defineCollection({
             coverImage: image(), 
 			// 首页短评
             shortReview: z.string(), 
+			// 是否有长评
+			haveReview: z.boolean(),
         }),
 });
 

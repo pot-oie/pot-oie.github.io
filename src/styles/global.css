@@ -71,7 +71,7 @@ table {
   width: 100%;
 }
 
-img {
+.prose img {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -98,17 +98,17 @@ hr {
 /* =========================================
    4. 排版系统 (Typography)
    ========================================= */
-h1, h2, h3, h4, h5, h6 {
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
   margin: 0 0 0.5rem 0;
   line-height: 1.2;
   font-weight: 700;
 }
 
-h1 { font-size: 3.052em; }
-h2 { font-size: 2.441em; }
-h3 { font-size: 1.953em; }
-h4 { font-size: 1.563em; }
-h5 { font-size: 1.25em; }
+.prose h1 { font-size: 3.052em; }
+.prose h2 { font-size: 2.441em; }
+.prose h3 { font-size: 1.953em; }
+.prose h4 { font-size: 1.563em; }
+.prose h5 { font-size: 1.25em; }
 
 strong, b {
   font-weight: 700;
@@ -119,11 +119,8 @@ em, i {
   font-size: 1.1em;
 }
 
-p {
-  margin-bottom: 1em;
-  line-height: 2.4;
-}
 .prose p {
+  line-height: 2.4;
   margin-bottom: 2em;
 }
 
