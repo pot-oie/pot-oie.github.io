@@ -4,139 +4,188 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* =========================================
+   1. 主题配置 (Theme Configuration)
+   ========================================= */
 @theme {
   --accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15 18 25;
-	--gray: 96 115 159;
-	--gray-light: 229 233 240;
-	--gray-dark: 34 41 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
-	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%),
-		0 8px 24px rgba(var(--gray), 33%),
-		0 16px 32px rgba(var(--gray), 33%);
+  --accent-dark: #000d8a;
+  --black: 15 18 25;
+  --gray: 96 115 159;
+  --gray-light: 229 233 240;
+  --gray-dark: 34 41 57;
+  --gray-gradient: rgba(var(--gray-light), 50%), #fff;
+  --box-shadow:
+    0 2px 6px rgba(var(--gray), 25%),
+    0 8px 24px rgba(var(--gray), 33%),
+    0 16px 32px rgba(var(--gray), 33%);
 }
 
+/* =========================================
+   2. 字体引入 (Fonts)
+   ========================================= */
 @font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-regular.woff") format("woff");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Atkinson";
+  src: url("/fonts/atkinson-regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 @font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Atkinson";
+  src: url("/fonts/atkinson-bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
+
+/* =========================================
+   3. 基础样式 (Base Styles)
+   ========================================= */
 body {
-	font-family: "Atkinson", sans-serif;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	font-size: 18px;
-	line-height: 1.7;
+  font-family: "Atkinson", sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 18px;
+  line-height: 1.7;
 }
+
 main {
-	width: 800px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
+  width: 800px;
+  max-width: calc(100% - 2em);
+  margin: auto;
+  padding: 3em 1em;
+  /* 页面淡入动画 */
+  animation: fadeIn 0.5s ease-in-out;
 }
-/* "- text" 和 "* text" 列表样式 */
+
+textarea, input {
+  width: 100%;
+  font-size: 16px;
+}
+
+table {
+  width: 100%;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+
+  border: 1px solid rgba(107, 114, 128, 0.2);
+  box-shadow: 0 4px 12px rgba(var(--gray), 18%);
+}
+
+dark img {
+  border-color: rgba(var(--gray-light), 0.1); 
+  box-shadow: 0 4px 12px rgba(var(--black), 0.3);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(107, 114, 128, 0.2);
+  margin: 2rem 0;
+}
+
+/* =========================================
+   4. 排版系统 (Typography)
+   ========================================= */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+h1 { font-size: 3.052em; }
+h2 { font-size: 2.441em; }
+h3 { font-size: 1.953em; }
+h4 { font-size: 1.563em; }
+h5 { font-size: 1.25em; }
+
+strong, b {
+  font-weight: 700;
+}
+
+em, i {
+  font-weight: 500;
+  font-size: 1.1em;
+}
+
+p {
+  margin-bottom: 1em;
+  line-height: 2.4;
+}
+.prose p {
+  margin-bottom: 2em;
+}
+
+/* 列表样式 */
 main ul {
   list-style-type: disc;
   padding-left: 1.75rem;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  line-height: 0.8;
-  font-size: 1.25em;
+  margin: 1em 0;
+  line-height: 1.4; /* 修复行高过紧 */
+  font-size: 1.15em; /* 稍微调整大小以匹配正文 */
   font-weight: 500;
 }
-/* "1. text" 列表样式 */
+
 main ol {
   list-style-type: decimal;
   padding-left: 1.75rem;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  font-size: 1.25em;
+  margin: 1em 0;
+  font-size: 1.15em;
   font-weight: 700;
-}
-/* 列表项 (li) 的间距 */
-main li {
-  margin-top: 0.25em;
-  margin-bottom: 0.25em;
-}
-main h1,
-main h2,
-main h3,
-main h4,
-main h5,
-main h6 {
-  font-weight: 700;
-}
-main blockquote {
-  color: var(--gray-dark);
-  padding-top: 0.2em;
-  border-left-color: rgba(107, 114, 128, 0.2);
-  background-color: rgba(107, 114, 128, 0.1);
-  font-style: italic;
-  margin: 0;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	margin: 0 0 0.5rem 0;
-	line-height: 1.2;
-}
-h1 {
-	font-size: 3.052em;
-}
-h2 {
-	font-size: 2.441em;
-}
-h3 {
-	font-size: 1.953em;
-}
-h4 {
-	font-size: 1.563em;
-}
-h5 {
-	font-size: 1.25em;
-}
-strong,
-b {
-	font-weight: 700;
-}
-p {
-	margin-bottom: 1em;
-}
-.prose p {
-	margin-bottom: 2em;
 }
 
-textarea {
-	width: 100%;
-	font-size: 16px;
+main li {
+  margin: 0.25em 0;
 }
-input {
-	font-size: 16px;
+
+/* 引用块样式 */
+blockquote {
+  /* 布局与盒模型 */
+  display: block;
+  margin: 1.5em 0;
+  padding: 1rem 1.2rem;
+  
+  /* 视觉样式 */
+  background-color: rgba(107, 114, 128, 0.1);
+  border-left: 4px solid rgba(107, 114, 128, 0.3);
+  border-radius: 4px;
+  
+  /* 字体样式 */
+  color: var(--gray-dark);
+  font-style: italic;
+  font-size: 1.1em;
+  line-height: 1.6;
 }
-table {
-	width: 100%;
+
+/* 移除引用块内最后一个段落的底部间距，防止撑破容器 */
+blockquote p:last-child {
+  margin-bottom: 0;
 }
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
+
+/* 行内代码样式 */
+code:not(pre code) {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(107, 114, 128, 0.1);
+  border: 1px solid rgba(107, 114, 128, 0.2);
+  font-size: 0.9em;
+  color: var(--accent-dark);
+}
+
+/* dark 主题下行内代码颜色 */
+html.dark code:not(pre code) {
+  color: var(--accent);
 }
 
 code {
@@ -147,13 +196,12 @@ code {
 }
 
 /* =========================================
-   1. 容器与装饰 (Container & Decorations)
+   5. macOS 风格代码块 (Astro Code Component)
    ========================================= */
 pre.astro-code {
   position: relative;
   overflow: hidden;
-  margin-top: 1.5em;
-  margin-bottom: 1.5em;
+  margin: 2em 0;
   padding: 0;
   max-width: 100%;
   box-sizing: border-box;
@@ -192,10 +240,8 @@ pre.astro-code::after {
   z-index: 1;
   display: inline-block;
 }
-/* =========================================
-   2. 图标与按钮系统 (Icons & Buttons System)
-   ========================================= */
-/* [抽象基类] 布局核心：负责定位、尺寸与对齐 */
+
+/* 按钮与图标基础 */
 pre.astro-code .astro-code-icon-base {
   position: absolute;
   top: 0.25rem;
@@ -207,7 +253,7 @@ pre.astro-code .astro-code-icon-base {
   align-items: center;
   justify-content: center;
 }
-/* [交互组件] 按钮外观：负责点击反馈、背景与层级 */
+/* 按钮外观：负责点击反馈、背景与层级 */
 pre.astro-code .astro-code-icon-btn {
   border: none;
   background-color: transparent;
@@ -219,11 +265,11 @@ pre.astro-code .astro-code-icon-btn {
 pre.astro-code .astro-code-icon-btn:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
-/* [实例] 下拉/收回按钮 */
+/* 下拉/收回按钮 */
 pre.astro-code .toggle-btn {
   right: 3.25rem;
 }
-/* [实例] 复制功能组 */
+/* 复制功能组 */
 pre.astro-code .copy-btn,
 pre.astro-code .copy-success {
   right: 1rem;
@@ -238,22 +284,22 @@ pre.astro-code .copy-success {
 pre.astro-code .copy-success.show {
   opacity: 1;
 }
-/* =========================================
-   3. 代码内容与行号 (Content & Lines)
-   ========================================= */
+
+/* 代码内容区域 */
 pre.astro-code > code {
+  margin-top: 2.5rem;
+  padding: 1rem 1.5rem 1.5rem 3rem;
   display: block;
   width: 100%;
-  padding: 3.5rem 1.5rem 1.5rem 3rem;
   counter-reset: line;
   box-sizing: border-box;
   overflow: auto;
-  max-height: 49rem;
+  max-height: 46.5rem;
   line-height: 0.75rem;
 }
 /* 折叠状态逻辑 */
 pre.astro-code.collapsed > code {
-  max-height: 22rem;
+  max-height: 19rem;
 }
 /* Shiki 行容器 */
 .astro-code .line {
@@ -269,202 +315,13 @@ pre.astro-code.collapsed > code {
   counter-increment: line;
   position: absolute;
   top: 0;
-  left: -3.3rem;
+  left: -3.4rem;
   width: 2.5rem;
   text-align: right;
   color: inherit;
   opacity: 0.7;
   user-select: none;
   pointer-events: none;
-}
-
-/* =========================================
-   4. 自定义代码块内部样式
-   ========================================= */
-pre.astro-code span[data-line-token-type*="comment"] {
-  color: #6a9955; /* 这是一个常见的“绿色”注释色 */
-  font-style: italic;
-  font-weight: 400;
-}
-
-blockquote {
-	border-left-width: 4px;
-	padding: 0 0 0 20px;
-	margin: 0px;
-	font-size: 1.333em;
-}
-hr {
-	border: none;
-	border-top: 1px;
-}
-@media (max-width: 720px) {
-	body {
-		font-size: 17px;
-	}
-	main {
-		padding: 1em;
-	}
-}
-
-.sr-only {
-	border: 0;
-	padding: 0;
-	margin: 0;
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	/* IE6, IE7 - a 0 height clip, off to the bottom right of the visible 1px box */
-	clip: rect(1px 1px 1px 1px);
-	/* maybe deprecated but we need to support legacy browsers */
-	clip: rect(1px, 1px, 1px 1px);
-	/* modern browsers, clip-path works inwards from each corner */
-	clip-path: inset(50%);
-	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
-	white-space: nowrap;
-}
-
-/* 留声机动画 */
-.record-player {
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-.record-player:hover {
-  transform: scale(1.05) rotate(2deg);
-  color: #a1704c;
-}
-.record-player.playing {
-  animation: spin 4s linear infinite;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* 页面淡入动画 */
-main {
-  animation: fadeIn 0.5s ease-in-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 扑克牌布局样式 */
-.movie-deck-container {
-  position: relative;
-  width: 100%;
-  height: 360px; 
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding-bottom: 20px;
-}
-.movie-deck {
-  position: absolute;
-  bottom: 0;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: flex; /* 让卡片在 flex 容器中排列，方便计算 */
-  justify-content: center;
-  align-items: flex-end;
-  /* 动态宽度，根据卡片数量调整 */
-  width: auto; 
-  height: 300px; /* 单个卡片的高度 */
-}
-.movie-deck-card {
-  position: absolute; /* 绝对定位，以便进行精确的 transform */
-  aspect-ratio: 2 / 3;
-  width: 200px; /* 卡片宽度 */
-  height: 300px; /* 卡片高度 */
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
-  transform-origin: bottom center; /* 旋转和缩放的中心点在底部 */
-
-  /* ------ 核心变化：扇形展开的计算逻辑 ------ */
-  /* --total-cards: 由 JS 动态注入，表示卡片总数 */
-  /* --i: 由 JS 动态注入，表示当前卡片的索引 (0-based) */
-
-  /* 基础旋转角度：从左侧负角度到右侧正角度 */
-  --base-angle: -15deg; /* 最左侧卡片的起始角度 */
-  --angle-step: 6deg; /* 每张卡片之间的角度增量 */
-  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
-
-  /* 水平位移：向外散开 */
-  --base-x-offset: -120px; /* 最左侧卡片的起始 X 偏移 */
-  --x-step: 60px; /* 每张卡片之间的 X 偏移增量 */
-  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
-
-  /* 垂直位移：让卡片底部对齐，并防止它们在展开时向上“跳动” */
-  --y-translation: 0px; 
-
-  /* 初始状态：扇形展开并稍微向上抬起 */
-  transform: 
-    translateX(var(--x-translation)) 
-    translateY(var(--y-translation)) 
-    rotate(var(--rotation));
-}
-.movie-deck-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* 悬停效果: 容器 */
-.movie-deck-container:hover .movie-deck-card {
-  /* 当鼠标悬停在容器上时，所有卡片稍微散开更多 */
-  --base-angle: -20deg; /* 散开更多，起始角度更负 */
-  --angle-step: 10deg; /* 每张卡片之间的角度增量更大 */
-  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
-
-  --base-x-offset: -180px; /* 散开更多，起始 X 偏移更大 */
-  --x-step: 90px; /* 每张卡片之间的 X 偏移增量更大 */
-  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
-  
-  transform: 
-    translateX(var(--x-translation)) 
-    translateY(var(--y-translation)) 
-    rotate(var(--rotation));
-}
-/* 悬停效果: 单张卡片 */
-.movie-deck-container .movie-deck-card:hover {
-  /* 鼠标悬停在特定卡片上时，将其抬起、居中并放大 */
-  transform: 
-    translateX(0) /* 居中 */
-    translateY(-60px) /* 抬高 */
-    rotate(0deg) /* 变正 */
-    scale(1.15); /* 放大 */
-  z-index: 10;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-}
-/* 悬停时显示的内容 (类似 MovieCard) */
-.movie-deck-card .card-content {
-  position: absolute;
-  inset: 0;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  color: white;
-  border-radius: 8px; /* 确保遮罩也是圆角 */
-}
-.movie-deck-card:hover .card-content {
-  opacity: 1;
-}
-.movie-deck-card .card-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.movie-deck-card .card-rating {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
 }
 
 /* 为 WebKit 浏览器 (Chrome, Safari, Edge) 添加自定义滚动条 */
@@ -495,55 +352,169 @@ pre.astro-code > code {
   scrollbar-color: rgba(107, 114, 128, 0.4) transparent;
 }
 
-.mingcute--copy-line {
+/* =========================================
+   6. 动画与组件 (Animations & Components)
+   ========================================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 留声机动画 */
+.record-player {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.record-player:hover {
+  transform: scale(1.05) rotate(2deg);
+  color: #a1704c;
+}
+.record-player.playing {
+  animation: spin 4s linear infinite;
+}
+
+/* 扑克牌布局样式 */
+.movie-deck-container {
+  position: relative;
+  width: 100%;
+  height: 360px; 
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 20px;
+}
+.movie-deck {
+  position: absolute;
+  bottom: 0;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: auto; 
+  height: 300px;
+}
+
+/* 解决悬停抖动 */
+.movie-deck:has(.movie-deck-card:hover) .movie-deck-card:not(:hover) {
+  pointer-events: none;
+}
+
+.movie-deck-card {
+  position: absolute;
+  aspect-ratio: 2 / 3;
+  width: 200px;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  transform-origin: bottom center;
+
+  --base-angle: -14deg;
+  --angle-step: 4deg;
+  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
+  --base-x-offset: -130px;
+  --x-step: 40px;
+  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
+  --y-translation: 0px; 
+
+  transform: 
+    translateX(var(--x-translation)) 
+    translateY(var(--y-translation)) 
+    rotate(var(--rotation));
+}
+.movie-deck-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 悬停效果 */
+.movie-deck-container:hover .movie-deck-card {
+  --base-angle: -21deg;
+  --angle-step: 6deg;
+  --base-x-offset: -200px;
+  --x-step: 60px;
+
+  transform: 
+    translateX(var(--x-translation)) 
+    translateY(var(--y-translation)) 
+    rotate(var(--rotation));
+}
+
+/* 悬停效果: 单张卡片 */
+.movie-deck-container .movie-deck-card:hover {
+  transform: 
+    translateX(var(--x-translation))
+    translateY(calc(var(--y-translation) - 60px))
+    rotate(var(--rotation))
+    scale(1.15);
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* 卡片内容样式 */
+.movie-deck-card .card-content {
+  position: absolute;
+  inset: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  color: white;
+  border-radius: 8px;
+}
+.movie-deck-card:hover .card-content { opacity: 1; }
+.movie-deck-card .card-title { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+.movie-deck-card .card-rating { display: flex; align-items: center; font-size: 0.9rem; }
+
+/* =========================================
+   7. 图标与工具类 (Icons & Utilities)
+   ========================================= */
+.sr-only {
+  border: 0; padding: 0; margin: 0; position: absolute !important;
+  height: 1px; width: 1px; overflow: hidden;
+  clip: rect(1px 1px 1px 1px); clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  body { font-size: 17px; }
+  main { padding: 1em; }
+}
+
+/* 图标 Mask 样式 */
+.mingcute--copy-line, .mingcute--check-fill, .mingcute--down-fill, .mingcute--up-fill {
   display: inline-block;
   width: 24px;
   height: 24px;
-  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M19 2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2zm-4 6H5v12h10zm-5 7a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2zm9-11H9v2h6a2 2 0 0 1 2 2v8h2zm-7 7a1 1 0 0 1 .117 1.993L12 13H8a1 1 0 0 1-.117-1.993L8 11z'/%3E%3C/g%3E%3C/svg%3E");
   background-color: currentColor;
-  -webkit-mask-image: var(--svg);
-  mask-image: var(--svg);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+}
+.mingcute--copy-line {
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M19 2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2zm-4 6H5v12h10zm-5 7a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2zm9-11H9v2h6a2 2 0 0 1 2 2v8h2zm-7 7a1 1 0 0 1 .117 1.993L12 13H8a1 1 0 0 1-.117-1.993L8 11z'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-image: var(--svg); mask-image: var(--svg);
 }
 .mingcute--check-fill {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0'/%3E%3C/g%3E%3C/svg%3E");
-  background-color: currentColor;
-  -webkit-mask-image: var(--svg);
-  mask-image: var(--svg);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  -webkit-mask-image: var(--svg); mask-image: var(--svg);
 }
 .mingcute--down-fill {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M13.06 16.06a1.5 1.5 0 0 1-2.12 0l-5.658-5.656a1.5 1.5 0 1 1 2.122-2.121L12 12.879l4.596-4.596a1.5 1.5 0 0 1 2.122 2.12l-5.657 5.658Z'/%3E%3C/g%3E%3C/svg%3E");
-  background-color: currentColor;
-  -webkit-mask-image: var(--svg);
-  mask-image: var(--svg);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  -webkit-mask-image: var(--svg); mask-image: var(--svg);
 }
 .mingcute--up-fill {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M10.94 7.94a1.5 1.5 0 0 1 2.12 0l5.658 5.656a1.5 1.5 0 1 1-2.122 2.121L12 11.122l-4.596 4.596a1.5 1.5 0 1 1-2.122-2.12z'/%3E%3C/g%3E%3C/svg%3E");
-  background-color: currentColor;
-  -webkit-mask-image: var(--svg);
-  mask-image: var(--svg);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  -webkit-mask-image: var(--svg); mask-image: var(--svg);
 }

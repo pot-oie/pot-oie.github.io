@@ -23,10 +23,10 @@ const moviePosts = await getCollection("movie");
 // 按观影时间排序
 const recentMovies = moviePosts.sort(
   (a, b) => new Date(b.data.viewingDate).valueOf() - new Date(a.data.viewingDate).valueOf()
-).slice(0, 5); // 首页显示最新的5个
+).slice(0, 8); // 首页显示最新的8个
 
 const pageTitle = "首页";
-const pageDescription = "Pot 的个人博客，记录技术与生活。";
+const pageDescription = "做的还不够多，说的还不够少。";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -42,12 +42,14 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
     </div>
   </section>
 
-  <section class="pb-16 md:pb-24">
+  <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
       
-      <h2 class="text-3xl font-bold mb-8">
-        最新文章
-      </h2>
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-3xl font-bold">
+          最新文章
+        </h2>
+      </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         
@@ -69,10 +71,10 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
     </div>
   </section>
 
-  <section class="pb-16 md:pb-24">
+  <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
 
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex justify-between items-center mb-12">
         <h2 class="text-3xl font-bold">
           最近在看
         </h2>
@@ -116,12 +118,14 @@ const pageDescription = "Pot 的个人博客，记录技术与生活。";
     </div>
   </section>
 
-  <section class="pb-16 md:pb-24">
+  <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
       
-      <h2 class="text-3xl font-bold mb-8">
-        最近在听
-      </h2>
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-3xl font-bold">
+          最近在听
+        </h2>
+      </div>
 
       <div class="max-w-xl mx-auto">
         <MusicPlayer />

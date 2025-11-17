@@ -7,7 +7,7 @@ export interface Props {
   post: CollectionEntry<'blog'>;
 }
 const { post } = Astro.props;
-// 从 post.id (如 "tech-first-post.mdx") 中提取 slug
+// 从 post.id 中提取 slug
 const slug = post.id.replace(/\.mdx?$/, '');
 ---
 

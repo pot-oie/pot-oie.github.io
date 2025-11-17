@@ -2,8 +2,8 @@ import { defineCollection, z } from 'astro:content';
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
-	'Tech', // 技术
-	'Life', // 生活
+	'learn', // 学习笔记
+	'life', // 生活随笔
 ]);
 
 const blog = defineCollection({

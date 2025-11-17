@@ -10,6 +10,12 @@ import icon from 'astro-icon';
 export default defineConfig({
   site: 'https://pot-oie.github.io',
 
+  markdown: {
+    shikiConfig: {
+      theme: 'dark-plus',
+    },
+  },
+
   integrations: [
     mdx(),
     sitemap(),
