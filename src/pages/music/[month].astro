@@ -1,16 +1,18 @@
 ---
 // src/pages/music/[month].astro
 
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { allMusic, type MusicData } from '../../data/music.ts';
 import MusicCalendar from '../../components/MusicCalendar.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  const allMusic = await getCollection('music');
   
-  const months = new Map<string, CollectionEntry<'music'>[]>();
+  // 修改 Map 类型
+  const months = new Map<string, MusicData[]>();
+
   for (const post of allMusic) {
-    const pubDate = post.data.pubDate;
+    // 去掉 .data
+    const pubDate = post.pubDate;
     const key = `${pubDate.getFullYear().toString().slice(-2)}-${String(pubDate.getMonth() + 1).padStart(2, '0')}`;
     
     if (!months.has(key)) {
@@ -21,13 +23,12 @@ export async function getStaticPaths() {
 
   const now = new Date();
   const currentMonthKey = `${now.getFullYear().toString().slice(-2)}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  if (!months.has(currentMonthKey)) {
+if (!months.has(currentMonthKey)) {
     months.set(currentMonthKey, []);
   }
 
   const allMonthKeys = [...months.keys()].sort().reverse();
-
-  return allMonthKeys.map((monthKey, index) => {
+return allMonthKeys.map((monthKey, index) => {
     const prevKey = allMonthKeys[index + 1] || null;
     const nextKey = allMonthKeys[index - 1] || null;
     

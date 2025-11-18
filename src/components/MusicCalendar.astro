@@ -1,14 +1,14 @@
 ---
 // src/components/MusicCalendar.astro
 
-import { type CollectionEntry } from 'astro:content';
+import type { MusicData } from '../data/music.ts';
 import { getImage } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import MusicCard from './MusicCard.astro';
 
 interface Props {
   currentMonthKey: string;
-  musicData: CollectionEntry<'music'>[];
+  musicData: MusicData[];
   prevMonthUrl: string | null;
   nextMonthUrl: string | null;
 }
@@ -26,9 +26,9 @@ const totalCellsNeeded = firstDayOfWeek + daysInMonth;
 const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
 const trailingCellsCount = totalGridCells - totalCellsNeeded;
 
-const musicMap = new Map<number, CollectionEntry<'music'>>();
+const musicMap = new Map<number, MusicData>();
 for (const post of musicData) {
-  musicMap.set(post.data.pubDate.getDate(), post);
+  musicMap.set(post.pubDate.getDate(), post);
 }
 
 const today = new Date();
@@ -90,7 +90,7 @@ const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
             let optimizedImage = null;
             if (post) {
                 optimizedImage = await getImage({
-                    src: post.data.coverImage,
+                    src: post.coverImage,
                     width: 200,
                     height: 200,
                     format: 'webp',

@@ -1,82 +1,80 @@
 ---
 // src/pages/about.astro
 
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { Icon } from 'astro-icon/components'
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
 
 const pageTitle = "关于我";
 const pageDescription = "关于 Pot 的一些介绍。";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-  <div class="max-w-3xl mx-auto px-4 py-16 md:py-24">
-    
-    <h1 class="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">
-      关于我
-    </h1>
+  <div class="max-w-3xl mx-auto px-4 py-16 md:py-24 space-x-2">
+    <h1 class="dark:text-zinc-200">关于我</h1>
 
-    <div class="prose text-lg text-zinc-700 dark:text-zinc-300 space-y-6">
-      <section>
-        <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 mb-3">我是 Pot</h2>
-        <p>
-          你好，欢迎来到我的数字花园。
-        </p>
-        <p>
-          （TODO）
-        </p>
-      </section>
+    <p class="padding-bottom-4">
+      我们管中窥豹，只见海面一角冰山，便错以为意外是一种意外。
+    </p>
+
+    <div>
+      <h2>自我介绍</h2>
 
       <section>
-        <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 mb-3">技术栈</h2>
-        <p>
-          我主要关注...（TODO）
-        </p>
+        <h2 class="dark:text-zinc-200">技术栈</h2>
+        <p>我希望学习：</p>
         <ul>
-          <li>- Astro</li>
-          <li>- Tailwind CSS</li>
-          <li>- ...</li>
+          <li>Vue 3</li>
+          <li>Tailwind CSS</li>
+          <li>Java</li>
         </ul>
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 mb-3">联系我</h2>
-        <p>
-          您可以通过以下方式找到我：
-        </p>
-        
-		<ul class="space-y-2">
-          
+        <h2 class="dark:text-zinc-200">联系我</h2>
+        <p>您可以通过以下方式找到我：</p>
+
+        <ul class="space-y-2">
           <li class="flex items-center">
-            <Icon name="mingcute:github-fill" class="w-5 h-5 inline-block mr-2 text-zinc-500" />
-            
+            <Icon
+              name="mingcute:github-fill"
+              class="w-5 h-5 inline-block mr-2 text-zinc-500"
+            />
+
             <strong>GitHub:</strong>
-            <a href="https://github.com/pot-oie" target="_blank" class="ml-1 text-primary-500 hover:underline">
+            <a
+              href="https://github.com/pot-oie"
+              target="_blank"
+              class="ml-1 text-primary-500 hover:underline"
+            >
               pot-oie
             </a>
           </li>
 
           <li class="flex items-center">
-            <Icon name="mingcute:mail-ai-fill" class="w-5 h-5 inline-block mr-2 text-zinc-500" />
-            
+            <Icon
+              name="mingcute:mail-ai-fill"
+              class="w-5 h-5 inline-block mr-2 text-zinc-500"
+            />
+
             <strong>Email:</strong>
-            <a href="mailto:pooot1110@gmail.com" class="ml-1 text-primary-500 hover:underline">
+            <a
+              href="mailto:pooot1110@gmail.com"
+              class="ml-1 text-primary-500 hover:underline"
+            >
               pooot1110@gmail.com
             </a>
           </li>
 
-		  <li class="flex items-center">
-			<Icon name="mingcute:wechat-fill" class="w-5 h-5 inline-block mr-2 text-zinc-500" />
-			<strong>WeChat:</strong>
-			<a target="_blank" class="ml-1 text-primary-500">
-			  g954693353
-			</a>
+          <li class="flex items-center">
+            <Icon
+              name="mingcute:wechat-fill"
+              class="w-5 h-5 inline-block mr-2 text-zinc-500"
+            />
+            <strong>WeChat:</strong>
+            <a target="_blank" class="ml-1 text-primary-500"> g954693353 </a>
           </li>
-
         </ul>
-
       </section>
-
     </div>
-
   </div>
 </BaseLayout>

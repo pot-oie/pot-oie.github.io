@@ -1,0 +1,62 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import { allMusic } from "../data/music.ts"; 
+---
+
+<div class="flex flex-col gap-4">
+  {allMusic.map(song => (
+    <article class="music-card flex items-center gap-5 p-4 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/60 transition-colors duration-300 hover:bg-zinc-200/80 dark:hover:bg-zinc-800">
+      
+      <Image 
+        src={song.coverImage}
+        alt={`封面：${song.title}`}
+        width={64}
+        height={64}
+        format="webp"
+        class="cover w-16 h-20 rounded-lg object-cover"
+      />
+      
+      <div class="grow min-w-0">
+        
+        <h4 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 whitespace-nowrap overflow-hidden text-ellipsis" title={song.title}>
+          {song.title}
+        </h4>
+
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-hidden text-ellipsis" title={song.artist}>
+          {song.artist}
+        </p>
+        
+        <div class="flex gap-3 mt-2">
+          {song.links?.spotify && (
+            <a href={song.links.spotify} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            aria-label="在 Spotify 播放" 
+            class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100">
+              <Icon name="mingcute:spotify-line" class="w-5 h-5" />
+            </a>
+          )}
+          {song.links?.netease && (
+            <a href={song.links.netease} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            aria-label="在网易云音乐播放" 
+            class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100">
+              <Icon name="mingcute:netease-music-line" class="w-5 h-5" />
+            </a>
+          )}
+          {song.links?.qqMusic && (
+            <a href={song.links.qqMusic} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            aria-label="在 QQ 音乐播放" 
+            class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100">
+              <Icon name="mingcute:music-3-line" class="w-5 h-5" />
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
+  ))}
+</div>

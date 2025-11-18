@@ -49,22 +49,7 @@ const movie = defineCollection({
         }),
 });
 
-// 音乐集合
-const music = defineCollection({
-    schema: ({ image }) =>
-        z.object({
-            title: z.string(),
-            artist: z.string(),
-			// 封面图
-            coverImage: image(), 
-			// 日历上的日期
-            pubDate: z.coerce.date(), 
-            audioUrl: z.string().url().optional(), // 歌曲播放链接 (可选)
-        }),
-});
-
 export const collections = { 
 	blog, 
-	movie,
-	music 
+	movie
 };

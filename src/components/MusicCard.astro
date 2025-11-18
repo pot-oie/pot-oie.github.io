@@ -1,15 +1,16 @@
 ---
 // src/components/MusicCard.astro
-import type { CollectionEntry } from 'astro:content';
+
+import type { MusicData } from '../data/music.ts';
 
 interface Props {
-  post: CollectionEntry<'music'>;
+  post: MusicData;
   optimizedImage: { src: string };
   positionClasses: string | string[];
 }
 
 const { post, optimizedImage, positionClasses } = Astro.props;
-const { title, artist } = post.data;
+const { title, artist } = post;
 ---
 
 <div class:list={[

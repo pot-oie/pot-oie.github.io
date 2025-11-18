@@ -362,18 +362,6 @@ pre.astro-code > code {
   to { transform: rotate(360deg); }
 }
 
-/* 留声机动画 */
-.record-player {
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-.record-player:hover {
-  transform: scale(1.05) rotate(2deg);
-  color: #a1704c;
-}
-.record-player.playing {
-  animation: spin 4s linear infinite;
-}
-
 /* 扑克牌布局样式 */
 .movie-deck-container {
   position: relative;
