@@ -14,42 +14,45 @@ const allPosts = await getCollection("blog", ({ data }) => {
 });
 
 const sortedPosts = allPosts.sort(
-  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+  (a, b) =>
+    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
 const recentPosts = sortedPosts.slice(0, 3);
 
 // 实现随机查看文章
 let randomPostUrl = "/blog"; // 默认回退链接
 if (allPosts.length > 0) {
-  // 获取一个随机索引
-  const randomIndex = Math.floor(Math.random() * allPosts.length);
-  // 选中文章
-  const randomPost = allPosts[randomIndex];
-  // 生成 slug
-  const slug = randomPost.id.replace(/\.mdx?$/, '');
-  // 创建 URL
-  randomPostUrl = `/blog/${slug}/`;
+  // 获取一个随机索引
+  const randomIndex = Math.floor(Math.random() * allPosts.length); // 选中文章
+  const randomPost = allPosts[randomIndex]; // 生成 slug
+  const slug = randomPost.id.replace(/\.mdx?$/, ""); // 创建 URL
+  randomPostUrl = `/blog/${slug}/`;
 }
 
 // 查询 'src/content/movie/' 文件夹下的所有电影
 const moviePosts = await getCollection("movie");
 // 按观影时间排序
-const recentMovies = moviePosts.sort(
-  (a, b) => new Date(b.data.viewingDate).valueOf() - new Date(a.data.viewingDate).valueOf()
-).slice(0, 8); // 首页显示最新的8个
+const recentMovies = moviePosts
+  .sort(
+    (a, b) =>
+      new Date(b.data.viewingDate).valueOf() -
+      new Date(a.data.viewingDate).valueOf()
+  )
+  .slice(0, 8); // 首页显示最新的8个
 
 const pageTitle = "首页";
 const pageDescription = "做的还不够多，说的还不够少。";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-  
   <section class="py-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
       <h1 class="text-4xl md:text-6xl font-bold text-center mb-4">
         欢迎来到 <span class="text-primary-500">Pot</span> 的博客
       </h1>
-      <p class="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto">
+      <p
+        class="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto"
+      >
         {pageDescription}
       </p>
     </div>
@@ -57,23 +60,18 @@ const pageDescription = "做的还不够多，说的还不够少。";
 
   <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
-      
       <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">
-          最近在写
-        </h2>
+        <h2 class="text-3xl font-bold">最近在写</h2>
       </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        
-        {recentPosts.map(post => (
-          <PostCard post={post} />
-        ))}
-        
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+      >
+        {recentPosts.map((post) => <PostCard post={post} />)}
       </div>
 
       <div class="text-center mt-12">
-        <a 
+        <a
           href={randomPostUrl}
           class="inline-flex items-center justify-center gap-2 bg-primary-500 dark:bg-zinc-800 text-black dark:text-zinc-100 font-bold py-3 px-6 rounded-lg shadow-lg dark:shadow-md transition-all duration-300 hover:bg-primary-600 dark:hover:bg-zinc-700 hover:shadow-xl dark:hover:shadow-zinc-700/50"
         >
@@ -81,95 +79,93 @@ const pageDescription = "做的还不够多，说的还不够少。";
           <Icon name="mingcute:random-line" class="w-5 h-5" />
         </a>
       </div>
-
     </div>
   </section>
 
   <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
-
       <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">
-          最近在看
-        </h2>
-        
+        <h2 class="text-3xl font-bold">最近在看</h2>
+
         <button
-            id="movie-view-toggle"
-            aria-label="切换视图"
-            class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-          <Icon name="tabler:layout-grid" class="w-7 h-7" id="movie-icon-grid" />
-          <Icon name="tabler:play-card-q" class="w-7 h-7 hidden" id="movie-icon-deck" />
+          id="movie-view-toggle"
+          aria-label="切换视图"
+          class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        >
+          <Icon
+            name="tabler:layout-grid"
+            class="w-7 h-7"
+            id="movie-icon-grid"
+          />
+          <Icon
+            name="tabler:play-card-q"
+            class="w-7 h-7 hidden"
+            id="movie-icon-deck"
+          />
         </button>
       </div>
 
-      <div 
-        id="movie-grid-view" 
+      <div
+        id="movie-grid-view"
         class:list={[
           "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6",
-          "transition-opacity duration-150 ease-in-out opacity-100"
+          "transition-opacity duration-150 ease-in-out opacity-100",
         ]}
       >
-        {recentMovies.length > 0 ?
-          (
-            recentMovies.map(movie => (
-              <MovieCard post={movie} />
-            ))
+        {
+          recentMovies.length > 0 ? (
+            recentMovies.map((movie) => <MovieCard post={movie} />)
           ) : (
             <p class="text-zinc-500 dark:text-zinc-400 col-span-full">
               还没有观影记录，稍后添加...
             </p>
-          )}
+          )
+        }
       </div>
 
-      <div 
+      <div
         id="movie-deck-view"
         class:list={[
           "hidden",
-          "transition-opacity duration-150 ease-in-out opacity-0"
+          "transition-opacity duration-150 ease-in-out opacity-0",
         ]}
       >
-        {recentMovies.length > 0 ?
-          (
+        {
+          recentMovies.length > 0 ? (
             <div class="movie-deck-wrapper flex justify-center py-8">
-               <MovieDeck posts={recentMovies} />
+              <MovieDeck posts={recentMovies} />
             </div>
           ) : (
-             <p class="text-zinc-500 dark:text-zinc-400 text-center py-16">
+            <p class="text-zinc-500 dark:text-zinc-400 text-center py-16">
               还没有观影记录，稍后添加...
             </p>
-          )}
+          )
+        }
       </div>
-
     </div>
   </section>
 
   <section class="pb-16 md:py-24">
     <div class="max-w-6xl mx-auto px-4">
-      
       <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">
-          最近在听
-        </h2>
+        <h2 class="text-3xl font-bold">最近在听</h2>
       </div>
 
       <div class="max-w-xl mx-auto">
         <RecentMusic />
       </div>
-      
     </div>
   </section>
-
 </BaseLayout>
 
 <script>
   function setupMovieViewToggle() {
     // 获取DOM元素
-    const toggleBtn = document.getElementById('movie-view-toggle');
-    const gridView = document.getElementById('movie-grid-view');
-    const deckView = document.getElementById('movie-deck-view');
-    const gridIcon = document.getElementById('movie-icon-grid');
-    const deckIcon = document.getElementById('movie-icon-deck');
+    const toggleBtn = document.getElementById("movie-view-toggle");
+    const gridView = document.getElementById("movie-grid-view");
+    const deckView = document.getElementById("movie-deck-view");
+    const gridIcon = document.getElementById("movie-icon-grid");
+    const deckIcon = document.getElementById("movie-icon-deck");
 
     // 元素校验：缺少必要DOM则终止执行
     if (!toggleBtn || !gridView || !deckView || !gridIcon || !deckIcon) {
@@ -177,74 +173,74 @@ const pageDescription = "做的还不够多，说的还不够少。";
     }
 
     // 防止重复绑定事件（通过data属性标记）
-    if (toggleBtn.dataset.listenerAttached === 'true') {
+    if (toggleBtn.dataset.listenerAttached === "true") {
       return;
     }
-    toggleBtn.dataset.listenerAttached = 'true';
+    toggleBtn.dataset.listenerAttached = "true";
 
     // 动画过渡时长（与Tailwind的duration-150保持一致）
     const transitionDuration = 150;
 
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener("click", () => {
       // 判断当前是否为网格视图（通过hidden类状态）
-      const isGridViewVisible = !gridView.classList.contains('hidden');
+      const isGridViewVisible = !gridView.classList.contains("hidden");
 
       if (isGridViewVisible) {
         // --- 从 Grid 视图切换到 Deck 视图 ---
         // 切换图标显示状态
-        gridIcon.classList.add('hidden');
-        deckIcon.classList.remove('hidden');
+        gridIcon.classList.add("hidden");
+        deckIcon.classList.remove("hidden");
 
         // A. 网格视图开始淡出
-        gridView.classList.remove('opacity-100');
-        gridView.classList.add('opacity-0');
+        gridView.classList.remove("opacity-100");
+        gridView.classList.add("opacity-0");
 
         // B. 淡出动画结束后执行后续逻辑
         setTimeout(() => {
           // C. 彻底隐藏网格视图
-          gridView.classList.add('hidden');
+          gridView.classList.add("hidden");
 
           // D. 移除Deck视图的隐藏状态（仍保持透明）
-          deckView.classList.remove('hidden');
+          deckView.classList.remove("hidden");
 
           // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
           void deckView.offsetWidth;
 
           // F. Deck视图开始淡入
-          deckView.classList.remove('opacity-0');
-          deckView.classList.add('opacity-100');
+          deckView.classList.remove("opacity-0");
+          deckView.classList.add("opacity-100");
         }, transitionDuration);
       } else {
         // --- 从 Deck 视图切换到 Grid 视图 ---
         // 切换图标显示状态
-        gridIcon.classList.remove('hidden');
-        deckIcon.classList.add('hidden');
+        gridIcon.classList.remove("hidden");
+        deckIcon.classList.add("hidden");
 
         // A. Deck视图开始淡出
-        deckView.classList.remove('opacity-100');
-        deckView.classList.add('opacity-0');
+        deckView.classList.remove("opacity-100");
+        deckView.classList.add("opacity-0");
 
         // B. 淡出动画结束后执行后续逻辑
         setTimeout(() => {
           // C. 彻底隐藏Deck视图
-          deckView.classList.add('hidden');
+          deckView.classList.add("hidden");
 
           // D. 移除网格视图的隐藏状态（仍保持透明）
-          gridView.classList.remove('hidden');
+          gridView.classList.remove("hidden");
 
           // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
           void gridView.offsetWidth;
 
           // F. 网格视图开始淡入
-          gridView.classList.remove('opacity-0');
-          gridView.classList.add('opacity-100');
+          gridView.classList.remove("opacity-0");
+          gridView.classList.add("opacity-100");
         }, transitionDuration);
       }
     });
   }
 
   // 页面初始加载时初始化
-  document.addEventListener('DOMContentLoaded', setupMovieViewToggle);
+  document.addEventListener("DOMContentLoaded", setupMovieViewToggle);
   // Astro 页面路由切换后重新初始化（适配SPA-like导航）
-  document.addEventListener('astro:page-load', setupMovieViewToggle);
+  document.addEventListener("astro:page-load", setupMovieViewToggle);
 </script>

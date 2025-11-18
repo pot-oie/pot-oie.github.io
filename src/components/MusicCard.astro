@@ -1,7 +1,7 @@
 ---
 // src/components/MusicCard.astro
 
-import type { MusicData } from '../data/music.ts';
+import type { MusicData } from "../data/music.ts";
 
 interface Props {
   post: MusicData;
@@ -13,30 +13,32 @@ const { post, optimizedImage, positionClasses } = Astro.props;
 const { title, artist } = post;
 ---
 
-<div class:list={[
-  "absolute z-50",
-  "w-60", // 高瘦型宽度（15rem）
+<div
+  class:list={[
+    "absolute z-50",
+    "w-60", // 高瘦型宽度（15rem）
 
-  "opacity-0 invisible translate-y-2",
-  "transition-all duration-300 ease-in-out",
-  "group-hover:opacity-100",
-  "group-hover:visible",
-  "group-hover:translate-y-0",
+    "opacity-0 invisible translate-y-2",
+    "transition-all duration-300 ease-in-out",
+    "group-hover:opacity-100",
+    "group-hover:visible",
+    "group-hover:translate-y-0",
 
-  "bg-white dark:bg-zinc-800",
-  "border border-zinc-200 dark:border-zinc-700",
-  "rounded-lg shadow-xl",
-  "transition-all duration-150 ease-in-out",
-  "p-3",
-  positionClasses
-]}>
+    "bg-white dark:bg-zinc-800",
+    "border border-zinc-200 dark:border-zinc-700",
+    "rounded-lg shadow-xl",
+    "transition-all duration-150 ease-in-out",
+    "p-3",
+    positionClasses,
+  ]}
+>
   {/* 顶部：圆形旋转专辑封面 */}
   <div class="flex justify-center pt-2 pb-3">
-    <img 
-      src={optimizedImage.src} 
-      alt={title} 
-      width="52" 
-      height="52" 
+    <img
+      src={optimizedImage.src}
+      alt={title}
+      width="52"
+      height="52"
       class="w-14 h-14 object-cover animate-[spin_16s_linear_infinite]"
       style="
         display: inline-block;

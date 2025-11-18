@@ -2,32 +2,32 @@
 // src/components/MovieCard.astro
 
 import { Image } from "astro:assets";
-import type { CollectionEntry } from 'astro:content';
-import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
 
 interface Props {
-  post: CollectionEntry<'movie'>;
+  post: CollectionEntry<"movie">;
 }
 
 const { post } = Astro.props;
 const { title, shortReview, coverImage, rating } = post.data;
-const slug = post.id.replace(/\.mdx?$/, '');
+const slug = post.id.replace(/\.mdx?$/, "");
 
 // 数字到图标的映射逻辑
 function generateStars(rating: number) {
   const totalStars = 5;
   const stars = [];
-  
+
   for (let i = 1; i <= totalStars; i++) {
     if (rating >= i) {
       // 满星
-      stars.push('mingcute:star-fill');
+      stars.push("mingcute:star-fill");
     } else if (rating >= i - 0.5) {
       // 半星
-      stars.push('mingcute:star-half-fill');
+      stars.push("mingcute:star-half-fill");
     } else {
       // 空星
-      stars.push('mingcute:star-line');
+      stars.push("mingcute:star-line");
     }
   }
   return stars;
@@ -36,32 +36,34 @@ function generateStars(rating: number) {
 const starIcons = generateStars(rating);
 ---
 
-<a 
+<a
   href={`/movie/${slug}/`}
   class="group relative block aspect-2/3 w-full rounded-lg overflow-hidden shadow-lg bg-zinc-100 dark:bg-zinc-800 transition-transform transform hover:-translate-y-1"
 >
-  {coverImage ? (
-    <Image
-      src={coverImage}
-      alt={title}
-      width={400}
-      height={600}
-      format="webp"
-      class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-40"
-    />
-  ) : (
-    <div class="w-full h-full flex items-center justify-center p-4 transition-opacity duration-300 group-hover:opacity-40">
-      <span class="text-zinc-500 text-sm text-center">{title}</span>
-    </div>
-  )}
+  {
+    coverImage ? (
+      <Image
+        src={coverImage}
+        alt={title}
+        width={400}
+        height={600}
+        format="webp"
+        class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-40"
+      />
+    ) : (
+      <div class="w-full h-full flex items-center justify-center p-4 transition-opacity duration-300 group-hover:opacity-40">
+        <span class="text-zinc-500 text-sm text-center">{title}</span>
+      </div>
+    )
+  }
 
-  <div class="absolute inset-0 p-4 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+  <div
+    class="absolute inset-0 p-4 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+  >
     <h4 class="text-white text-lg font-bold line-clamp-2">{title}</h4>
-    
+
     <div class="flex items-center text-yellow-400">
-      {starIcons.map(iconName => (
-        <Icon name={iconName} class="w-4 h-4" />
-      ))}
+      {starIcons.map((iconName) => <Icon name={iconName} class="w-4 h-4" />)}
       <span class="ml-1.5 text-sm text-white">{rating.toFixed(1)}</span>
     </div>
 

@@ -6,7 +6,7 @@ const now = new Date();
 
 // 格式化为 "YY-MM" 格式
 const year = now.getFullYear().toString().slice(-2);
-const month = String(now.getMonth() + 1).padStart(2, '0');
+const month = String(now.getMonth() + 1).padStart(2, "0");
 const currentMonthSlug = `${year}-${month}`;
 
 // 重定向到当前月份的日历页面

@@ -1,27 +1,31 @@
 ---
 // src/pages/blog/[category].astro
 
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import BlogRowCard from '../../components/BlogRowCard.astro';
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogRowCard from "../../components/BlogRowCard.astro";
 // 告诉 Astro 要生成哪些页面
 export async function getStaticPaths() {
-	const allPosts = await getCollection('blog');
-	
-	// 获取所有唯一的分类
-	const uniqueCategories = [...new Set(allPosts.map((post) => post.data.category))];
-// 为每个分类生成一个页面
-	return uniqueCategories.map((category) => {
-		// 筛选时也使用小写进行比较
-		const filteredPosts = allPosts.filter((post) => post.data.category.toLowerCase() === category);
-		
-		return {
-			params: { category: category }, // 对应文件名 [category].astro (已是小写)
-			props: {
-				posts: filteredPosts, // 将该分类的文章传递给页面
-			},
-		};
-	});
+  const allPosts = await getCollection("blog");
+
+  // 获取所有唯一的分类
+  const uniqueCategories = [
+    ...new Set(allPosts.map((post) => post.data.category)),
+  ];
+  // 为每个分类生成一个页面
+  return uniqueCategories.map((category) => {
+    // 筛选时也使用小写进行比较
+    const filteredPosts = allPosts.filter(
+      (post) => post.data.category.toLowerCase() === category
+    );
+
+    return {
+      params: { category: category }, // 对应文件名 [category].astro (已是小写)
+      props: {
+        posts: filteredPosts, // 将该分类的文章传递给页面
+      },
+    };
+  });
 }
 
 // 获取传递过来的文章和分类名
@@ -29,35 +33,31 @@ const { category } = Astro.params; // category 会是 "learn" 或 "life"
 const { posts } = Astro.props;
 // 按日期倒序排列
 const sortedPosts = posts.sort(
-  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+  (a, b) =>
+    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
 // 中英文映射
 const categoryNames: Record<string, string> = {
-    'learn': '学习笔记',
-    'life': '生活随笔',
+  learn: "学习笔记",
+  life: "生活随笔",
 };
 const pageTitle = `分类：${categoryNames[category] || category}`;
 const pageDescription = `关于“${categoryNames[category] || category}”的所有文章`;
 ---
-<BaseLayout title={pageTitle} description={pageDescription}>
-	<section class="py-16 md:py-24">
-		<div class="max-w-6xl mx-auto px-4">
-			
-			<h1 class="text-4xl font-bold mb-4">
-				{pageTitle}
-			</h1>
-			<p class="text-xl text-zinc-600 dark:text-zinc-400">
-				{pageDescription}
-			</p>
-			
-			<div class="mt-12 flex flex-col gap-6">
-				
-				{sortedPosts.map(post => (
-					<BlogRowCard post={post} />
-				))}
-				
-			</div>
 
-		</div>
-	</section>
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <section class="py-16 md:py-24">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold mb-4">
+        {pageTitle}
+      </h1>
+      <p class="text-xl text-zinc-600 dark:text-zinc-400">
+        {pageDescription}
+      </p>
+
+      <div class="mt-12 flex flex-col gap-6">
+        {sortedPosts.map((post) => <BlogRowCard post={post} />)}
+      </div>
+    </div>
+  </section>
 </BaseLayout>

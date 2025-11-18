@@ -1,20 +1,19 @@
 ---
 // src/pages/music/[month].astro
 
-import { allMusic, type MusicData } from '../../data/music.ts';
-import MusicCalendar from '../../components/MusicCalendar.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { allMusic, type MusicData } from "../../data/music.ts";
+import MusicCalendar from "../../components/MusicCalendar.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
-  
   // 修改 Map 类型
   const months = new Map<string, MusicData[]>();
 
   for (const post of allMusic) {
     // 去掉 .data
     const pubDate = post.pubDate;
-    const key = `${pubDate.getFullYear().toString().slice(-2)}-${String(pubDate.getMonth() + 1).padStart(2, '0')}`;
-    
+    const key = `${pubDate.getFullYear().toString().slice(-2)}-${String(pubDate.getMonth() + 1).padStart(2, "0")}`;
+
     if (!months.has(key)) {
       months.set(key, []);
     }
@@ -22,16 +21,16 @@ export async function getStaticPaths() {
   }
 
   const now = new Date();
-  const currentMonthKey = `${now.getFullYear().toString().slice(-2)}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-if (!months.has(currentMonthKey)) {
+  const currentMonthKey = `${now.getFullYear().toString().slice(-2)}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  if (!months.has(currentMonthKey)) {
     months.set(currentMonthKey, []);
   }
 
   const allMonthKeys = [...months.keys()].sort().reverse();
-return allMonthKeys.map((monthKey, index) => {
+  return allMonthKeys.map((monthKey, index) => {
     const prevKey = allMonthKeys[index + 1] || null;
     const nextKey = allMonthKeys[index - 1] || null;
-    
+
     return {
       params: { month: monthKey },
       props: {
@@ -46,22 +45,24 @@ return allMonthKeys.map((monthKey, index) => {
 const { month } = Astro.params;
 const { musicForThisMonth, prevMonthUrl, nextMonthUrl } = Astro.props;
 
-const [yearStr, monthStr] = month.split('-');
-const dateForTitle = new Date(2000 + parseInt(yearStr), parseInt(monthStr) - 1, 1);
+const [yearStr, monthStr] = month.split("-");
+const dateForTitle = new Date(
+  2000 + parseInt(yearStr),
+  parseInt(monthStr) - 1,
+  1
+);
 ---
 
 <BaseLayout title="" description="">
   <main>
     <section class="pb-16 md:pb-24">
       <div class="max-w-6xl mx-auto px-4">
-        
         <MusicCalendar
           currentMonthKey={month}
           musicData={musicForThisMonth}
           prevMonthUrl={prevMonthUrl}
           nextMonthUrl={nextMonthUrl}
         />
-
       </div>
     </section>
   </main>

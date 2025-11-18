@@ -1,10 +1,10 @@
 ---
 // src/components/MusicCalendar.astro
 
-import type { MusicData } from '../data/music.ts';
-import { getImage } from 'astro:assets';
-import { Icon } from 'astro-icon/components';
-import MusicCard from './MusicCard.astro';
+import type { MusicData } from "../data/music.ts";
+import { getImage } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import MusicCard from "./MusicCard.astro";
 
 interface Props {
   currentMonthKey: string;
@@ -14,10 +14,13 @@ interface Props {
 }
 const { currentMonthKey, musicData, prevMonthUrl, nextMonthUrl } = Astro.props;
 
-const [yearStr, monthStr] = currentMonthKey.split('-');
+const [yearStr, monthStr] = currentMonthKey.split("-");
 const year = 2000 + parseInt(yearStr);
 const month = parseInt(monthStr) - 1; // 0-11
-const title = new Date(year, month, 1).toLocaleString('zh-CN', { year: 'numeric', month: 'long' });
+const title = new Date(year, month, 1).toLocaleString("zh-CN", {
+  year: "numeric",
+  month: "long",
+});
 
 const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0-6
 const daysInMonth = new Date(year, month + 1, 0).getDate(); // 28-31
@@ -32,121 +35,174 @@ for (const post of musicData) {
 }
 
 const today = new Date();
-const todayKey = `${today.getFullYear().toString().slice(-2)}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-const todayDate = (currentMonthKey === todayKey) ? today.getDate() : -1;
+const todayKey = `${today.getFullYear().toString().slice(-2)}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+const todayDate = currentMonthKey === todayKey ? today.getDate() : -1;
 
-const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+const dayNames = ["日", "一", "二", "三", "四", "五", "六"];
 ---
 
 <div id="music-calendar-app" class="max-w-4xl mx-auto">
+  {/* 月份切换 */}
+  <div class="flex justify-between items-center mb-6">
+    {
+      prevMonthUrl ? (
+        <a
+          href={prevMonthUrl}
+          aria-label="上个月"
+          class="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        >
+          <Icon
+            name="mingcute:left-line"
+            class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
+          />
+        </a>
+      ) : (
+        <span class="p-2 cursor-not-allowed">
+          <Icon
+            name="mingcute:left-line"
+            class="w-6 h-6 text-zinc-300 dark:text-zinc-700"
+          />
+        </span>
+      )
+    }
 
-    {/* 月份切换 */}
-    <div class="flex justify-between items-center mb-6">
-        {prevMonthUrl ? (
-            <a href={prevMonthUrl} aria-label="上个月" class="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                <Icon name="mingcute:left-line" class="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
-            </a>
-        ) : (
-            <span class="p-2 cursor-not-allowed">
-                <Icon name="mingcute:left-line" class="w-6 h-6 text-zinc-300 dark:text-zinc-700" />
-            </span>
-        )}
-        
-        <h2 class="text-3xl font-bold text-center text-zinc-900 dark:text-zinc-100">{title}</h2>
-        
-        {nextMonthUrl ? (
-            <a href={nextMonthUrl} aria-label="下个月" class="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                <Icon name="mingcute:right-line" class="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
-            </a>
-        ) : (
-            <span class="p-2 cursor-not-allowed">
-                <Icon name="mingcute:right-line" class="w-6 h-6 text-zinc-300 dark:text-zinc-700" />
-            </span>
-        )}
-    </div>
+    <h2 class="text-3xl font-bold text-center text-zinc-900 dark:text-zinc-100">
+      {title}
+    </h2>
 
-    {/* 星期表头 */}
-    <div class="grid grid-cols-7 gap-px bg-zinc-200 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-t-lg overflow-hidden">
-        {dayNames.map(day => (
-            <div class="text-center font-semibold py-3 text-zinc-600 dark:text-zinc-400 text-sm bg-white dark:bg-zinc-800">
+    {
+      nextMonthUrl ? (
+        <a
+          href={nextMonthUrl}
+          aria-label="下个月"
+          class="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        >
+          <Icon
+            name="mingcute:right-line"
+            class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
+          />
+        </a>
+      ) : (
+        <span class="p-2 cursor-not-allowed">
+          <Icon
+            name="mingcute:right-line"
+            class="w-6 h-6 text-zinc-300 dark:text-zinc-700"
+          />
+        </span>
+      )
+    }
+  </div>
+
+  {/* 星期表头 */}
+  <div
+    class="grid grid-cols-7 gap-px bg-zinc-200 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-t-lg overflow-hidden"
+  >
+    {
+      dayNames.map((day) => (
+        <div class="text-center font-semibold py-3 text-zinc-600 dark:text-zinc-400 text-sm bg-white dark:bg-zinc-800">
+          {day}
+        </div>
+      ))
+    }
+  </div>
+
+  {/* 日历网格 */}
+  <div
+    class="relative grid grid-cols-7 gap-px bg-zinc-200 dark:bg-zinc-700 border-x border-b border-zinc-200 dark:border-zinc-700 rounded-b-lg overflow-hidden"
+  >
+    {/* 空白格子 */}
+    {
+      Array(firstDayOfWeek)
+        .fill(null)
+        .map(() => (
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 min-h-16 md:min-h-20" />
+        ))
+    }
+
+    {/* 每一天 */}
+    {
+      Array(daysInMonth)
+        .fill(null)
+        .map(async (_, i) => {
+          const day = i + 1;
+          const post = musicMap.get(day);
+
+          let optimizedImage = null;
+          if (post) {
+            optimizedImage = await getImage({
+              src: post.coverImage,
+              width: 200,
+              height: 200,
+              format: "webp",
+            });
+          }
+
+          // 位置计算逻辑
+          const cellIndex = firstDayOfWeek + i;
+          const row = Math.floor(cellIndex / 7);
+          const col = cellIndex % 7;
+
+          const cardPositionClasses = [
+            row < 3 ? "top-full mt-2" : "bottom-full mb-2",
+            col < 1
+              ? "left-0"
+              : col > 5
+                ? "right-0"
+                : "left-1/2 -translate-x-1/2",
+          ];
+
+          return (
+            <div
+              class:list={[
+                "relative group p-2",
+                "min-h-16 md:min-h-20",
+                post
+                  ? "bg-zinc-120 dark:bg-zinc-800"
+                  : "bg-zinc-50 dark:bg-zinc-800/50",
+                "group-hover:z-10",
+              ]}
+            >
+              <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 {day}
-            </div>
-        ))}
-    </div>
-    
-    {/* 日历网格 */}
-    <div class="relative grid grid-cols-7 gap-px bg-zinc-200 dark:bg-zinc-700 border-x border-b border-zinc-200 dark:border-zinc-700 rounded-b-lg overflow-hidden">
-        
-        {/* 空白格子 */}
-        {Array(firstDayOfWeek).fill(null).map(() => (
-            <div class="bg-zinc-50 dark:bg-zinc-800/50 min-h-16 md:min-h-20"></div>
-        ))}
+              </span>
 
-        {/* 每一天 */}
-        {Array(daysInMonth).fill(null).map(async (_, i) => {
-            const day = i + 1;
-            const post = musicMap.get(day); 
-            
-            let optimizedImage = null;
-            if (post) {
-                optimizedImage = await getImage({
-                    src: post.coverImage,
-                    width: 200,
-                    height: 200,
-                    format: 'webp',
-                });
-            }
+              {post && optimizedImage ? (
+                <>
+                  {/* 耳机图标 */}
+                  <div class="absolute inset-0 flex justify-center items-center">
+                    <Icon
+                      name="tabler:headphones-filled"
+                      class="w-7 h-7 text-zinc-700 dark:text-zinc-300 cursor-pointer"
+                    />
+                  </div>
 
-            // 位置计算逻辑
-            const cellIndex = firstDayOfWeek + i;
-            const row = Math.floor(cellIndex / 7);
-            const col = cellIndex % 7;             
-
-            const cardPositionClasses = [
-                row < 3 ? "top-full mt-2" : "bottom-full mb-2",
-                col < 1 ? "left-0" :
-                col > 5 ? "right-0" :
-                "left-1/2 -translate-x-1/2"
-            ];
-            
-            return (
-                <div class:list={[
-                    "relative group p-2",
-                    "min-h-16 md:min-h-20",
-                    post ? "bg-zinc-120 dark:bg-zinc-800" : "bg-zinc-50 dark:bg-zinc-800/50",
-                    "group-hover:z-10"
-                ]}>
-                    
-                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{day}</span>
-                    
-                    {post && optimizedImage ? (
-                        <>
-                            {/* 耳机图标 */}
-                            <div class="absolute inset-0 flex justify-center items-center">
-                                <Icon name="tabler:headphones-filled" class="w-7 h-7 text-zinc-700 dark:text-zinc-300 cursor-pointer" />
-                            </div>
-                            
-                            {/* 调用 MusicCard 组件 */}
-                            <MusicCard
-                                post={post}
-                                optimizedImage={optimizedImage}
-                                positionClasses={cardPositionClasses}
-                            />
-                        </>
-                    ) : day === todayDate ? (
-                        /* 当天图标 */
-                        <div class="absolute inset-0 flex justify-center items-center">
-                            <Icon name="mingcute:location-line" class="w-7 h-7 text-zinc-700 dark:text-zinc-300" />
-                        </div>
-                    ) : (
-                        null
-                    )}
+                  {/* 调用 MusicCard 组件 */}
+                  <MusicCard
+                    post={post}
+                    optimizedImage={optimizedImage}
+                    positionClasses={cardPositionClasses}
+                  />
+                </>
+              ) : day === todayDate ? (
+                /* 当天图标 */
+                <div class="absolute inset-0 flex justify-center items-center">
+                  <Icon
+                    name="mingcute:location-line"
+                    class="w-7 h-7 text-zinc-700 dark:text-zinc-300"
+                  />
                 </div>
-            );
-        })}
-        {/* 尾部空白格子 */}
-        {Array(trailingCellsCount).fill(null).map(() => (
-          <div class="bg-zinc-50 dark:bg-zinc-800/50 min-h-16 md:min-h-20"></div>
-          ))}
-    </div>
+              ) : null}
+            </div>
+          );
+        })
+    }
+    {/* 尾部空白格子 */}
+    {
+      Array(trailingCellsCount)
+        .fill(null)
+        .map(() => (
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 min-h-16 md:min-h-20" />
+        ))
+    }
+  </div>
 </div>

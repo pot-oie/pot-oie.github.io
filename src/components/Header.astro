@@ -1,15 +1,15 @@
 ---
 // src/components/Header.astro
 
-import { Icon } from 'astro-icon/components'
-import HeaderLink from './HeaderLink.astro';
+import { Icon } from "astro-icon/components";
+import HeaderLink from "./HeaderLink.astro";
 ---
+
 <header class="border-b border-zinc-200 dark:border-zinc-800 py-4">
   <div class="max-w-6xl mx-auto px-4">
     <nav class="flex justify-between items-center">
-      
-      <a 
-        href="/" 
+      <a
+        href="/"
         class="text-2xl font-bold text-primary-500 hover:opacity-80 transition-opacity"
       >
         Pot's Blog
@@ -19,7 +19,7 @@ import HeaderLink from './HeaderLink.astro';
         <ul class="flex gap-6">
           <li>
             <HeaderLink
-              href="/" 
+              href="/"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               首页
@@ -27,7 +27,7 @@ import HeaderLink from './HeaderLink.astro';
           </li>
           <li>
             <HeaderLink
-              href="/blog/learn" 
+              href="/blog/learn"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               学习笔记
@@ -35,23 +35,23 @@ import HeaderLink from './HeaderLink.astro';
           </li>
           <li>
             <HeaderLink
-              href="/blog/life" 
+              href="/blog/life"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               生活随笔
             </HeaderLink>
           </li>
-           <li>
+          <li>
             <HeaderLink
-              href="/movie" 
+              href="/movie"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               观影记录
             </HeaderLink>
           </li>
-           <li>
+          <li>
             <HeaderLink
-              href="/music" 
+              href="/music"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               音乐日历
@@ -59,7 +59,7 @@ import HeaderLink from './HeaderLink.astro';
           </li>
           <li>
             <HeaderLink
-              href="/about" 
+              href="/about"
               class="text-zinc-600 dark:text-zinc-300 hover:text-primary-500 transition-colors"
             >
               关于我
@@ -67,19 +67,23 @@ import HeaderLink from './HeaderLink.astro';
           </li>
         </ul>
 
-        <button 
+        <button
           id="theme-toggle-btn"
           class="w-8 h-8 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-lg transition-colors"
         >
-          <Icon name="mingcute:sun-fill" class="w-5 h-5 text-zinc-800 dark:hidden" />
-          
-          <Icon name="mingcute:moon-fill" class="w-5 h-5 text-zinc-200 hidden dark:block" />
+          <Icon
+            name="mingcute:sun-fill"
+            class="w-5 h-5 text-zinc-800 dark:hidden"
+          />
+
+          <Icon
+            name="mingcute:moon-fill"
+            class="w-5 h-5 text-zinc-200 hidden dark:block"
+          />
 
           <span class="sr-only">切换主题</span>
         </button>
-        
       </div>
-
     </nav>
   </div>
 </header>
