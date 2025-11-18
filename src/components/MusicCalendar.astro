@@ -68,7 +68,7 @@ const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
     {/* 星期表头 */}
     <div class="grid grid-cols-7 gap-px bg-zinc-200 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-t-lg overflow-hidden">
         {dayNames.map(day => (
-            <div class="text-center font-semibold py-3 text-zinc-600 dark:text-zinc-400 text-sm bg-white dark:bg-zinc-900">
+            <div class="text-center font-semibold py-3 text-zinc-600 dark:text-zinc-400 text-sm bg-white dark:bg-zinc-800">
                 {day}
             </div>
         ))}
@@ -113,7 +113,7 @@ const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
                 <div class:list={[
                     "relative group p-2",
                     "min-h-16 md:min-h-20",
-                    post ? "bg-white dark:bg-zinc-900" : "bg-zinc-50 dark:bg-zinc-800/50",
+                    post ? "bg-zinc-120 dark:bg-zinc-800" : "bg-zinc-50 dark:bg-zinc-800/50",
                     "group-hover:z-10"
                 ]}>
                     

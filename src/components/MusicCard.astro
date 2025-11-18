@@ -14,7 +14,7 @@ const { title, artist } = post.data;
 
 <div class:list={[
   "absolute z-50",
-  "w-56", // 高瘦型宽度（14rem）
+  "w-60", // 高瘦型宽度（15rem）
 
   "opacity-0 invisible translate-y-2",
   "transition-all duration-300 ease-in-out",
@@ -50,10 +50,10 @@ const { title, artist } = post.data;
 
   {/* 底部：居中显示文字 */}
   <div class="overflow-hidden text-center">
-    <h4 class="font-bold text-lg text-zinc-900 dark:text-zinc-100 whitespace-normal overflow-hidden" title={title}>
+    <h5 class="" title={title}>
       {title}
-    </h4>
-    <p class="text-sm text-zinc-600 dark:text-zinc-400 truncate mt-1" title={artist}>
+    </h5>
+    <p class="text-base" title={artist}>
       {artist}
     </p>
   </div>

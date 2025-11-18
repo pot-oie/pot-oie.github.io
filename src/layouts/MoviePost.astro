@@ -58,7 +58,8 @@ const starIcons = generateStars(rating);
       }
       .prose blockquote {
         border-left-width: 4px;
-        padding: 0 0 0 20px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         margin: 1.5em 0;
         font-size: 1.2em;
         font-style: italic;
@@ -66,7 +67,7 @@ const starIcons = generateStars(rating);
     </style>
   </head>
 
-  <body class="bg-white dark:bg-zinc-900">
+  <body class="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200">
     <Header />
     <main class="py-16 md:py-24">
       <article>
@@ -134,3 +135,23 @@ const starIcons = generateStars(rating);
     <Footer />
   </body>
 </html>
+
+<script>
+  function setupThemeToggle() {
+    const toggleBtn = document.getElementById('theme-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+    }
+  }
+
+  // 页面加载生命周期
+  document.addEventListener('DOMContentLoaded', () => {
+    setupThemeToggle();
+  });
+  document.addEventListener('astro:page-load', () => {
+    setupThemeToggle();
+  });
+</script>

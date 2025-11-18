@@ -3,9 +3,7 @@
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 import MusicCalendar from '../../components/MusicCalendar.astro';
-import BaseHead from '../../components/BaseHead.astro';
-import Footer from '../../components/Footer.astro';
-import Header from '../../components/Header.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const allMusic = await getCollection('music');
@@ -49,21 +47,11 @@ const { musicForThisMonth, prevMonthUrl, nextMonthUrl } = Astro.props;
 
 const [yearStr, monthStr] = month.split('-');
 const dateForTitle = new Date(2000 + parseInt(yearStr), parseInt(monthStr) - 1, 1);
-const pageTitle = `音乐日历 - ${dateForTitle.toLocaleString('zh-CN', { year: 'numeric', month: 'long' })}`;
-const pageDescription = "我的音乐日历。";
 ---
 
-<html lang="zh-CN">
-<head>
-  <BaseHead title={pageTitle} description={pageDescription} />
-</head>
-<body class="bg-white dark:bg-zinc-900">
-  
-  <Header />
-
+<BaseLayout title="" description="">
   <main>
-    {/* 缩小顶部 padding */}
-    <section class="pt-4 md:pt-8 pb-16 md:pb-24">
+    <section class="pb-16 md:pb-24">
       <div class="max-w-6xl mx-auto px-4">
         
         <MusicCalendar
@@ -76,8 +64,4 @@ const pageDescription = "我的音乐日历。";
       </div>
     </section>
   </main>
-  
-  <Footer />
-
-</body>
-</html>
+</BaseLayout>

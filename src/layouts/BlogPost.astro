@@ -150,17 +150,11 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
   function setupThemeToggle() {
     const toggleBtn = document.getElementById('theme-toggle-btn');
     if (toggleBtn) {
-      // 检查是否已经绑定
-      if (toggleBtn.dataset.listenerAttached === 'true') {
-        return;
-      }
 
       toggleBtn.addEventListener('click', () => {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
       });
-      
-      toggleBtn.dataset.listenerAttached = 'true';
     }
   }
 

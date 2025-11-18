@@ -32,10 +32,6 @@ const { title, description } = Astro.props;
       const toggleBtn = document.getElementById('theme-toggle-btn');
       
       if (toggleBtn) {
-        // 检查是否已经绑定，防止 astro:page-load 重复绑定
-        if (toggleBtn.dataset.listenerAttached === 'true') {
-          return;
-        }
         
         toggleBtn.addEventListener('click', () => {
           // 切换 <html> 标签上的 'dark' 类
@@ -44,9 +40,6 @@ const { title, description } = Astro.props;
           // 将用户的选择保存到 localStorage
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
-        
-        // 标记该按钮已处理
-        toggleBtn.dataset.listenerAttached = 'true';
       }
     }
 
