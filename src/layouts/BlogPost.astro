@@ -1,165 +1,123 @@
 ---
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
+import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import Header from "../components/Header.astro";
 
 type Props = CollectionEntry<"blog">["data"];
-
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
-<html>
-  <head lang="zh-CN">
-    <BaseHead title={title} description={description} />
-    <style>
-      main {
-        width: calc(100% - 2em);
-        max-width: 100%;
-        margin: 0;
-      }
-
-      :root {
-        --mask-color-rgb: 255, 255, 255;
-        --mask-color-hex: #ffffff;
-      }
-      .dark {
-        --mask-color-rgb: 24, 24, 27;
-        --mask-color-hex: #18181b;
-      }
-
-      .hero-image {
-        width: 100%;
-        height: 350px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-      }
-      .hero-image::after {
-        content: "";
-        /* 让元素充满父容器 */
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        background: linear-gradient(
-            to bottom,
-            /* 从上到下 */ var(--mask-color-hex) 0%,
-            rgba(var(--mask-color-rgb), 0.6) 10%,
-            rgba(var(--mask-color-rgb), 0.05) 20%,
-            transparent 40%,
-            rgba(var(--mask-color-rgb), 0.05) 60%,
-            rgba(var(--mask-color-rgb), 0.65) 80%,
-            var(--mask-color-hex) 100%
-          ),
-          linear-gradient(
-            to right,
-            /* 从左到右 */ var(--mask-color-hex) 35%,
-            rgba(var(--mask-color-rgb), 0.6) 40%,
-            rgba(var(--mask-color-rgb), 0.05) 45%,
-            rgba(var(--mask-color-rgb), 0.05) 55%,
-            rgba(var(--mask-color-rgb), 0.6) 60%,
-            var(--mask-color-hex) 65%
-          );
-      }
-      .hero-image img {
-        display: block;
-        margin: 0 auto;
-        border-radius: 12px;
-        box-shadow: var(--box-shadow);
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-      }
-      .prose {
-        width: 800px;
-        max-width: calc(100% - 2em);
-        margin: auto;
-        padding: 1em;
-        color: rgb(var(--gray-dark));
-        font-size: 17px;
-        line-height: 1.2;
-        margin-top: -6rem;
-        position: relative;
-      }
-      html.dark .prose {
-        color: rgb(228 228 231);
-      }
-      .title {
-        margin-bottom: 1em;
-        padding: 2rem 0 1em 0;
-        text-align: center;
-        line-height: 1;
-      }
-      .title h1 {
-        margin: 0 0 0.5em 0;
-      }
-      .date {
-        margin-bottom: 0.75em;
-        color: rgb(var(--gray));
-        font-weight: 500;
-        font-size: 22px;
-      }
-      html.dark .date {
-        color: rgb(var(--gray-light));
-      }
-      .last-updated-on {
-        font-style: italic;
-      }
-    </style>
-  </head>
-
-  <body class="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200">
-    <Header />
-    <main>
-      <article>
+<BaseLayout title={title} description={description}>
+  <article>
+    {
+      heroImage && (
         <div class="hero-image">
-          {
-            heroImage && (
-              <Image width={1020} height={510} src={heroImage} alt="" />
-            )
-          }
+          <Image width={1020} height={510} src={heroImage} alt={title} />
         </div>
-        <div class="prose">
-          <div class="title">
-            <div class="date">
-              <FormattedDate date={pubDate} />
-              {
-                updatedDate && (
-                  <div class="last-updated-on">
-                    Last updated on <FormattedDate date={updatedDate} />
-                  </div>
-                )
-              }
-            </div>
-            <h1>{title}</h1>
-            <hr />
-          </div>
-          <slot />
-        </div>
-      </article>
-    </main>
-    <Footer />
-  </body>
-</html>
-
-<script>
-  function setupThemeToggle() {
-    const toggleBtn = document.getElementById("theme-toggle-btn");
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        const isDark = document.documentElement.classList.toggle("dark");
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-      });
+      )
     }
+    <div class:list={["prose", !heroImage && "no-hero-offset"]}>
+      <div class="title">
+        <div class="title-section">
+          <div class="date">
+            <FormattedDate date={pubDate} />
+            {
+              updatedDate && (
+                <div class="last-updated-on">
+                  Last updated on <FormattedDate date={updatedDate} />
+                </div>
+              )
+            }
+          </div>
+          <h1>{title}</h1>
+          <hr />
+        </div>
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .hero-image {
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 2rem;
   }
 
+  .hero-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--mask-color-hex) 0%,
+      rgba(var(--mask-color-rgb), 0.6) 10%,
+      rgba(var(--mask-color-rgb), 0.05) 20%,
+      transparent 40%,
+      rgba(var(--mask-color-rgb), 0.05) 60%,
+      rgba(var(--mask-color-rgb), 0.65) 80%,
+      var(--mask-color-hex) 100%
+    );
+  }
+
+  .hero-image img {
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .prose {
+    margin-top: -6rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .no-hero-offset {
+    margin-top: 2rem;
+  }
+
+  .title {
+    margin-bottom: 1em;
+    padding: 1rem 0 1em 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .no-hero-offset .title {
+    padding-top: 0.5rem;
+  }
+
+  .title-section {
+    text-align: center;
+    margin-bottom: 2em;
+  }
+
+  .date {
+    margin-bottom: 0.5em;
+    color: rgb(var(--gray));
+    font-weight: 500;
+    font-size: 22px;
+  }
+
+  .last-updated-on {
+    font-style: italic;
+    font-size: 0.9em;
+  }
+</style>
+
+<script>
   function initCodeBlockFeatures() {
     // 防止重复初始化
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
@@ -234,24 +192,24 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
       const LINE_THRESHOLD = 12;
 
       if (lines.length > LINE_THRESHOLD) {
-        // 1. 只有超过 12 行才进行折叠处理
+        // 超过 12 行进行折叠处理
         pre.classList.add("collapsed");
 
-        // 2. 创建切换按钮
+        // 创建切换按钮
         const toggleBtn = document.createElement("button");
         // 应用基类 + 按钮基类 + 具体的定位类(toggle-btn)
         toggleBtn.className =
           "astro-code-icon-base astro-code-icon-btn toggle-btn";
 
-        // 3. 创建图标元素 (默认显示“向下/展开”)
+        // 创建图标元素 (默认显示“向下/展开”)
         const iconSpan = document.createElement("span");
         iconSpan.className = "mingcute--down-fill";
         toggleBtn.appendChild(iconSpan);
 
-        // 4. 添加到 DOM
+        // 添加到 DOM
         pre.appendChild(toggleBtn);
 
-        // 5. 绑定点击事件
+        // 绑定点击事件
         toggleBtn.addEventListener("click", () => {
           // 切换 collapsed 类
           const isCollapsed = pre.classList.toggle("collapsed");
@@ -259,8 +217,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
           if (isCollapsed) {
             // 变成了折叠状态 -> 显示“向下”箭头
             iconSpan.className = "mingcute--down-fill";
-            // 可选：折叠后如果你想让页面滚动回代码块顶部，可以加这一行
-            // pre.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
           } else {
             // 变成了展开状态 -> 显示“向上”箭头
             iconSpan.className = "mingcute--up-fill";
@@ -271,11 +228,9 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
   }
   // 页面加载生命周期
   document.addEventListener("DOMContentLoaded", () => {
-    setupThemeToggle();
     initCodeBlockFeatures();
   });
   document.addEventListener("astro:page-load", () => {
-    setupThemeToggle();
     initCodeBlockFeatures();
   });
 </script>
