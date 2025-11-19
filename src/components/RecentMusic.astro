@@ -1,72 +1,80 @@
 ---
+// src/components/RecentMusic.astro
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import { allMusic } from "../data/music.ts";
 ---
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col">
   {
     allMusic.map((song) => (
-      <article class="music-card flex items-center gap-5 p-4 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/60 transition-colors duration-300 hover:bg-zinc-200/80 dark:hover:bg-zinc-800">
-        <Image
-          src={song.coverImage}
-          alt={`封面：${song.title}`}
-          width={64}
-          height={64}
-          format="webp"
-          class="cover w-16 h-20 rounded-lg object-cover"
-        />
+      <article class="group flex items-center gap-6 py-6 border-b border-ink-300/20 last:border-0 transition-all duration-500 hover:pl-4">
+        {/* 封面：黑白 -> 彩色 */}
+        <div class="relative shrink-0">
+          <div class="absolute inset-0 bg-ink-900/5 rounded-sm rotate-3 group-hover:rotate-6 transition-transform duration-500" />
+          <Image
+            src={song.coverImage}
+            alt={`封面：${song.title}`}
+            width={120}
+            height={120}
+            format="webp"
+            class="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 group-hover:grayscale-0 group-hover:contrast-100 shadow-sm group-hover:shadow-md"
+          />
+          {/* 唱片纹理装饰 */}
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-ink-100 rounded-full z-20 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none mix-blend-overlay" />
+        </div>
 
-        <div class="grow min-w-0">
+        <div class="grow min-w-0 flex flex-col justify-center gap-1">
           <h4
-            class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 whitespace-nowrap overflow-hidden text-ellipsis"
+            class="text-lg md:text-xl font-serif font-bold text-ink-900 truncate group-hover:text-vermilion transition-colors duration-300"
             title={song.title}
           >
             {song.title}
           </h4>
 
           <p
-            class="text-sm text-zinc-600 dark:text-zinc-400 whitespace-nowrap overflow-hidden text-ellipsis"
+            class="text-xs md:text-sm font-sans text-ink-500 truncate tracking-wider uppercase opacity-80"
             title={song.artist}
           >
             {song.artist}
           </p>
+        </div>
 
-          <div class="flex gap-3 mt-2">
-            {song.links?.spotify && (
-              <a
-                href={song.links.spotify}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="在 Spotify 播放"
-                class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100"
-              >
-                <Icon name="mingcute:spotify-line" class="w-5 h-5" />
-              </a>
-            )}
-            {song.links?.netease && (
-              <a
-                href={song.links.netease}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="在网易云音乐播放"
-                class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100"
-              >
-                <Icon name="mingcute:netease-music-line" class="w-5 h-5" />
-              </a>
-            )}
-            {song.links?.qqMusic && (
-              <a
-                href={song.links.qqMusic}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="在 QQ 音乐播放"
-                class="text-zinc-600 dark:text-zinc-300 transition-colors hover:text-zinc-800 dark:hover:text-zinc-100"
-              >
-                <Icon name="mingcute:music-3-line" class="w-5 h-5" />
-              </a>
-            )}
-          </div>
+        {/* 链接区域：右侧浮现 */}
+        <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+          {song.links?.spotify && (
+            <a
+              href={song.links.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Spotify"
+              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+            >
+              <Icon name="mingcute:spotify-line" class="w-5 h-5" />
+            </a>
+          )}
+          {song.links?.netease && (
+            <a
+              href={song.links.netease}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Netease Music"
+              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+            >
+              <Icon name="mingcute:netease-music-line" class="w-5 h-5" />
+            </a>
+          )}
+          {song.links?.qqMusic && (
+            <a
+              href={song.links.qqMusic}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="QQ Music"
+              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+            >
+              <Icon name="mingcute:music-3-line" class="w-5 h-5" />
+            </a>
+          )}
         </div>
       </article>
     ))

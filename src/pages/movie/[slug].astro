@@ -8,7 +8,7 @@ import MoviePost from "../../layouts/MoviePost.astro";
 export async function getStaticPaths() {
   const posts = await getCollection("movie");
   return posts.map((post) => ({
-    // 移除 .mdx 后缀，匹配 MovieCard 和 MovieDeck 中的链接
+    // 移除 .mdx 后缀，匹配 MovieCard 和 MovieScroll 中的链接
     params: { slug: post.id.replace(/\.mdx?$/, "") },
     props: post,
   }));

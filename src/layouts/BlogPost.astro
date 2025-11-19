@@ -1,119 +1,117 @@
 ---
+// src/layouts/BlogPost.astro
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import { Icon } from "astro-icon/components";
 
 type Props = CollectionEntry<"blog">["data"];
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
-  <article>
+  <article class="py-12 md:py-20">
+    {/* --- 头部区域：极简留白 --- */}
+    <header class="max-w-3xl mx-auto text-center mb-16 md:mb-24 px-4">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-colors mb-8 text-sm tracking-widest uppercase group"
+      >
+        <Icon
+          name="mingcute:arrow-left-line"
+          class="group-hover:-translate-x-1 transition-transform"
+        />
+        <span>Return</span>
+      </a>
+
+      <div class="flex flex-col items-center gap-4">
+        <div
+          class="text-ink-500 text-sm font-sans tracking-widest uppercase flex items-center gap-3"
+        >
+          <FormattedDate date={pubDate} />
+          {
+            updatedDate && (
+              <>
+                <span class="w-1 h-1 rounded-full bg-ink-300" />
+                <span class="italic">Updated</span>
+              </>
+            )
+          }
+        </div>
+
+        <h1
+          class="text-4xl md:text-6xl font-serif font-bold text-ink-900 leading-tight tracking-tight"
+        >
+          {title}
+        </h1>
+
+        <div class="w-12 h-1 bg-ink-900 mt-6"></div>
+      </div>
+    </header>
+
+    {/* --- 核心图片：黑白->彩色交互 --- */}
     {
       heroImage && (
-        <div class="hero-image">
-          <Image width={1020} height={510} src={heroImage} alt={title} />
+        <div class="w-full max-w-5xl mx-auto mb-16 md:mb-24 px-4 group">
+          <div class="relative overflow-hidden rounded-sm shadow-ink transition-all duration-700">
+            <Image
+              src={heroImage}
+              alt={title}
+              width={1200}
+              class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 group-hover:grayscale-0 group-hover:contrast-100"
+            />
+            {/* 纹理遮罩，增加纸张感 */}
+            <div class="absolute inset-0 bg-ink-500/5 mix-blend-multiply pointer-events-none" />
+          </div>
         </div>
       )
     }
-    <div class:list={["prose", !heroImage && "no-hero-offset"]}>
-      <div class="title">
-        <div class="title-section">
-          <div class="date">
-            <FormattedDate date={pubDate} />
-            {
-              updatedDate && (
-                <div class="last-updated-on">
-                  Last updated on <FormattedDate date={updatedDate} />
-                </div>
-              )
-            }
-          </div>
-          <h1>{title}</h1>
-          <hr />
-        </div>
-        <slot />
-      </div>
+
+    {/* --- 正文区域 --- */}
+    <div class="prose prose-ink mx-auto px-4">
+      <slot />
     </div>
   </article>
 </BaseLayout>
 
 <style>
-  .hero-image {
-    width: 100%;
-    height: 350px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    margin-bottom: 2rem;
+  /* 定制 Prose 内部样式以匹配墨色系统 */
+  .prose-ink {
+    color: var(--color-ink-700);
+    font-family: var(--font-sans);
   }
-
-  .hero-image::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      var(--mask-color-hex) 0%,
-      rgba(var(--mask-color-rgb), 0.6) 10%,
-      rgba(var(--mask-color-rgb), 0.05) 20%,
-      transparent 40%,
-      rgba(var(--mask-color-rgb), 0.05) 60%,
-      rgba(var(--mask-color-rgb), 0.65) 80%,
-      var(--mask-color-hex) 100%
-    );
+  .prose-ink :global(h1),
+  .prose-ink :global(h2),
+  .prose-ink :global(h3) {
+    font-family: var(--font-serif);
+    color: var(--color-ink-900);
+    margin-top: 2em;
   }
-
-  .hero-image img {
-    display: block;
-    margin: 0 auto;
-    border-radius: 12px;
-    box-shadow: var(--box-shadow);
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+  .prose-ink :global(strong) {
+    color: var(--color-ink-900);
+    font-weight: 700;
   }
-
-  .prose {
-    margin-top: -6rem;
-    position: relative;
-    z-index: 10;
+  .prose-ink :global(a) {
+    color: var(--color-ink-900);
+    text-decoration-color: var(--color-ink-300);
+    text-underline-offset: 4px;
   }
-
-  .no-hero-offset {
-    margin-top: 2rem;
+  .prose-ink :global(a:hover) {
+    color: var(--color-vermilion);
+    text-decoration-color: var(--color-vermilion);
   }
-
-  .title {
-    margin-bottom: 1em;
-    padding: 1rem 0 1em 0;
-    text-align: center;
-    line-height: 1;
+  .prose-ink :global(blockquote) {
+    border-left-color: var(--color-ink-900);
+    color: var(--color-ink-500);
   }
-
-  .no-hero-offset .title {
-    padding-top: 0.5rem;
+  .prose-ink :global(img) {
+    filter: grayscale(100%);
+    transition: filter 0.5s ease;
+    border-radius: 4px;
   }
-
-  .title-section {
-    text-align: center;
-    margin-bottom: 2em;
-  }
-
-  .date {
-    margin-bottom: 0.5em;
-    color: rgb(var(--gray));
-    font-weight: 500;
-    font-size: 22px;
-  }
-
-  .last-updated-on {
-    font-style: italic;
-    font-size: 0.9em;
+  .prose-ink :global(img:hover) {
+    filter: grayscale(0%);
   }
 </style>
 

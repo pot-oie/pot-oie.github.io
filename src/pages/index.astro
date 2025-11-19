@@ -4,243 +4,216 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/PostCard.astro";
 import MovieCard from "../components/MovieCard.astro";
 import RecentMusic from "../components/RecentMusic.astro";
-import MovieDeck from "../components/MovieDeck.astro";
+import MovieScroll from "../components/MovieScroll.astro";
 import { Icon } from "astro-icon/components";
 
-// 查询 'src/content/blog/' 文件夹下的所有文章
-// 类型过滤后按发布日期倒序排列
+// 获取博客文章
 const allPosts = await getCollection("blog", ({ data }) => {
   return data.draft !== true;
 });
-
 const sortedPosts = allPosts.sort(
   (a, b) =>
     new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
-const recentPosts = sortedPosts.slice(0, 3);
+const recentPosts = sortedPosts.slice(0, 5); // 首页显示 5 篇
 
-// 实现随机查看文章
-let randomPostUrl = "/blog"; // 默认回退链接
+// 随机文章逻辑
+let randomPostUrl = "/blog";
 if (allPosts.length > 0) {
-  // 获取一个随机索引
-  const randomIndex = Math.floor(Math.random() * allPosts.length); // 选中文章
-  const randomPost = allPosts[randomIndex]; // 生成 slug
-  const slug = randomPost.id.replace(/\.mdx?$/, ""); // 创建 URL
+  const randomIndex = Math.floor(Math.random() * allPosts.length);
+  const randomPost = allPosts[randomIndex];
+  const slug = randomPost.id.replace(/\.mdx?$/, "");
   randomPostUrl = `/blog/${slug}/`;
 }
 
-// 查询 'src/content/movie/' 文件夹下的所有电影
+// 获取电影
 const moviePosts = await getCollection("movie");
-// 按观影时间排序
 const recentMovies = moviePosts
   .sort(
     (a, b) =>
       new Date(b.data.viewingDate).valueOf() -
       new Date(a.data.viewingDate).valueOf()
   )
-  .slice(0, 8); // 首页显示最新的8个
+  .slice(0, 8);
 
 const pageTitle = "首页";
-const pageDescription = "做的还不够多，说的还不够少。";
+const pageDescription = "Pot's Blog - 思想的流淌与记录";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-  <section class="py-16 md:py-24">
-    <div class="max-w-6xl mx-auto px-4">
-      <h1 class="text-4xl md:text-6xl font-bold text-center mb-4">
-        欢迎来到 <span class="text-primary-500">Pot</span> 的博客
-      </h1>
-      <p
-        class="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 text-center max-w-3xl mx-auto"
+  {/* --- Hero Section: 极简留白 --- */}
+  <section
+    class="min-h-[40vh] flex flex-col justify-center items-start py-20 md:py-32"
+  >
+    <h1
+      class="text-6xl md:text-8xl font-serif font-bold text-ink-900 mb-6 tracking-tight"
+    >
+      Pot's <span class="text-ink-300 italic">Space</span>
+    </h1>
+    <p
+      class="text-xl md:text-2xl text-ink-500 max-w-xl leading-relaxed font-serif"
+    >
+      做的还不够多，<br />说的还不够少。
+    </p>
+  </section>
+
+  {/* --- Blog Section: 目录流 --- */}
+  <section class="py-16">
+    <div
+      class="flex items-baseline justify-between mb-12 border-b border-ink-900 pb-4"
+    >
+      <h2 class="text-sm font-bold tracking-widest uppercase text-ink-900">
+        Recent Writings / 最近在写
+      </h2>
+      <a
+        href={randomPostUrl}
+        class="text-sm text-ink-500 hover:text-vermilion transition-colors flex items-center gap-1"
       >
-        {pageDescription}
-      </p>
+        <Icon name="mingcute:random-line" /> 随机漫步
+      </a>
+    </div>
+
+    <div class="flex flex-col">
+      {recentPosts.map((post) => <PostCard post={post} />)}
+    </div>
+
+    <div class="mt-12 text-center">
+      <a
+        href="/blog"
+        class="inline-block px-8 py-3 border border-ink-300 text-ink-500 hover:border-vermilion hover:text-vermilion transition-all duration-300 text-sm tracking-widest uppercase"
+      >
+        View All Archives
+      </a>
     </div>
   </section>
 
-  <section class="pb-16 md:py-24">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">最近在写</h2>
-      </div>
+  {/* --- Movie Section: 保持原有 Grid 但微调样式 --- */}
+  <section class="py-24">
+    <div
+      class="flex justify-between items-center mb-12 border-b border-ink-900 pb-4"
+    >
+      <h2 class="text-sm font-bold tracking-widest uppercase text-ink-900">
+        Recent Watches / 最近在看
+      </h2>
 
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+      {/* 视图切换按钮：保持功能，但样式去色 */}
+      <button
+        id="movie-view-toggle"
+        aria-label="切换视图"
+        class="text-ink-300 hover:text-vermilion transition-colors"
       >
-        {recentPosts.map((post) => <PostCard post={post} />)}
-      </div>
-
-      <div class="text-center mt-12">
-        <a
-          href={randomPostUrl}
-          class="inline-flex items-center justify-center gap-2 bg-primary-500 dark:bg-zinc-800 text-black dark:text-zinc-100 font-bold py-3 px-6 rounded-lg shadow-lg dark:shadow-md transition-all duration-300 hover:bg-primary-600 dark:hover:bg-zinc-700 hover:shadow-xl dark:hover:shadow-zinc-700/50"
-        >
-          <span>随机查看文章</span>
-          <Icon name="mingcute:random-line" class="w-5 h-5" />
-        </a>
-      </div>
+        <Icon name="tabler:layout-grid" class="w-6 h-6" id="movie-icon-grid" />
+        <Icon
+          name="tabler:movie"
+          class="w-6 h-6 hidden"
+          id="movie-icon-scroll"
+        />
+      </button>
     </div>
-  </section>
 
-  <section class="pb-16 md:py-24">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">最近在看</h2>
-
-        <button
-          id="movie-view-toggle"
-          aria-label="切换视图"
-          class="p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-        >
-          <Icon
-            name="tabler:layout-grid"
-            class="w-7 h-7"
-            id="movie-icon-grid"
-          />
-          <Icon
-            name="tabler:play-card-q"
-            class="w-7 h-7 hidden"
-            id="movie-icon-deck"
-          />
-        </button>
-      </div>
-
-      <div
-        id="movie-grid-view"
-        class:list={[
-          "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6",
-          "transition-opacity duration-150 ease-in-out opacity-100",
-        ]}
-      >
-        {
-          recentMovies.length > 0 ? (
-            recentMovies.map((movie) => <MovieCard post={movie} />)
-          ) : (
-            <p class="text-zinc-500 dark:text-zinc-400 col-span-full">
-              还没有观影记录，稍后添加...
-            </p>
-          )
-        }
-      </div>
-
-      <div
-        id="movie-deck-view"
-        class:list={[
-          "hidden",
-          "transition-opacity duration-150 ease-in-out opacity-0",
-        ]}
-      >
-        {
-          recentMovies.length > 0 ? (
-            <div class="movie-deck-wrapper flex justify-center py-8">
-              <MovieDeck posts={recentMovies} />
+    {/* Grid View: 增加间距，去除背景 */}
+    <div
+      id="movie-grid-view"
+      class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 transition-opacity duration-300"
+    >
+      {
+        recentMovies.map((movie) => (
+          // 临时覆盖 MovieCard 的样式逻辑，或者后续单独修改 MovieCard
+          <div class="group">
+            <a
+              href={`/movie/${movie.id.replace(/\.mdx?$/, "")}/`}
+              class="block overflow-hidden rounded-sm shadow-ink"
+            >
+              <img
+                src={movie.data.coverImage.src}
+                alt={movie.data.title}
+                class="w-full aspect-2/3 object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
+              />
+            </a>
+            <h3 class="mt-3 text-lg font-serif font-bold text-ink-900 group-hover:text-vermilion transition-colors">
+              {movie.data.title}
+            </h3>
+            <div class="flex text-yellow-600 text-xs mt-1 gap-1">
+              <span>★ {movie.data.rating}</span>
             </div>
-          ) : (
-            <p class="text-zinc-500 dark:text-zinc-400 text-center py-16">
-              还没有观影记录，稍后添加...
-            </p>
-          )
-        }
+          </div>
+        ))
+      }
+    </div>
+
+    {/* Scroll View: 保持不变 */}
+    <div
+      id="movie-scroll-view"
+      class="hidden transition-opacity duration-300 opacity-0"
+    >
+      <div class="movie-scroll-wrapper flex justify-center py-12">
+        <MovieScroll posts={recentMovies} />
       </div>
     </div>
   </section>
 
-  <section class="pb-16 md:py-24">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="flex justify-between items-center mb-12">
-        <h2 class="text-3xl font-bold">最近在听</h2>
-      </div>
-
-      <div class="max-w-xl mx-auto">
-        <RecentMusic />
-      </div>
+  {/* --- Music Section --- */}
+  <section class="py-16 border-t border-ink-100">
+    <div class="flex items-baseline justify-between mb-12">
+      <h2 class="text-sm font-bold tracking-widest uppercase text-ink-900">
+        On Repeat / 最近在听
+      </h2>
+    </div>
+    <div class="max-w-2xl">
+      <RecentMusic />
     </div>
   </section>
 </BaseLayout>
 
 <script>
   function setupMovieViewToggle() {
-    // 获取DOM元素
     const toggleBtn = document.getElementById("movie-view-toggle");
     const gridView = document.getElementById("movie-grid-view");
-    const deckView = document.getElementById("movie-deck-view");
+    const scrollView = document.getElementById("movie-scroll-view");
     const gridIcon = document.getElementById("movie-icon-grid");
-    const deckIcon = document.getElementById("movie-icon-deck");
+    const scrollIcon = document.getElementById("movie-icon-scroll");
 
-    // 元素校验：缺少必要DOM则终止执行
-    if (!toggleBtn || !gridView || !deckView || !gridIcon || !deckIcon) {
+    if (!toggleBtn || !gridView || !scrollView || !gridIcon || !scrollIcon)
       return;
-    }
+    if (toggleBtn.dataset.listenerAttached === "true") return;
 
-    // 防止重复绑定事件（通过data属性标记）
-    if (toggleBtn.dataset.listenerAttached === "true") {
-      return;
-    }
     toggleBtn.dataset.listenerAttached = "true";
-
-    // 动画过渡时长（与Tailwind的duration-150保持一致）
-    const transitionDuration = 150;
+    const transitionDuration = 300; // 稍微调慢动画
 
     toggleBtn.addEventListener("click", () => {
-      // 判断当前是否为网格视图（通过hidden类状态）
       const isGridViewVisible = !gridView.classList.contains("hidden");
 
       if (isGridViewVisible) {
-        // --- 从 Grid 视图切换到 Deck 视图 ---
-        // 切换图标显示状态
+        // 切换到 Scroll
         gridIcon.classList.add("hidden");
-        deckIcon.classList.remove("hidden");
-
-        // A. 网格视图开始淡出
-        gridView.classList.remove("opacity-100");
+        scrollIcon.classList.remove("hidden");
         gridView.classList.add("opacity-0");
 
-        // B. 淡出动画结束后执行后续逻辑
         setTimeout(() => {
-          // C. 彻底隐藏网格视图
           gridView.classList.add("hidden");
-
-          // D. 移除Deck视图的隐藏状态（仍保持透明）
-          deckView.classList.remove("hidden");
-
-          // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
-          void deckView.offsetWidth;
-
-          // F. Deck视图开始淡入
-          deckView.classList.remove("opacity-0");
-          deckView.classList.add("opacity-100");
+          scrollView.classList.remove("hidden");
+          // 强制重绘
+          void scrollView.offsetWidth;
+          scrollView.classList.remove("opacity-0");
+          scrollView.classList.add("opacity-100");
         }, transitionDuration);
       } else {
-        // --- 从 Deck 视图切换到 Grid 视图 ---
-        // 切换图标显示状态
+        // 切换到 Grid
         gridIcon.classList.remove("hidden");
-        deckIcon.classList.add("hidden");
+        scrollIcon.classList.add("hidden");
+        scrollView.classList.remove("opacity-100");
+        scrollView.classList.add("opacity-0");
 
-        // A. Deck视图开始淡出
-        deckView.classList.remove("opacity-100");
-        deckView.classList.add("opacity-0");
-
-        // B. 淡出动画结束后执行后续逻辑
         setTimeout(() => {
-          // C. 彻底隐藏Deck视图
-          deckView.classList.add("hidden");
-
-          // D. 移除网格视图的隐藏状态（仍保持透明）
+          scrollView.classList.add("hidden");
           gridView.classList.remove("hidden");
-
-          // E. 强制浏览器重绘（关键：确保淡入动画正常触发）
           void gridView.offsetWidth;
-
-          // F. 网格视图开始淡入
           gridView.classList.remove("opacity-0");
-          gridView.classList.add("opacity-100");
         }, transitionDuration);
       }
     });
   }
 
-  // 页面初始加载时初始化
   document.addEventListener("DOMContentLoaded", setupMovieViewToggle);
-  // Astro 页面路由切换后重新初始化（适配SPA-like导航）
   document.addEventListener("astro:page-load", setupMovieViewToggle);
 </script>

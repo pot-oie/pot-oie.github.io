@@ -12,15 +12,15 @@ tags: ["CSS"]
 >
 > 扑克牌：Playing Card
 >
-> 一副扑克牌：a deck of playing cards
+> 一副扑克牌：a scroll of playing cards
 
-尝试在“最近看过”板块中除了常规的 grid 视图外再添加 deck 视图：
+尝试在“最近看过”板块中除了常规的 grid 视图外再添加 scroll 视图：
 
 先让 Gemini 生成了一次，初具雏形，但是效果很差
 
 ```css
 // in /src/styles/global.css
-.movie-deck-container {
+.movie-scroll-container {
     position: relative;
     width: 100%;
     height: 360px; 
@@ -29,7 +29,7 @@ tags: ["CSS"]
     align-items: flex-end;
     padding-bottom: 20px;
 }
-.movie-deck {
+.movie-scroll {
     position: absolute;
     bottom: 0;
     list-style-type: none;
@@ -41,7 +41,7 @@ tags: ["CSS"]
     width: auto; 
     height: 300px;
 }
-.movie-deck-card {
+.movie-scroll-card {
     position: absolute;
     aspect-ratio: 2 / 3;
     width: 200px;
@@ -64,12 +64,12 @@ tags: ["CSS"]
         translateY(var(--y-translation)) 
         rotate(var(--rotation));
 }
-.movie-deck-card img {
+.movie-scroll-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-.movie-deck-container:hover .movie-deck-card {
+.movie-scroll-container:hover .movie-scroll-card {
     --base-angle: -20deg;
     --angle-step: 10deg;
     --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
@@ -81,7 +81,7 @@ tags: ["CSS"]
         translateY(var(--y-translation)) 
         rotate(var(--rotation));
 }
-.movie-deck-container .movie-deck-card:hover {
+.movie-scroll-container .movie-scroll-card:hover {
     transform: 
         translateX(0)
         translateY(-60px)
@@ -90,7 +90,7 @@ tags: ["CSS"]
     z-index: 10;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
-.movie-deck-card .card-content {
+.movie-scroll-card .card-content {
     position: absolute;
     inset: 0;
     padding: 1rem;
@@ -103,15 +103,15 @@ tags: ["CSS"]
     color: white;
     border-radius: 8px;
 }
-.movie-deck-card:hover .card-content {
+.movie-scroll-card:hover .card-content {
     opacity: 1;
 }
-.movie-deck-card .card-title {
+.movie-scroll-card .card-title {
     font-size: 1.1rem;
     font-weight: 700;
     line-height: 1.2;
 }
-.movie-deck-card .card-rating {
+.movie-scroll-card .card-rating {
     display: flex;
     align-items: center;
     font-size: 0.9rem;

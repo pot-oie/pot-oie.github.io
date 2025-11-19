@@ -1,309 +1,144 @@
 /* src/styles/global.css */
-
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* 引入现代宋体，营造东方人文感 */
+@import "@fontsource/noto-serif-sc/400.css";
+@import "@fontsource/noto-serif-sc/700.css";
 
-/* =========================================
-   1. 主题配置 (Theme Configuration)
-   ========================================= */
 @theme {
-  --accent: #2337ff;
-  --accent-dark: #000d8a;
-  --black: 15 18 25;
-  --gray: 96 115 159;
-  --gray-light: 229 233 240;
-  --gray-dark: 34 41 57;
-  --gray-gradient: rgba(var(--gray-light), 50%), #fff;
-  --box-shadow: 0 2px 6px rgba(var(--gray), 25%),
-    0 8px 24px rgba(var(--gray), 33%), 0 16px 32px rgba(var(--gray), 33%);
-  /* 蒙版颜色变量 */
-  --mask-color-rgb: 255, 255, 255;
-  --mask-color-hex: #ffffff;
+  /* === 1. 新版：墨色系统 (Ink System) === */
+  --color-ink-900: #0f0f0f; /* 焦墨 - 极深 */
+  --color-ink-800: #1a1a1a;
+  --color-ink-700: #2a2a2a; /* 浓墨 - 正文 */
+  --color-ink-500: #555555; /* 重墨 */
+  --color-ink-300: #a3a3a3; /* 淡墨 - 线条 */
+  --color-ink-100: #f5f5f5; /* 纸色 */
+
+  /* 强调色：朱红 (印章感) */
+  --color-vermilion: #b91c1c;
+  --color-vermilion-hover: #991b1b;
+
+  /* 字体栈 */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", serif;
+
+  /* 阴影：模拟墨水晕染的柔和阴影 */
+  --shadow-ink: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+
+  /* --- 兼容性保留 (防止旧组件报错) --- */
+  --box-shadow: var(--shadow-ink); /* 映射旧变量到新阴影 */
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
-
-:root {
-  --mask-color-rgb: 255, 255, 255;
-  --mask-color-hex: #ffffff;
-}
-
-html.dark {
-  --mask-color-rgb: 24, 24, 27; /* 对应 zinc-900 */
-  --mask-color-hex: #18181b;
-}
-
-.prose {
-  width: 800px;
-  max-width: 100%;
-  margin: auto;
-  padding: 1em;
-  color: var(--gray-dark);
-  font-size: 1.125rem;
-  line-height: 1.8;
-  position: relative;
-}
-
-html.dark .prose {
-  color: rgb(228 228 231);
-}
-
-.prose p {
-  margin-bottom: 1.5em;
-  line-height: 1.8;
-}
-
-.prose h1 {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.1;
-  font-weight: 700;
-  color: var(--black);
-}
-.prose h2,
-.prose h3 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.2;
-  font-weight: 700;
-  color: var(--black);
-}
-
-html.dark .prose h1,
-html.dark .prose h2,
-html.dark .prose h3 {
-  color: rgb(244 244 245);
-}
-
-.prose blockquote {
-  border-left: 4px solid rgba(107, 114, 128, 0.3);
-  padding: 0.5rem 1rem;
-  margin: 1.5em 0;
-  font-style: italic;
-  background-color: rgba(107, 114, 128, 0.1);
-  border-radius: 4px;
-}
-
-.prose img {
-  display: block;
-  margin: 2rem auto;
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-  max-width: 100%;
-  height: auto;
-}
-
-.last-updated-on {
-  margin-top: 0.25rem;
-  font-size: 0.9rem;
-  color: var(--gray);
-  font-style: italic;
-  opacity: 0.8;
-}
-html.dark .last-updated-on {
-  color: var(--gray-light);
-  opacity: 0.6;
-}
-
-.date {
-  margin-bottom: 0.5rem;
-  color: var(--gray);
-  font-weight: 500;
-}
-
-/* =========================================
-   2. 字体引入 (Fonts)
-   ========================================= */
-@font-face {
-  font-family: "Atkinson";
-  src: url("/fonts/atkinson-regular.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Atkinson";
-  src: url("/fonts/atkinson-bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* =========================================
-   3. 基础样式 (Base Styles)
-   ========================================= */
+/* === 2. 基础重置与材质 (Base & Texture) === */
 body {
-  font-family: "Atkinson", sans-serif;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  font-size: 18px;
-  line-height: 1.7;
+  background-color: #f2f2f2; /* 灰白纸张底色 */
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  position: relative;
+  /* 优化字体渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-main {
-  width: 800px;
-  max-width: calc(100% - 2em);
-  margin: auto;
-  padding: 3em 1em;
-  /* 页面淡入动画 */
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-textarea,
-input {
+/* 全局噪点材质 (Noise) - 核心视觉元素 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  font-size: 16px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05; /* 调整此数值控制噪点明显程度 */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-table {
-  width: 100%;
-}
-
-.prose img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-
-  border: 1px solid rgba(107, 114, 128, 0.2);
-  box-shadow: 0 4px 12px rgba(var(--gray), 18%);
-}
-
-dark img {
-  border-color: rgba(var(--gray-light), 0.1);
-  box-shadow: 0 4px 12px rgba(var(--black), 0.3);
-}
-
-hr {
-  border: none;
-  border-top: 1px solid rgba(107, 114, 128, 0.2);
-  margin: 2rem 0;
-}
-
-/* =========================================
-   4. 排版系统 (Typography)
-   ========================================= */
+/* === 3. 排版系统 (Typography) === */
+/* 标题使用宋体，增加人文气息 */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  margin: 0 0 0.5rem 0;
-  line-height: 1.2;
+  font-family: var(--font-serif);
   font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5em;
 }
 
-h1 {
-  font-size: 3.052em;
+/* 链接样式：朱红批注风格 */
+a {
+  text-decoration-color: var(--color-ink-300);
+  transition: all 0.3s ease;
 }
-h2 {
-  font-size: 2.441em;
-}
-h3 {
-  font-size: 1.953em;
-}
-h4 {
-  font-size: 1.563em;
-}
-h5 {
-  font-size: 1.25em;
+a:hover {
+  color: var(--color-vermilion);
+  text-decoration-color: var(--color-vermilion);
 }
 
-strong,
-b {
-  font-weight: 700;
+/* 选中文字：反相墨色 */
+::selection {
+  background-color: var(--color-ink-900);
+  color: var(--color-ink-100);
 }
 
-em,
-i {
-  font-weight: 500;
-  font-size: 1.1em;
+/* 文章容器 */
+.prose {
+  width: 800px;
+  max-width: 100%;
+  margin: auto;
+  padding: 1em;
+  color: var(--color-ink-700);
+  font-size: 1.125rem;
+  line-height: 1.8;
 }
 
-.prose p {
-  line-height: 2.4;
-  margin-bottom: 2em;
-}
-
-/* 列表样式 */
-main ul {
-  list-style-type: disc;
-  padding-left: 1.75rem;
-  margin: 1em 0;
-  line-height: 1.4; /* 修复行高过紧 */
-  font-size: 1.15em; /* 稍微调整大小以匹配正文 */
-  font-weight: 500;
-}
-
-main ol {
-  list-style-type: decimal;
-  padding-left: 1.75rem;
-  margin: 1em 0;
-  font-size: 1.15em;
-  font-weight: 700;
-}
-
-main li {
-  margin: 0.25em 0;
-}
-
-/* 引用块样式 */
-blockquote {
-  /* 布局与盒模型 */
-  display: block;
+.prose blockquote {
+  border-left: 3px solid var(--color-ink-900); /* 这里的线条要更实 */
+  padding: 0.5rem 1.2rem;
   margin: 1.5em 0;
-  padding: 1rem 1.2rem;
-
-  /* 视觉样式 */
-  background-color: rgba(107, 114, 128, 0.1);
-  border-left: 4px solid rgba(107, 114, 128, 0.3);
-  border-radius: 4px;
-
-  /* 字体样式 */
-  color: var(--gray-dark);
   font-style: italic;
-  font-size: 1.1em;
-  line-height: 1.6;
+  background-color: transparent; /* 去掉背景，更干净 */
+  color: var(--color-ink-500);
 }
 
-/* 移除引用块内最后一个段落的底部间距，防止撑破容器 */
-blockquote p:last-child {
-  margin-bottom: 0;
+/* === 4. 工具类 (Utilities) === */
+.sr-only {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* 行内代码样式 */
-code:not(pre code) {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background-color: rgba(107, 114, 128, 0.1);
-  border: 1px solid rgba(107, 114, 128, 0.2);
-  font-size: 0.9em;
-  color: var(--accent-dark);
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-/* dark 主题下行内代码颜色 */
-html.dark code:not(pre code) {
-  color: var(--accent);
-}
-
-code {
-  padding: 2px 5px;
-  border-radius: 4px;
-  background-color: rgba(107, 114, 128, 0.1);
-  border: 1px solid rgba(107, 114, 128, 0.2);
+main {
+  animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* =========================================
-   5. macOS 风格代码块 (Astro Code Component)
+   5. 组件样式保留区 (Components)
    ========================================= */
+
+/* --- macOS 风格代码块 (已适配新阴影变量) --- */
 pre.astro-code {
   position: relative;
   overflow: hidden;
@@ -312,9 +147,10 @@ pre.astro-code {
   max-width: 100%;
   box-sizing: border-box;
   border-radius: 8px;
-  box-shadow: var(--box-shadow);
+  box-shadow: var(--shadow-ink); /* 使用新定义的墨水阴影 */
   font-size: 1rem;
   transition: max-height 0.3s ease-out;
+  background-color: #1e293b !important; /* 保持代码块深色背景 */
 }
 /* 模拟 macOS 窗口栏 */
 pre.astro-code::before {
@@ -347,7 +183,7 @@ pre.astro-code::before {
 pre.astro-code::after {
   content: attr(data-language);
   position: absolute;
-  top: 0.05rem;
+  top: 0.375rem;
   right: 5.5rem;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
@@ -356,12 +192,13 @@ pre.astro-code::after {
   text-transform: uppercase;
   z-index: 1;
   display: inline-block;
+  color: #94a3b8; /* 这里的颜色稍微调整以适应 */
 }
 
-/* 按钮与图标基础 */
+/* 代码块内部图标系统 */
 pre.astro-code .astro-code-icon-base {
   position: absolute;
-  top: 0.3rem;
+  top: 0.25rem;
   width: 2rem;
   height: 2rem;
   padding: 0.125rem;
@@ -370,7 +207,6 @@ pre.astro-code .astro-code-icon-base {
   align-items: center;
   justify-content: center;
 }
-/* 按钮外观：负责点击反馈、背景与层级 */
 pre.astro-code .astro-code-icon-btn {
   border: none;
   background-color: transparent;
@@ -378,254 +214,77 @@ pre.astro-code .astro-code-icon-btn {
   z-index: 3;
   transition: background-color 0.2s;
   outline: none;
+  color: #cbd5e1;
 }
 pre.astro-code .astro-code-icon-btn:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 255, 255, 0.1);
 }
-/* 下拉/收回按钮 */
 pre.astro-code .toggle-btn {
   right: 3.25rem;
 }
-/* 复制功能组 */
 pre.astro-code .copy-btn,
 pre.astro-code .copy-success {
   right: 1rem;
 }
-/* 复制成功状态特有样式 */
 pre.astro-code .copy-success {
   z-index: 4;
   opacity: 0;
   transition: opacity 0.2s;
   pointer-events: none;
+  color: #4ade80;
 }
 pre.astro-code .copy-success.show {
   opacity: 1;
 }
 
-/* 代码内容区域 */
 pre.astro-code > code {
-  margin-top: 2.5rem;
-  padding: 1rem 1.5rem 1.5rem 3rem;
   display: block;
   width: 100%;
+  padding: 3.5rem 1.5rem 1.5rem 3rem;
   counter-reset: line;
   box-sizing: border-box;
   overflow: auto;
-  max-height: 46.5rem;
-  line-height: 0.75rem;
+  max-height: 49rem;
+  line-height: 1.5;
+  font-family: "Fira Code", monospace; /* 可选：如果想用更代码风的字体 */
 }
-/* 折叠状态逻辑 */
 pre.astro-code.collapsed > code {
-  max-height: 19rem;
+  max-height: 22rem;
 }
-/* Shiki 行容器 */
+
+/* 行号 */
 .astro-code .line {
   display: block;
   position: relative;
   max-width: 100%;
   box-sizing: border-box;
-  min-height: 0.75rem;
+  min-height: 1rem;
 }
-/* 自动行号生成 */
 .astro-code .line::before {
   content: counter(line);
   counter-increment: line;
   position: absolute;
   top: 0;
-  left: -3.4rem;
+  left: -3.3rem;
   width: 2.5rem;
   text-align: right;
-  color: inherit;
+  color: #64748b;
   opacity: 0.7;
   user-select: none;
   pointer-events: none;
 }
-
-/* 为 WebKit 浏览器 (Chrome, Safari, Edge) 添加自定义滚动条 */
-/* 滚动条本身的宽度/高度 */
+/* 滚动条适配 */
 pre.astro-code > code::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-/* 滚动条轨道 (背景) */
 pre.astro-code > code::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 8px;
 }
-/* 滚动条滑块 (拖动条) */
 pre.astro-code > code::-webkit-scrollbar-thumb {
-  background-color: rgba(107, 114, 128, 0.4);
+  background-color: #475569;
   border-radius: 6px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-/* 滚动条滑块 (Hover) */
-pre.astro-code > code::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(107, 114, 128, 0.6);
-}
-/* Firefox  */
-pre.astro-code > code {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(107, 114, 128, 0.4) transparent;
-}
-
-/* =========================================
-   6. 动画与组件 (Animations & Components)
-   ========================================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 扑克牌布局样式 */
-.movie-deck-container {
-  position: relative;
-  width: 100%;
-  height: 360px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding-bottom: 20px;
-}
-.movie-deck {
-  position: absolute;
-  bottom: 0;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  width: auto;
-  height: 300px;
-}
-
-/* 解决悬停抖动 */
-.movie-deck:has(.movie-deck-card:hover) .movie-deck-card:not(:hover) {
-  pointer-events: none;
-}
-
-.movie-deck-card {
-  position: absolute;
-  aspect-ratio: 2 / 3;
-  width: 200px;
-  height: 300px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-    box-shadow 0.3s ease;
-  transform-origin: bottom center;
-
-  --base-angle: -14deg;
-  --angle-step: 4deg;
-  --rotation: calc(var(--base-angle) + var(--i) * var(--angle-step));
-  --base-x-offset: -130px;
-  --x-step: 40px;
-  --x-translation: calc(var(--base-x-offset) + var(--i) * var(--x-step));
-  --y-translation: 0px;
-
-  transform: translateX(var(--x-translation)) translateY(var(--y-translation))
-    rotate(var(--rotation));
-}
-.movie-deck-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 悬停效果 */
-.movie-deck-container:hover .movie-deck-card {
-  --base-angle: -21deg;
-  --angle-step: 6deg;
-  --base-x-offset: -200px;
-  --x-step: 60px;
-
-  transform: translateX(var(--x-translation)) translateY(var(--y-translation))
-    rotate(var(--rotation));
-}
-
-/* 悬停效果: 单张卡片 */
-.movie-deck-container .movie-deck-card:hover {
-  transform: translateX(var(--x-translation))
-    translateY(calc(var(--y-translation) - 60px)) rotate(var(--rotation))
-    scale(1.15);
-  z-index: 10;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-}
-
-/* 卡片内容样式 */
-.movie-deck-card .card-content {
-  position: absolute;
-  inset: 0;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0.5) 50%,
-    transparent 100%
-  );
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  color: white;
-  border-radius: 8px;
-}
-.movie-deck-card:hover .card-content {
-  opacity: 1;
-}
-.movie-deck-card .card-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.movie-deck-card .card-rating {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-/* =========================================
-   7. 图标与工具类 (Icons & Utilities)
-   ========================================= */
-.sr-only {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  clip: rect(1px 1px 1px 1px);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-@media (max-width: 720px) {
-  body {
-    font-size: 17px;
-  }
-  main {
-    padding: 1em;
-  }
+  border: 2px solid #1e293b;
 }
 
 /* 图标 Mask 样式 */

@@ -17,34 +17,29 @@ const { title, description } = Astro.props;
   </head>
 
   <body
-    class="flex flex-col min-h-screen bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 selection:bg-primary-500/10"
+    class="flex flex-col min-h-screen selection:bg-ink-900 selection:text-white"
   >
     <Header />
 
-    <main class="grow">
+    <main class="grow w-full max-w-4xl mx-auto px-6 md:px-8">
       <slot />
     </main>
 
     <Footer />
-  </body><script>
-    function setupThemeToggle() {
-      const toggleBtn = document.getElementById("theme-toggle-btn");
+    <script>
+      import Lenis from "lenis";
 
-      if (toggleBtn) {
-        toggleBtn.addEventListener("click", () => {
-          // 切换 <html> 标签上的 'dark' 类
-          const isDark = document.documentElement.classList.toggle("dark");
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
 
-          // 将用户的选择保存到 localStorage
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-        });
+      function raf(time: number) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
       }
-    }
 
-    // 在 DOM 加载完毕后运行，确保按钮存在 (首次加载)
-    document.addEventListener("DOMContentLoaded", setupThemeToggle);
-
-    // Astro 页面跳转时再次运行 (后续导航)
-    document.addEventListener("astro:page-load", setupThemeToggle);
-  </script>
+      requestAnimationFrame(raf);
+    </script>
+  </body>
 </html>
