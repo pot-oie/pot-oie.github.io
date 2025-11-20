@@ -4,7 +4,6 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { Icon } from "astro-icon/components";
 
 type Props = CollectionEntry<"movie">["data"];
 const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
@@ -13,14 +12,15 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
 
 <BaseLayout title={title} description={shortReview}>
   <article class="min-h-screen flex flex-col">
-    {/* --- 上半部分：海报与信息并置，注重留白 --- */}
+    {/* --- 上半部分：海报与信息并置 --- */}
     <section
       class="pt-20 pb-12 md:pt-32 md:pb-20 px-4 max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-[300px_1fr] gap-12 items-end"
     >
-      {/* 海报：带阴影和黑白处理 */}
+      {/* 海报 */}
       <div class="relative group mx-auto md:mx-0 w-full max-w-[300px]">
+        {/* 装饰性背景框：暗色下变淡白 */}
         <div
-          class="absolute -inset-2 bg-ink-900/5 rotate-2 rounded-sm pointer-events-none"
+          class="absolute -inset-2 bg-ink-900/5 dark:bg-white/5 rotate-2 rounded-sm pointer-events-none transition-colors"
         >
         </div>
         <Image
@@ -35,20 +35,28 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
       <div class="flex flex-col gap-6 text-center md:text-left">
         <div>
           <h1
-            class="text-4xl md:text-6xl font-serif font-bold text-ink-900 mb-2"
+            class="text-4xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-2 transition-colors"
           >
             {title}
           </h1>
-          <p class="text-ink-500 font-serif text-lg italic">"{shortReview}"</p>
+          <p
+            class="text-ink-500 dark:text-zinc-400 font-serif text-lg italic transition-colors"
+          >
+            "{shortReview}"
+          </p>
         </div>
 
-        <div class="w-full h-px bg-ink-300/30"></div>
+        {/* 分割线 */}
+        <div
+          class="w-full h-px bg-ink-300/30 dark:bg-zinc-700 transition-colors"
+        >
+        </div>
 
         <div
-          class="flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-4 text-sm tracking-widest uppercase font-sans text-ink-500"
+          class="flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-4 text-sm tracking-widest uppercase font-sans text-ink-500 dark:text-zinc-400 transition-colors"
         >
           <div class="flex flex-col gap-1">
-            <span class="text-xs text-ink-300">Rating</span>
+            <span class="text-xs text-ink-300 dark:text-zinc-500">Rating</span>
             <div
               class="flex items-center gap-1 text-vermilion text-lg font-bold font-serif"
             >
@@ -58,8 +66,10 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
           </div>
 
           <div class="flex flex-col gap-1">
-            <span class="text-xs text-ink-300">Watched On</span>
-            <span class="text-ink-900"
+            <span class="text-xs text-ink-300 dark:text-zinc-500"
+              >Watched On</span
+            >
+            <span class="text-ink-900 dark:text-zinc-200"
               ><FormattedDate date={viewingDate} /></span
             >
           </div>
@@ -67,8 +77,10 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
           {
             releaseDate && (
               <div class="flex flex-col gap-1">
-                <span class="text-xs text-ink-300">Released</span>
-                <span class="text-ink-900">
+                <span class="text-xs text-ink-300 dark:text-zinc-500">
+                  Released
+                </span>
+                <span class="text-ink-900 dark:text-zinc-200">
                   <FormattedDate date={releaseDate} />
                 </span>
               </div>
@@ -79,11 +91,12 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
     </section>
 
     {/* --- 下半部分：影评内容 --- */}
-    {/* 如果有内容才显示分割线和容器 */}
-    <section class="grow bg-white/50 border-t border-ink-300/20">
+    {/* 背景色在暗色下透明，边框变深灰 */}
+    <section
+      class="grow bg-white/50 dark:bg-transparent border-t border-ink-300/20 dark:border-zinc-800 transition-colors"
+    >
       <div class="max-w-3xl mx-auto px-4 py-16 prose prose-ink">
         <slot />
-        {/* 默认占位符，如果没有内容 */}
         <div class="empty:hidden"></div>
       </div>
     </section>

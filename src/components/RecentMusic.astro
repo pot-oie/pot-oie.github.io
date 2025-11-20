@@ -8,10 +8,10 @@ import { allMusic } from "../data/music.ts";
 <div class="flex flex-col">
   {
     allMusic.map((song) => (
-      <article class="group flex items-center gap-6 py-6 border-b border-ink-300/20 last:border-0 transition-all duration-500 hover:pl-4">
-        {/* 封面：黑白 -> 彩色 */}
+      <article class="group flex items-center gap-6 py-6 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 hover:pl-4">
+        {/* 封面 */}
         <div class="relative shrink-0">
-          <div class="absolute inset-0 bg-ink-900/5 rounded-sm rotate-3 group-hover:rotate-6 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-ink-900/5 dark:bg-white/5 rounded-sm rotate-3 group-hover:rotate-6 transition-transform duration-500" />
           <Image
             src={song.coverImage}
             alt={`封面：${song.title}`}
@@ -20,27 +20,26 @@ import { allMusic } from "../data/music.ts";
             format="webp"
             class="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 group-hover:grayscale-0 group-hover:contrast-100 shadow-sm group-hover:shadow-md"
           />
-          {/* 唱片纹理装饰 */}
           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-ink-100 rounded-full z-20 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none mix-blend-overlay" />
         </div>
 
         <div class="grow min-w-0 flex flex-col justify-center gap-1">
           <h4
-            class="text-lg md:text-xl font-serif font-bold text-ink-900 truncate group-hover:text-vermilion transition-colors duration-300"
+            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate group-hover:text-vermilion transition-colors duration-300"
             title={song.title}
           >
             {song.title}
           </h4>
 
           <p
-            class="text-xs md:text-sm font-sans text-ink-500 truncate tracking-wider uppercase opacity-80"
+            class="text-xs md:text-sm font-sans text-ink-500 dark:text-zinc-400 truncate tracking-wider uppercase opacity-80 transition-colors"
             title={song.artist}
           >
             {song.artist}
           </p>
         </div>
 
-        {/* 链接区域：右侧浮现 */}
+        {/* 链接区域 */}
         <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
           {song.links?.spotify && (
             <a
@@ -48,7 +47,7 @@ import { allMusic } from "../data/music.ts";
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Spotify"
-              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+              class="text-ink-300 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 transition-all"
             >
               <Icon name="mingcute:spotify-line" class="w-5 h-5" />
             </a>
@@ -59,7 +58,7 @@ import { allMusic } from "../data/music.ts";
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Netease Music"
-              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+              class="text-ink-300 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 transition-all"
             >
               <Icon name="mingcute:netease-music-line" class="w-5 h-5" />
             </a>
@@ -70,7 +69,7 @@ import { allMusic } from "../data/music.ts";
               target="_blank"
               rel="noopener noreferrer"
               aria-label="QQ Music"
-              class="text-ink-300 hover:text-vermilion hover:scale-110 transition-all"
+              class="text-ink-300 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 transition-all"
             >
               <Icon name="mingcute:music-3-line" class="w-5 h-5" />
             </a>

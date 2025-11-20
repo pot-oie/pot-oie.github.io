@@ -25,7 +25,6 @@ const daysInMonth = new Date(year, month + 1, 0).getDate();
 const totalCellsNeeded = firstDayOfWeek + daysInMonth;
 const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
 const trailingCellsCount = totalGridCells - totalCellsNeeded;
-
 const musicMap = new Map<number, MusicData>();
 for (const post of musicData) {
   musicMap.set(post.pubDate.getDate(), post);
@@ -38,12 +37,12 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 ---
 
 <div class="max-w-4xl mx-auto py-12">
-  {/* --- 头部：极简控制栏 --- */}
+  {/* --- 头部 --- */}
   <div
-    class="flex justify-between items-end mb-12 border-b border-ink-900 pb-4"
+    class="flex justify-between items-end mb-12 border-b border-ink-900 dark:border-zinc-600 pb-4 transition-colors"
   >
     <h2
-      class="text-4xl md:text-5xl font-serif font-bold text-ink-900 leading-none"
+      class="text-4xl md:text-5xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-none transition-colors"
     >
       {title}
     </h2>
@@ -54,12 +53,12 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
           <a
             href={prevMonthUrl}
             aria-label="Previous"
-            class="p-2 text-ink-300 hover:text-vermilion transition-colors"
+            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion dark:hover:text-vermilion transition-colors"
           >
             <Icon name="mingcute:arrow-left-line" class="w-6 h-6" />
           </a>
         ) : (
-          <span class="p-2 text-ink-100 cursor-not-allowed">
+          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed transition-colors">
             <Icon name="mingcute:arrow-left-line" class="w-6 h-6" />
           </span>
         )
@@ -69,12 +68,12 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
           <a
             href={nextMonthUrl}
             aria-label="Next"
-            class="p-2 text-ink-300 hover:text-vermilion transition-colors"
+            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion dark:hover:text-vermilion transition-colors"
           >
             <Icon name="mingcute:arrow-right-line" class="w-6 h-6" />
           </a>
         ) : (
-          <span class="p-2 text-ink-100 cursor-not-allowed">
+          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed transition-colors">
             <Icon name="mingcute:arrow-right-line" class="w-6 h-6" />
           </span>
         )
@@ -82,25 +81,27 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
     </div>
   </div>
 
-  {/* --- 星期表头：纯文字 --- */}
+  {/* --- 星期表头 --- */}
   <div class="grid grid-cols-7 mb-4">
     {
       dayNames.map((day) => (
-        <div class="text-center text-xs font-sans tracking-widest text-ink-300 select-none">
+        <div class="text-center text-xs font-sans tracking-widest text-ink-500 dark:text-zinc-500 select-none transition-colors">
           {day}
         </div>
       ))
     }
   </div>
 
-  {/* --- 日历网格：线条风格 --- */}
-  <div class="grid grid-cols-7 border-t border-l border-ink-300/20">
+  {/* --- 日历网格 --- */}
+  <div
+    class="grid grid-cols-7 border-t border-l border-ink-300/50 dark:border-zinc-700 transition-colors"
+  >
     {/* 头部空白 */}
     {
       Array(firstDayOfWeek)
         .fill(null)
         .map(() => (
-          <div class="aspect-square border-r border-b border-ink-300/20" />
+          <div class="aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 transition-colors" />
         ))
     }
 
@@ -122,8 +123,6 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
           }
 
           const isToday = day === todayDate;
-
-          // 计算 Tooltip 位置 (保持原有逻辑)
           const cellIndex = firstDayOfWeek + i;
           const row = Math.floor(cellIndex / 7);
           const col = cellIndex % 7;
@@ -137,29 +136,26 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
           ];
 
           return (
-            <div class="group relative aspect-square border-r border-b border-ink-300/20 flex flex-col items-center justify-center transition-colors hover:bg-ink-300/5">
+            <div class="group relative aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 flex flex-col items-center justify-center transition-colors hover:bg-ink-300/10 dark:hover:bg-zinc-700/30">
               {/* 日期数字 */}
               <span
                 class:list={[
                   "text-sm font-serif transition-colors z-10 pointer-events-none",
                   isToday
                     ? "text-vermilion font-bold scale-110"
-                    : "text-ink-500 group-hover:text-ink-900",
+                    : "text-ink-700 dark:text-zinc-400 group-hover:text-ink-900 dark:group-hover:text-zinc-200",
                 ]}
               >
                 {day}
               </span>
 
-              {/* 如果有音乐记录 */}
               {post && optimizedImage ? (
                 <>
-                  {/* 背景圆点指示器 (类似唱片) */}
-                  <div class="absolute w-8 h-8 md:w-12 md:h-12 rounded-full border border-ink-300/30 group-hover:border-vermilion/50 transition-colors" />
+                  {/* 背景圆点指示器 */}
+                  <div class="absolute w-8 h-8 md:w-12 md:h-12 rounded-full border border-ink-300/50 dark:border-zinc-600/50 group-hover:border-vermilion/50 transition-colors" />
 
-                  {/* 交互触发区 */}
                   <div class="absolute inset-0 cursor-pointer z-0" />
 
-                  {/* 悬浮卡片 (MusicCard) */}
                   <MusicCard
                     post={post}
                     optimizedImage={optimizedImage}
@@ -177,7 +173,7 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
       Array(trailingCellsCount)
         .fill(null)
         .map(() => (
-          <div class="aspect-square border-r border-b border-ink-300/20" />
+          <div class="aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 transition-colors" />
         ))
     }
   </div>
