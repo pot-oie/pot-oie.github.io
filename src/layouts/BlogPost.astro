@@ -12,7 +12,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 <BaseLayout title={title} description={description}>
   <article class="py-12 md:py-20">
-    {/* --- 头部区域：极简留白 --- */}
+    {/* --- 头部区域 --- */}
     <header class="max-w-3xl mx-auto text-center mb-16 md:mb-24 px-4">
       <a
         href="/"
@@ -50,7 +50,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
       </div>
     </header>
 
-    {/* --- 核心图片：黑白->彩色交互 --- */}
+    {/* --- 核心图片 --- */}
     {
       heroImage && (
         <div class="w-full max-w-5xl mx-auto mb-16 md:mb-24 px-4 group">
@@ -61,7 +61,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
               width={1200}
               class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 group-hover:grayscale-0 group-hover:contrast-100"
             />
-            {/* 纹理遮罩，增加纸张感 */}
             <div class="absolute inset-0 bg-ink-500/5 mix-blend-multiply pointer-events-none" />
           </div>
         </div>
@@ -76,102 +75,490 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 </BaseLayout>
 
 <style>
-  /* 定制 Prose 内部样式以匹配墨色系统 */
+  /* ==========================================
+     定制 Prose (现代东方风格)
+     ========================================== */
   .prose-ink {
-    color: var(--color-ink-700);
+    /* 基础设定：增加字间距，提升阅读的呼吸感 */
+    color: var(--color-ink-700); /* 推荐 #333333 或 #4b5563 */
     font-family: var(--font-sans);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    max-width: 65ch; /* 限制行长，符合阅读习惯 */
+    margin-left: auto;
+    margin-right: auto;
   }
+
+  /* --- 1. 标题排版 --- */
   .prose-ink :global(h1),
   .prose-ink :global(h2),
+  .prose-ink :global(h3),
+  .prose-ink :global(h4) {
+    font-family: var(
+      --font-serif
+    ); /* 务必确保这是衬线体，如 Noto Serif SC, Songti */
+    color: var(--color-ink-900); /* 推荐 #000000 或 #111827 */
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    position: relative;
+  }
+
+  /* H2 特殊装饰：左侧竖线或底部线条 */
+  .prose-ink :global(h2) {
+    font-size: 1.8em;
+    border-bottom: 1px solid var(--color-ink-200); /* 淡墨色分割线 */
+    padding-bottom: 0.3em;
+  }
+
   .prose-ink :global(h3) {
-    font-family: var(--font-serif);
-    color: var(--color-ink-900);
+    font-size: 1.4em;
     margin-top: 2em;
   }
+
+  /* --- 2. 显式定义的列表样式 (核心需求) --- */
+  .prose-ink :global(ul),
+  .prose-ink :global(ol) {
+    margin: 1.5em 0;
+    padding-left: 1.5em; /* 为自定义符号留出空间 */
+    list-style: none; /* 移除默认样式 */
+  }
+
+  .prose-ink :global(li) {
+    margin-bottom: 0.8em; /* 列表项之间的间距 */
+    position: relative;
+    padding-left: 0.5em;
+  }
+
+  /* 无序列表：使用朱红色的小方块或菱形，体现东方几何感 */
+  .prose-ink :global(ul > li::before) {
+    content: "";
+    position: absolute;
+    left: -1.2em;
+    top: 0.65em; /* 视觉对齐 */
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-vermilion); /* 你的朱红色变量 */
+    transform: rotate(45deg); /* 旋转成菱形 */
+    opacity: 0.8;
+  }
+
+  /* 有序列表：使用衬线数字，颜色加深 */
+  .prose-ink :global(ol) {
+    counter-reset: list-counter;
+  }
+  .prose-ink :global(ol > li::before) {
+    content: counter(list-counter) ".";
+    counter-increment: list-counter;
+    position: absolute;
+    left: -1.5em;
+    color: var(--color-vermilion);
+    font-family: var(--font-serif);
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  /* 嵌套列表处理 */
+  .prose-ink :global(ul ul),
+  .prose-ink :global(ol ol),
+  .prose-ink :global(ul ol),
+  .prose-ink :global(ol ul) {
+    margin: 0.5em 0;
+    font-size: 0.95em;
+  }
+
+  /* --- 3. 链接与强调 --- */
   .prose-ink :global(strong) {
     color: var(--color-ink-900);
     font-weight: 700;
+    background: linear-gradient(
+      180deg,
+      transparent 60%,
+      var(--color-ink-100) 0
+    );
   }
+
   .prose-ink :global(a) {
     color: var(--color-ink-900);
-    text-decoration-color: var(--color-ink-300);
-    text-underline-offset: 4px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-ink-300);
+    transition: all 0.3s ease;
+    padding-bottom: 1px;
   }
   .prose-ink :global(a:hover) {
     color: var(--color-vermilion);
-    text-decoration-color: var(--color-vermilion);
+    border-bottom-color: var(--color-vermilion);
   }
+
+  /* --- 4. 引用块 (Blockquote) --- */
   .prose-ink :global(blockquote) {
-    border-left-color: var(--color-ink-900);
-    color: var(--color-ink-500);
+    margin: 2em 0;
+    padding: 1em 1.5em;
+    border-left: 4px solid var(--color-ink-900); /* 深墨色边框 */
+    background-color: var(--color-ink-50, #f9f9f7); /* 极淡的米色/纸色背景 */
+    color: var(--color-ink-600);
+    font-style: italic;
+    font-family: var(--font-serif);
+    border-radius: 0 4px 4px 0;
   }
+  /* 去除引用中第一段和最后一段的默认 margin */
+  .prose-ink :global(blockquote p:first-of-type) {
+    margin-top: 0;
+  }
+  .prose-ink :global(blockquote p:last-of-type) {
+    margin-bottom: 0;
+  }
+
+  /* --- 5. 图片 --- */
   .prose-ink :global(img) {
-    filter: grayscale(100%);
-    transition: filter 0.5s ease;
+    margin: 2.5em auto;
+    display: block;
     border-radius: 4px;
+    box-shadow: var(--shadow-ink, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+    /* 保持原本的黑白交互效果 */
+    filter: grayscale(100%);
+    transition:
+      filter 0.5s ease,
+      transform 0.3s ease;
   }
   .prose-ink :global(img:hover) {
     filter: grayscale(0%);
+    transform: scale(1.01);
+  }
+
+  /* --- 6. 行内代码与分割线 --- */
+  .prose-ink :global(:not(pre) > code) {
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    background-color: rgba(0, 0, 0, 0.06);
+    color: #b91c1c; /* 深红色，呼应朱红 */
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  .prose-ink :global(hr) {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-ink-300),
+      transparent
+    );
+    margin: 4em 0;
+    position: relative;
+  }
+  /* 分割线中间加一个小装饰（可选） */
+  .prose-ink :global(hr::after) {
+    content: "§"; /* 或者 "•" */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-bg, white); /* 需适配你的背景色变量 */
+    padding: 0 1em;
+    color: var(--color-ink-300);
+    font-family: var(--font-serif);
+  }
+
+  /* --- 7. 表格 (极简风格) --- */
+  .prose-ink :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2em 0;
+    font-size: 0.95em;
+  }
+  .prose-ink :global(th) {
+    text-align: left;
+    padding: 0.75em;
+    border-bottom: 2px solid var(--color-ink-900);
+    font-family: var(--font-serif);
+    color: var(--color-ink-900);
+  }
+  .prose-ink :global(td) {
+    padding: 0.75em;
+    border-bottom: 1px solid var(--color-ink-200);
+    vertical-align: top;
+  }
+</style>
+
+{/* --- macOS 风格代码块样式 --- */}
+<style is:global>
+  /* 1. 容器 */
+  pre.astro-code {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    margin: 2em 0;
+    padding: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: var(--shadow-ink);
+    font-size: 1rem;
+    transition: max-height 0.3s ease-out;
+    background-color: #d3d3d3 !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* 2. 标题栏：绝对定位在顶部 */
+  pre.astro-code::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    height: 2.6rem;
+    width: 100%;
+
+    background-color: #eaeaea;
+    border-bottom: 1px solid #dbeafe;
+
+    /* 红黄绿按钮 */
+    background-image: radial-gradient(
+        circle at 1.5rem 1.3rem,
+        #ff5f56 0.375rem,
+        transparent 0.375rem
+      ),
+      radial-gradient(
+        circle at 2.75rem 1.3rem,
+        #ffbd2e 0.375rem,
+        transparent 0.375rem
+      ),
+      radial-gradient(
+        circle at 4rem 1.3rem,
+        #27c93f 0.375rem,
+        transparent 0.375rem
+      );
+    background-repeat: no-repeat;
+  }
+
+  /* 语言提示 */
+  pre.astro-code::after {
+    content: attr(data-language);
+    position: absolute;
+    top: 0.25rem;
+    right: 5.5rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    z-index: 12;
+    display: inline-block;
+    color: #64748b;
+  }
+
+  /* 3. 代码区域：物理分离，解决滚动条被遮挡问题 */
+  pre.astro-code > code {
+    display: block;
+    width: 100%;
+
+    margin-top: 2.6rem;
+    padding: 1rem 1.5rem 1.5rem 3rem; /* 恢复正常的内部间距 */
+
+    counter-reset: line;
+    box-sizing: border-box;
+    overflow: auto;
+    max-height: 47.5rem;
+    line-height: 1;
+
+    /* 禁止滚动链 */
+    overscroll-behavior: none;
+  }
+
+  pre.astro-code.collapsed > code {
+    max-height: 21rem;
+  }
+
+  /* 按钮 */
+  pre.astro-code .astro-code-icon-base {
+    position: absolute;
+    top: 0.3rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 0.125rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+  }
+
+  pre.astro-code .astro-code-icon-btn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+    color: #64748b;
+  }
+
+  pre.astro-code .astro-code-icon-btn:hover {
+    color: #991b1b;
+  }
+
+  pre.astro-code .toggle-btn {
+    right: 3.25rem;
+  }
+  pre.astro-code .copy-btn,
+  pre.astro-code .copy-success {
+    right: 1rem;
+  }
+
+  pre.astro-code .copy-success {
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    color: #b91c1c;
+  }
+  pre.astro-code .copy-success.show {
+    opacity: 1;
+  }
+
+  /* 行号 */
+  .astro-code .line {
+    display: block;
+    position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 1rem;
+  }
+  .astro-code .line::before {
+    content: counter(line);
+    counter-increment: line;
+    position: absolute;
+    top: 0;
+    left: -3.5rem;
+    width: 2.5rem;
+    text-align: right;
+    opacity: 0.5;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* 滚动条美化 */
+  pre.astro-code > code::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  pre.astro-code > code::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  pre.astro-code > code::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 3px solid #d3d3d3;
+  }
+  pre.astro-code > code::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 3px solid #d3d3d3;
+  }
+  pre.astro-code > code::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* 1. 选中位于列表项(li)内部的代码块 */
+  .prose-ink li > pre.astro-code {
+    margin-left: -2em;
+    width: calc(100% + 2em);
+    max-width: calc(100% + 2em);
+  }
+
+  /* 2. 移动端适配 */
+  @media (max-width: 640px) {
+    .prose-ink li > pre.astro-code {
+      margin-left: -1em;
+      width: calc(100% + 1em);
+      max-width: calc(100% + 1em);
+    }
   }
 </style>
 
 <script>
   function initCodeBlockFeatures() {
-    // 防止重复初始化
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
     document.body.dataset.codeFeaturesInitialized = "true";
 
     const allCodeBlocks = document.querySelectorAll("pre.astro-code");
 
-    allCodeBlocks.forEach((pre) => {
-      // 设置语言
+    allCodeBlocks.forEach((block) => {
+      const pre = block as HTMLElement;
+
       const lang =
         pre.getAttribute("lang") || pre.getAttribute("data-language");
-      if (lang) {
-        // @ts-ignore
-        pre.dataset.language = lang;
-      }
+      if (lang) pre.dataset.language = lang;
 
-      // 创建复制按钮
+      const codeElement = pre.querySelector("code");
+      if (!codeElement || !(codeElement instanceof HTMLElement)) return;
+      // ==========================================
+      // 【1. Code 滚动锁】: 防止代码滚到底后页面跟着滚
+      // ==========================================
+      codeElement.addEventListener(
+        "wheel",
+        (e) => {
+          const delta = e.deltaY;
+          const { scrollTop, scrollHeight, clientHeight } = codeElement;
+          const tolerance = 1;
+          const isAtTop = scrollTop <= 0;
+          const isAtBottom =
+            scrollTop + clientHeight >= scrollHeight - tolerance;
+
+          if ((delta < 0 && isAtTop) || (delta > 0 && isAtBottom)) {
+            e.preventDefault();
+          }
+          e.stopPropagation();
+        },
+        { passive: false }
+      );
+
+      // ==========================================
+      // 【2. Header 滚动代理】: 解决标题栏“死区”问题
+      // ==========================================
+      // 当鼠标悬停在 margin-top 腾出的标题栏区域时，事件目标是 pre
+      // 我们手动把这里的滚轮事件“转发”给 codeElement
+      pre.addEventListener(
+        "wheel",
+        (e) => {
+          if (e.target === pre) {
+            e.preventDefault(); // 同样要禁止页面滚动
+            codeElement.scrollTop += e.deltaY;
+          }
+        },
+        { passive: false }
+      );
+
+      // ==========================================
+      // 下面是原有的复制和折叠逻辑 (保持不变)
+      // ==========================================
       const copyButton = document.createElement("button");
       copyButton.className =
         "astro-code-icon-base astro-code-icon-btn copy-btn";
       copyButton.innerHTML = '<span class="mingcute--copy-line"></span>';
 
-      // 创建成功提示
       const successMessage = document.createElement("span");
       successMessage.className = "astro-code-icon-base copy-success";
       successMessage.innerHTML = '<span class="mingcute--check-fill"></span>';
 
-      // 添加到 DOM
       pre.appendChild(copyButton);
       pre.appendChild(successMessage);
 
-      // 点击事件
       copyButton.addEventListener("click", () => {
-        const codeElement = pre.querySelector("code");
-        if (!codeElement) return;
-
-        // 重构文本获取方式，避免多余空行
         const allLines = codeElement.querySelectorAll(".line");
         let codeToCopy;
-
         if (allLines.length > 0) {
-          // 如果有 .line 元素 (Shiki)，则手动拼接
           codeToCopy = Array.from(allLines)
             .map((line) => line.textContent || "")
             .join("\n");
         } else {
-          // 否则，回退到 innerText (适用于没有 .line 的普通 <code>)
           codeToCopy = codeElement.innerText || "";
         }
-
         navigator.clipboard
           .writeText(codeToCopy)
           .then(() => {
             successMessage.classList.add("show");
             copyButton.style.display = "none";
-
             setTimeout(() => {
               successMessage.classList.remove("show");
               copyButton.style.display = "flex";
@@ -179,52 +566,33 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
           })
           .catch((err) => {
             console.error("Failed to copy text: ", err);
-            alert("复制失败!");
           });
       });
 
-      // 折叠功能
-      // 获取所有行元素 (Shiki 生成的 .line)
       const lines = pre.querySelectorAll(".line");
-      // 阈值：12行
-      const LINE_THRESHOLD = 12;
-
-      if (lines.length > LINE_THRESHOLD) {
-        // 超过 12 行进行折叠处理
+      if (lines.length > 12) {
         pre.classList.add("collapsed");
-
-        // 创建切换按钮
         const toggleBtn = document.createElement("button");
-        // 应用基类 + 按钮基类 + 具体的定位类(toggle-btn)
         toggleBtn.className =
           "astro-code-icon-base astro-code-icon-btn toggle-btn";
-
-        // 创建图标元素 (默认显示“向下/展开”)
         const iconSpan = document.createElement("span");
         iconSpan.className = "mingcute--down-fill";
         toggleBtn.appendChild(iconSpan);
-
-        // 添加到 DOM
         pre.appendChild(toggleBtn);
 
-        // 绑定点击事件
         toggleBtn.addEventListener("click", () => {
-          // 切换 collapsed 类
           const isCollapsed = pre.classList.toggle("collapsed");
-
           if (isCollapsed) {
-            // 变成了折叠状态 -> 显示“向下”箭头
             iconSpan.className = "mingcute--down-fill";
             pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
           } else {
-            // 变成了展开状态 -> 显示“向上”箭头
             iconSpan.className = "mingcute--up-fill";
           }
         });
       }
     });
   }
-  // 页面加载生命周期
+
   document.addEventListener("DOMContentLoaded", () => {
     initCodeBlockFeatures();
   });
