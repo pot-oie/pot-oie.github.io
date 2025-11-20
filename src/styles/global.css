@@ -30,13 +30,33 @@
 }
 
 :root {
-  /* 亮色模式 (纸张/水墨) */
+  /* --- 基础色彩 --- */
   --bg-body: #f2f2f2;
   --bg-card: #ffffff;
   --text-main: var(--color-ink-900);
   --text-muted: var(--color-ink-500);
   --border-color: #e5e7eb;
   --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+
+  /* --- 文章排版 --- */
+  --prose-body: var(--color-ink-700); /* 正文颜色 */
+  --prose-heading: var(--color-ink-900); /* 标题颜色 */
+  --prose-link: var(--color-ink-900); /* 链接颜色 */
+  --prose-link-border: var(--color-ink-300); /* 链接下划线 */
+  --prose-bold: var(--color-ink-900); /* 加粗文字 */
+  --prose-highlight: var(--color-ink-100); /* 高亮背景（荧光笔效果） */
+  --prose-quote-bg: #f9f9f7; /* 引用块背景 */
+  --prose-quote-text: var(--color-ink-600); /* 引用块文字 */
+  --prose-quote-border: var(--color-ink-900); /* 引用块边框 */
+  --prose-code-bg: rgba(0, 0, 0, 0.06); /* 行内代码背景 */
+  --prose-code-text: #b91c1c; /* 行内代码文字 */
+
+  /* --- macOS 代码块 --- */
+  --code-block-bg: #d3d3d3; /* 代码块背景 */
+  --code-header-bg: #eaeaea; /* 标题栏背景 */
+  --code-header-border: #dbeafe; /* 标题栏边框 */
+  --code-scroll-thumb: rgba(0, 0, 0, 0.2); /* 滚动条滑块 */
+  --code-scroll-hover: rgba(0, 0, 0, 0.4); /* 滚动条悬停 */
 }
 
 /* 暗色模式 (黑底/白墨) */
@@ -48,6 +68,26 @@
   --border-color: #3f3f46;
   /* 暗色模式下阴影 */
   --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+
+  /* --- 文章排版 --- */
+  --prose-body: #d4d4d8; /* Zinc 300 */
+  --prose-heading: #f4f4f5; /* Zinc 100 */
+  --prose-link: #f4f4f5;
+  --prose-link-border: #52525b; /* Zinc 600 */
+  --prose-bold: #fff;
+  --prose-highlight: #3f3f46; /* 深灰色高亮 */
+  --prose-quote-bg: #27272a; /* 深色背景 */
+  --prose-quote-text: #a1a1aa;
+  --prose-quote-border: #71717a; /* Zinc 500 */
+  --prose-code-bg: rgba(255, 255, 255, 0.1);
+  --prose-code-text: #f87171; /* Red 400 (更亮的红) */
+
+  /* --- macOS 代码块 --- */
+  --code-block-bg: #1f1f22; /* 近黑色 */
+  --code-header-bg: #27272a; /* 深灰标题栏 */
+  --code-header-border: #3f3f46;
+  --code-scroll-thumb: rgba(255, 255, 255, 0.2);
+  --code-scroll-hover: rgba(255, 255, 255, 0.4);
 }
 
 /* ------ 基础重置与材质 ------ */

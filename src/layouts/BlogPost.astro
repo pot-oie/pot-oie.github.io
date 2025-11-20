@@ -75,31 +75,34 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 </BaseLayout>
 
 <style>
-  /* ==========================================
-     定制 Prose (现代东方风格)
-     ========================================== */
+  /* 现代东方风格 */
   .prose-ink {
     /* 基础设定：增加字间距，提升阅读的呼吸感 */
-    color: var(--color-ink-700); /* 推荐 #333333 或 #4b5563 */
+    color: var(--prose-body);
     font-family: var(--font-sans);
-    font-size: 1.1rem;
-    line-height: 1.8;
-    max-width: 65ch; /* 限制行长，符合阅读习惯 */
+    font-size: 1.05rem;
+    line-height: 2;
+    letter-spacing: 0.02em;
+    max-width: 65ch; /* 限制行长 */
     margin-left: auto;
     margin-right: auto;
   }
 
-  /* --- 1. 标题排版 --- */
+  /* 段落排版 */
+  .prose-ink :global(p) {
+    margin-bottom: 1.6em;
+    text-wrap: pretty;
+  }
+
+  /* 标题排版 */
   .prose-ink :global(h1),
   .prose-ink :global(h2),
   .prose-ink :global(h3),
   .prose-ink :global(h4) {
-    font-family: var(
-      --font-serif
-    ); /* 务必确保这是衬线体，如 Noto Serif SC, Songti */
-    color: var(--color-ink-900); /* 推荐 #000000 或 #111827 */
+    font-family: var(--font-serif);
+    color: var(--prose-heading);
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
     margin-top: 2.5em;
     margin-bottom: 1em;
     position: relative;
@@ -108,7 +111,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
   /* H2 特殊装饰：左侧竖线或底部线条 */
   .prose-ink :global(h2) {
     font-size: 1.8em;
-    border-bottom: 1px solid var(--color-ink-200); /* 淡墨色分割线 */
+    border-bottom: 1px solid var(--border-color); /* 淡墨色分割线 */
     padding-bottom: 0.3em;
   }
 
@@ -117,7 +120,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     margin-top: 2em;
   }
 
-  /* --- 2. 显式定义的列表样式 (核心需求) --- */
+  /* 斜体样式 */
+  .prose-ink :global(em) {
+    font-size: 1.05em;
+    font-weight: 600;
+  }
+
+  /* 列表样式 */
   .prose-ink :global(ul),
   .prose-ink :global(ol) {
     margin: 1.5em 0;
@@ -139,7 +148,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     top: 0.65em; /* 视觉对齐 */
     width: 6px;
     height: 6px;
-    background-color: var(--color-vermilion); /* 你的朱红色变量 */
+    background-color: var(--color-vermilion); /* 朱红色变量 */
     transform: rotate(45deg); /* 旋转成菱形 */
     opacity: 0.8;
   }
@@ -168,21 +177,21 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     font-size: 0.95em;
   }
 
-  /* --- 3. 链接与强调 --- */
+  /* 链接与强调 */
   .prose-ink :global(strong) {
-    color: var(--color-ink-900);
+    color: var(--prose-bold);
     font-weight: 700;
     background: linear-gradient(
       180deg,
       transparent 60%,
-      var(--color-ink-100) 0
+      var(--prose-highlight) 0
     );
   }
 
   .prose-ink :global(a) {
-    color: var(--color-ink-900);
+    color: var(--prose-link);
     text-decoration: none;
-    border-bottom: 1px solid var(--color-ink-300);
+    border-bottom: 1px solid var(--prose-link-border);
     transition: all 0.3s ease;
     padding-bottom: 1px;
   }
@@ -191,13 +200,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     border-bottom-color: var(--color-vermilion);
   }
 
-  /* --- 4. 引用块 (Blockquote) --- */
+  /* 引用块 */
   .prose-ink :global(blockquote) {
     margin: 2em 0;
     padding: 1em 1.5em;
-    border-left: 4px solid var(--color-ink-900); /* 深墨色边框 */
-    background-color: var(--color-ink-50, #f9f9f7); /* 极淡的米色/纸色背景 */
-    color: var(--color-ink-600);
+    border-left: 4px solid var(--prose-quote-border); /* 深墨色边框 */
+    background-color: var(--prose-quote-bg); /* 极淡的米色/纸色背景 */
+    color: var(--prose-quote-text);
     font-style: italic;
     font-family: var(--font-serif);
     border-radius: 0 4px 4px 0;
@@ -210,13 +219,12 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     margin-bottom: 0;
   }
 
-  /* --- 5. 图片 --- */
+  /* 图片 */
   .prose-ink :global(img) {
     margin: 2.5em auto;
     display: block;
     border-radius: 4px;
-    box-shadow: var(--shadow-ink, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
-    /* 保持原本的黑白交互效果 */
+    box-shadow: var(--shadow-ink);
     filter: grayscale(100%);
     transition:
       filter 0.5s ease,
@@ -227,11 +235,11 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     transform: scale(1.01);
   }
 
-  /* --- 6. 行内代码与分割线 --- */
+  /* 行内代码与分割线 */
   .prose-ink :global(:not(pre) > code) {
     font-family: "Menlo", "Monaco", "Courier New", monospace;
-    background-color: rgba(0, 0, 0, 0.06);
-    color: #b91c1c; /* 深红色，呼应朱红 */
+    background-color: var(--prose-code-bg);
+    color: var(--prose-code-text);
     padding: 0.2em 0.4em;
     border-radius: 4px;
     font-size: 0.85em;
@@ -243,7 +251,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     background: linear-gradient(
       to right,
       transparent,
-      var(--color-ink-300),
+      var(--prose-link-border),
       transparent
     );
     margin: 4em 0;
@@ -256,13 +264,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--color-bg, white); /* 需适配你的背景色变量 */
+    background-color: var(--bg-body);
     padding: 0 1em;
-    color: var(--color-ink-300);
+    color: var(--text-muted);
     font-family: var(--font-serif);
   }
 
-  /* --- 7. 表格 (极简风格) --- */
+  /* 表格 */
   .prose-ink :global(table) {
     width: 100%;
     border-collapse: collapse;
@@ -272,20 +280,20 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
   .prose-ink :global(th) {
     text-align: left;
     padding: 0.75em;
-    border-bottom: 2px solid var(--color-ink-900);
+    border-bottom: 2px solid var(--prose-heading);
     font-family: var(--font-serif);
-    color: var(--color-ink-900);
+    color: var(--prose-heading);
   }
   .prose-ink :global(td) {
     padding: 0.75em;
-    border-bottom: 1px solid var(--color-ink-200);
+    border-bottom: 1px solid var(--border-color);
     vertical-align: top;
   }
 </style>
 
 {/* --- macOS 风格代码块样式 --- */}
 <style is:global>
-  /* 1. 容器 */
+  /* 容器 */
   pre.astro-code {
     display: block;
     position: relative;
@@ -297,12 +305,14 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     border-radius: 8px;
     box-shadow: var(--shadow-ink);
     font-size: 1rem;
-    transition: max-height 0.3s ease-out;
-    background-color: #d3d3d3 !important;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition:
+      max-height 0.3s ease-out,
+      background-color 0.3s ease;
+    background-color: var(--code-block-bg) !important;
+    border: 1px solid var(--border-color);
   }
 
-  /* 2. 标题栏：绝对定位在顶部 */
+  /* 标题栏 */
   pre.astro-code::before {
     content: "";
     position: absolute;
@@ -312,8 +322,8 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     height: 2.6rem;
     width: 100%;
 
-    background-color: #eaeaea;
-    border-bottom: 1px solid #dbeafe;
+    background-color: var(--code-header-bg);
+    border-bottom: 1px solid var(--code-header-border);
 
     /* 红黄绿按钮 */
     background-image: radial-gradient(
@@ -347,24 +357,20 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     text-transform: uppercase;
     z-index: 12;
     display: inline-block;
-    color: #64748b;
+    color: var(--text-muted);
   }
 
-  /* 3. 代码区域：物理分离，解决滚动条被遮挡问题 */
+  /* 代码区域 */
   pre.astro-code > code {
     display: block;
     width: 100%;
-
     margin-top: 2.6rem;
-    padding: 1rem 1.5rem 1.5rem 3rem; /* 恢复正常的内部间距 */
-
+    padding: 1rem 1.5rem 1.5rem 3rem;
     counter-reset: line;
     box-sizing: border-box;
     overflow: auto;
     max-height: 47.5rem;
     line-height: 1;
-
-    /* 禁止滚动链 */
     overscroll-behavior: none;
   }
 
@@ -392,11 +398,11 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     cursor: pointer;
     transition: all 0.2s;
     outline: none;
-    color: #64748b;
+    color: var(--text-muted);
   }
 
   pre.astro-code .astro-code-icon-btn:hover {
-    color: #991b1b;
+    color: var(--color-vermilion);
   }
 
   pre.astro-code .toggle-btn {
@@ -411,7 +417,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     opacity: 0;
     transition: opacity 0.2s;
     pointer-events: none;
-    color: #b91c1c;
+    color: var(--color-vermilion);
   }
   pre.astro-code .copy-success.show {
     opacity: 1;
@@ -436,9 +442,10 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     opacity: 0.5;
     user-select: none;
     pointer-events: none;
+    color: var(--text-muted);
   }
 
-  /* 滚动条美化 */
+  /* 滚动条 */
   pre.astro-code > code::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -447,26 +454,24 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     background: transparent;
   }
   pre.astro-code > code::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--code-scroll-thumb);
     border-radius: 8px;
-    border: 3px solid #d3d3d3;
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
   pre.astro-code > code::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.4);
-    border: 3px solid #d3d3d3;
+    background-color: var(--code-scroll-hover);
   }
   pre.astro-code > code::-webkit-scrollbar-corner {
     background: transparent;
   }
 
-  /* 1. 选中位于列表项(li)内部的代码块 */
+  /* 移动端适配 */
   .prose-ink li > pre.astro-code {
     margin-left: -2em;
     width: calc(100% + 2em);
     max-width: calc(100% + 2em);
   }
-
-  /* 2. 移动端适配 */
   @media (max-width: 640px) {
     .prose-ink li > pre.astro-code {
       margin-left: -1em;
