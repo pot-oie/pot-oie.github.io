@@ -85,25 +85,58 @@ const { posts } = Astro.props;
 </style>
 
 <script>
-  // 将垂直滚轮事件转换为水平滚动
-  const scrollContainer = document.querySelector(".movie-scroll-container");
+  const scrollContainer = document.querySelector(
+    ".movie-scroll-container"
+  ) as HTMLElement;
 
   if (scrollContainer) {
+    // 1. 滚轮映射逻辑 (保持不变)
     scrollContainer.addEventListener(
       "wheel",
       (evt) => {
         const e = evt as WheelEvent;
-        // 如果滚动容器有水平溢出
         if (scrollContainer.scrollWidth > scrollContainer.clientWidth) {
-          // 且滚轮主要是垂直方向滚动
           if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
             e.preventDefault();
-            // 将 Y 轴滚动量加到 scrollLeft 上
             scrollContainer.scrollLeft += e.deltaY;
           }
         }
       },
       { passive: false }
     );
+
+    // 2. 新增：鼠标拖拽滚动逻辑
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    scrollContainer.addEventListener("mousedown", (e) => {
+      isDown = true;
+      scrollContainer.classList.add("cursor-grabbing");
+      scrollContainer.style.cursor = "grabbing";
+      // 记录初始点击位置和当前的滚动位置
+      startX = e.pageX - scrollContainer.offsetLeft;
+      scrollLeft = scrollContainer.scrollLeft;
+    });
+
+    const stopDragging = () => {
+      isDown = false;
+      scrollContainer.classList.remove("cursor-grabbing");
+      scrollContainer.style.cursor = "grab"; // 恢复为抓手手势
+    };
+
+    scrollContainer.addEventListener("mouseleave", stopDragging);
+    scrollContainer.addEventListener("mouseup", stopDragging);
+
+    scrollContainer.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      e.preventDefault(); // 防止选中文字或图片拖动
+      const x = e.pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 1.5; // * 1.5 是滚动速度系数，可微调
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    });
+
+    // 初始化鼠标样式
+    scrollContainer.style.cursor = "grab";
   }
 </script>

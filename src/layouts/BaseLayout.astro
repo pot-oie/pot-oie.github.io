@@ -2,6 +2,7 @@
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import { ClientRouter } from "astro:transitions";
 
 export interface Props {
   title: string;
@@ -14,10 +15,11 @@ const { title, description } = Astro.props;
 <html lang="zh-CN">
   <head>
     <BaseHead title={title} description={description} />
+    <ClientRouter />
   </head>
 
   <body
-    class="flex flex-col min-h-screen selection:bg-ink-900 selection:text-white"
+    class="flex flex-col min-h-screen selection:bg-ink-900 selection:text-white transition-colors duration-500"
   >
     <Header />
 

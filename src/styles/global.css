@@ -1,12 +1,14 @@
 /* src/styles/global.css */
 @import "tailwindcss";
 
-/* 引入现代宋体，营造东方人文感 */
+/* 现代宋体 */
 @import "@fontsource/noto-serif-sc/400.css";
 @import "@fontsource/noto-serif-sc/700.css";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  /* === 1. 新版：墨色系统 (Ink System) === */
+  /* 墨色系统 */
   --color-ink-900: #0f0f0f; /* 焦墨 - 极深 */
   --color-ink-800: #1a1a1a;
   --color-ink-700: #2a2a2a; /* 浓墨 - 正文 */
@@ -23,24 +25,43 @@
   --font-serif: "Noto Serif SC", "Songti SC", serif;
 
   /* 阴影：模拟墨水晕染的柔和阴影 */
-  --shadow-ink: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
-
-  /* --- 兼容性保留 (防止旧组件报错) --- */
-  --box-shadow: var(--shadow-ink); /* 映射旧变量到新阴影 */
+  --shadow-ink: var(--shadow-depth);
+  --box-shadow: var(--shadow-depth);
 }
 
-/* === 2. 基础重置与材质 (Base & Texture) === */
+:root {
+  /* 亮色模式 (纸张/水墨) */
+  --bg-body: #f2f2f2;
+  --bg-card: #ffffff;
+  --text-main: var(--color-ink-900);
+  --text-muted: var(--color-ink-500);
+  --border-color: #e5e7eb;
+  --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* 暗色模式 (黑底/白墨) */
+.dark {
+  --bg-body: #18181b;
+  --bg-card: #27272a;
+  --text-main: #e4e4e7;
+  --text-muted: #a1a1aa;
+  --border-color: #3f3f46;
+  /* 暗色模式下阴影 */
+  --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* ------ 基础重置与材质 ------ */
 body {
-  background-color: #f2f2f2; /* 灰白纸张底色 */
-  color: var(--color-ink-900);
+  background-color: var(--bg-body);
+  color: var(--text-main);
   font-family: var(--font-sans);
   position: relative;
-  /* 优化字体渲染 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 全局噪点材质 (Noise) - 核心视觉元素 */
+/* 全局噪点材质 */
 body::before {
   content: "";
   position: fixed;
@@ -54,8 +75,7 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* === 3. 排版系统 (Typography) === */
-/* 标题使用宋体，增加人文气息 */
+/* ------ 排版系统 ------ */
 h1,
 h2,
 h3,
@@ -63,6 +83,7 @@ h4,
 h5,
 h6 {
   font-family: var(--font-serif);
+  color: var(--text-main);
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -71,6 +92,7 @@ h6 {
 
 /* 链接样式：朱红批注风格 */
 a {
+  color: var(--text-main);
   text-decoration-color: var(--color-ink-300);
   transition: all 0.3s ease;
 }
@@ -78,11 +100,14 @@ a:hover {
   color: var(--color-vermilion);
   text-decoration-color: var(--color-vermilion);
 }
-
 /* 选中文字：反相墨色 */
 ::selection {
   background-color: var(--color-ink-900);
   color: var(--color-ink-100);
+}
+.dark ::selection {
+  background-color: var(--color-vermilion);
+  color: white;
 }
 
 /* 文章容器 */
@@ -105,7 +130,7 @@ a:hover {
   color: var(--color-ink-500);
 }
 
-/* === 4. 工具类 (Utilities) === */
+/* ------ 工具类 ------ */
 .sr-only {
   border: 0;
   padding: 0;
@@ -134,9 +159,12 @@ main {
   animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* =========================================
-   5. 组件样式保留区 (Components)
-   ========================================= */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s; /* 让页面切换稍微快一点 */
+}
+
+/* ------ 组件样式 ------ */
 
 /* 图标 Mask 样式 */
 .mingcute--copy-line,
