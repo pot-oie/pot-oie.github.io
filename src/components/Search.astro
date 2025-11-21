@@ -1,0 +1,331 @@
+---
+// src/components/Search.astro
+import { Icon } from "astro-icon/components";
+---
+
+{
+  /* search-modal: 
+  最外层容器，z-index 100 保证在最上层。
+*/
+}
+<div
+  id="search-modal"
+  class="fixed inset-0 z-100 hidden"
+  role="dialog"
+  aria-modal="true"
+>
+  {/* 1. 背景遮罩 */}
+  <div
+    id="search-backdrop"
+    class="fixed inset-0 bg-zinc-900/20 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+  >
+  </div>
+
+  {
+    /* 2. 滚动容器 (关键修复点) 
+    - data-lenis-prevent: 告诉 Lenis "不要接管这里的滚动"，恢复原生滚动体验。
+    - overscroll-contain: 防止滚动触底后通过“链式效应”滚动到底层 body。
+  */
+  }
+  <div
+    class="fixed inset-0 overflow-y-auto custom-scrollbar overscroll-contain"
+    data-lenis-prevent
+  >
+    <div
+      class="min-h-full w-full flex flex-col items-center p-4 pt-20 sm:pt-32"
+    >
+      {/* 辅助点击层：点击空白处关闭 */}
+      <div
+        class="absolute inset-0 w-full h-full -z-10"
+        id="search-backdrop-click"
+      >
+      </div>
+
+      {/* 3. 搜索框主体 */}
+      <div
+        id="search-container"
+        class="relative w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-2xl overflow-hidden opacity-0 scale-95 transition-all duration-300"
+      >
+        {/* --- 顶部：输入框区域 --- */}
+        <div
+          class="relative p-6 md:p-8 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 z-20"
+        >
+          {/* 右上角关闭按钮 (X) */}
+          <button
+            id="close-search-btn"
+            class="absolute top-4 right-4 p-2 text-zinc-400 hover:text-vermilion transition-colors rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            aria-label="Close"
+          >
+            <Icon name="mingcute:close-line" class="w-6 h-6" />
+          </button>
+
+          {/* 输入框 Wrapper */}
+          <div class="relative mt-4 flex items-center">
+            {/* 左侧搜索图标 */}
+            <Icon
+              name="mingcute:search-line"
+              class="absolute left-0 w-6 h-6 text-zinc-400 dark:text-zinc-500 pointer-events-none"
+            />
+
+            {/* 输入框主体 */}
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search..."
+              class="w-full bg-transparent border-0 border-b-2 border-zinc-200 dark:border-zinc-700 py-4 pl-10 pr-20 text-2xl font-serif font-bold text-ink-900 dark:text-zinc-100 placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none focus:border-vermilion dark:focus:border-vermilion transition-colors"
+              autocomplete="off"
+            />
+
+            {/* 清除按钮 (CLEAR) - 修复版 */}
+            {/* 绝对定位，加了 z-index 确保可点，加了 font-bold 和 tracking */}
+            <button
+              id="clear-search-btn"
+              class="absolute right-0 top-[55%] -translate-y-1/2 z-10 hidden px-3 py-1 text-xs font-sans font-bold tracking-[0.15em] text-zinc-400 hover:text-vermilion transition-colors cursor-pointer uppercase select-none"
+              type="button"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+
+        {/* --- 底部：结果列表区域 --- */}
+        <div class="bg-zinc-50 dark:bg-black/20 min-h-[100px]">
+          {/* 各种状态提示 */}
+          <div
+            id="search-loading"
+            class="hidden p-8 text-center text-zinc-400 font-serif italic"
+          >
+            Searching...
+          </div>
+          <div
+            id="search-error"
+            class="hidden p-8 text-center text-zinc-400 font-serif italic"
+          >
+            <p>Search is only available in production.</p>
+            <p class="text-xs mt-2 font-sans not-italic opacity-60">
+              (Run npm run build && npm run preview)
+            </p>
+          </div>
+          <div
+            id="search-empty"
+            class="hidden p-8 text-center text-zinc-400 font-serif italic"
+          >
+            No results found.
+          </div>
+
+          {/* 结果列表容器 */}
+          <ul
+            id="search-results"
+            class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50"
+          >
+            {/* JS 将在这里插入 li */}
+          </ul>
+        </div>
+      </div>
+
+      {/* 底部留白防贴边 */}
+      <div class="h-20 shrink-0"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pagefind: any = null;
+
+  // 将 DOM 元素的引用移入函数内部，确保每次都能获取到当前页面的最新元素
+  function getElements() {
+    return {
+      modal: document.getElementById("search-modal"),
+      container: document.getElementById("search-container"),
+      backdrop: document.getElementById("search-backdrop"),
+      input: document.getElementById("search-input") as HTMLInputElement,
+      resultsList: document.getElementById("search-results"),
+      clearBtn: document.getElementById("clear-search-btn"),
+      loadingState: document.getElementById("search-loading"),
+      emptyState: document.getElementById("search-empty"),
+      errorState: document.getElementById("search-error"),
+    };
+  }
+
+  async function initPagefind() {
+    if (pagefind) return true;
+    try {
+      const pagefindUrl = "/pagefind/pagefind.js";
+      // @ts-ignore
+      pagefind = await import(/* @vite-ignore */ pagefindUrl);
+      await pagefind.options({ excerptLength: 20 });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async function performSearch(query: string) {
+    const els = getElements(); // 获取当前元素
+    if (!query.trim()) {
+      renderResults([]);
+      els.emptyState?.classList.add("hidden");
+      return;
+    }
+
+    els.loadingState?.classList.remove("hidden");
+    els.emptyState?.classList.add("hidden");
+    els.errorState?.classList.add("hidden");
+    if (els.resultsList) els.resultsList.innerHTML = "";
+
+    const success = await initPagefind();
+    if (!success) {
+      els.loadingState?.classList.add("hidden");
+      els.errorState?.classList.remove("hidden");
+      return;
+    }
+
+    const search = await pagefind.search(query);
+    const data = await Promise.all(
+      search.results.slice(0, 10).map((r: any) => r.data())
+    );
+
+    els.loadingState?.classList.add("hidden");
+    renderResults(data);
+  }
+
+  function renderResults(results: any[]) {
+    const els = getElements();
+    if (!els.resultsList) return;
+    els.resultsList.innerHTML = "";
+
+    if (results.length === 0 && els.input?.value.trim()) {
+      els.emptyState?.classList.remove("hidden");
+      return;
+    }
+
+    results.forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "group";
+      li.innerHTML = `
+        <a href="${item.url}" class="block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200">
+          <h3 class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 mb-1 group-hover:text-vermilion transition-colors">
+            ${item.meta.title}
+          </h3>
+          <p class="text-sm text-ink-500 dark:text-zinc-400 font-sans leading-relaxed line-clamp-2">
+            ${item.excerpt}
+          </p>
+        </a>
+      `;
+      els.resultsList?.appendChild(li);
+    });
+  }
+
+  function openModal() {
+    const els = getElements();
+    if (!els.modal || !els.container || !els.backdrop) return;
+
+    els.modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+
+    void els.modal.offsetWidth;
+    els.backdrop.classList.remove("opacity-0");
+    els.container.classList.remove("opacity-0", "scale-95");
+    els.container.classList.add("opacity-100", "scale-100");
+
+    setTimeout(() => els.input?.focus(), 100);
+  }
+
+  function closeModal() {
+    const els = getElements();
+    if (!els.modal || !els.container || !els.backdrop) return;
+    document.body.style.overflow = "";
+
+    els.backdrop.classList.add("opacity-0");
+    els.container.classList.remove("opacity-100", "scale-100");
+    els.container.classList.add("opacity-0", "scale-95");
+
+    setTimeout(() => {
+      els.modal?.classList.add("hidden");
+    }, 300);
+  }
+
+  let debounceTimer: any;
+
+  function init() {
+    const els = getElements();
+
+    // 重新绑定 Input 事件
+    if (els.input) {
+      // 移除旧监听器
+      const newInput = els.input.cloneNode(true) as HTMLInputElement;
+      els.input.parentNode?.replaceChild(newInput, els.input);
+
+      newInput.addEventListener("input", (e) => {
+        const val = (e.target as HTMLInputElement).value;
+        const currentEls = getElements(); // 重新获取
+        if (val) currentEls.clearBtn?.classList.remove("hidden");
+        else currentEls.clearBtn?.classList.add("hidden");
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          performSearch(val);
+        }, 300);
+      });
+    }
+
+    // 重新绑定 Clear 按钮
+    if (els.clearBtn) {
+      const newBtn = els.clearBtn.cloneNode(true);
+      els.clearBtn.parentNode?.replaceChild(newBtn, els.clearBtn);
+      newBtn.addEventListener("click", () => {
+        const currentEls = getElements();
+        if (currentEls.input) {
+          currentEls.input.value = "";
+          currentEls.input.focus();
+        }
+        currentEls.clearBtn?.classList.add("hidden");
+        renderResults([]);
+        currentEls.emptyState?.classList.add("hidden");
+      });
+    }
+
+    // 全局事件委托
+    document.removeEventListener("click", handleGlobalClick);
+    document.removeEventListener("keydown", handleGlobalKeydown);
+    document.addEventListener("click", handleGlobalClick);
+    document.addEventListener("keydown", handleGlobalKeydown);
+  }
+
+  function handleGlobalClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest(".open-search-btn")) {
+      e.preventDefault();
+      openModal();
+    }
+    if (
+      target.closest("#close-search-btn") ||
+      target.id === "search-backdrop-click"
+    ) {
+      closeModal();
+    }
+  }
+
+  function handleGlobalKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") closeModal();
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      openModal();
+    }
+  }
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  /* 自定义高亮样式 */
+  :global(mark) {
+    background-color: transparent;
+    color: var(--color-vermilion);
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-color: var(--color-vermilion);
+    text-underline-offset: 2px;
+    padding: 0;
+  }
+</style>

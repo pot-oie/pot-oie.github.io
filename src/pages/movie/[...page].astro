@@ -71,6 +71,7 @@ const pageTitle = "Cinema Records";
                     src={post.data.coverImage}
                     alt={post.data.title}
                     width={400}
+                    transition:name={`movie-${slug}`}
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale contrast-[1.1] group-hover:grayscale-0 group-hover:contrast-100"
                   />
                 )}

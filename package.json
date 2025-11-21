@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -25,6 +25,7 @@
     "tone": "^15.1.22"
   },
   "devDependencies": {
-    "@iconify-json/mingcute": "^1.2.5"
+    "@iconify-json/mingcute": "^1.2.5",
+    "pagefind": "^1.4.0"
   }
 }

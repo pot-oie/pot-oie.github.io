@@ -2,6 +2,7 @@
 // src/components/Header.astro
 import { Icon } from "astro-icon/components";
 import HeaderLink from "./HeaderLink.astro";
+import Search from "./Search.astro";
 ---
 
 <header
@@ -16,8 +17,8 @@ import HeaderLink from "./HeaderLink.astro";
         Pot's Blog
       </a>
 
-      <div class="flex items-center gap-6">
-        <ul class="flex gap-6">
+      <div class="flex items-center gap-4 md:gap-6">
+        <ul class="hidden md:flex gap-6">
           <li><HeaderLink href="/">首页</HeaderLink></li>
           <li><HeaderLink href="/blog/learn">学习笔记</HeaderLink></li>
           <li><HeaderLink href="/blog/life">生活随笔</HeaderLink></li>
@@ -26,47 +27,60 @@ import HeaderLink from "./HeaderLink.astro";
           <li><HeaderLink href="/about">关于我</HeaderLink></li>
         </ul>
 
-        <button
-          id="theme-toggle-btn"
-          class="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer"
-          aria-label="切换主题"
-        >
-          <Icon
-            name="mingcute:sun-fill"
-            class="w-5 h-5 text-zinc-800 dark:hidden transition-transform"
-          />
-          <Icon
-            name="mingcute:moon-fill"
-            class="w-5 h-5 text-zinc-200 hidden dark:block transition-transform"
-          />
-        </button>
+        <div class="flex items-center gap-3">
+          <button
+            class="open-search-btn w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer group"
+            aria-label="搜索"
+          >
+            <Icon
+              name="mingcute:search-line"
+              class="w-5 h-5 text-zinc-800 dark:text-zinc-200 group-hover:text-vermilion transition-colors"
+            />
+          </button>
+
+          <button
+            id="theme-toggle-btn"
+            class="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer"
+            aria-label="切换主题"
+          >
+            <Icon
+              name="mingcute:sun-fill"
+              class="w-5 h-5 text-zinc-800 dark:hidden transition-transform"
+            />
+            <Icon
+              name="mingcute:moon-fill"
+              class="w-5 h-5 text-zinc-200 hidden dark:block transition-transform"
+            />
+          </button>
+        </div>
       </div>
     </nav>
   </div>
+
+  <script is:inline>
+    function initThemeToggle() {
+      const themeToggleBtn = document.getElementById("theme-toggle-btn");
+      if (!themeToggleBtn) return;
+
+      // 移除旧的监听器 (克隆节点法)
+      const newBtn = themeToggleBtn.cloneNode(true);
+      themeToggleBtn.parentNode.replaceChild(newBtn, themeToggleBtn);
+
+      newBtn.addEventListener("click", () => {
+        const element = document.documentElement;
+        element.classList.toggle("dark");
+
+        const isDark = element.classList.contains("dark");
+        // 关键：写入 localStorage
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+    }
+
+    // 页面加载时初始化
+    initThemeToggle();
+
+    // 视图过渡(View Transitions) 切换后重新初始化
+    document.addEventListener("astro:page-load", initThemeToggle);
+  </script>
 </header>
-
-<script is:inline>
-  function initThemeToggle() {
-    const themeToggleBtn = document.getElementById("theme-toggle-btn");
-    if (!themeToggleBtn) return;
-
-    // 移除旧的监听器 (克隆节点法)
-    const newBtn = themeToggleBtn.cloneNode(true);
-    themeToggleBtn.parentNode.replaceChild(newBtn, themeToggleBtn);
-
-    newBtn.addEventListener("click", () => {
-      const element = document.documentElement;
-      element.classList.toggle("dark");
-
-      const isDark = element.classList.contains("dark");
-      // 关键：写入 localStorage
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    });
-  }
-
-  // 页面加载时初始化
-  initThemeToggle();
-
-  // 视图过渡(View Transitions) 切换后重新初始化
-  document.addEventListener("astro:page-load", initThemeToggle);
-</script>
+<Search />

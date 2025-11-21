@@ -1,14 +1,72 @@
 ---
 // src/pages/music/index.astro
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MusicCalendar from "../../components/MusicCalendar.astro";
 
-// 获取当前日期
+// 1. 获取当前月份 Key (YY-MM)
 const now = new Date();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth(); // 0-based
+const currentMonthKey = `${currentYear.toString().slice(-2)}-${String(currentMonth + 1).padStart(2, "0")}`;
 
-// 格式化为 "YY-MM" 格式
-const year = now.getFullYear().toString().slice(-2);
-const month = String(now.getMonth() + 1).padStart(2, "0");
-const currentMonthSlug = `${year}-${month}`;
+// 2. 获取所有音乐数据并过滤出当月数据
+const allMusic = await getCollection("music");
+const musicForThisMonth = allMusic.filter((post) => {
+  const pubDate = post.data.pubDate;
+  const key = `${pubDate.getFullYear().toString().slice(-2)}-${String(pubDate.getMonth() + 1).padStart(2, "0")}`;
+  return key === currentMonthKey;
+});
 
-// 重定向到当前月份的日历页面
-return Astro.redirect(`/music/${currentMonthSlug}`);
+// 3. 构建 MusicCalendar 所需的数据结构
+const musicMap = new Map<number, CollectionEntry<"music">>();
+for (const post of musicForThisMonth) {
+  musicMap.set(post.data.pubDate.getDate(), post);
+}
+
+// 4. 计算日历参数
+const title = now.toLocaleString("zh-CN", { year: "numeric", month: "long" });
+const firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+const totalCellsNeeded = firstDayOfWeek + daysInMonth;
+const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
+const trailingCellsCount = totalGridCells - totalCellsNeeded;
+const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+// 5. 计算上一个月/下一个月的链接
+// 这里需要稍微复杂的逻辑去检查是否有数据，或者简化为只检查是否有上个月的数据
+// 为了简化，我们可以先置空，或者根据实际需求去遍历 allMusic 生成 keys
+// 这里简单生成逻辑：
+function getMonthKey(d: Date) {
+  return `${d.getFullYear().toString().slice(-2)}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+// 检查是否存在上个月的数据
+const prevDate = new Date(currentYear, currentMonth - 1, 1);
+const prevKey = getMonthKey(prevDate);
+const hasPrevData = allMusic.some(
+  (p) => getMonthKey(p.data.pubDate) === prevKey
+);
+const prevMonthUrl = hasPrevData ? `/music/${prevKey}` : null;
+
+// 首页作为当前月，通常没有“下一个月”（除非是查看过去的时间）
+const nextMonthUrl = null;
 ---
+
+<BaseLayout
+  title={`Music Calendar - ${title}`}
+  description="Monthly music records"
+>
+  <div class="max-w-4xl mx-auto py-20 md:py-32 px-4">
+    <MusicCalendar
+      title={title}
+      dayNames={dayNames}
+      firstDayOfWeek={firstDayOfWeek}
+      daysInMonth={daysInMonth}
+      musicMap={musicMap}
+      todayDate={now.getDate()}
+      trailingCellsCount={trailingCellsCount}
+      prevMonthUrl={prevMonthUrl}
+      nextMonthUrl={nextMonthUrl}
+    />
+  </div>
+</BaseLayout>

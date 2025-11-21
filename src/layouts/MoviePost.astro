@@ -5,8 +5,10 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 
-type Props = CollectionEntry<"movie">["data"];
-const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
+type Props = CollectionEntry<"movie">["data"] & {
+  id: string;
+};
+const { title, coverImage, rating, viewingDate, releaseDate, shortReview, id } =
   Astro.props;
 ---
 
@@ -24,6 +26,7 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview } =
         >
         </div>
         <Image
+          transition:name={`movie-${id}`}
           src={coverImage}
           alt={title}
           width={600}

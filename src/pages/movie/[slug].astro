@@ -18,8 +18,10 @@ type Props = CollectionEntry<"movie">;
 
 const post = Astro.props;
 const { Content } = await render(post);
+
+const slug = post.id.replace(/\.mdx?$/, "");
 ---
 
-<MoviePost {...post.data}>
+<MoviePost {...post.data} id={slug}>
   <Content />
 </MoviePost>
