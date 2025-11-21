@@ -1,39 +1,32 @@
 ---
 // src/components/MusicCalendar.astro
-import type { MusicData } from "../data/music.ts";
+import type { CollectionEntry } from "astro:content";
 import { getImage } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import MusicCard from "./MusicCard.astro";
 
 interface Props {
-  currentMonthKey: string;
-  musicData: MusicData[];
+  title: string;
+  dayNames: string[];
+  firstDayOfWeek: number;
+  daysInMonth: number;
+  musicMap: Map<number, CollectionEntry<"music">>;
+  todayDate: number;
+  trailingCellsCount: number;
   prevMonthUrl: string | null;
   nextMonthUrl: string | null;
 }
-const { currentMonthKey, musicData, prevMonthUrl, nextMonthUrl } = Astro.props;
-
-const [yearStr, monthStr] = currentMonthKey.split("-");
-const year = 2000 + parseInt(yearStr);
-const month = parseInt(monthStr) - 1;
-const title = new Date(year, month, 1).toLocaleString("zh-CN", {
-  year: "numeric",
-  month: "long",
-});
-const firstDayOfWeek = new Date(year, month, 1).getDay();
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-const totalCellsNeeded = firstDayOfWeek + daysInMonth;
-const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
-const trailingCellsCount = totalGridCells - totalCellsNeeded;
-const musicMap = new Map<number, MusicData>();
-for (const post of musicData) {
-  musicMap.set(post.pubDate.getDate(), post);
-}
-
-const today = new Date();
-const todayKey = `${today.getFullYear().toString().slice(-2)}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-const todayDate = currentMonthKey === todayKey ? today.getDate() : -1;
-const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const {
+  title,
+  dayNames,
+  firstDayOfWeek,
+  daysInMonth,
+  musicMap,
+  todayDate,
+  trailingCellsCount,
+  prevMonthUrl,
+  nextMonthUrl,
+} = Astro.props;
 ---
 
 <div class="max-w-4xl mx-auto py-12">
@@ -115,7 +108,7 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
           let optimizedImage = null;
           if (post) {
             optimizedImage = await getImage({
-              src: post.coverImage,
+              src: post.data.coverImage,
               width: 200,
               height: 200,
               format: "webp",

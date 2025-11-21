@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
@@ -49,7 +50,28 @@ const movie = defineCollection({
         }),
 });
 
+// 音乐集合
+const music = defineCollection({
+    // 使用 glob loader 加载 src/content/music 下的所有 yaml/json 文件
+    loader: glob({ pattern: '**/*.{yaml,json}', base: "./src/content/music" }),
+    schema: ({ image }) => z.object({
+        title: z.string(),
+        artist: z.string(),
+        // 封面图
+        coverImage: image(),
+        // 记录时间
+        pubDate: z.coerce.date(),
+        // 外部链接
+        links: z.object({
+            spotify: z.string().nullable().optional(),
+            netease: z.string().nullable().optional(),
+            qqMusic: z.string().nullable().optional(),
+        }).optional(),
+    }),
+});
+
 export const collections = { 
 	blog, 
-	movie
+	movie,
+	music
 };

@@ -1,17 +1,21 @@
 ---
 // src/pages/music/[month].astro
 
-import { allMusic, type MusicData } from "../../data/music.ts";
-import MusicCalendar from "../../components/MusicCalendar.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import { getImage } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import MusicCard from "../../components/MusicCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import MusicCalendar from "../../components/MusicCalendar.astro";
 
 export async function getStaticPaths() {
-  // 修改 Map 类型
-  const months = new Map<string, MusicData[]>();
+  const allMusic = await getCollection("music");
+
+  // 修改 Map 类型为 CollectionEntry<'music'>
+  const months = new Map<string, CollectionEntry<"music">[]>();
 
   for (const post of allMusic) {
-    // 去掉 .data
-    const pubDate = post.pubDate;
+    const pubDate = post.data.pubDate; // 注意是 post.data.pubDate
     const key = `${pubDate.getFullYear().toString().slice(-2)}-${String(pubDate.getMonth() + 1).padStart(2, "0")}`;
 
     if (!months.has(key)) {
@@ -45,25 +49,47 @@ export async function getStaticPaths() {
 const { month } = Astro.params;
 const { musicForThisMonth, prevMonthUrl, nextMonthUrl } = Astro.props;
 
+// 构建日历所需的日期逻辑
 const [yearStr, monthStr] = month.split("-");
-const dateForTitle = new Date(
-  2000 + parseInt(yearStr),
-  parseInt(monthStr) - 1,
-  1
-);
+const year = 2000 + parseInt(yearStr);
+const monthIndex = parseInt(monthStr) - 1;
+const title = new Date(year, monthIndex, 1).toLocaleString("zh-CN", {
+  year: "numeric",
+  month: "long",
+});
+const firstDayOfWeek = new Date(year, monthIndex, 1).getDay();
+const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+const totalCellsNeeded = firstDayOfWeek + daysInMonth;
+const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
+const trailingCellsCount = totalGridCells - totalCellsNeeded;
+
+// 构建当月 Map
+const musicMap = new Map<number, CollectionEntry<"music">>();
+for (const post of musicForThisMonth) {
+  musicMap.set(post.data.pubDate.getDate(), post); // 注意 post.data
+}
+
+const today = new Date();
+const todayKey = `${today.getFullYear().toString().slice(-2)}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+const todayDate = month === todayKey ? today.getDate() : -1;
+const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 ---
 
-<BaseLayout title="" description="">
-  <main>
-    <section class="pb-16 md:pb-24">
-      <div class="max-w-6xl mx-auto px-4">
-        <MusicCalendar
-          currentMonthKey={month}
-          musicData={musicForThisMonth}
-          prevMonthUrl={prevMonthUrl}
-          nextMonthUrl={nextMonthUrl}
-        />
-      </div>
-    </section>
-  </main>
+<BaseLayout
+  title={`Music Calendar - ${title}`}
+  description="Monthly music records"
+>
+  <div class="max-w-4xl mx-auto py-20 md:py-32 px-4">
+    <MusicCalendar
+      title={title}
+      dayNames={dayNames}
+      firstDayOfWeek={firstDayOfWeek}
+      daysInMonth={daysInMonth}
+      musicMap={musicMap}
+      todayDate={todayDate}
+      trailingCellsCount={trailingCellsCount}
+      prevMonthUrl={prevMonthUrl}
+      nextMonthUrl={nextMonthUrl}
+    />
+  </div>
 </BaseLayout>
