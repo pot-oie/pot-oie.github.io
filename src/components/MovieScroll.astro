@@ -43,7 +43,7 @@ const { posts } = Astro.props;
               <Image
                 src={post.data.coverImage}
                 alt={post.data.title}
-                width={400}
+                width={600}
                 transition:name={`movie-${slug}`}
                 class="w-full h-full object-cover filter grayscale contrast-[1.1] transition-all duration-700 group-hover/card:grayscale-0 group-hover/card:contrast-100 pointer-events-none"
                 draggable="false"

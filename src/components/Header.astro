@@ -6,18 +6,20 @@ import Search from "./Search.astro";
 ---
 
 <header
-  class="border-b border-zinc-200 dark:border-zinc-800 py-4 transition-colors duration-300"
+  class="border-b border-zinc-200 dark:border-zinc-800 py-4 transition-colors duration-300 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md z-50"
 >
   <div class="max-w-6xl mx-auto px-4">
-    <nav class="flex justify-between items-center">
+    <nav class="flex justify-between items-center relative">
+      {/* Logo */}
       <a
         href="/"
-        class="text-2xl font-bold text-vermilion hover:opacity-80 transition-opacity font-serif"
+        class="text-2xl font-bold text-vermilion hover:opacity-80 transition-opacity font-serif z-50"
       >
         Pot's Blog
       </a>
 
       <div class="flex items-center gap-4 md:gap-6">
+        {/* 桌面端菜单 */}
         <ul class="hidden md:flex gap-6">
           <li><HeaderLink href="/">首页</HeaderLink></li>
           <li><HeaderLink href="/blog/learn">学习笔记</HeaderLink></li>
@@ -27,7 +29,9 @@ import Search from "./Search.astro";
           <li><HeaderLink href="/about">关于我</HeaderLink></li>
         </ul>
 
-        <div class="flex items-center gap-3">
+        {/* 图标区域 */}
+        <div class="flex items-center gap-3 z-50">
+          {/* 搜索按钮 */}
           <button
             class="open-search-btn w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer group"
             aria-label="搜索"
@@ -38,6 +42,7 @@ import Search from "./Search.astro";
             />
           </button>
 
+          {/* 主题切换按钮 */}
           <button
             id="theme-toggle-btn"
             class="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer"
@@ -52,35 +57,165 @@ import Search from "./Search.astro";
               class="w-5 h-5 text-zinc-200 hidden dark:block transition-transform"
             />
           </button>
+
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center transition-all hover:border-vermilion hover:text-vermilion cursor-pointer group"
+            aria-label="菜单"
+          >
+            {/* 图标1: 菜单 (默认显示) */}
+            <Icon
+              name="mingcute:menu-line"
+              class="w-5 h-5 transition-transform duration-300"
+              id="menu-icon-open"
+            />
+            {/* 图标2: 收起 (默认隐藏) */}
+            <Icon
+              name="mingcute:list-collapse-line"
+              class="w-5 h-5 hidden transition-transform duration-300"
+              id="menu-icon-close"
+            />
+          </button>
         </div>
       </div>
     </nav>
+  </div>
+
+  {/* 移动端下拉菜单 */}
+  <div
+    id="mobile-menu"
+    class="absolute top-full left-0 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800 shadow-ink opacity-0 -translate-y-4 pointer-events-none transition-all duration-300 ease-out md:hidden -z-10"
+  >
+    <ul
+      class="flex flex-col pt-2 pb-6 px-6 gap-0 text-lg font-serif font-bold text-ink-900 dark:text-zinc-100"
+    >
+      <li>
+        <a
+          href="/"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >首页</a
+        >
+      </li>
+      <li>
+        <a
+          href="/blog/learn"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >学习笔记</a
+        >
+      </li>
+      <li>
+        <a
+          href="/blog/life"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >生活随笔</a
+        >
+      </li>
+      <li>
+        <a
+          href="/movie"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >观影记录</a
+        >
+      </li>
+      <li>
+        <a
+          href="/music"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >音乐日历</a
+        >
+      </li>
+      <li>
+        <a
+          href="/about"
+          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
+          >关于我</a
+        >
+      </li>
+    </ul>
   </div>
 
   <script is:inline>
     function initThemeToggle() {
       const themeToggleBtn = document.getElementById("theme-toggle-btn");
       if (!themeToggleBtn) return;
-
-      // 移除旧的监听器 (克隆节点法)
       const newBtn = themeToggleBtn.cloneNode(true);
       themeToggleBtn.parentNode.replaceChild(newBtn, themeToggleBtn);
-
       newBtn.addEventListener("click", () => {
         const element = document.documentElement;
         element.classList.toggle("dark");
-
         const isDark = element.classList.contains("dark");
-        // 关键：写入 localStorage
         localStorage.setItem("theme", isDark ? "dark" : "light");
       });
     }
 
-    // 页面加载时初始化
-    initThemeToggle();
+    function initMobileMenu() {
+      const btn = document.getElementById("mobile-menu-btn");
+      const menu = document.getElementById("mobile-menu");
 
-    // 视图过渡(View Transitions) 切换后重新初始化
-    document.addEventListener("astro:page-load", initThemeToggle);
+      if (!btn || !menu) return;
+
+      // 克隆按钮以移除旧监听器
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      const newIconOpen = newBtn.querySelector("#menu-icon-open");
+      const newIconClose = newBtn.querySelector("#menu-icon-close");
+      const links = document.querySelectorAll(".mobile-link");
+
+      let isMenuOpen = false;
+
+      const toggleMenu = () => {
+        isMenuOpen = !isMenuOpen;
+
+        if (isMenuOpen) {
+          // 打开：显示菜单，切换图标
+          menu.classList.remove(
+            "opacity-0",
+            "-translate-y-4",
+            "pointer-events-none"
+          );
+          menu.classList.add(
+            "opacity-100",
+            "translate-y-0",
+            "pointer-events-auto"
+          );
+
+          if (newIconOpen) newIconOpen.classList.add("hidden");
+          if (newIconClose) newIconClose.classList.remove("hidden");
+        } else {
+          // 关闭：隐藏菜单，恢复图标
+          menu.classList.remove(
+            "opacity-100",
+            "translate-y-0",
+            "pointer-events-auto"
+          );
+          menu.classList.add(
+            "opacity-0",
+            "-translate-y-4",
+            "pointer-events-none"
+          );
+
+          if (newIconClose) newIconClose.classList.add("hidden");
+          if (newIconOpen) newIconOpen.classList.remove("hidden");
+        }
+      };
+
+      newBtn.addEventListener("click", toggleMenu);
+
+      links.forEach((link) => {
+        link.addEventListener("click", () => {
+          if (isMenuOpen) toggleMenu();
+        });
+      });
+    }
+
+    function init() {
+      initThemeToggle();
+      initMobileMenu();
+    }
+
+    init();
+    document.addEventListener("astro:page-load", init);
   </script>
 </header>
 <Search />

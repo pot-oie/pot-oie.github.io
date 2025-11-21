@@ -31,17 +31,32 @@ const { title, description } = Astro.props;
     <script>
       import Lenis from "lenis";
 
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      });
+      // 全局变量
+      let lenis: Lenis | null = null;
+      let rafId: number | null = null;
 
-      function raf(time: number) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
+      function initLenis() {
+        // 单例模式
+        if (lenis) return;
+
+        lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          touchMultiplier: 2,
+        });
+
+        function raf(time: number) {
+          lenis?.raf(time);
+          rafId = requestAnimationFrame(raf);
+        }
+
+        rafId = requestAnimationFrame(raf);
       }
 
-      requestAnimationFrame(raf);
+      // 绑定到 Astro 的生命周期
+      document.addEventListener("astro:page-load", () => {
+        initLenis();
+      });
     </script>
   </body>
 </html>

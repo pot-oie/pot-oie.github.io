@@ -55,7 +55,7 @@ const pageTitle = "Cinema Records";
 
     {/* --- 电影网格 (Grid) --- */}
     <div
-      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mb-20"
+      class="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-12 mb-20"
     >
       {
         pageMovies.map((post) => {
@@ -70,7 +70,7 @@ const pageTitle = "Cinema Records";
                   <Image
                     src={post.data.coverImage}
                     alt={post.data.title}
-                    width={400}
+                    width={600}
                     transition:name={`movie-${slug}`}
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale contrast-[1.1] group-hover:grayscale-0 group-hover:contrast-100"
                   />
