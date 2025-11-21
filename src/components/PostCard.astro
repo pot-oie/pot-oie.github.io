@@ -3,6 +3,7 @@
 import { Image } from "astro:assets";
 import FormattedDate from "./FormattedDate.astro";
 import type { CollectionEntry } from "astro:content";
+
 interface Props {
   post: CollectionEntry<"blog">;
 }
@@ -13,12 +14,25 @@ const slug = post.id.replace(/\.mdx?$/, "");
 
 <a
   href={`/blog/${slug}/`}
-  class="group relative block py-12 border-t border-ink-300/30 first:border-t-0 transition-all duration-500 hover:pl-4"
+  class="post-card-link group relative block py-12 border-t border-ink-300/30 first:border-t-0
+         transition-all duration-500
+         /* PC Hover */
+         hover:pl-4
+         /* 移动端按下 or 脚本激活: 左移 + 瞬间动画 */
+         active:pl-4 active:duration-200
+         group-[.is-active]:pl-4 group-[.is-active]:duration-200"
 >
-  {/* 悬停时的背景图效果 (Ghost Image) */}
+  {/* 悬停/点击时的背景图 (Ghost Image) */}
   {
     post.data.coverImage && (
-      <div class="absolute right-0 top-1/2 -translate-y-1/2 h-[120%] w-2/3 md:w-1/2 opacity-0 group-hover:opacity-15 transition-opacity duration-700 ease-out pointer-events-none mix-blend-multiply dark:mix-blend-overlay grayscale blur-[1px] overflow-hidden select-none z-0">
+      <div
+        class="absolute right-0 top-1/2 -translate-y-1/2 h-[120%] w-2/3 md:w-1/2 opacity-0 
+                  /* 触发条件：PC Hover OR 移动端按下 OR 脚本激活 */
+                  group-hover:opacity-15 
+                  group-active:opacity-15 group-active:duration-300
+                  group-[.is-active]:opacity-15 group-[.is-active]:duration-300
+                  transition-opacity duration-700 ease-out pointer-events-none mix-blend-multiply dark:mix-blend-overlay grayscale blur-[1px] overflow-hidden select-none z-0"
+      >
         <Image
           src={post.data.coverImage}
           alt=""
@@ -37,33 +51,44 @@ const slug = post.id.replace(/\.mdx?$/, "");
     class="relative z-10 flex flex-col md:flex-row gap-4 md:items-baseline md:justify-between"
   >
     <h3
-      class="text-3xl md:text-4xl font-serif font-bold text-ink-900 dark:text-zinc-100 group-hover:text-vermilion dark:group-hover:text-vermilion transition-colors duration-300"
+      class="text-3xl md:text-4xl font-serif font-bold text-ink-900 dark:text-zinc-100
+             /* 触发条件：PC Hover OR 移动端按下 OR 脚本激活 */
+             group-hover:text-vermilion dark:group-hover:text-vermilion
+             group-active:text-vermilion dark:group-active:text-vermilion
+             group-[.is-active]:text-vermilion dark:group-[.is-active]:text-vermilion
+             transition-colors duration-300 active:duration-150 group-[.is-active]:duration-150"
     >
       {post.data.shortTitle || post.data.title}
     </h3>
 
-    {/* 日期：亮色变深，暗色变浅 */}
+    {/* 日期 */}
     <div
       class="shrink-0 font-sans text-sm font-medium tracking-widest uppercase transition-colors
-      text-ink-300 group-hover:text-ink-500
-      dark:text-zinc-500 dark:group-hover:text-zinc-300"
+      text-ink-300
+      group-hover:text-ink-500 group-active:text-ink-500 group-[.is-active]:text-ink-500
+      dark:text-zinc-500 dark:group-hover:text-zinc-300 dark:group-active:text-zinc-300 dark:group-[.is-active]:text-zinc-300"
     >
       <FormattedDate date={post.data.pubDate} />
     </div>
   </div>
 
-  {/* 摘要：亮色变深，暗色变浅 */}
+  {/* 摘要 */}
   <p
     class="relative z-10 mt-4 max-w-2xl text-lg leading-relaxed line-clamp-2 transition-colors duration-300
-    text-ink-500 group-hover:text-ink-700
-    dark:text-zinc-400 dark:group-hover:text-zinc-200"
+    text-ink-500
+    group-hover:text-ink-700 group-active:text-ink-700 group-[.is-active]:text-ink-700
+    dark:text-zinc-400 dark:group-hover:text-zinc-200 dark:group-active:text-zinc-200 dark:group-[.is-active]:text-zinc-200"
   >
     {post.data.description}
   </p>
 
   {/* 装饰性箭头 */}
   <div
-    class="relative z-10 mt-6 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-vermilion"
+    class="relative z-10 mt-6 opacity-0 -translate-x-2
+           group-hover:opacity-100 group-hover:translate-x-0
+           group-active:opacity-100 group-active:translate-x-0 group-active:duration-200
+           group-[.is-active]:opacity-100 group-[.is-active]:translate-x-0 group-[.is-active]:duration-200
+           transition-all duration-300 text-vermilion"
   >
     <span class="text-sm font-bold tracking-widest">READ MORE &rarr;</span>
   </div>
@@ -75,3 +100,33 @@ const slug = post.id.replace(/\.mdx?$/, "");
     mask-image: linear-gradient(to right, transparent, black 40%);
   }
 </style>
+
+<script>
+  // 查找页面上所有的卡片链接
+  const cards = document.querySelectorAll(".post-card-link");
+
+  cards.forEach((card) => {
+    card.addEventListener("click", (e) => {
+      const mouseEvent = e as MouseEvent;
+      const target = e.currentTarget as HTMLAnchorElement;
+
+      if (
+        mouseEvent.metaKey ||
+        mouseEvent.ctrlKey ||
+        target.classList.contains("is-active")
+      )
+        return;
+
+      // 阻止默认的立即跳转
+      e.preventDefault();
+
+      // 添加 'is-active' 类，强制固定住所有的 active 样式
+      target.classList.add("is-active");
+
+      // 延迟 400ms 后再跳转
+      setTimeout(() => {
+        window.location.href = target.href;
+      }, 400);
+    });
+  });
+</script>
