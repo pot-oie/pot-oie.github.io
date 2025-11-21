@@ -15,7 +15,7 @@
 - **噪点材质**: 全局叠加柔和的噪点纹理，增加页面的质感与厚度。
 
 ![music](image/index-music.png)
-![index-movie](image/index-movie.png)
+![blog](image/blog-list.png)
 ![movie](image/movie-list.png)
 
 ### 🧩 功能模块
