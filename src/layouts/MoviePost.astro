@@ -30,6 +30,8 @@ const { title, coverImage, rating, viewingDate, releaseDate, shortReview, id } =
           src={coverImage}
           alt={title}
           width={600}
+          loading="eager"
+          fetchpriority="high"
           class="relative z-10 w-full aspect-2/3 object-cover rounded-sm shadow-ink filter grayscale contrast-[1.1] transition-all duration-700 group-hover:grayscale-0 group-hover:-translate-y-2"
         />
       </div>

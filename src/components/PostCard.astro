@@ -22,7 +22,10 @@ const slug = post.id.replace(/\.mdx?$/, "");
         <Image
           src={post.data.coverImage}
           alt=""
-          width={800}
+          width={600}
+          quality={20}
+          format="webp"
+          loading="lazy"
           class="w-full h-full object-cover mask-image-gradient"
         />
       </div>

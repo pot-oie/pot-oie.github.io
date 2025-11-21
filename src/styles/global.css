@@ -1,5 +1,6 @@
 /* src/styles/global.css */
 @import "tailwindcss";
+@import "./markdown.css";
 
 /* 现代宋体 */
 @import "@fontsource/noto-serif-sc/400.css";
@@ -98,6 +99,7 @@ body {
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 

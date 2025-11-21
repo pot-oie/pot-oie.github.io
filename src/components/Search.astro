@@ -130,7 +130,10 @@ import { Icon } from "astro-icon/components";
 </div>
 
 <script>
-  let pagefind: any = null;
+  // @ts-ignore
+  import type * as Pagefind from "/pagefind/pagefind.js";
+
+  let pagefind: typeof Pagefind | null = null;
 
   // 将 DOM 元素的引用移入函数内部，确保每次都能获取到当前页面的最新元素
   function getElements() {
@@ -150,12 +153,18 @@ import { Icon } from "astro-icon/components";
   async function initPagefind() {
     if (pagefind) return true;
     try {
-      const pagefindUrl = "/pagefind/pagefind.js";
-      // @ts-ignore
-      pagefind = await import(/* @vite-ignore */ pagefindUrl);
-      await pagefind.options({ excerptLength: 20 });
-      return true;
+      const url = "/pagefind/pagefind.js";
+
+      pagefind = (await import(/* @vite-ignore */ url)) as typeof Pagefind;
+
+      if (pagefind) {
+        await pagefind.options({ excerptLength: 20 });
+        return true;
+      }
+      return false;
     } catch (e) {
+      // 开发环境下捕获错误，不影响页面其他功能
+      console.warn("Pagefind search is not available in dev mode.");
       return false;
     }
   }
@@ -163,8 +172,8 @@ import { Icon } from "astro-icon/components";
   async function performSearch(query: string) {
     const els = getElements(); // 获取当前元素
     if (!query.trim()) {
+      if (els.emptyState) els.emptyState.classList.add("hidden");
       renderResults([]);
-      els.emptyState?.classList.add("hidden");
       return;
     }
 
@@ -174,13 +183,16 @@ import { Icon } from "astro-icon/components";
     if (els.resultsList) els.resultsList.innerHTML = "";
 
     const success = await initPagefind();
-    if (!success) {
+    if (!success || !pagefind) {
       els.loadingState?.classList.add("hidden");
+      // 仅在真正需要搜索时才显示错误（比如开发模式下）
       els.errorState?.classList.remove("hidden");
       return;
     }
 
     const search = await pagefind.search(query);
+
+    // 使用 Promise.all 获取详细数据
     const data = await Promise.all(
       search.results.slice(0, 10).map((r: any) => r.data())
     );
@@ -189,9 +201,11 @@ import { Icon } from "astro-icon/components";
     renderResults(data);
   }
 
-  function renderResults(results: any[]) {
+  // 为 results 参数添加类型
+  function renderResults(results: Pagefind.PagefindSearchResult[]) {
     const els = getElements();
     if (!els.resultsList) return;
+
     els.resultsList.innerHTML = "";
 
     if (results.length === 0 && els.input?.value.trim()) {
@@ -228,6 +242,7 @@ import { Icon } from "astro-icon/components";
     els.container.classList.remove("opacity-0", "scale-95");
     els.container.classList.add("opacity-100", "scale-100");
 
+    // 增加非空断言或检查
     setTimeout(() => els.input?.focus(), 100);
   }
 
