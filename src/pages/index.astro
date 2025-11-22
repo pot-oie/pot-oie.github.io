@@ -148,6 +148,8 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
                 <img
                   src={movie.data.coverImage.src}
                   alt={movie.data.title}
+                  loading="eager"
+                  decoding="async"
                   transition:name={`movie-${slug}`}
                   class="w-full h-full object-cover transition-transform duration-700 
                          md:group-hover:scale-105 md:group-hover:grayscale-0 
@@ -204,6 +206,23 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
 
 <script>
   function setupPageInteractions() {
+    // 强制移除所有 .is-active 类，防止浏览器返回时保留了之前的点击状态
+    const cleanupActiveStates = () => {
+      document.querySelectorAll(".is-active").forEach((el) => {
+        el.classList.remove("is-active");
+      });
+    };
+
+    cleanupActiveStates();
+
+    // 监听 BFCache 恢复事件 (应对 iOS Safari 侧滑返回)
+    window.addEventListener("pageshow", (event) => {
+      // event.persisted 表示页面是从缓存中恢复的
+      if (event.persisted) {
+        cleanupActiveStates();
+      }
+    });
+
     // 电影视图切换逻辑
     const toggleBtn = document.getElementById("movie-view-toggle");
     const gridView = document.getElementById("movie-grid-view");

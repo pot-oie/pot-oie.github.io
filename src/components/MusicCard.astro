@@ -1,40 +1,31 @@
 ---
 // src/components/MusicCard.astro
-
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
   post: CollectionEntry<"music">;
   optimizedImage: { src: string };
-  positionClasses: string | string[];
+  positionClasses?: string | string[];
 }
 
-const { post, optimizedImage, positionClasses } = Astro.props;
+const { post, optimizedImage } = Astro.props;
 const { title, artist } = post.data;
 ---
 
 <div
   class:list={[
-    "absolute z-50",
-    "w-60", // 高瘦型宽度
-
-    "opacity-0 invisible translate-y-2",
-    "transition-all duration-300 ease-in-out",
-    "group-hover:opacity-100",
-    "group-hover:visible",
-    "group-hover:translate-y-0",
-
+    "relative",
     "bg-white dark:bg-zinc-800",
     "border border-zinc-200 dark:border-zinc-700",
     "rounded-lg shadow-xl",
-    "transition-all duration-150 ease-in-out",
-    "p-4",
-    positionClasses,
+
+    "w-44 md:w-60",
+    "p-3 md:p-4",
   ]}
 >
-  <div class="flex justify-center pb-4">
+  <div class="flex justify-center pb-3 md:pb-4">
     <div
-      class="relative w-20 h-20 flex items-center justify-center rounded-full shadow-md animate-[spin_16s_linear_infinite] ring-1 ring-zinc-900/5 dark:ring-zinc-100/10 overflow-hidden"
+      class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-full shadow-md animate-[spin_16s_linear_infinite] ring-1 ring-zinc-900/5 dark:ring-zinc-100/10 overflow-hidden"
       style="background: repeating-radial-gradient(circle at center, #18181b 0, #18181b 2px, #27272a 3px, #18181b 4px);"
     >
       <div
@@ -47,10 +38,7 @@ const { title, artist } = post.data;
         alt={title}
         width="52"
         height="52"
-        *
-        尺寸缩小以露出黑胶边缘，添加边框界定标签范围
-        *
-        class="w-11 h-11 rounded-full object-cover z-10 border-[1.5px] border-zinc-800/80 dark:border-zinc-900/80"
+        class="w-9 h-9 md:w-11 md:h-11 rounded-full object-cover z-10 border-[1.5px] border-zinc-800/80 dark:border-zinc-900/80"
       />
 
       <div
@@ -60,15 +48,15 @@ const { title, artist } = post.data;
     </div>
   </div>
 
-  <div class="overflow-hidden text-center flex flex-col gap-1">
+  <div class="overflow-hidden text-center flex flex-col gap-0.5 md:gap-1">
     <h5
-      class="text-base font-serif font-bold text-ink-900 dark:text-zinc-100 truncate"
+      class="text-sm md:text-base font-serif font-bold text-ink-900 dark:text-zinc-100 truncate"
       title={title}
     >
       {title}
     </h5>
     <p
-      class="text-xs font-sans text-ink-500 dark:text-zinc-400 truncate tracking-widest uppercase"
+      class="text-[10px] md:text-xs font-sans text-ink-500 dark:text-zinc-400 truncate tracking-widest uppercase"
       title={artist}
     >
       {artist}

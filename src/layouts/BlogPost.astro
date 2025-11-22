@@ -16,7 +16,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
     <header class="max-w-3xl mx-auto text-center mb-16 md:mb-24 px-4">
       <a
         href="/"
-        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-colors mb-8 text-sm tracking-widest uppercase group"
+        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-8 text-sm tracking-widest uppercase group active:scale-95"
       >
         <Icon
           name="mingcute:arrow-left-line"
@@ -63,7 +63,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
               fetchpriority="high"
               quality={80}
               format="webp"
-              class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 group-hover:grayscale-0 group-hover:contrast-100"
+              class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 md:group-hover:grayscale-0 md:group-hover:contrast-100 active:grayscale-0 active:contrast-100 active:scale-[0.99] active:duration-300"
             />
             <div class="absolute inset-0 bg-ink-500/5 mix-blend-multiply pointer-events-none" />
           </div>
@@ -311,9 +311,8 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
       const codeElement = pre.querySelector("code");
       if (!codeElement || !(codeElement instanceof HTMLElement)) return;
-      // ==========================================
-      // 【1. Code 滚动锁】: 防止代码滚到底后页面跟着滚
-      // ==========================================
+
+      // 【Code 滚动锁】
       codeElement.addEventListener(
         "wheel",
         (e) => {
@@ -332,25 +331,19 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
         { passive: false }
       );
 
-      // ==========================================
-      // 【2. Header 滚动代理】: 解决标题栏“死区”问题
-      // ==========================================
-      // 当鼠标悬停在 margin-top 腾出的标题栏区域时，事件目标是 pre
-      // 我们手动把这里的滚轮事件“转发”给 codeElement
+      // 【Header 滚动代理】
       pre.addEventListener(
         "wheel",
         (e) => {
           if (e.target === pre) {
-            e.preventDefault(); // 同样要禁止页面滚动
+            e.preventDefault();
             codeElement.scrollTop += e.deltaY;
           }
         },
         { passive: false }
       );
 
-      // ==========================================
-      // 下面是原有的复制和折叠逻辑 (保持不变)
-      // ==========================================
+      // 【复制和折叠逻辑】
       const copyButton = document.createElement("button");
       copyButton.className =
         "astro-code-icon-base astro-code-icon-btn copy-btn";

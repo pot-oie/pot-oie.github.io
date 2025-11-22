@@ -33,10 +33,7 @@ const totalGridCells = Math.ceil(totalCellsNeeded / 7) * 7;
 const trailingCellsCount = totalGridCells - totalCellsNeeded;
 const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-// 5. 计算上一个月/下一个月的链接
-// 这里需要稍微复杂的逻辑去检查是否有数据，或者简化为只检查是否有上个月的数据
-// 为了简化，我们可以先置空，或者根据实际需求去遍历 allMusic 生成 keys
-// 这里简单生成逻辑：
+// 计算上一个月/下一个月的链接
 function getMonthKey(d: Date) {
   return `${d.getFullYear().toString().slice(-2)}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }

@@ -27,9 +27,11 @@ const {
   prevMonthUrl,
   nextMonthUrl,
 } = Astro.props;
+
+const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
 ---
 
-<div class="max-w-4xl mx-auto py-12">
+<div class="max-w-4xl mx-auto py-12 relative">
   {/* --- 头部 --- */}
   <div
     class="flex justify-between items-end mb-12 border-b border-ink-900 dark:border-zinc-600 pb-4 transition-colors"
@@ -46,12 +48,12 @@ const {
           <a
             href={prevMonthUrl}
             aria-label="Previous"
-            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion dark:hover:text-vermilion transition-colors"
+            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion transition-colors"
           >
             <Icon name="mingcute:arrow-left-line" class="w-6 h-6" />
           </a>
         ) : (
-          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed transition-colors">
+          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed">
             <Icon name="mingcute:arrow-left-line" class="w-6 h-6" />
           </span>
         )
@@ -61,12 +63,12 @@ const {
           <a
             href={nextMonthUrl}
             aria-label="Next"
-            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion dark:hover:text-vermilion transition-colors"
+            class="p-2 text-ink-500 dark:text-zinc-300 hover:text-vermilion transition-colors"
           >
             <Icon name="mingcute:arrow-right-line" class="w-6 h-6" />
           </a>
         ) : (
-          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed transition-colors">
+          <span class="p-2 text-ink-300 dark:text-zinc-700 cursor-not-allowed">
             <Icon name="mingcute:arrow-right-line" class="w-6 h-6" />
           </span>
         )
@@ -87,9 +89,9 @@ const {
 
   {/* --- 日历网格 --- */}
   <div
-    class="grid grid-cols-7 border-t border-l border-ink-300/50 dark:border-zinc-700 transition-colors"
+    id="calendar-grid"
+    class="grid grid-cols-7 border-t border-l border-ink-300/50 dark:border-zinc-700 transition-colors relative z-0"
   >
-    {/* 头部空白 */}
     {
       Array(firstDayOfWeek)
         .fill(null)
@@ -98,7 +100,6 @@ const {
         ))
     }
 
-    {/* 日期单元格 */}
     {
       Array(daysInMonth)
         .fill(null)
@@ -119,18 +120,25 @@ const {
           const cellIndex = firstDayOfWeek + i;
           const row = Math.floor(cellIndex / 7);
           const col = cellIndex % 7;
+
+          // 弹窗位置逻辑
           const cardPositionClasses = [
+            // 前3行向下弹，后3行向上弹
             row < 3 ? "top-full mt-2" : "bottom-full mb-2",
+
+            // 列逻辑：防止左右溢出
             col < 1
-              ? "left-0"
+              ? "left-0 origin-left" // 最左侧：左对齐
               : col > 5
-                ? "right-0"
-                : "left-1/2 -translate-x-1/2",
+                ? "right-0 origin-right" // 最右侧：右对齐
+                : "left-1/2 -translate-x-1/2 origin-center", // 中间：居中
           ];
 
           return (
-            <div class="group relative aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 flex flex-col items-center justify-center transition-colors hover:bg-ink-300/10 dark:hover:bg-zinc-700/30">
-              {/* 日期数字 */}
+            <div
+              id={`music-cell-${day}`}
+              class={`calendar-cell group relative aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 flex flex-col items-center justify-center transition-colors hover:bg-ink-300/10 dark:hover:bg-zinc-700/30 ${post ? "cursor-pointer" : ""}`}
+            >
               <span
                 class:list={[
                   "text-sm font-serif transition-colors z-10 pointer-events-none",
@@ -144,24 +152,26 @@ const {
 
               {post && optimizedImage ? (
                 <>
-                  {/* 背景圆点指示器 */}
-                  <div class="absolute w-8 h-8 md:w-12 md:h-12 rounded-full border border-ink-300/50 dark:border-zinc-600/50 group-hover:border-vermilion/50 transition-colors" />
+                  {/* 圆点指示器 */}
+                  <div class="indicator absolute w-8 h-8 md:w-12 md:h-12 rounded-full border border-ink-300/50 dark:border-zinc-600/50 transition-all pointer-events-none" />
 
-                  <div class="absolute inset-0 cursor-pointer z-0" />
-
-                  <MusicCard
-                    post={post}
-                    optimizedImage={optimizedImage}
-                    positionClasses={cardPositionClasses}
-                  />
+                  <div
+                    class={`music-popup absolute z-100 w-max transition-all duration-300 ease-out 
+                              opacity-0 invisible pointer-events-none scale-95 
+                              /* PC Hover 逻辑 */
+                              lg:group-hover:opacity-100 lg:group-hover:visible lg:group-hover:pointer-events-auto lg:group-hover:scale-100
+                              /* Mobile Active 逻辑 */
+                              group-[.is-active]:opacity-100 group-[.is-active]:visible group-[.is-active]:pointer-events-auto group-[.is-active]:scale-100 
+                              ${cardPositionClasses.join(" ")}`}
+                  >
+                    <MusicCard post={post} optimizedImage={optimizedImage} />
+                  </div>
                 </>
               ) : null}
             </div>
           );
         })
     }
-
-    {/* 尾部空白 */}
     {
       Array(trailingCellsCount)
         .fill(null)
@@ -170,4 +180,196 @@ const {
         ))
     }
   </div>
+
+  {/* --- 移动端控制栏 --- */}
+  {
+    musicDays.length > 0 && (
+      <div
+        id="mobile-music-controls"
+        class="lg:hidden mt-8 flex items-center justify-center gap-10 py-3 px-6 rounded-full bg-ink-300/10 dark:bg-zinc-300/10 border border-ink-200 dark:border-zinc-700 backdrop-blur-md mx-auto w-max relative z-100"
+        data-days={JSON.stringify(musicDays)}
+        data-today={todayDate}
+      >
+        <button
+          id="btn-prev"
+          class="text-ink-500 dark:text-zinc-300 hover:text-vermilion active:scale-90 active:text-vermilion transition-all cursor-pointer touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 disabled:hover:text-ink-500 dark:disabled:hover:text-zinc-400"
+        >
+          <Icon
+            name="mingcute:skip-previous-line"
+            class="w-6 h-6 pointer-events-none"
+          />
+        </button>
+
+        <button
+          id="btn-toggle"
+          class="flex flex-col items-center gap-1 text-ink-800 dark:text-zinc-200 active:scale-90 transition-all cursor-pointer touch-manipulation"
+        >
+          <Icon
+            name="mingcute:eye-close-line"
+            id="icon-show"
+            class="w-6 h-6 block pointer-events-none"
+          />
+          <Icon
+            name="mingcute:eye-2-line"
+            id="icon-hide"
+            class="w-6 h-6 hidden text-vermilion pointer-events-none"
+          />
+        </button>
+
+        <button
+          id="btn-next"
+          class="text-ink-500 dark:text-zinc-300 hover:text-vermilion active:scale-90 active:text-vermilion transition-all cursor-pointer touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 disabled:hover:text-ink-500 dark:disabled:hover:text-zinc-400"
+        >
+          <Icon
+            name="mingcute:skip-forward-line"
+            class="w-6 h-6 pointer-events-none"
+          />
+        </button>
+      </div>
+    )
+  }
 </div>
+
+<style>
+  .calendar-cell.is-active {
+    z-index: 50;
+  }
+
+  .calendar-cell.is-active .music-popup {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .calendar-cell.is-active .indicator {
+    border-color: rgba(var(--color-vermilion), 1);
+    transform: scale(1.1);
+  }
+
+  @media (hover: hover) {
+    .calendar-cell:hover {
+      z-index: 50;
+    }
+    .calendar-cell:hover .music-popup {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .calendar-cell:hover .indicator {
+      border-color: rgba(var(--color-vermilion), 0.5);
+    }
+  }
+</style>
+
+<script>
+  function initMobileControls() {
+    const controls = document.getElementById("mobile-music-controls");
+    if (!controls) return;
+
+    const musicDays = JSON.parse(controls.dataset.days || "[]");
+    const todayDate = parseInt(controls.dataset.today || "1");
+
+    if (musicDays.length === 0) return;
+
+    const btnPrev = document.getElementById("btn-prev") as HTMLButtonElement;
+    const btnNext = document.getElementById("btn-next") as HTMLButtonElement;
+    const btnToggle = document.getElementById("btn-toggle");
+    const iconShow = document.getElementById("icon-show");
+    const iconHide = document.getElementById("icon-hide");
+
+    let isVisible = false;
+
+    const findClosestIndex = () => {
+      let foundIndex = -1;
+      for (let i = 0; i < musicDays.length; i++) {
+        if (musicDays[i] <= todayDate) {
+          foundIndex = i;
+        } else {
+          break;
+        }
+      }
+      return foundIndex === -1 ? 0 : foundIndex;
+    };
+
+    let currentIndex = findClosestIndex();
+
+    const updateUI = () => {
+      document.querySelectorAll(".calendar-cell.is-active").forEach((el) => {
+        el.classList.remove("is-active");
+      });
+
+      if (isVisible) {
+        const currentDay = musicDays[currentIndex];
+        const targetCell = document.getElementById(`music-cell-${currentDay}`);
+        if (targetCell) targetCell.classList.add("is-active");
+        iconShow?.classList.add("hidden");
+        iconHide?.classList.remove("hidden");
+      } else {
+        iconShow?.classList.remove("hidden");
+        iconHide?.classList.add("hidden");
+      }
+
+      if (btnPrev) btnPrev.disabled = currentIndex === 0;
+      if (btnNext) btnNext.disabled = currentIndex === musicDays.length - 1;
+    };
+
+    updateUI();
+
+    btnToggle?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      isVisible = !isVisible;
+      updateUI();
+    });
+
+    btnPrev?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (currentIndex > 0) {
+        currentIndex--;
+        isVisible = true;
+        updateUI();
+      }
+    });
+
+    btnNext?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (currentIndex < musicDays.length - 1) {
+        currentIndex++;
+        isVisible = true;
+        updateUI();
+      }
+    });
+
+    const cells = document.querySelectorAll('[id^="music-cell-"]');
+    cells.forEach((cell) => {
+      cell.addEventListener("click", (e) => {
+        if (window.matchMedia("(hover: none)").matches) {
+          e.stopPropagation();
+          const day = parseInt(cell.id.replace("music-cell-", ""));
+          const index = musicDays.indexOf(day);
+          if (index !== -1) {
+            currentIndex = index;
+            isVisible = !cell.classList.contains("is-active");
+            updateUI();
+          }
+        }
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (
+        !controls.contains(target) &&
+        !target.closest(".music-card-content") &&
+        !target.closest('[id^="music-cell-"]')
+      ) {
+        if (isVisible) {
+          isVisible = false;
+          updateUI();
+        }
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", initMobileControls);
+  document.addEventListener("DOMContentLoaded", initMobileControls);
+</script>

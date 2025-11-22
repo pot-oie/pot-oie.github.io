@@ -55,7 +55,7 @@ pre.astro-code::before {
 pre.astro-code::after {
   content: attr(data-language);
   position: absolute;
-  top: 0.25rem;
+  top: 0.1rem;
   right: 5.5rem;
   padding: 0.125rem 0.5rem;
   font-size: 1.1rem;
