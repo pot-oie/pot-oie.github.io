@@ -4,10 +4,22 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import TableOfContents from "../components/TableOfContents.astro"; // 假设你已经创建了这个组件
 import { Icon } from "astro-icon/components";
+import type { MarkdownHeading } from "astro";
 
-type Props = CollectionEntry<"blog">["data"];
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+type Props = CollectionEntry<"blog">["data"] & {
+  headings?: MarkdownHeading[];
+};
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  headings = [],
+} = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -41,12 +53,15 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
         </div>
 
         <h1
-          class="text-4xl md:text-6xl font-serif font-bold text-ink-900 leading-tight tracking-tight"
+          class="text-4xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
         >
           {title}
         </h1>
 
-        <div class="w-12 h-1 bg-ink-900 mt-6"></div>
+        <div
+          class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-6 transition-colors"
+        >
+        </div>
       </div>
     </header>
 
@@ -71,231 +86,62 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
       )
     }
 
-    {/* --- 正文区域 --- */}
-    <div class="prose prose-ink mx-auto px-4">
-      <slot />
+    {/* --- 内容布局区 --- */}
+    {/* 使用 3 栏 Grid: [左留白] [正文] [TOC] */}
+    <div
+      class="max-w-[1400px] mx-auto px-4 grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,800px)_1fr] gap-12 relative items-start"
+    >
+      {/* 1. 左侧留白 (用于平衡布局) */}
+      <div class="hidden xl:block"></div>
+
+      {/* 2. 正文核心区 */}
+      <div class="w-full max-w-3xl mx-auto xl:max-w-none">
+        {/* Mobile TOC: 移动端/平板端折叠目录 */}
+        {
+          headings.length > 0 && (
+            <div class="xl:hidden mb-12">
+              <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group open:shadow-ink transition-all duration-300">
+                <summary class="p-4 font-serif font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
+                  <div class="flex items-center gap-2">
+                    <Icon
+                      name="mingcute:list-check-line"
+                      class="w-5 h-5 text-vermilion"
+                    />
+                    <span>Table of Contents</span>
+                  </div>
+                  <Icon
+                    name="mingcute:down-line"
+                    class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
+                  />
+                </summary>
+                <div class="px-4 pb-6 pt-2 border-t border-ink-200/50 dark:border-zinc-700/50">
+                  <TableOfContents headings={headings} />
+                </div>
+              </details>
+            </div>
+          )
+        }
+
+        {/* 正文：应用 prose-ink 样式 */}
+        <div class="prose prose-ink">
+          <slot />
+        </div>
+      </div>
+
+      {/* 3. Desktop TOC: 右侧悬浮目录 */}
+      <aside class="hidden xl:block h-full">
+        <div
+          class="sticky top-32 max-w-[260px] opacity-80 hover:opacity-100 transition-opacity duration-300"
+        >
+          <TableOfContents headings={headings} />
+        </div>
+      </aside>
     </div>
   </article>
 </BaseLayout>
 
-<style>
-  /* 现代东方风格 */
-  .prose-ink {
-    /* 基础设定：增加字间距，提升阅读的呼吸感 */
-    color: var(--prose-body);
-    font-family: var(--font-sans);
-    font-size: 1.05rem;
-    line-height: 2;
-    letter-spacing: 0.02em;
-    max-width: 65ch; /* 限制行长 */
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* 段落排版 */
-  .prose-ink :global(p) {
-    margin-bottom: 1.6em;
-    text-wrap: pretty;
-  }
-
-  /* 标题排版 */
-  .prose-ink :global(h1),
-  .prose-ink :global(h2),
-  .prose-ink :global(h3),
-  .prose-ink :global(h4) {
-    font-family: var(--font-serif);
-    color: var(--prose-heading);
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    margin-top: 2.5em;
-    margin-bottom: 1em;
-    position: relative;
-  }
-
-  /* H2 特殊装饰：左侧竖线或底部线条 */
-  .prose-ink :global(h2) {
-    font-size: 1.8em;
-    border-bottom: 1px solid var(--border-color); /* 淡墨色分割线 */
-    padding-bottom: 0.3em;
-  }
-
-  .prose-ink :global(h3) {
-    font-size: 1.4em;
-    margin-top: 2em;
-  }
-
-  /* 斜体样式 */
-  .prose-ink :global(em) {
-    font-size: 1.05em;
-    font-weight: 600;
-  }
-
-  /* 列表样式 */
-  .prose-ink :global(ul),
-  .prose-ink :global(ol) {
-    margin: 1.5em 0;
-    padding-left: 1.5em; /* 为自定义符号留出空间 */
-    list-style: none; /* 移除默认样式 */
-  }
-
-  .prose-ink :global(li) {
-    margin-bottom: 0.8em; /* 列表项之间的间距 */
-    position: relative;
-    padding-left: 0.5em;
-  }
-
-  /* 无序列表：使用朱红色的小方块或菱形，体现东方几何感 */
-  .prose-ink :global(ul > li::before) {
-    content: "";
-    position: absolute;
-    left: -1.2em;
-    top: 0.65em; /* 视觉对齐 */
-    width: 6px;
-    height: 6px;
-    background-color: var(--color-vermilion); /* 朱红色变量 */
-    transform: rotate(45deg); /* 旋转成菱形 */
-    opacity: 0.8;
-  }
-
-  /* 有序列表：使用衬线数字，颜色加深 */
-  .prose-ink :global(ol) {
-    counter-reset: list-counter;
-  }
-  .prose-ink :global(ol > li::before) {
-    content: counter(list-counter) ".";
-    counter-increment: list-counter;
-    position: absolute;
-    left: -1.5em;
-    color: var(--color-vermilion);
-    font-family: var(--font-serif);
-    font-weight: bold;
-    font-style: italic;
-  }
-
-  /* 嵌套列表处理 */
-  .prose-ink :global(ul ul),
-  .prose-ink :global(ol ol),
-  .prose-ink :global(ul ol),
-  .prose-ink :global(ol ul) {
-    margin: 0.5em 0;
-    font-size: 0.95em;
-  }
-
-  /* 链接与强调 */
-  .prose-ink :global(strong) {
-    color: var(--prose-bold);
-    font-weight: 700;
-    background: linear-gradient(
-      180deg,
-      transparent 60%,
-      var(--prose-highlight) 0
-    );
-  }
-
-  .prose-ink :global(a) {
-    color: var(--prose-link);
-    text-decoration: none;
-    border-bottom: 1px solid var(--prose-link-border);
-    transition: all 0.3s ease;
-    padding-bottom: 1px;
-  }
-  .prose-ink :global(a:hover) {
-    color: var(--color-vermilion);
-    border-bottom-color: var(--color-vermilion);
-  }
-
-  /* 引用块 */
-  .prose-ink :global(blockquote) {
-    margin: 2em 0;
-    padding: 1em 1.5em;
-    border-left: 4px solid var(--prose-quote-border); /* 深墨色边框 */
-    background-color: var(--prose-quote-bg); /* 极淡的米色/纸色背景 */
-    color: var(--prose-quote-text);
-    font-style: italic;
-    font-family: var(--font-serif);
-    border-radius: 0 4px 4px 0;
-  }
-  /* 去除引用中第一段和最后一段的默认 margin */
-  .prose-ink :global(blockquote p:first-of-type) {
-    margin-top: 0;
-  }
-  .prose-ink :global(blockquote p:last-of-type) {
-    margin-bottom: 0;
-  }
-
-  /* 图片 */
-  .prose-ink :global(img) {
-    margin: 2.5em auto;
-    display: block;
-    border-radius: 4px;
-    box-shadow: var(--shadow-ink);
-    filter: grayscale(100%);
-    transition:
-      filter 0.5s ease,
-      transform 0.3s ease;
-  }
-  .prose-ink :global(img:hover) {
-    filter: grayscale(0%);
-    transform: scale(1.01);
-  }
-
-  /* 行内代码与分割线 */
-  .prose-ink :global(:not(pre) > code) {
-    font-family: "Menlo", "Monaco", "Courier New", monospace;
-    background-color: var(--prose-code-bg);
-    color: var(--prose-code-text);
-    padding: 0.2em 0.4em;
-    border-radius: 4px;
-    font-size: 0.85em;
-  }
-
-  .prose-ink :global(hr) {
-    border: 0;
-    height: 1px;
-    background: linear-gradient(
-      to right,
-      transparent,
-      var(--prose-link-border),
-      transparent
-    );
-    margin: 4em 0;
-    position: relative;
-  }
-  /* 分割线中间加一个小装饰（可选） */
-  .prose-ink :global(hr::after) {
-    content: "§"; /* 或者 "•" */
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--bg-body);
-    padding: 0 1em;
-    color: var(--text-muted);
-    font-family: var(--font-serif);
-  }
-
-  /* 表格 */
-  .prose-ink :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 2em 0;
-    font-size: 0.95em;
-  }
-  .prose-ink :global(th) {
-    text-align: left;
-    padding: 0.75em;
-    border-bottom: 2px solid var(--prose-heading);
-    font-family: var(--font-serif);
-    color: var(--prose-heading);
-  }
-  .prose-ink :global(td) {
-    padding: 0.75em;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: top;
-  }
-</style>
-
 <script>
+  // 代码块交互逻辑 (保留原版逻辑)
   function initCodeBlockFeatures() {
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
     document.body.dataset.codeFeaturesInitialized = "true";

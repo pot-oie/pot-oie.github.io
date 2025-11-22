@@ -1,0 +1,120 @@
+---
+// src/components/TableOfContents.astro
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// 过滤规则：只显示 H2 和 H3
+const toc = headings.filter((h) => h.depth > 1 && h.depth <= 3);
+---
+
+{
+  toc.length > 0 && (
+    <nav class="toc-container text-sm leading-relaxed font-sans">
+      <div class="flex items-center gap-2 mb-4 text-ink-900 dark:text-zinc-100">
+        <span class="w-1 h-4 bg-vermilion rounded-sm" />
+        <h2 class="font-serif font-bold text-lg tracking-wide">
+          Catalog / 目录
+        </h2>
+      </div>
+
+      <ul class="relative flex flex-col gap-2 border-l border-ink-200 dark:border-zinc-800 pl-0 ml-0.5">
+        {toc.map((heading) => (
+          <li style={`padding-left: ${(heading.depth - 2) * 1}rem`}>
+            <a
+              href={`#${heading.slug}`}
+              class="toc-link block pl-4 py-1 border-l-2 border-transparent text-ink-500 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:border-vermilion/50 -ml-px transition-all duration-300 line-clamp-2"
+              data-slug={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  const initTOC = () => {
+    // 1. 滚动监听高亮 (IntersectionObserver)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute("id");
+          // 增加空值检查
+          if (!id) return;
+
+          const link = document.querySelector(`.toc-link[data-slug="${id}"]`);
+
+          if (entry.isIntersecting) {
+            // 移除所有高亮
+            document.querySelectorAll(".toc-link").forEach((l) => {
+              l.classList.remove(
+                "text-vermilion",
+                "font-bold",
+                "border-vermilion",
+                "scale-105",
+                "origin-left"
+              );
+              l.classList.add("border-transparent");
+            });
+
+            // 添加当前高亮
+            if (link) {
+              link.classList.remove("border-transparent");
+              link.classList.add(
+                "text-vermilion",
+                "font-bold",
+                "border-vermilion",
+                "scale-105",
+                "origin-left"
+              );
+            }
+          }
+        });
+      },
+      { rootMargin: "-100px 0px -66% 0px" }
+    );
+
+    // 监听所有对应层级的标题
+    document.querySelectorAll("h2[id], h3[id]").forEach((h) => {
+      observer.observe(h);
+    });
+
+    // 点击拦截逻辑 (Lenis 平滑滚动)
+    const links = document.querySelectorAll(".toc-link");
+    links.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const targetId = link.getAttribute("href");
+        if (!targetId) return;
+
+        const targetElement = document.querySelector(
+          targetId
+        ) as HTMLElement | null;
+
+        if (targetElement && window.lenis) {
+          // 使用 Lenis 的平滑滚动
+          window.lenis.scrollTo(targetElement, {
+            offset: -80,
+            duration: 1.2,
+          });
+
+          // 更新 URL hash
+          history.pushState(null, "", targetId);
+        } else {
+          // 降级处理
+          targetElement?.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    });
+  };
+
+  document.addEventListener("astro:page-load", initTOC);
+</script>

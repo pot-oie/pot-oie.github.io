@@ -1,6 +1,238 @@
 /* src/styles/markdown.css */
 
-/* --- macOS 风格代码块样式 --- */
+/* =========================================
+   1. Prose Ink (现代东方排版系统)
+   ========================================= */
+
+.prose-ink {
+  /* 基础设定 */
+  color: var(--prose-body);
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 段落排版 */
+.prose-ink p {
+  margin-bottom: 1.6em;
+  text-wrap: pretty;
+  color: var(--prose-body);
+}
+
+/* 标题排版 */
+.prose-ink h1,
+.prose-ink h2,
+.prose-ink h3,
+.prose-ink h4 {
+  font-family: var(--font-serif);
+  color: var(--prose-heading);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-top: 2.5em;
+  margin-bottom: 1em;
+  position: relative;
+}
+
+/* H2 特殊装饰 */
+.prose-ink h2 {
+  font-size: 1.8em;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.3em;
+}
+
+.prose-ink h3 {
+  font-size: 1.4em;
+  margin-top: 2em;
+}
+
+/* 斜体样式 */
+.prose-ink em {
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+/* 列表样式 */
+.prose-ink ul,
+.prose-ink ol {
+  margin: 1.5em 0;
+  padding-left: 1.5em;
+  list-style: none;
+}
+
+.prose-ink li {
+  margin-bottom: 0.8em;
+  position: relative;
+  padding-left: 0.5em;
+}
+
+/* 无序列表 */
+.prose-ink ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.2em;
+  top: 0.65em;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-vermilion);
+  transform: rotate(45deg);
+  opacity: 0.8;
+}
+
+/* 有序列表 */
+.prose-ink ol {
+  counter-reset: list-counter;
+}
+.prose-ink ol > li::before {
+  content: counter(list-counter) ".";
+  counter-increment: list-counter;
+  position: absolute;
+  left: -1.5em;
+  color: var(--color-vermilion);
+  font-family: var(--font-serif);
+  font-weight: bold;
+  font-style: italic;
+}
+
+/* 嵌套列表 */
+.prose-ink ul ul,
+.prose-ink ol ol,
+.prose-ink ul ol,
+.prose-ink ol ul {
+  margin: 0.5em 0;
+  font-size: 0.95em;
+}
+
+/* 链接与强调 */
+.prose-ink strong {
+  color: var(--prose-bold);
+  font-weight: 700;
+  background: linear-gradient(
+    180deg,
+    transparent 60%,
+    var(--prose-highlight) 0
+  );
+}
+
+.prose-ink a {
+  color: var(--prose-link);
+  text-decoration: none;
+  border-bottom: 1px solid var(--prose-link-border);
+  transition: all 0.3s ease;
+  padding-bottom: 1px;
+}
+.prose-ink a:hover {
+  color: var(--color-vermilion);
+  border-bottom-color: var(--color-vermilion);
+}
+
+/* 引用块 */
+.prose-ink blockquote {
+  margin: 2em 0;
+  padding: 1em 1.5em;
+  border-left: 4px solid var(--prose-quote-border);
+  background-color: var(--prose-quote-bg);
+  color: var(--prose-quote-text);
+  font-style: italic;
+  font-family: var(--font-serif);
+  border-radius: 0 4px 4px 0;
+}
+.prose-ink blockquote p:first-of-type {
+  margin-top: 0;
+}
+.prose-ink blockquote p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* 图片 */
+.prose-ink img {
+  margin: 2.5em auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: var(--shadow-ink);
+  filter: grayscale(100%);
+  transition: filter 0.5s ease, transform 0.3s ease;
+}
+.prose-ink img:hover {
+  filter: grayscale(0%);
+  transform: scale(1.01);
+}
+
+/* 行内代码 */
+.prose-ink :not(pre) > code {
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  background-color: var(--prose-code-bg);
+  color: var(--prose-code-text);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+/* 分割线 */
+.prose-ink hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--prose-link-border),
+    transparent
+  );
+  margin: 4em 0;
+  position: relative;
+}
+.prose-ink hr::after {
+  content: "§";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg-body);
+  padding: 0 1em;
+  color: var(--text-muted);
+  font-family: var(--font-serif);
+}
+
+/* 表格 */
+.prose-ink table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2em 0;
+  font-size: 0.95em;
+}
+.prose-ink th {
+  text-align: left;
+  padding: 0.75em;
+  border-bottom: 2px solid var(--prose-heading);
+  font-family: var(--font-serif);
+  color: var(--prose-heading);
+}
+.prose-ink td {
+  padding: 0.75em;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+}
+
+/* 移动端代码块边距适配 */
+.prose-ink li > pre.astro-code {
+  margin-left: -2em;
+  width: calc(100% + 2em);
+  max-width: calc(100% + 2em);
+}
+@media (max-width: 640px) {
+  .prose-ink li > pre.astro-code {
+    margin-left: -1em;
+    width: calc(100% + 1em);
+    max-width: calc(100% + 1em);
+  }
+}
+
+/* =========================================
+   2. macOS Code Blocks (代码块样式)
+   ========================================= */
 
 /* 容器 */
 pre.astro-code {
@@ -15,8 +247,20 @@ pre.astro-code {
   box-shadow: var(--shadow-ink);
   font-size: 1rem;
   transition: max-height 0.3s ease-out, background-color 0.3s ease;
+
   background-color: var(--code-block-bg) !important;
+  color: var(--shiki-light);
+
   border: 1px solid var(--border-color);
+}
+
+pre.astro-code span {
+  color: var(--shiki-light);
+}
+
+html.dark pre.astro-code,
+html.dark pre.astro-code span {
+  color: var(--shiki-dark) !important;
 }
 
 /* 标题栏 */
@@ -55,7 +299,7 @@ pre.astro-code::before {
 pre.astro-code::after {
   content: attr(data-language);
   position: absolute;
-  top: 0.1rem;
+  top: 0.25rem;
   right: 5.5rem;
   padding: 0.125rem 0.5rem;
   font-size: 1.1rem;
@@ -85,7 +329,7 @@ pre.astro-code.collapsed > code {
   max-height: 21rem;
 }
 
-/* 按钮 */
+/* 按钮通用样式 */
 pre.astro-code .astro-code-icon-base {
   position: absolute;
   top: 0.3rem;
@@ -112,6 +356,7 @@ pre.astro-code .astro-code-icon-btn:hover {
   color: var(--color-vermilion);
 }
 
+/* 具体按钮位置 */
 pre.astro-code .toggle-btn {
   right: 3.25rem;
 }
@@ -120,6 +365,7 @@ pre.astro-code .copy-success {
   right: 1rem;
 }
 
+/* 复制成功状态 */
 pre.astro-code .copy-success {
   opacity: 0;
   transition: opacity 0.2s;
@@ -152,7 +398,7 @@ pre.astro-code .copy-success.show {
   color: var(--text-muted);
 }
 
-/* 滚动条 */
+/* 滚动条美化 */
 pre.astro-code > code::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -171,18 +417,4 @@ pre.astro-code > code::-webkit-scrollbar-thumb:hover {
 }
 pre.astro-code > code::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-/* 移动端适配 */
-.prose-ink li > pre.astro-code {
-  margin-left: -2em;
-  width: calc(100% + 2em);
-  max-width: calc(100% + 2em);
-}
-@media (max-width: 640px) {
-  .prose-ink li > pre.astro-code {
-    margin-left: -1em;
-    width: calc(100% + 1em);
-    max-width: calc(100% + 1em);
-  }
 }
