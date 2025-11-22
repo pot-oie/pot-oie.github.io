@@ -154,8 +154,8 @@ a:hover {
 
 /* 文章容器 */
 .prose {
-  width: 800px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 65ch;
   margin: auto;
   padding: 1em;
   color: var(--color-ink-700);

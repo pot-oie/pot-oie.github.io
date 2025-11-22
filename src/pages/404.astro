@@ -1,0 +1,84 @@
+---
+// src/pages/404.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<BaseLayout title="404 Spilled Ink" description="The page is covered by ink.">
+  <div
+    class="min-h-[calc(100vh-80px)] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 relative py-12 pb-32 md:pb-12"
+  >
+    {/* 左侧：墨迹视觉区 */}
+    <div class="relative w-48 h-48 md:w-80 md:h-80 shrink-0">
+      {/* 墨水形态 */}
+      <div
+        class="absolute inset-0 bg-ink-900 dark:bg-zinc-100 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] animate-[spin_10s_linear_infinite] opacity-90 shadow-2xl shadow-ink-900/50 dark:shadow-zinc-100/20"
+      >
+      </div>
+      <div
+        class="absolute inset-4 bg-ink-800 dark:bg-zinc-200 rounded-[60%_40%_30%_70%/60%_30%_70%_40%] animate-[spin_15s_linear_infinite_reverse] opacity-80"
+      >
+      </div>
+
+      {/* 中心的 404 */}
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <span
+          class="font-serif font-bold text-6xl md:text-8xl text-ink-100 dark:text-ink-900 mix-blend-difference"
+        >
+          404
+        </span>
+      </div>
+    </div>
+
+    {/* 右侧：文案与交互 */}
+    <div class="max-w-md text-center md:text-left space-y-6 md:space-y-8 px-4">
+      <div>
+        {/* 标题文字大小适配 */}
+        <h1
+          class="text-3xl md:text-5xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-3 md:mb-4"
+        >
+          Oops! 墨迹未干
+        </h1>
+        <p
+          class="text-base md:text-lg text-ink-500 dark:text-zinc-400 leading-relaxed"
+        >
+          这一页似乎被打翻的墨水掩盖了，<br
+            class="hidden md:block"
+          />或者它从未存在于这方天地。
+        </p>
+      </div>
+
+      <div
+        class="w-full h-px bg-linear-to-r from-ink-300/50 to-transparent dark:from-zinc-700"
+      >
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center md:justify-start w-full"
+      >
+        {/* 搜索按钮 */}
+        <button
+          class="open-search-btn flex items-center justify-center gap-2 px-6 py-3 bg-ink-900 dark:bg-zinc-100 text-white dark:text-ink-900 rounded-sm hover:opacity-90 transition-all shadow-ink group w-full sm:w-auto"
+        >
+          <Icon
+            name="mingcute:search-line"
+            class="w-5 h-5 group-hover:scale-110 transition-transform"
+          />
+          <span>沿墨寻迹</span>
+        </button>
+
+        {/* 返回首页 */}
+        <a
+          href="/"
+          class="flex items-center justify-center gap-2 px-6 py-3 border border-ink-300 dark:border-zinc-600 text-ink-700 dark:text-zinc-300 rounded-sm hover:border-vermilion hover:text-vermilion dark:hover:text-vermilion transition-all group w-full sm:w-auto bg-white dark:bg-transparent"
+        >
+          <Icon
+            name="mingcute:home-4-line"
+            class="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"
+          />
+          <span>返回首页</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
