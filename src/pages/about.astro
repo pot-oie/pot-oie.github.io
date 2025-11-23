@@ -38,7 +38,9 @@ const techStack = [
     {/* --- 正文区域 --- */}
     <div class="prose prose-ink">
       {/* 简介 */}
-      <h2 class="flex items-center gap-3">
+      <h2
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+      >
         <Icon name="mingcute:user-3-line" class="w-6 h-6 text-vermilion" />
         <span>Who am I / 我是谁</span>
       </h2>
@@ -49,7 +51,9 @@ const techStack = [
       </p>
 
       {/* Timeline 时间轴 */}
-      <h2 class="flex items-center gap-3 mt-16 mb-8">
+      <h2
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+      >
         <Icon name="mingcute:time-line" class="w-6 h-6 text-vermilion" />
         <span>Timeline / 时间轴</span>
       </h2>
@@ -119,65 +123,86 @@ const techStack = [
       </div>
 
       {/* Now 近况 */}
-      <h2 class="flex items-center gap-3 mt-16 mb-6">
-        <Icon name="mingcute:location-line" class="w-6 h-6 text-vermilion" />
+      <h2
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+      >
+        <Icon
+          name="mingcute:location-line"
+          class="w-6 h-6 text-vermilion shrink-0"
+        />
         <span>Now / 近况</span>
       </h2>
       <p class="mb-6 text-ink-700 dark:text-zinc-300">目前我专注于：</p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 not-prose">
         {/* 卡片 1 */}
         <div
-          class="p-4 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
+          class="p-3 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
         >
           <Icon
             name="mingcute:book-2-line"
-            class="w-5 h-5 text-vermilion mt-0.5 shrink-0"
+            class="w-5 h-5 text-vermilion mt-2 ml-2 shrink-0"
           />
           <div>
-            <h4 class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1">
+            <h4
+              class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1 mt-2!"
+            >
               正在学习
             </h4>
-            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0">[留空]</p>
+            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0 mb-2!">
+              计算机网络
+            </p>
           </div>
         </div>
 
+        {/* 卡片 2 */}
         <div
-          class="p-4 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
+          class="p-3 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
         >
           <Icon
             name="mingcute:book-5-line"
-            class="w-5 h-5 text-vermilion mt-0.5 shrink-0"
+            class="w-5 h-5 text-vermilion mt-2 ml-2 shrink-0"
           />
           <div>
-            <h4 class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1">
+            <h4
+              class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1 mt-2!"
+            >
               正在阅读
             </h4>
-            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0">[留空]</p>
+            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0 mb-2!">
+              1367
+            </p>
           </div>
         </div>
 
+        {/* 卡片 3 */}
         <div
-          class="p-4 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
+          class="p-3 rounded-sm border border-ink-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 flex items-start gap-3 transition-all hover:shadow-ink hover:-translate-y-1"
         >
           <Icon
             name="mingcute:code-line"
-            class="w-5 h-5 text-vermilion mt-0.5 shrink-0"
+            class="w-5 h-5 text-vermilion mt-2 ml-2 shrink-0"
           />
           <div>
-            <h4 class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1">
+            <h4
+              class="font-bold text-ink-900 dark:text-zinc-100 text-sm mb-1 mt-2!"
+            >
               正在开发
             </h4>
-            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0">[留空]</p>
+            <p class="text-ink-600 dark:text-zinc-400 text-sm m-0 mb-2!">
+              个人博客
+            </p>
           </div>
         </div>
       </div>
 
       {/* Tech Stack */}
-      <h2 class="flex items-center gap-3 mt-16">
+      <h2
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+      >
         <Icon
           name="mingcute:terminal-box-line"
-          class="w-6 h-6 text-vermilion"
+          class="w-6 h-6 text-vermilion shrink-0"
         />
         <span>Tech Stack / 技术栈</span>
       </h2>
@@ -192,47 +217,98 @@ const techStack = [
       </div>
 
       {/* Connect */}
-      <h2 class="flex items-center gap-3 mt-16">
-        <Icon name="mingcute:send-plane-line" class="w-6 h-6 text-vermilion" />
+      <h2
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+      >
+        <Icon
+          name="mingcute:send-plane-line"
+          class="w-6 h-6 text-vermilion shrink-0"
+        />
         <span>Connect / 联系</span>
       </h2>
       <p class="mb-6 text-ink-700 dark:text-zinc-300">
         你可以通过以下方式找到我：
       </p>
-      <ul class="list-none pl-0 space-y-3 ml-0!">
-        <li class="flex items-center gap-3">
+
+      <ul class="list-none pl-0 space-y-4 -ml-8! not-prose">
+        {/* 列表项 1 */}
+        <li
+          class="flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-hidden"
+        >
           <Icon
             name="mingcute:github-fill"
-            class="w-5 h-5 text-ink-400 dark:text-zinc-500"
+            class="w-6 h-6 text-ink-400 dark:text-zinc-500 shrink-0"
           />
-          <a
-            href="https://github.com/pot-oie"
-            target="_blank"
-            class="text-ink-900 dark:text-zinc-100 hover:text-vermilion dark:hover:text-vermilion transition-colors border-b border-ink-300 dark:border-zinc-600 hover:border-vermilion"
-            >GitHub: pot-oie</a
-          >
+          <div class="flex flex-col min-w-0 flex-1">
+            <span
+              class="text-xs text-ink-400 dark:text-zinc-500 uppercase tracking-wider"
+              >GitHub</span
+            >
+            <a
+              href="https://github.com/pot-oie"
+              target="_blank"
+              class="text-ink-900 dark:text-zinc-100 font-bold truncate block hover:text-vermilion transition-colors"
+            >
+              pot-oie
+            </a>
+          </div>
         </li>
-        <li class="flex items-center gap-3">
+
+        {/* 列表项 2 */}
+        <li
+          class="flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-hidden"
+        >
           <Icon
             name="mingcute:mail-ai-fill"
-            class="w-5 h-5 text-ink-400 dark:text-zinc-500"
+            class="w-6 h-6 text-ink-400 dark:text-zinc-500 shrink-0"
           />
-          <a
-            href="mailto:pooot1110@gmail.com"
-            class="text-ink-900 dark:text-zinc-100 hover:text-vermilion dark:hover:text-vermilion transition-colors border-b border-ink-300 dark:border-zinc-600 hover:border-vermilion"
-            >Email: pooot1110@gmail.com</a
-          >
+          <div class="flex flex-col min-w-0 flex-1">
+            <span
+              class="text-xs text-ink-400 dark:text-zinc-500 uppercase tracking-wider"
+              >Email</span
+            >
+            {/* 关键类：overflow-x-auto scrollbar-hide whitespace-nowrap */}
+            <a
+              href="mailto:pooot1110@gmail.com"
+              class="text-ink-900 dark:text-zinc-100 font-bold block hover:text-vermilion transition-colors overflow-x-auto scrollbar-hide whitespace-nowrap"
+            >
+              pooot1110@gmail.com
+            </a>
+          </div>
         </li>
-        <li class="flex items-center gap-3">
+
+        {/* 列表项 3 */}
+        <li
+          class="flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-hidden"
+        >
           <Icon
             name="mingcute:wechat-fill"
-            class="w-5 h-5 text-ink-400 dark:text-zinc-500"
+            class="w-6 h-6 text-ink-400 dark:text-zinc-500 shrink-0"
           />
-          <span class="text-ink-700 dark:text-zinc-300 font-sans"
-            >WeChat: g954693353</span
-          >
+          <div class="flex flex-col min-w-0 flex-1">
+            <span
+              class="text-xs text-ink-400 dark:text-zinc-500 uppercase tracking-wider"
+              >WeChat</span
+            >
+            <span
+              class="text-ink-900 dark:text-zinc-100 font-bold select-all block"
+            >
+              g954693353
+            </span>
+          </div>
         </li>
       </ul>
+
+      {/* 滚动条 */}
+      <style>
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      </style>
     </div>
   </section>
 </BaseLayout>
