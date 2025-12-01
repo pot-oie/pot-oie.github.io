@@ -47,6 +47,9 @@ const prevMonthUrl = hasPrevData ? `/music/${prevKey}` : null;
 
 // 首页作为当前月，通常没有“下一个月”（除非是查看过去的时间）
 const nextMonthUrl = null;
+
+const displayYear = currentYear;
+const displayMonth = currentMonth + 1;
 ---
 
 <BaseLayout
@@ -56,6 +59,8 @@ const nextMonthUrl = null;
   <div class="max-w-4xl mx-auto py-20 md:py-32 px-4">
     <MusicCalendar
       title={title}
+      year={displayYear}
+      month={displayMonth}
       dayNames={dayNames}
       firstDayOfWeek={firstDayOfWeek}
       daysInMonth={daysInMonth}

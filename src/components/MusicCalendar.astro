@@ -15,6 +15,8 @@ interface Props {
   trailingCellsCount: number;
   prevMonthUrl: string | null;
   nextMonthUrl: string | null;
+  year: number;
+  month: number; // 1-based month
 }
 const {
   title,
@@ -26,12 +28,19 @@ const {
   trailingCellsCount,
   prevMonthUrl,
   nextMonthUrl,
+  year,
+  month,
 } = Astro.props;
 
 const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
 ---
 
-<div class="max-w-4xl mx-auto py-12 relative">
+<div
+  id="music-calendar-wrapper"
+  data-year={year}
+  data-month={month}
+  class="max-w-4xl mx-auto py-12 relative"
+>
   {/* --- 头部 --- */}
   <div
     class="flex justify-between items-end mb-12 border-b border-ink-900 dark:border-zinc-600 pb-4 transition-colors"
@@ -137,16 +146,10 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
           return (
             <div
               id={`music-cell-${day}`}
+              data-day={day}
               class={`calendar-cell group relative aspect-square border-r border-b border-ink-300/50 dark:border-zinc-700 flex flex-col items-center justify-center transition-colors hover:bg-ink-300/10 dark:hover:bg-zinc-700/30 ${post ? "cursor-pointer" : ""}`}
             >
-              <span
-                class:list={[
-                  "text-sm font-serif transition-colors z-10 pointer-events-none",
-                  isToday
-                    ? "text-vermilion font-bold scale-110"
-                    : "text-ink-700 dark:text-zinc-400 group-hover:text-ink-900 dark:group-hover:text-zinc-200",
-                ]}
-              >
+              <span class="day-number text-sm font-serif transition-colors z-10 pointer-events-none text-ink-700 dark:text-zinc-400 group-hover:text-ink-900 dark:group-hover:text-zinc-200">
                 {day}
               </span>
 
@@ -262,7 +265,46 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
 </style>
 
 <script>
+  function highlightToday() {
+    const wrapper = document.getElementById("music-calendar-wrapper");
+    if (!wrapper) return;
+
+    // 获取数据 (处理 undefined)
+    const setYear = wrapper.dataset.year || "0";
+    const setMonth = wrapper.dataset.month || "0";
+
+    // 获取当前时间
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    const currentMonth = String(now.getMonth() + 1);
+    const currentDate = now.getDate();
+
+    // 只有“日历显示的年月”等于“现实世界的年月”时，才去高亮
+    if (setYear === currentYear && setMonth === currentMonth) {
+      const selector = `.calendar-cell[data-day="${currentDate}"] .day-number`;
+      const dateCellNumber = document.querySelector(selector);
+
+      if (dateCellNumber) {
+        // 移除原来的基础颜色 AND 移除原来的悬停变色 (group-hover)
+        dateCellNumber.classList.remove(
+          "text-ink-700",
+          "dark:text-zinc-400",
+          "group-hover:text-ink-900",
+          "dark:group-hover:text-zinc-200"
+        );
+
+        // 添加高亮样式 (朱红色 + 加粗 + 放大)
+        dateCellNumber.classList.add(
+          "text-vermilion",
+          "font-bold",
+          "scale-110"
+        );
+      }
+    }
+  }
+
   function initMobileControls() {
+    highlightToday();
     const controls = document.getElementById("mobile-music-controls");
     if (!controls) return;
 
