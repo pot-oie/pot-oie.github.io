@@ -7,7 +7,10 @@ import PostCard from "../../components/PostCard.astro";
 import { Icon } from "astro-icon/components";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("blog");
+  const allPosts = await getCollection("blog", ({ data }) => {
+    return data.draft !== true;
+  });
+
   const uniqueCategories = [
     ...new Set(allPosts.map((post) => post.data.category)),
   ];
