@@ -1,0 +1,116 @@
+---
+title: 'Android 后台保活：反制 MIUI 后台冻结'
+description: '用 1 个像素解决 Release 包后台轮询失效。'
+pubDate: '12 08 2025'
+# heroImage: '../../assets/XXX.jpg'
+draft: false
+category: 'learn' 
+tags: ['Android', 'Kotlin']
+---
+
+> 最近饱受期末分心困扰，决定开发一个自律应用 **Pebble** 。
+>
+> 核心功能是监测用户当前是否打开“黑名单 App”（如抖音、小红书），
+>
+> 并在检测到时投下“落石”进行干扰。
+>
+> 为了实现这个监测功能，我从“拥抱系统”到“对抗系统”，
+>
+> 终于通过 **1 个像素** 解决了 MIUI 后台冻结问题。
+
+## 第一关：<br/>无障碍服务
+
+一开始选择了 **AccessibilityService (无障碍服务)**。
+
+理论上这是个完美方案：系统主动推送 `AccessibilityEvent`，应用后台接收。
+
+而且我在之前的开发中已经使用过，颇有了解。
+
+但在实际开发中遇到了无法解决的 **MIUI 痛点**：
+
+1.  **事件积压与爆发**：MIUI 为了优化前台流畅度，经常挂起后台的无障碍事件分发。直接导致：切进抖音没反应，等回到 Pebble 时，系统瞬间吐出大量 `Switch` 日志。
+2.  **SystemUI 干扰**：多任务界面会打断“当前应用”的判定，影响落石效果。
+3.  **热启动漏测**：从多任务界面快速切换时，部分机型不发送 `WINDOW_STATE_CHANGED` 事件。
+
+为了修补这些问题，尝试了“主动查询 `rootInActiveWindow`”、“心跳轮询补漏”、“防抖动逻辑”，代码越写越复杂，但稳定性依然堪忧。
+
+## 第二关：<br/>UsageStats 与“消失的轮询”
+
+为了追求稳定性，我决定**重构**。
+
+### 方案切换
+放弃被动的无障碍服务，改用 **`UsageStatsManager` (使用情况统计)** 配合 **前台服务 (Foreground Service)** 进行每秒一次的主动轮询。
+
+* **数据源**：使用 `queryEvents()` 查询实时的系统动作流（Action Stream），避开 `queryUsageStats` 的聚合延迟。
+* **轮询机制**：在 Service 中启动一个协程或 Handler，每 400ms~1000ms 检查一次。
+
+### 诡异的 Bug
+在 USB 连接调试时，一切正常运行。**一旦拔掉 USB 线，打出 Release 包安装**，事件积压（后台冻结）又发生了：
+* 只要 Pebble 在前台，检测正常。
+* 一旦 Pebble 切到后台，**轮询停止**。
+* 切回 Pebble，日志才突然跳出。
+
+**原因分析**：这是 MIUI 等国产 ROM 激进的省电策略。**USB 调试模式下系统会豁免进程冻结**，但在 Release 模式下，即便我有前台服务通知，系统依然判定我“无用户交互”，直接**挂起 (Suspend)** 了我的进程。进程挂起，线程（监测）自然就停止。
+
+## 第三关：<br/>1 像素锚点 (The Pixel Anchor)
+
+为了让系统认为我“正在与用户交互”，从而规避冻结，我采取了“欺骗”手段：**在屏幕上始终保留一个 View 视图。**
+
+只要 `WindowManager` 认为我在画图，我就属于“图形处理前台进程”，优先级最高。
+
+### 实现细节
+不再把平时状态的 View 设为 `View.GONE`，这样系统知道我只是在后台静默，依旧惨遭冻结毒手。
+
+我需要它**可见，但不可感知**。
+
+修改 `OverlayManager`，定义两种状态：
+
+1.  **显示态**：正常的落石画面。
+2.  **隐藏态 (保活锚点)**：一个 1x1 像素、透明度极低、不可点击的 View。
+
+```kotlin
+// 隐藏态 (锚点) 参数配置
+hiddenParams = WindowManager.LayoutParams(
+    1, // 宽 1px
+    1, // 高 1px
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
+        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY 
+    else 
+        WindowManager.LayoutParams.TYPE_PHONE,
+    // 关键 flag：不可触摸、不可获取焦点
+    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+    PixelFormat.TRANSLUCENT
+).apply {
+    gravity = Gravity.TOP or Gravity.LEFT
+    // 关键 trick：不能是 0 (全透明会被优化)，0.01 是系统认为可见的最小值
+    alpha = 0.01f 
+    x = 0
+    y = 0
+}
+```
+
+### 配合 HandlerThread
+除了 UI 锚点，我还将轮询逻辑从主线程（Main Looper）移到了独立的 HandlerThread。
+
+主线程在后台容易被系统降低调度权重，而独立的后台线程配合前台服务，存活率更高。
+
+```kotlin
+// 启动一个具有前台优先级的后台线程
+monitorThread = HandlerThread("MonitorThread", android.os.Process.THREAD_PRIORITY_FOREGROUND)
+monitorThread.start()
+monitorHandler = Handler(monitorThread.looper)
+
+// 在这个线程里跑死循环轮询
+monitorHandler.post(pollRunnable)
+```
+
+## 总结
+经过一番鏖战，总结出在“恶劣”的 ROM 环境下做实时监测的架构：
+1. **1 像素锚点** (`TYPE_APPLICATION_OVERLAY`)：欺骗 WindowManager，防止进程挂起。
+2. **UsageStats 事件流** (`queryEvents`)：获取绝对准确、无延迟的系统操作记录。
+3. **HandlerThread 轮询**：脱离主线程的独立心跳，保证检测频率稳定。
+
+在最后，Pebble 终于完全实现了“秒级响应”的体验。
+
+有时候，解决复杂系统问题的，往往就是 1 个像素的思路转变。
