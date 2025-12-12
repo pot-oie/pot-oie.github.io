@@ -27,7 +27,7 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth <= 3);
           <li style={`padding-left: ${(heading.depth - 2) * 1}rem`}>
             <a
               href={`#${heading.slug}`}
-              class="toc-link block pl-4 py-1.5 border-l-2 border-transparent text-ink-500 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:border-vermilion/50 -ml-px transition-all duration-300 text-balance leading-snug"
+              class="toc-link block pl-4 pr-2 py-1.5 border-l-2 border-transparent text-ink-500 dark:text-zinc-500 hover:text-vermilion dark:hover:text-vermilion hover:border-vermilion/50 -ml-px transition-all duration-300 text-balance leading-snug wrap-break-word whitespace-normal"
               data-slug={heading.slug}
             >
               {heading.text}

@@ -1,6 +1,6 @@
 ---
-title: 'Android 后台保活：反制 MIUI 后台冻结'
-description: '用 1 个像素解决 Release 包后台轮询失效。'
+title: 'Android 后台保活的实现'
+description: '用 1 个像素避免 MIUI 冻结后台，解决 Release 包后台轮询失效。'
 pubDate: '12 08 2025'
 # heroImage: '../../assets/XXX.jpg'
 draft: false
@@ -18,7 +18,7 @@ tags: ['Android', 'Kotlin']
 >
 > 终于通过 **1 个像素** 解决了 MIUI 后台冻结问题。
 
-## 第一关：<br/>无障碍服务
+## 第一关：无障碍服务
 
 一开始选择了 **AccessibilityService (无障碍服务)**。
 
@@ -34,7 +34,7 @@ tags: ['Android', 'Kotlin']
 
 为了修补这些问题，尝试了“主动查询 `rootInActiveWindow`”、“心跳轮询补漏”、“防抖动逻辑”，代码越写越复杂，但稳定性依然堪忧。
 
-## 第二关：<br/>UsageStats 与“消失的轮询”
+## 第二关：UsageStats 与“消失的轮询”
 
 为了追求稳定性，我决定**重构**。
 
@@ -52,7 +52,7 @@ tags: ['Android', 'Kotlin']
 
 **原因分析**：这是 MIUI 等国产 ROM 激进的省电策略。**USB 调试模式下系统会豁免进程冻结**，但在 Release 模式下，即便我有前台服务通知，系统依然判定我“无用户交互”，直接**挂起 (Suspend)** 了我的进程。进程挂起，线程（监测）自然就停止。
 
-## 第三关：<br/>1 像素锚点 (The Pixel Anchor)
+## 第三关：1 像素锚点
 
 为了让系统认为我“正在与用户交互”，从而规避冻结，我采取了“欺骗”手段：**在屏幕上始终保留一个 View 视图。**
 
