@@ -4,7 +4,7 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import TableOfContents from "../components/TableOfContents.astro"; // 假设你已经创建了这个组件
+import TableOfContents from "../components/TableOfContents.astro";
 import { Icon } from "astro-icon/components";
 import type { MarkdownHeading } from "astro";
 
@@ -23,125 +23,125 @@ const {
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="py-12 md:py-20">
-    {/* --- 头部区域 --- */}
-    <header class="max-w-3xl mx-auto text-center mb-16 md:mb-24 px-4">
-      <a
-        href="/"
-        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-8 text-sm tracking-widest uppercase group active:scale-95"
-      >
-        <Icon
-          name="mingcute:arrow-left-line"
-          class="group-hover:-translate-x-1 transition-transform"
-        />
-        <span>Return</span>
-      </a>
-
-      <div class="flex flex-col items-center gap-4">
-        <div
-          class="text-ink-500 text-sm font-sans tracking-widest uppercase flex items-center gap-3"
-        >
-          <FormattedDate date={pubDate} />
-          {
-            updatedDate && (
-              <>
-                <span class="w-1 h-1 rounded-full bg-ink-300" />
-                <span class="italic">Updated</span>
-              </>
-            )
-          }
-        </div>
-
-        <h1
-          class="text-4xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
-        >
-          {title}
-        </h1>
-
-        <div
-          class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-6 transition-colors"
-        >
-        </div>
-      </div>
-    </header>
-
-    {/* --- 核心图片 --- */}
+  {
+    /* 父级容器：relative 用于定位上下文（虽然 fixed 是相对于视口的，但保持结构清晰） */
+  }
+  <div class="relative w-full">
+    {/* --- [A] 右侧悬浮目录 (仅在 2xl/1536px+ 屏幕显示) --- */}
     {
-      heroImage && (
-        <div class="w-full max-w-5xl mx-auto mb-16 md:mb-24 px-4 group">
-          <div class="relative overflow-hidden rounded-sm shadow-ink transition-all duration-700">
-            <Image
-              src={heroImage}
-              alt={title}
-              width={1200}
-              loading="eager"
-              fetchpriority="high"
-              quality={80}
-              format="webp"
-              class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 md:group-hover:grayscale-0 md:group-hover:contrast-100 active:grayscale-0 active:contrast-100 active:scale-[0.99] active:duration-300"
-            />
-            <div class="absolute inset-0 bg-ink-500/5 mix-blend-multiply pointer-events-none" />
+      /* 计算逻辑：
+        left-[calc(50%+26rem)]
+        - 50%: 屏幕中线
+        - 24rem: 正文最大宽度 (max-w-3xl = 48rem) 的一半
+        - 2rem: 间距 gap
+        结果：目录紧贴着正文右侧边缘 + 32px 的位置开始
+    */
+    }
+    <aside
+      class="hidden 2xl:block fixed top-32 left-[calc(50%+26rem)] w-64 h-[calc(100vh-10rem)] overflow-y-auto z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
+    >
+      <TableOfContents headings={headings} />
+    </aside>
+
+    <article class="py-12 md:py-20 w-full max-w-3xl mx-auto px-4 relative z-0">
+      {/* --- 头部区域 --- */}
+      <header class="text-center mb-16 md:mb-24">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-8 text-sm tracking-widest uppercase group active:scale-95"
+        >
+          <Icon
+            name="mingcute:arrow-left-line"
+            class="group-hover:-translate-x-1 transition-transform"
+          />
+          <span>Return</span>
+        </a>
+
+        <div class="flex flex-col items-center gap-4">
+          <div
+            class="text-ink-500 text-sm font-sans tracking-widest uppercase flex items-center gap-3"
+          >
+            <FormattedDate date={pubDate} />
+            {
+              updatedDate && (
+                <>
+                  <span class="w-1 h-1 rounded-full bg-ink-300" />
+                  <span class="italic">Updated</span>
+                </>
+              )
+            }
+          </div>
+
+          <h1
+            class="text-4xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
+          >
+            {title}
+          </h1>
+
+          <div
+            class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-6 transition-colors"
+          >
           </div>
         </div>
-      )
-    }
+      </header>
 
-    {/* --- 内容布局区 --- */}
-    {/* 使用 3 栏 Grid: [左留白] [正文] [TOC] */}
-    <div
-      class="max-w-[1400px] mx-auto px-4 grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,800px)_1fr] gap-12 relative items-start"
-    >
-      {/* 1. 左侧留白 (用于平衡布局) */}
-      <div class="hidden xl:block"></div>
-
-      {/* 2. 正文核心区 */}
-      <div class="w-full max-w-3xl mx-auto xl:max-w-none">
-        {/* Mobile TOC: 移动端/平板端折叠目录 */}
-        {
-          headings.length > 0 && (
-            <div class="xl:hidden mb-12">
-              <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group open:shadow-ink transition-all duration-300">
-                <summary class="p-4 font-serif font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
-                  <div class="flex items-center gap-2">
-                    <Icon
-                      name="mingcute:list-check-line"
-                      class="w-5 h-5 text-vermilion"
-                    />
-                    <span>Table of Contents</span>
-                  </div>
-                  <Icon
-                    name="mingcute:down-line"
-                    class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
-                  />
-                </summary>
-                <div class="px-4 pb-6 pt-2 border-t border-ink-200/50 dark:border-zinc-700/50">
-                  <TableOfContents headings={headings} />
-                </div>
-              </details>
+      {/* --- 核心图片 --- */}
+      {
+        heroImage && (
+          <div class="w-full mb-16 md:mb-24 group">
+            <div class="relative overflow-hidden rounded-sm shadow-ink transition-all duration-700">
+              <Image
+                src={heroImage}
+                alt={title}
+                width={1200}
+                loading="eager"
+                fetchpriority="high"
+                quality={80}
+                format="webp"
+                class="w-full h-auto object-cover filter grayscale contrast-[1.1] transition-all duration-1000 md:group-hover:grayscale-0 md:group-hover:contrast-100 active:grayscale-0 active:contrast-100 active:scale-[0.99] active:duration-300"
+              />
+              <div class="absolute inset-0 bg-ink-500/5 mix-blend-multiply pointer-events-none" />
             </div>
-          )
-        }
+          </div>
+        )
+      }
 
-        {/* 正文：应用 prose-ink 样式 */}
-        <div class="prose prose-ink">
-          <slot />
-        </div>
+      {/* --- [B] 顶部折叠目录 (在 2xl 以下屏幕显示) --- */}
+      {
+        headings.length > 0 && (
+          <div class="2xl:hidden mb-12">
+            <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group open:shadow-ink transition-all duration-300">
+              <summary class="p-4 font-serif font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
+                <div class="flex items-center gap-2">
+                  <Icon
+                    name="mingcute:list-check-line"
+                    class="w-5 h-5 text-vermilion"
+                  />
+                  <span>Table of Contents</span>
+                </div>
+                <Icon
+                  name="mingcute:down-line"
+                  class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
+                />
+              </summary>
+              <div class="px-4 pb-6 pt-2 border-t border-ink-200/50 dark:border-zinc-700/50">
+                <TableOfContents headings={headings} />
+              </div>
+            </details>
+          </div>
+        )
+      }
+
+      {/* --- 正文内容 --- */}
+      <div class="prose prose-ink">
+        <slot />
       </div>
-
-      {/* 3. Desktop TOC: 右侧悬浮目录 */}
-      <aside class="hidden xl:block h-full">
-        <div
-          class="sticky top-32 max-w-[260px] opacity-80 hover:opacity-100 transition-opacity duration-300"
-        >
-          <TableOfContents headings={headings} />
-        </div>
-      </aside>
-    </div>
-  </article>
+    </article>
+  </div>
 </BaseLayout>
 
 <script>
-  // 代码块交互逻辑 (保留原版逻辑)
+  // 代码块交互逻辑
   function initCodeBlockFeatures() {
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
     document.body.dataset.codeFeaturesInitialized = "true";
