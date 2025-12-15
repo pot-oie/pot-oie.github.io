@@ -1,0 +1,179 @@
+---
+// src/components/DownloadCard.astro
+interface Props {
+  title: string;
+  url: string;
+  size?: string;
+  desc?: string;
+}
+
+const { title, url, size, desc } = Astro.props;
+
+// 提取后缀名 (PDF, ZIP)
+const ext = url.split(".").pop()?.toUpperCase().slice(0, 4) || "FILE";
+---
+
+<a href={url} download class="ink-fluid-card group">
+  <div class="icon-container">
+    <span class="ext-text">{ext}</span>
+  </div>
+
+  <div class="content">
+    <div class="header">
+      <h3 class="title font-serif">{title}</h3>
+      {size && <span class="size-badge">{size}</span>}
+    </div>
+    {desc && <p class="desc">{desc}</p>}
+  </div>
+
+  <div class="action-btn">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      class="download-icon"
+    >
+      <path d="M12 16L7 11H10V4H14V11H17L12 16ZM2 20V18H22V20H2Z"></path>
+    </svg>
+  </div>
+</a>
+
+<style>
+  /* --- 容器：去掉了沉重的实线边框，改用柔和的圆角和背景 --- */
+  .ink-fluid-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    margin: 2em 0;
+    padding: 1rem;
+
+    text-decoration: none;
+
+    /* 默认状态：极淡的墨色背景，几乎透明 */
+    background-color: var(--color-ink-50, #fafafa); /* Fallback color */
+    border: 1px solid transparent; /* 预留边框位，防止抖动 */
+    border-radius: 12px; /* 大圆角，更轻快 */
+
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
+  }
+
+  /* 悬停状态：变白、浮起、加阴影、微红边框 */
+  .ink-fluid-card:hover {
+    background-color: var(--bg-card);
+    border-color: rgba(185, 28, 28, 0.15); /* 极淡的朱红边框 */
+    transform: translateY(-4px); /* 明显的上浮感 */
+    /* 柔和的朱红晕染阴影 */
+    box-shadow: 0 10px 30px -10px rgba(185, 28, 28, 0.15);
+  }
+
+  /* --- 1. 左侧图标容器 --- */
+  .icon-container {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #fff;
+    border: 1px solid var(--color-ink-100);
+    border-radius: 10px; /* 内圆角 */
+
+    color: var(--color-ink-400);
+    font-family: var(--font-code);
+    font-weight: bold;
+    font-size: 0.8rem;
+
+    transition: all 0.3s ease;
+  }
+
+  /* 悬停时：图标容器变朱红 */
+  .ink-fluid-card:hover .icon-container {
+    color: var(--color-vermilion);
+    border-color: var(--color-vermilion);
+    background-color: rgba(185, 28, 28, 0.05);
+    transform: scale(1.05); /* 轻微放大 */
+  }
+
+  /* --- 2. 中间内容 --- */
+  .content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .title {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    color: var(--color-ink-900);
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+
+  .ink-fluid-card:hover .title {
+    color: var(--color-vermilion);
+  }
+
+  .size-badge {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background-color: var(--color-ink-100);
+    padding: 2px 8px;
+    border-radius: 99px; /* 胶囊形标签 */
+    white-space: nowrap;
+  }
+
+  .desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-ink-500);
+    line-height: 1.5;
+
+    /* 单行截断，保持清爽 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* --- 3. 右侧交互按钮 --- */
+  .action-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-ink-300);
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .download-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* 悬停时：按钮变实心朱红 */
+  .ink-fluid-card:hover .action-btn {
+    background-color: var(--color-vermilion);
+    color: white;
+    transform: rotate(-10deg) scale(1.1); /* 俏皮的旋转放大 */
+    box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3);
+  }
+</style>

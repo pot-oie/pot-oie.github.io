@@ -38,7 +38,7 @@ const {
     */
     }
     <aside
-      class="hidden 2xl:block fixed top-32 left-[calc(50%+26rem)] w-64 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
+      class="hidden 2xl:block fixed top-32 left-[calc(50%+26rem)] w-72 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
     >
       <TableOfContents headings={headings} />
     </aside>
@@ -257,4 +257,43 @@ const {
   document.addEventListener("astro:page-load", () => {
     initCodeBlockFeatures();
   });
+
+  // 调试代码块风格
+  // 定义初始化函数
+  function initCodeStyleToggle() {
+    const codeBlocks = document.querySelectorAll("pre.astro-code");
+
+    codeBlocks.forEach((pre) => {
+      // 1. 检查是否已经添加过按钮，防止重复添加
+      if (pre.querySelector(".style-toggle-btn")) return;
+
+      // 2. 创建按钮元素
+      const btn = document.createElement("button");
+      btn.className = "style-toggle-btn";
+      btn.innerHTML = `
+        <span class="icon-macos">💻</span>
+        <span class="icon-ink">🎨</span>
+      `;
+      btn.title = "切换代码风格 (macOS / Ink)";
+
+      // 3. 点击事件：切换 class
+      btn.addEventListener("click", () => {
+        // 切换 .style-ink 类名
+        pre.classList.toggle("style-ink");
+
+        // 可选：添加一点点击动画反馈
+        btn.style.transform = "scale(0.9)";
+        setTimeout(() => (btn.style.transform = "scale(1)"), 150);
+      });
+
+      // 4. 将按钮添加到代码块中
+      pre.appendChild(btn);
+    });
+  }
+
+  // 立即执行一次
+  initCodeStyleToggle();
+
+  // 如果使用了 View Transitions，每次页面跳转都要执行
+  document.addEventListener("astro:page-load", initCodeStyleToggle);
 </script>

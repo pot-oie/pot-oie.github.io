@@ -67,6 +67,8 @@
   margin-bottom: 0.8em;
   position: relative;
   padding-left: 0.5em;
+
+  color: var(--prose-list-text, var(--prose-body));
 }
 
 /* 无序列表 */
@@ -77,7 +79,7 @@
   top: 0.65em;
   width: 6px;
   height: 6px;
-  background-color: var(--color-vermilion);
+  background-color: var(--prose-list-marker, var(--color-vermilion));
   transform: rotate(45deg);
   opacity: 0.8;
 }
@@ -91,7 +93,7 @@
   counter-increment: list-counter;
   position: absolute;
   left: -1.5em;
-  color: var(--color-vermilion);
+  color: var(--prose-list-marker, var(--color-vermilion));
   font-family: var(--font-serif);
   font-weight: bold;
   font-style: italic;
@@ -153,11 +155,11 @@
   display: block;
   border-radius: 4px;
   box-shadow: var(--shadow-ink);
-  filter: grayscale(100%);
+  /* filter: grayscale(100%); */
   transition: filter 0.5s ease, transform 0.3s ease;
 }
 .prose-ink img:hover {
-  filter: grayscale(0%);
+  /* filter: grayscale(0%); */
   transform: scale(1.01);
 }
 
@@ -417,4 +419,194 @@ pre.astro-code > code::-webkit-scrollbar-thumb:hover {
 }
 pre.astro-code > code::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* =========================================
+  Final Ink Style: Hybrid Interaction (Color Fixed)
+  风格：现代水墨 (朱红/淡墨)
+  交互：顶部隐形滚动条 + 底部渐隐 + 展开交互
+  ========================================= */
+
+/* 1. 容器：基础布局 */
+pre.astro-code.style-ink {
+  /* --- Reset Old Styles --- */
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  /* --- Ink Styles --- */
+  position: relative;
+  margin: 2em 0;
+
+  /* 布局核心：仿 macOS 的视窗逻辑 */
+  display: block;
+  width: 100%;
+
+  /* 限制最大高度 */
+  max-height: 30rem;
+
+  /* 双向滚动 */
+  overflow-y: auto;
+  overflow-x: auto;
+
+  /* 视觉风格 */
+  border-left: 3px solid var(--color-vermilion) !important;
+  background: linear-gradient(
+    90deg,
+    var(--prose-code-bg) 0%,
+    rgba(0, 0, 0, 0) 100%
+  ) !important;
+}
+
+/* 2. 隐藏 macOS 标题栏 */
+pre.astro-code.style-ink::before {
+  display: none !important;
+}
+
+/* 3. 代码内容区域 */
+pre.astro-code.style-ink > code {
+  font-family: inherit;
+  display: inline-block;
+  width: 100%;
+
+  vertical-align: bottom;
+
+  padding: 1rem 1.5rem 1.5rem 3rem !important;
+  margin-top: 0 !important; /* 去掉 header 留白 */
+
+  /* 行间距设定 */
+  line-height: 1.1;
+
+  /* 确保在水印上方 */
+  position: relative;
+  z-index: 1;
+}
+
+/* 4. 行号 */
+/* 确保 CSS 优先级高于通用样式 */
+pre.astro-code.style-ink .line::before {
+  left: -3.6rem;
+  width: 2.5rem;
+  text-align: right;
+
+  /* 风格化 */
+  color: var(--prose-list-marker, var(--color-vermilion));
+  opacity: 0.6;
+  font-weight: normal;
+}
+
+/* 5. 背景水印 */
+pre.astro-code.style-ink::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+
+  /* 样式设定 */
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--color-ink-900);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+  text-transform: uppercase;
+
+  width: 0; /* 无宽度 */
+  white-space: nowrap; /* 防止文字换行 */
+  overflow: visible; /* 允许文字溢出 */
+  direction: rtl; /* 从右向左“溢出”，锚点在右侧 */
+}
+
+/* 6. 滚动条 */
+pre.astro-code.style-ink > code::-webkit-scrollbar {
+  width: 6px; /* 垂直滚动条宽度 */
+  height: 6px; /* 水平滚动条高度 */
+}
+
+/* 滚动条轨道 */
+pre.astro-code.style-ink > code::-webkit-scrollbar-track {
+  background: transparent; /* 轨道透明 */
+}
+
+/* 滚动条滑块 */
+pre.astro-code.style-ink > code::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-300); /* 默认淡墨色 */
+  border-radius: 3px;
+  cursor: pointer;
+
+  /* 增加一点边框，让滑块不至于贴死边线 */
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+/* 悬停变朱红 */
+pre.astro-code.style-ink > code::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-vermilion);
+}
+
+/* 解决右下角交汇处的方块背景 */
+pre.astro-code.style-ink > code::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* =========================================
+   Style Toggle Button (风格切换按钮)
+   ========================================= */
+
+/* 1. 按钮定位与基础样式 */
+.style-toggle-btn {
+  position: absolute;
+  top: 0.2rem; /* 距离顶部 */
+  right: 12rem; /* 放在复制按钮左边 (假设复制按钮在 right: 1rem) */
+
+  z-index: 20; /* 确保在最上层 */
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.6; /* 默认半透明，不抢眼 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 悬停时变清晰 */
+.style-toggle-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 2. 图标状态管理 */
+/* 默认情况 (macOS风格)：显示 🎨 (暗示点击切换到 Ink) */
+.style-toggle-btn .icon-macos {
+  display: none;
+}
+.style-toggle-btn .icon-ink {
+  display: block;
+}
+
+/* 当处于 Ink 风格时：显示 💻 (暗示点击切回 macOS) */
+pre.astro-code.style-ink .style-toggle-btn .icon-ink {
+  display: none;
+}
+pre.astro-code.style-ink .style-toggle-btn .icon-macos {
+  display: block;
+}
+
+/* 3. 针对 Ink 风格的位置微调 */
+/* 因为 Ink 风格去掉了标题栏，按钮位置可能需要微调 */
+pre.astro-code.style-ink .style-toggle-btn {
+  top: 0.2rem;
+  right: 12rem; /* 避开巨大的水印 */
+  opacity: 0.4; /* 在白纸上更淡一点 */
+}
+pre.astro-code.style-ink .style-toggle-btn:hover {
+  opacity: 1;
+  background-color: var(--color-ink-100);
 }

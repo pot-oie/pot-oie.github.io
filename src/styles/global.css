@@ -45,7 +45,6 @@
   --prose-link: var(--color-ink-900); /* 链接颜色 */
   --prose-link-border: var(--color-ink-300); /* 链接下划线 */
   --prose-bold: var(--color-ink-900); /* 加粗文字 */
-  --prose-highlight: var(--color-ink-100); /* 高亮背景（荧光笔效果） */
   --prose-quote-bg: #f9f9f7; /* 引用块背景 */
   --prose-quote-text: var(--color-ink-600); /* 引用块文字 */
   --prose-quote-border: var(--color-ink-900); /* 引用块边框 */
@@ -76,12 +75,13 @@
   --prose-link: #f4f4f5;
   --prose-link-border: #52525b; /* Zinc 600 */
   --prose-bold: #fff;
-  --prose-highlight: #3f3f46; /* 深灰色高亮 */
   --prose-quote-bg: #27272a; /* 深色背景 */
   --prose-quote-text: #a1a1aa;
   --prose-quote-border: #71717a; /* Zinc 500 */
   --prose-code-bg: rgba(255, 255, 255, 0.1);
   --prose-code-text: #f87171; /* Red 400 (更亮的红) */
+  --prose-list-text: #e4e4e7; /* 比正文略亮，提升列表可读性 */
+  --prose-list-marker: #f87171; /* 使用亮红 */
 
   /* --- macOS 代码块 --- */
   --code-block-bg: #1f1f22; /* 近黑色 */
