@@ -132,8 +132,8 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
 
           // 弹窗位置逻辑
           const cardPositionClasses = [
-            // 前3行向下弹，后3行向上弹
-            row < 3 ? "top-full mt-2" : "bottom-full mb-2",
+            // 前2行向下弹，其余向上弹
+            row < 2 ? "top-full mt-2" : "bottom-full mb-2",
 
             // 列逻辑：防止左右溢出
             col < 1
@@ -279,13 +279,13 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
     const currentMonth = String(now.getMonth() + 1);
     const currentDate = now.getDate();
 
-    // 只有“日历显示的年月”等于“现实世界的年月”时，才去高亮
+    // 只有“日历显示的年月”等于“现实世界的年月”时高亮
     if (setYear === currentYear && setMonth === currentMonth) {
       const selector = `.calendar-cell[data-day="${currentDate}"] .day-number`;
       const dateCellNumber = document.querySelector(selector);
 
       if (dateCellNumber) {
-        // 移除原来的基础颜色 AND 移除原来的悬停变色 (group-hover)
+        // 移除原基础颜色 AND 悬停变色 (group-hover)
         dateCellNumber.classList.remove(
           "text-ink-700",
           "dark:text-zinc-400",
