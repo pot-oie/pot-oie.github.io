@@ -59,15 +59,15 @@ const {
 
         <div class="flex flex-col items-center gap-4">
           <div
-            class="text-ink-500 text-sm font-sans tracking-widest uppercase flex items-center gap-3"
+            class="flex flex-col items-center gap-1 text-ink-500 text-sm font-sans tracking-widest uppercase"
           >
             <FormattedDate date={pubDate} />
             {
               updatedDate && (
-                <>
-                  <span class="w-1 h-1 rounded-full bg-ink-300" />
+                <div class="flex items-center gap-2 opacity-85">
                   <span class="italic">Updated</span>
-                </>
+                  <FormattedDate date={updatedDate} />
+                </div>
               )
             }
           </div>

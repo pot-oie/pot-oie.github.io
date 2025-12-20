@@ -1,6 +1,7 @@
 ---
 // src/components/PostCard.astro
 import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
 import FormattedDate from "./FormattedDate.astro";
 import type { CollectionEntry } from "astro:content";
 
@@ -10,6 +11,10 @@ interface Props {
 
 const { post } = Astro.props;
 const slug = post.id.replace(/\.mdx?$/, "");
+
+// 日期显示逻辑
+const isUpdated = !!post.data.updatedDate;
+const displayDate = post.data.updatedDate ?? post.data.pubDate;
 ---
 
 <a
@@ -59,12 +64,28 @@ const slug = post.id.replace(/\.mdx?$/, "");
 
     {/* 日期 */}
     <div
-      class="shrink-0 font-sans text-sm font-medium tracking-widest uppercase transition-colors
+      class="shrink-0 font-sans text-sm font-medium tracking-widest uppercase transition-colors flex items-center gap-2
       text-ink-300
       group-hover:text-ink-500 group-active:text-ink-500 group-[.is-active]:text-ink-500
       dark:text-zinc-500 dark:group-hover:text-zinc-300 dark:group-active:text-zinc-300 dark:group-[.is-active]:text-zinc-300"
     >
-      <FormattedDate date={post.data.pubDate} />
+      {
+        isUpdated && (
+          <div
+            class="flex items-center gap-1 transition-colors duration-300
+                   text-vermilion
+                   group-hover:text-vermilion-hover"
+          >
+            <Icon
+              name="mingcute:refresh-2-line"
+              class="w-4 h-4 transition-transform duration-500 ease-in-out group-hover:rotate-180"
+            />
+
+            <span class="font-bold text-xs">Updated</span>
+          </div>
+        )
+      }
+      <FormattedDate date={displayDate} />
     </div>
   </div>
 

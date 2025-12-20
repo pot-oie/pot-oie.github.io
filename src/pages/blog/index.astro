@@ -10,11 +10,17 @@ const allPosts = await getCollection("blog", ({ data }) => {
   return data.draft !== true;
 });
 
-// 2. 按时间倒序排序
-const sortedPosts = allPosts.sort(
-  (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
-);
+// 2. 按时间倒序排序 (优先使用 updatedDate)
+const sortedPosts = allPosts.sort((a, b) => {
+  // 获取 A 的有效日期：如果有 updatedDate 则使用，否则使用 pubDate
+  const dateA = a.data.updatedDate ?? a.data.pubDate;
+
+  // 获取 B 的有效日期
+  const dateB = b.data.updatedDate ?? b.data.pubDate;
+
+  // 倒序：大（新）的在前
+  return dateB.valueOf() - dateA.valueOf();
+});
 
 const pageTitle = "All Archives";
 const pageDescription = "All writings collected.";
