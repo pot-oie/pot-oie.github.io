@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Astro to Aliyun
 
 on:
   # 推送到 'main' 分支时触发
@@ -8,42 +8,32 @@ on:
   # 允许手动在 GitHub Actions 页面触发部署
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.11.0
-          cache: 'npm' # 或者 'pnpm', 'yarn'
+          node-version: 24.11.0 # 保留原来的 Node 版本
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build Astro site
         run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # 阿里云部署
+      - name: Deploy to Aliyun Server
+        uses: easingthemes/ssh-deploy@main
         with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_KEY }}
+          ARGS: "-rlgoDzvc -i --delete" # 开启同步删除，确保服务器上没有旧冗余文件
+          SOURCE: "dist/" # 把打包生成 dist 文件夹传过去
+          REMOTE_HOST: ${{ secrets.ALIYUN_HOST }}
+          REMOTE_USER: ${{ secrets.ALIYUN_USER }}
+          TARGET: "/var/www/passpot" # 云服务器博客目录
