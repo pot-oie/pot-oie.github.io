@@ -29,7 +29,10 @@ const sortedMusic = allMusic.sort(
         )}
 
         {/* === 1. 封面区域 === */}
-        <div class="relative shrink-0 z-10">
+        <div
+          class="relative shrink-0 z-10 cursor-pointer group/cover"
+          data-cover-btn
+        >
           <div class="absolute inset-0 bg-ink-900/5 dark:bg-white/5 rounded-sm rotate-3 md:group-hover:rotate-6 transition-transform duration-500" />
           <Image
             src={song.data.coverImage}
@@ -42,44 +45,41 @@ const sortedMusic = allMusic.sort(
           />
         </div>
 
-        {/* === 2. 中间文字与极简控制台 (增加 relative z-20 确保绝对可点) === */}
-        <div class="grow min-w-0 flex flex-col justify-center gap-1 relative z-20">
+        {/* === 2. 中间文字与极简控制台 === */}
+        <div class="grow min-w-0 flex flex-col justify-center gap-1 relative z-20 pointer-events-none md:pointer-events-auto">
           <h4
-            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate transition-colors duration-300 group-hover:text-vermilion group-[.is-playing]:text-vermilion"
+            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate transition-colors duration-300 md:group-hover:text-vermilion group-[.is-playing]:text-vermilion"
             title={song.data.title}
           >
             {song.data.title}
           </h4>
 
-          {/* 状态置换容器 */}
           <div class="relative h-5 flex items-center">
-            {/* 默认状态：歌手名 */}
+            {/* 歌手名：在移动端永远不消失，桌面端 Hover/播放时消失 */}
             <p
-              class="absolute inset-0 text-xs md:text-sm font-sans text-ink-500 dark:text-zinc-400 truncate tracking-wider uppercase opacity-80 transition-all duration-300 group-hover:opacity-0 group-hover:translate-y-1 group-[.is-playing]:opacity-0 group-[.is-playing]:translate-y-1"
+              class="absolute inset-0 text-xs md:text-sm font-sans text-ink-500 dark:text-zinc-400 truncate tracking-wider uppercase opacity-80 transition-all duration-300 md:group-hover:opacity-0 md:group-hover:translate-y-1 md:group-hover:pointer-events-none md:group-[.is-playing]:opacity-0 md:group-[.is-playing]:translate-y-1 md:group-[.is-playing]:pointer-events-none"
               title={song.data.artist}
             >
               {song.data.artist}
             </p>
 
-            {/* Hover / 播放状态：控制台 */}
+            {/* 控制台：在移动端彻底隐藏 */}
             {song.data.audioPreview && (
-              <div class="absolute inset-0 flex items-center gap-3 opacity-0 -translate-y-1 pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-[.is-playing]:opacity-100 group-[.is-playing]:translate-y-0 group-[.is-playing]:pointer-events-auto w-full pr-4">
-                {/* === 替换的播放/暂停 Icon === */}
+              <div class="hidden md:flex absolute inset-0 z-10 items-center gap-3 opacity-0 -translate-y-1 pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-[.is-playing]:opacity-100 group-[.is-playing]:translate-y-0 group-[.is-playing]:pointer-events-auto w-full pr-4">
                 <button
                   data-play-btn
-                  class="text-ink-500 hover:text-vermilion transition-colors focus:outline-none shrink-0 cursor-pointer z-10"
+                  class="text-ink-500 hover:text-vermilion transition-colors focus:outline-none shrink-0 cursor-pointer relative z-20"
                 >
                   <Icon
                     name="mingcute:play-circle-fill"
-                    class="w-5 h-5 block group-[.is-playing]:hidden"
+                    class="w-5 h-5 pointer-events-none block group-[.is-playing]:hidden"
                   />
                   <Icon
                     name="mingcute:pause-circle-fill"
-                    class="w-5 h-5 hidden group-[.is-playing]:block text-vermilion"
+                    class="w-5 h-5 pointer-events-none hidden group-[.is-playing]:block text-vermilion"
                   />
                 </button>
 
-                {/* 进度条 */}
                 <div
                   data-progress-container
                   class="flex-7 h-2 flex items-center cursor-pointer group/bar relative"
@@ -92,13 +92,11 @@ const sortedMusic = allMusic.sort(
                   </div>
                 </div>
 
-                {/* === 替换的音量 Icon === */}
                 <Icon
                   name="material-symbols:sound-sensing"
-                  class="w-4.5 h-4.5 text-ink-400 shrink-0 stroke-current stroke-[0.5px]"
+                  class="w-4 h-4 text-ink-400 shrink-0 stroke-current stroke-[1.5px]"
                 />
 
-                {/* 音量条 */}
                 <div
                   data-volume-container
                   class="flex-3 h-2 flex items-center cursor-pointer group/vol relative"
@@ -116,28 +114,75 @@ const sortedMusic = allMusic.sort(
         </div>
 
         {/* === 3. 最右侧链接与二维码区域 === */}
-        <div class="flex gap-3 transition-all duration-500 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0 z-30">
+        <div class="flex gap-3 items-center transition-all duration-500 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0 z-30">
+          {/* 1. Spotify */}
           {song.data.links?.spotify && (
-            <QRCodeTooltip
-              url={song.data.links.spotify}
-              icon="mingcute:spotify-line"
-              label="Spotify"
-            />
+            <a
+              href={song.data.links.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Spotify"
+              class="block text-ink-300 dark:text-zinc-500 transition-all duration-300 hover:text-vermilion hover:scale-110 active:text-vermilion active:scale-90"
+            >
+              <Icon name="mingcute:spotify-line" class="w-5 h-5" />
+            </a>
           )}
-          {song.data.links?.netease && (
-            <QRCodeTooltip
-              url={song.data.links.netease}
-              icon="mingcute:netease-music-line"
-              label="网易云音乐"
-            />
-          )}
-          {song.data.links?.qqMusic && (
-            <QRCodeTooltip
-              url={song.data.links.qqMusic}
-              icon="mingcute:music-3-line"
-              label="QQ 音乐"
-            />
-          )}
+
+          {/* 2. 网易云 */}
+          {song.data.links?.netease &&
+            (() => {
+              let clickUrl = song.data.links.netease;
+              let qrUrl = null;
+              let msg = "直达链接手工收录中...";
+
+              if (song.data.appLinks) {
+                if (song.data.appLinks.netease) {
+                  clickUrl = song.data.appLinks.netease;
+                  qrUrl = song.data.appLinks.netease;
+                  msg = "扫码在手机上听";
+                } else {
+                  msg = "该平台暂无精确音源";
+                }
+              }
+
+              return (
+                <QRCodeTooltip
+                  url={clickUrl}
+                  qrUrl={qrUrl}
+                  icon="mingcute:netease-music-line"
+                  label="网易云音乐"
+                  message={msg}
+                />
+              );
+            })()}
+
+          {/* 3. QQ 音乐 */}
+          {song.data.links?.qqMusic &&
+            (() => {
+              let clickUrl = song.data.links.qqMusic;
+              let qrUrl = null;
+              let msg = "直达链接手工收录中...";
+
+              if (song.data.appLinks) {
+                if (song.data.appLinks.qqMusic) {
+                  clickUrl = song.data.appLinks.qqMusic;
+                  qrUrl = song.data.appLinks.qqMusic;
+                  msg = "扫码在手机上听";
+                } else {
+                  msg = "该平台暂无精确音源";
+                }
+              }
+
+              return (
+                <QRCodeTooltip
+                  url={clickUrl}
+                  qrUrl={qrUrl}
+                  icon="mingcute:music-3-line"
+                  label="QQ 音乐"
+                  message={msg}
+                />
+              );
+            })()}
         </div>
       </article>
     ))
@@ -148,14 +193,12 @@ const sortedMusic = allMusic.sort(
   import QRCode from "qrcode";
 
   function initAudioPlayers() {
-    // 【核心修复】：只获取还没有被打上 'data-initialized' 标记的元素，防止事件重复绑定
     const articles = document.querySelectorAll<HTMLElement>(
       "[data-music-item]:not([data-initialized])",
     );
     let currentAudio: HTMLAudioElement | null = null;
 
     articles.forEach((article) => {
-      // 打上标记，宣告这个组件已经被接管，下次即使函数再执行也不会碰它
       article.setAttribute("data-initialized", "true");
 
       const audio = article.querySelector<HTMLAudioElement>("[data-audio]");
@@ -163,6 +206,9 @@ const sortedMusic = allMusic.sort(
 
       const playBtn =
         article.querySelector<HTMLButtonElement>("[data-play-btn]");
+      // 获取封面节点
+      const coverBtn = article.querySelector<HTMLElement>("[data-cover-btn]");
+
       const progressContainer = article.querySelector<HTMLElement>(
         "[data-progress-container]",
       );
@@ -205,7 +251,8 @@ const sortedMusic = allMusic.sort(
         if (progressFill) progressFill.style.width = "0%";
       });
 
-      playBtn?.addEventListener("click", (e) => {
+      // 核心播放逻辑，供桌面按钮和移动端封面共用
+      const togglePlay = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -219,7 +266,10 @@ const sortedMusic = allMusic.sort(
         } else {
           audio.pause();
         }
-      });
+      };
+
+      playBtn?.addEventListener("click", togglePlay);
+      coverBtn?.addEventListener("click", togglePlay);
 
       audio.addEventListener("timeupdate", () => {
         if (!progressFill) return;
@@ -241,11 +291,10 @@ const sortedMusic = allMusic.sort(
         if (volumeFill) volumeFill.style.width = `${pos * 100}%`;
       });
 
-      audio.volume = 0.5;
-      if (volumeFill) volumeFill.style.width = "50%";
+      audio.volume = 0.3;
+      if (volumeFill) volumeFill.style.width = "30%";
     });
 
-    // 二维码初始化同样做防重复处理
     document
       .querySelectorAll<HTMLCanvasElement>(
         "canvas[data-qr-url]:not([data-initialized])",
@@ -257,7 +306,7 @@ const sortedMusic = allMusic.sort(
           QRCode.toCanvas(canvas, url, {
             width: 120,
             margin: 0,
-            color: { dark: "#111111", light: "#ffffff00" },
+            color: { dark: "#111111", light: "#ffffff" },
           });
       });
   }

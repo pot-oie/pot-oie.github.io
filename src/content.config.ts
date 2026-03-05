@@ -69,6 +69,11 @@ const music = defineCollection({
             netease: z.string().nullable().optional(),
             qqMusic: z.string().nullable().optional(),
         }).optional(),
+		// 应用内链接
+		appLinks: z.object({
+            netease: z.string().nullable().optional(),
+            qqMusic: z.string().nullable().optional(),
+        }).optional(),
     }),
 });
 

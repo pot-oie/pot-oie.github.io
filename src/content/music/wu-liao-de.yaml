@@ -7,3 +7,6 @@ links:
   spotify: "https://open.spotify.com/search/$%E6%97%A0%E8%81%8A%E7%9A%84%20%E5%B0%8F%E9%9C%9E"
   netease: "https://music.163.com/#/search/m/?s=%E6%97%A0%E8%81%8A%E7%9A%84%20%E5%B0%8F%E9%9C%9E"
   qqMusic: "https://y.qq.com/n/ryqq/search?w=%E6%97%A0%E8%81%8A%E7%9A%84%20%E5%B0%8F%E9%9C%9E"
+appLinks:
+  netease: "https://music.163.com/#/song?id=1901319324"
+  qqMusic: "https://y.qq.com/n/ryqq/songDetail/004QEHZw0mGtSW"

@@ -1,9 +1,11 @@
-title: "Genesis"
+title: "Genesis."
 artist: "RAYE"
 coverImage: "../../assets/music/Genesis.png"
 pubDate: 2025-11-20
-audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e8/ec/70/e8ec70d4-0c47-bf8b-3058-604c532e1732/mzaf_7983817567072564412.plus.aac.p.m4a"
 links:
-  spotify: null
-  netease: null
-  qqMusic: "https://c6.y.qq.com/base/fcgi-bin/u?__=t6Z0nVT35Vep"
+  spotify: "https://open.spotify.com/search/Genesis.%20-%20RAYE"
+  netease: "null"
+  qqMusic: "null"
+appLinks:
+  netease: "https://music.163.com/#/song?id=2163501318"
+  qqMusic: "https://y.qq.com/n/ryqq/songDetail/002AKfbM2p8LIU"

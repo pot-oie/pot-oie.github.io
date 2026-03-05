@@ -7,3 +7,6 @@ links:
   spotify: "https://open.spotify.com/search/$%E5%9F%BA%E6%9C%AC%E4%B8%8A%E6%97%A0%E5%AE%B3%20%E6%9D%8E%E6%83%B3Evelyn"
   netease: "https://music.163.com/#/search/m/?s=%E5%9F%BA%E6%9C%AC%E4%B8%8A%E6%97%A0%E5%AE%B3%20%E6%9D%8E%E6%83%B3Evelyn"
   qqMusic: "https://y.qq.com/n/ryqq/search?w=%E5%9F%BA%E6%9C%AC%E4%B8%8A%E6%97%A0%E5%AE%B3%20%E6%9D%8E%E6%83%B3Evelyn"
+appLinks:
+  netease: "https://music.163.com/#/song?id=1857534437"
+  qqMusic: "https://y.qq.com/n/ryqq/songDetail/000cd2le10MZH9"

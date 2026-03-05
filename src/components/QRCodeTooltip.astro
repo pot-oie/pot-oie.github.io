@@ -4,14 +4,17 @@ import { Icon } from "astro-icon/components";
 
 interface Props {
   url: string;
+  qrUrl?: string | null;
   icon: string;
   label: string;
+  message: string;
 }
 
-const { url, icon, label } = Astro.props;
+const { url, qrUrl, icon, label, message } = Astro.props;
 ---
 
 <div class="relative group/qr">
+  {/* Icon 永远保持高亮可点状态 */}
   <a
     href={url}
     target="_blank"
@@ -22,20 +25,29 @@ const { url, icon, label } = Astro.props;
     <Icon name={icon} class="w-5 h-5" />
   </a>
 
-  {/* 二维码毛玻璃气泡 */}
+  {/* 悬浮气泡：根据传入的 qrUrl 决定是否渲染 Canvas */}
   <div
-    class="qr-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 w-36"
+    class="qr-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-3 bg-white dark:bg-zinc-800 backdrop-blur-sm rounded-lg shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 flex flex-col items-center w-max min-w-[110px]"
   >
-    {/* JS 脚本将识别 data-qr-url 并在此处渲染二维码 */}
-    <canvas class="w-full h-auto aspect-square mb-2" data-qr-url={url}></canvas>
+    {
+      qrUrl && (
+        <div class="bg-white p-1.5 rounded mb-2 shadow-sm shrink-0">
+          <canvas class="w-20 h-20" data-qr-url={qrUrl} />
+        </div>
+      )
+    }
+
+    {
+      /* 提示文字：如果有二维码颜色深一点，如果没有二维码（纯文字）颜色稍微柔和一点 */
+    }
     <p
-      class="text-[10px] font-sans text-ink-700 dark:text-zinc-400 text-center leading-tight"
+      class={`text-[11px] font-sans text-center leading-tight whitespace-nowrap ${qrUrl ? "text-ink-700 dark:text-zinc-400" : "text-ink-500 dark:text-zinc-500"}`}
     >
-      扫码在手机端畅听
+      {message}
     </p>
-    {/* 气泡底部的小三角 */}
+
     <div
-      class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white/95 dark:border-t-zinc-900/95"
+      class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-zinc-800"
     >
     </div>
   </div>
