@@ -61,6 +61,8 @@ const music = defineCollection({
         coverImage: image(),
         // 记录时间
         pubDate: z.coerce.date(),
+		// 试听链接
+		audioPreview: z.string().optional(),
         // 外部链接
         links: z.object({
             spotify: z.string().nullable().optional(),

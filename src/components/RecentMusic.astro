@@ -3,23 +3,34 @@
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import { getCollection } from "astro:content";
+import QRCodeTooltip from "./QRCodeTooltip.astro";
 
 const allMusic = await getCollection("music");
 
 const sortedMusic = allMusic.sort(
   (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
 );
 ---
 
 <div class="flex flex-col">
   {
     sortedMusic.map((song) => (
-      <article class="group flex items-center gap-6 py-6 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 md:hover:pl-4">
-        {/* 封面区域 */}
-        <div class="relative shrink-0">
-          <div class="absolute inset-0 bg-ink-900/5 dark:bg-white/5 rounded-sm rotate-3 md:group-hover:rotate-6 transition-transform duration-500" />
+      <article
+        data-music-item
+        data-title={song.data.title}
+        data-artist={song.data.artist}
+        data-cover={song.data.coverImage.src}
+        class="group flex items-center gap-6 py-6 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 md:hover:pl-4"
+      >
+        {/* 隐藏的音频元素 */}
+        {song.data.audioPreview && (
+          <audio data-audio src={song.data.audioPreview} preload="none" />
+        )}
 
+        {/* === 1. 封面区域 === */}
+        <div class="relative shrink-0 z-10">
+          <div class="absolute inset-0 bg-ink-900/5 dark:bg-white/5 rounded-sm rotate-3 md:group-hover:rotate-6 transition-transform duration-500" />
           <Image
             src={song.data.coverImage}
             alt={`封面：${song.data.title}`}
@@ -27,64 +38,234 @@ const sortedMusic = allMusic.sort(
             height={120}
             format="webp"
             loading="eager"
-            class="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 shadow-sm md:group-hover:grayscale-0 md:group-hover:contrast-100 md:group-hover:shadow-md active:grayscale-0 active:contrast-100 active:scale-95"
+            class="music-cover relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 shadow-sm md:group-hover:grayscale-0 md:group-hover:contrast-100 md:group-hover:shadow-md active:scale-95 group-[.is-playing]:grayscale-0 group-[.is-playing]:contrast-100 group-[.is-playing]:shadow-md"
           />
-          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-ink-100 rounded-full z-20 opacity-0 md:group-hover:opacity-20 transition-opacity duration-500 pointer-events-none mix-blend-overlay" />
         </div>
 
-        <div class="grow min-w-0 flex flex-col justify-center gap-1">
+        {/* === 2. 中间文字与极简控制台 (增加 relative z-20 确保绝对可点) === */}
+        <div class="grow min-w-0 flex flex-col justify-center gap-1 relative z-20">
           <h4
-            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate md:group-hover:text-vermilion transition-colors duration-300"
+            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate transition-colors duration-300 group-hover:text-vermilion group-[.is-playing]:text-vermilion"
             title={song.data.title}
           >
             {song.data.title}
           </h4>
 
-          <p
-            class="text-xs md:text-sm font-sans text-ink-500 dark:text-zinc-400 truncate tracking-wider uppercase opacity-80 transition-colors"
-            title={song.data.artist}
-          >
-            {song.data.artist}
-          </p>
+          {/* 状态置换容器 */}
+          <div class="relative h-5 flex items-center">
+            {/* 默认状态：歌手名 */}
+            <p
+              class="absolute inset-0 text-xs md:text-sm font-sans text-ink-500 dark:text-zinc-400 truncate tracking-wider uppercase opacity-80 transition-all duration-300 group-hover:opacity-0 group-hover:translate-y-1 group-[.is-playing]:opacity-0 group-[.is-playing]:translate-y-1"
+              title={song.data.artist}
+            >
+              {song.data.artist}
+            </p>
+
+            {/* Hover / 播放状态：控制台 */}
+            {song.data.audioPreview && (
+              <div class="absolute inset-0 flex items-center gap-3 opacity-0 -translate-y-1 pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-[.is-playing]:opacity-100 group-[.is-playing]:translate-y-0 group-[.is-playing]:pointer-events-auto w-full pr-4">
+                {/* === 替换的播放/暂停 Icon === */}
+                <button
+                  data-play-btn
+                  class="text-ink-500 hover:text-vermilion transition-colors focus:outline-none shrink-0 cursor-pointer z-10"
+                >
+                  <Icon
+                    name="mingcute:play-circle-fill"
+                    class="w-5 h-5 block group-[.is-playing]:hidden"
+                  />
+                  <Icon
+                    name="mingcute:pause-circle-fill"
+                    class="w-5 h-5 hidden group-[.is-playing]:block text-vermilion"
+                  />
+                </button>
+
+                {/* 进度条 */}
+                <div
+                  data-progress-container
+                  class="flex-7 h-2 flex items-center cursor-pointer group/bar relative"
+                >
+                  <div class="w-full h-0.5 bg-ink-300/30 dark:bg-zinc-700 rounded-full overflow-hidden transition-all group-hover/bar:h-1">
+                    <div
+                      data-progress-fill
+                      class="h-full bg-vermilion w-0 rounded-full transition-all duration-100 ease-linear pointer-events-none"
+                    />
+                  </div>
+                </div>
+
+                {/* === 替换的音量 Icon === */}
+                <Icon
+                  name="material-symbols:sound-sensing"
+                  class="w-4.5 h-4.5 text-ink-400 shrink-0 stroke-current stroke-[0.5px]"
+                />
+
+                {/* 音量条 */}
+                <div
+                  data-volume-container
+                  class="flex-3 h-2 flex items-center cursor-pointer group/vol relative"
+                >
+                  <div class="w-full h-0.5 bg-ink-300/30 dark:bg-zinc-700 rounded-full overflow-hidden transition-all group-hover/vol:h-1">
+                    <div
+                      data-volume-fill
+                      class="h-full bg-ink-500 dark:bg-zinc-400 w-full rounded-full transition-all duration-100 pointer-events-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 链接区域 */}
-        <div class="flex gap-3 transition-all duration-500 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0">
+        {/* === 3. 最右侧链接与二维码区域 === */}
+        <div class="flex gap-3 transition-all duration-500 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0 z-30">
           {song.data.links?.spotify && (
-            <a
-              href={song.data.links.spotify}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Spotify"
-              class="text-ink-300 dark:text-zinc-500 transition-all duration-300 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 active:text-vermilion active:scale-90"
-            >
-              <Icon name="mingcute:spotify-line" class="w-5 h-5" />
-            </a>
+            <QRCodeTooltip
+              url={song.data.links.spotify}
+              icon="mingcute:spotify-line"
+              label="Spotify"
+            />
           )}
           {song.data.links?.netease && (
-            <a
-              href={song.data.links.netease}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Netease Music"
-              class="text-ink-300 dark:text-zinc-500 transition-all duration-300 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 active:text-vermilion active:scale-90"
-            >
-              <Icon name="mingcute:netease-music-line" class="w-5 h-5" />
-            </a>
+            <QRCodeTooltip
+              url={song.data.links.netease}
+              icon="mingcute:netease-music-line"
+              label="网易云音乐"
+            />
           )}
           {song.data.links?.qqMusic && (
-            <a
-              href={song.data.links.qqMusic}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="QQ Music"
-              class="text-ink-300 dark:text-zinc-500 transition-all duration-300 hover:text-vermilion dark:hover:text-vermilion hover:scale-110 active:text-vermilion active:scale-90"
-            >
-              <Icon name="mingcute:music-3-line" class="w-5 h-5" />
-            </a>
+            <QRCodeTooltip
+              url={song.data.links.qqMusic}
+              icon="mingcute:music-3-line"
+              label="QQ 音乐"
+            />
           )}
         </div>
       </article>
     ))
   }
 </div>
+
+<script>
+  import QRCode from "qrcode";
+
+  function initAudioPlayers() {
+    // 【核心修复】：只获取还没有被打上 'data-initialized' 标记的元素，防止事件重复绑定
+    const articles = document.querySelectorAll<HTMLElement>(
+      "[data-music-item]:not([data-initialized])",
+    );
+    let currentAudio: HTMLAudioElement | null = null;
+
+    articles.forEach((article) => {
+      // 打上标记，宣告这个组件已经被接管，下次即使函数再执行也不会碰它
+      article.setAttribute("data-initialized", "true");
+
+      const audio = article.querySelector<HTMLAudioElement>("[data-audio]");
+      if (!audio) return;
+
+      const playBtn =
+        article.querySelector<HTMLButtonElement>("[data-play-btn]");
+      const progressContainer = article.querySelector<HTMLElement>(
+        "[data-progress-container]",
+      );
+      const progressFill = article.querySelector<HTMLElement>(
+        "[data-progress-fill]",
+      );
+      const volumeContainer = article.querySelector<HTMLElement>(
+        "[data-volume-container]",
+      );
+      const volumeFill =
+        article.querySelector<HTMLElement>("[data-volume-fill]");
+
+      audio.addEventListener("play", () => {
+        article.classList.add("is-playing");
+        currentAudio = audio;
+
+        if ("mediaSession" in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: article.dataset.title,
+            artist: article.dataset.artist,
+            artwork: [
+              {
+                src: article.dataset.cover || "",
+                sizes: "512x512",
+                type: "image/webp",
+              },
+            ],
+          });
+
+          navigator.mediaSession.setActionHandler("play", () => audio.play());
+          navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+        }
+      });
+
+      audio.addEventListener("pause", () => {
+        article.classList.remove("is-playing");
+      });
+
+      audio.addEventListener("ended", () => {
+        if (progressFill) progressFill.style.width = "0%";
+      });
+
+      playBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (currentAudio && currentAudio !== audio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+        }
+
+        if (audio.paused) {
+          audio.play().catch((err) => console.warn("播放被拦截:", err));
+        } else {
+          audio.pause();
+        }
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        if (!progressFill) return;
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = `${percent || 0}%`;
+      });
+
+      progressContainer?.addEventListener("click", (e) => {
+        const rect = progressContainer.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pos * audio.duration;
+      });
+
+      volumeContainer?.addEventListener("click", (e) => {
+        const rect = volumeContainer.getBoundingClientRect();
+        let pos = (e.clientX - rect.left) / rect.width;
+        pos = Math.max(0, Math.min(1, pos));
+        audio.volume = pos;
+        if (volumeFill) volumeFill.style.width = `${pos * 100}%`;
+      });
+
+      audio.volume = 0.5;
+      if (volumeFill) volumeFill.style.width = "50%";
+    });
+
+    // 二维码初始化同样做防重复处理
+    document
+      .querySelectorAll<HTMLCanvasElement>(
+        "canvas[data-qr-url]:not([data-initialized])",
+      )
+      .forEach((canvas) => {
+        canvas.setAttribute("data-initialized", "true");
+        const url = canvas.getAttribute("data-qr-url");
+        if (url)
+          QRCode.toCanvas(canvas, url, {
+            width: 120,
+            margin: 0,
+            color: { dark: "#111111", light: "#ffffff00" },
+          });
+      });
+  }
+
+  document.addEventListener("astro:page-load", initAudioPlayers);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAudioPlayers);
+  } else {
+    initAudioPlayers();
+  }
+</script>

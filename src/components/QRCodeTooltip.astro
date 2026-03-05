@@ -1,0 +1,42 @@
+---
+// src/components/QRCodeTooltip.astro
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  url: string;
+  icon: string;
+  label: string;
+}
+
+const { url, icon, label } = Astro.props;
+---
+
+<div class="relative group/qr">
+  <a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={label}
+    class="block text-ink-300 dark:text-zinc-500 transition-all duration-300 hover:text-vermilion hover:scale-110 active:text-vermilion active:scale-90"
+  >
+    <Icon name={icon} class="w-5 h-5" />
+  </a>
+
+  {/* 二维码毛玻璃气泡 */}
+  <div
+    class="qr-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-3 p-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 w-36"
+  >
+    {/* JS 脚本将识别 data-qr-url 并在此处渲染二维码 */}
+    <canvas class="w-full h-auto aspect-square mb-2" data-qr-url={url}></canvas>
+    <p
+      class="text-[10px] font-sans text-ink-700 dark:text-zinc-400 text-center leading-tight"
+    >
+      扫码在手机端畅听
+    </p>
+    {/* 气泡底部的小三角 */}
+    <div
+      class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white/95 dark:border-t-zinc-900/95"
+    >
+    </div>
+  </div>
+</div>

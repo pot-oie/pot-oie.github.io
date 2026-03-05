@@ -83,7 +83,7 @@ function printResultTable(title, data) {
 
   // === 绘制 ===
   
-  // 1. 顶部：深色背景条，更显专业
+  // 1. 顶部：深色背景条
   console.log(); 
   console.log(`  ${color.bgGreen(color.black(color.bold(`  ${title}  `)))}`);
   
@@ -119,7 +119,7 @@ async function main() {
 
   const s = spinner();
   
-  // 1. 代理检测 (简单动词)
+  // 1. 代理检测
   s.start(color.dim('Checking network connection...'));
   try {
     const start = Date.now();
@@ -342,10 +342,14 @@ async function handleMusic() {
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+    // 获取歌曲的 30 秒试听直链
+    const previewUrl = selectedTrack.previewUrl || "";
+
     const yamlContent = `title: "${selectedTrack.trackName}"
 artist: "${selectedTrack.artistName}"
 coverImage: "../../assets/music/${coverFilename}"
 pubDate: ${todayStr}
+audioPreview: "${previewUrl}"
 links:
   spotify: "${spotifyLink}"
   netease: "${neteaseLink}"
