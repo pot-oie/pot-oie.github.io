@@ -13,7 +13,7 @@ const allPosts = await getCollection("blog", ({ data }) => {
 });
 const sortedPosts = allPosts.sort(
   (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
 );
 const recentPosts = sortedPosts.slice(0, 5); // 首页显示 5 篇
 
@@ -32,7 +32,7 @@ const recentMovies = moviePosts
   .sort(
     (a, b) =>
       new Date(b.data.viewingDate).valueOf() -
-      new Date(a.data.viewingDate).valueOf()
+      new Date(a.data.viewingDate).valueOf(),
   )
   .slice(0, 8);
 

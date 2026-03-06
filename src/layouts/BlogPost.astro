@@ -23,20 +23,9 @@ const {
 ---
 
 <BaseLayout title={title} description={description}>
-  {
-    /* 父级容器：relative 用于定位上下文（虽然 fixed 是相对于视口的，但保持结构清晰） */
-  }
+  {/* 父级容器：relative 用于定位上下文 */}
   <div class="relative w-full">
-    {/* --- [A] 右侧悬浮目录 (仅在 2xl/1536px+ 屏幕显示) --- */}
-    {
-      /* 计算逻辑：
-        left-[calc(50%+26rem)]
-        - 50%: 屏幕中线
-        - 24rem: 正文最大宽度 (max-w-3xl = 48rem) 的一半
-        - 2rem: 间距 gap
-        结果：目录紧贴着正文右侧边缘 + 32px 的位置开始
-    */
-    }
+    {/* --- [A] 右侧悬浮目录 --- */}
     <aside
       class="hidden 2xl:block fixed top-32 left-[calc(50%+26rem)] w-72 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
     >
@@ -106,7 +95,7 @@ const {
         )
       }
 
-      {/* --- [B] 顶部折叠目录 (在 2xl 以下屏幕显示) --- */}
+      {/* --- [B] 顶部折叠目录 --- */}
       {
         headings.length > 0 && (
           <div class="2xl:hidden mb-12">
@@ -138,9 +127,30 @@ const {
       </div>
     </article>
   </div>
+
+  {/* --- 隐藏的图标仓库：供客户端 JS 提取 SVG --- */}
+  <template id="code-icon-template">
+    <div data-icon="copy"><Icon name="mingcute:copy-fill" /></div>
+    <div data-icon="success"><Icon name="mingcute:check-fill" /></div>
+    <div data-icon="expand"><Icon name="mingcute:down-fill" /></div>
+    <div data-icon="collapse"><Icon name="mingcute:up-fill" /></div>
+    <div data-icon="theme"><Icon name="mingcute:coathanger-fill" /></div>
+  </template>
 </BaseLayout>
 
 <script>
+  // 辅助函数：从模板中抓取对应图标的 SVG HTML
+  function getIconSvg(iconName: string) {
+    const template = document.getElementById(
+      "code-icon-template",
+    ) as HTMLTemplateElement;
+    if (!template) return "";
+    const iconWrapper = template.content.querySelector(
+      `[data-icon="${iconName}"]`,
+    );
+    return iconWrapper ? iconWrapper.innerHTML : "";
+  }
+
   // 代码块交互逻辑
   function initCodeBlockFeatures() {
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
@@ -161,7 +171,7 @@ const {
       // 【Code 滚动锁】
       codeElement.addEventListener(
         "wheel",
-        (e) => {
+        (e: WheelEvent) => {
           const delta = e.deltaY;
           const { scrollTop, scrollHeight, clientHeight } = codeElement;
           const tolerance = 1;
@@ -174,30 +184,30 @@ const {
           }
           e.stopPropagation();
         },
-        { passive: false }
+        { passive: false },
       );
 
       // 【Header 滚动代理】
       pre.addEventListener(
         "wheel",
-        (e) => {
+        (e: WheelEvent) => {
           if (e.target === pre) {
             e.preventDefault();
             codeElement.scrollTop += e.deltaY;
           }
         },
-        { passive: false }
+        { passive: false },
       );
 
-      // 【复制和折叠逻辑】
+      // 【复制逻辑】
       const copyButton = document.createElement("button");
       copyButton.className =
         "astro-code-icon-base astro-code-icon-btn copy-btn";
-      copyButton.innerHTML = '<span class="mingcute--copy-line"></span>';
+      copyButton.innerHTML = getIconSvg("copy"); // 动态提取
 
       const successMessage = document.createElement("span");
       successMessage.className = "astro-code-icon-base copy-success";
-      successMessage.innerHTML = '<span class="mingcute--check-fill"></span>';
+      successMessage.innerHTML = getIconSvg("success"); // 动态提取
 
       pre.appendChild(copyButton);
       pre.appendChild(successMessage);
@@ -222,78 +232,62 @@ const {
               copyButton.style.display = "flex";
             }, 2000);
           })
-          .catch((err) => {
-            console.error("Failed to copy text: ", err);
-          });
+          .catch((err) => console.error("Failed to copy text: ", err));
       });
 
+      // 【折叠逻辑】
       const lines = pre.querySelectorAll(".line");
       if (lines.length > 12) {
         pre.classList.add("collapsed");
         const toggleBtn = document.createElement("button");
         toggleBtn.className =
           "astro-code-icon-base astro-code-icon-btn toggle-btn";
-        const iconSpan = document.createElement("span");
-        iconSpan.className = "mingcute--down-fill";
-        toggleBtn.appendChild(iconSpan);
+
+        // 初始状态为折叠，显示向下(展开)按钮
+        toggleBtn.innerHTML = getIconSvg("expand");
         pre.appendChild(toggleBtn);
 
         toggleBtn.addEventListener("click", () => {
           const isCollapsed = pre.classList.toggle("collapsed");
           if (isCollapsed) {
-            iconSpan.className = "mingcute--down-fill";
+            toggleBtn.innerHTML = getIconSvg("expand"); // 动态切换 SVG
             pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
           } else {
-            iconSpan.className = "mingcute--up-fill";
+            toggleBtn.innerHTML = getIconSvg("collapse"); // 动态切换 SVG
           }
         });
       }
     });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    initCodeBlockFeatures();
-  });
-  document.addEventListener("astro:page-load", () => {
-    initCodeBlockFeatures();
-  });
-
-  // 调试代码块风格
-  // 定义初始化函数
+  // 【调试代码块风格：独立按钮】
   function initCodeStyleToggle() {
     const codeBlocks = document.querySelectorAll("pre.astro-code");
 
     codeBlocks.forEach((pre) => {
-      // 1. 检查是否已经添加过按钮，防止重复添加
       if (pre.querySelector(".style-toggle-btn")) return;
 
-      // 2. 创建按钮元素
       const btn = document.createElement("button");
       btn.className = "style-toggle-btn";
-      btn.innerHTML = `
-        <span class="icon-macos">💻</span>
-        <span class="icon-ink">🎨</span>
-      `;
+      btn.innerHTML = getIconSvg("theme"); // 动态提取衣架图标
       btn.title = "切换代码风格 (macOS / Ink)";
 
-      // 3. 点击事件：切换 class
       btn.addEventListener("click", () => {
-        // 切换 .style-ink 类名
         pre.classList.toggle("style-ink");
-
-        // 可选：添加一点点击动画反馈
         btn.style.transform = "scale(0.9)";
         setTimeout(() => (btn.style.transform = "scale(1)"), 150);
       });
 
-      // 4. 将按钮添加到代码块中
       pre.appendChild(btn);
     });
   }
 
-  // 立即执行一次
-  initCodeStyleToggle();
-
-  // 如果使用了 View Transitions，每次页面跳转都要执行
-  document.addEventListener("astro:page-load", initCodeStyleToggle);
+  document.addEventListener("DOMContentLoaded", () => {
+    initCodeBlockFeatures();
+    initCodeStyleToggle();
+  });
+  document.addEventListener("astro:page-load", () => {
+    initCodeBlockFeatures();
+    initCodeStyleToggle();
+  });
 </script>
