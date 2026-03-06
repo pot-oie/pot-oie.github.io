@@ -12,7 +12,7 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const sortedMovies = moviePosts.sort(
     (a, b) =>
       new Date(b.data.viewingDate).valueOf() -
-      new Date(a.data.viewingDate).valueOf()
+      new Date(a.data.viewingDate).valueOf(),
   );
   const pageSize = 12;
   return paginate(sortedMovies, { pageSize });
@@ -28,7 +28,7 @@ const pageTitle = "Cinema Records";
   title={`Movies - Page ${currentPage}`}
   description="My watched movies collection"
 >
-  <section class="py-20 md:py-32">
+  <section class="py-8 md:py-16">
     {/* --- 头部 --- */}
     <div
       class="mb-16 px-4 flex flex-col md:flex-row justify-between items-end border-b border-ink-900 pb-6"

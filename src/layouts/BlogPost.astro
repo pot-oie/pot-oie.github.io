@@ -32,12 +32,14 @@ const {
       <TableOfContents headings={headings} />
     </aside>
 
-    <article class="py-12 md:py-20 w-full max-w-3xl mx-auto px-4 relative z-0">
+    <article
+      class="py-6 md:py-20 w-full max-w-3xl mx-auto px-3 md:px-6 relative z-0"
+    >
       {/* --- 头部区域 --- */}
-      <header class="text-center mb-16 md:mb-24">
+      <header class="text-center mb-8 md:mb-12">
         <a
           href="/"
-          class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-8 text-sm tracking-widest uppercase group active:scale-95"
+          class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-4 md:mb-8 text-sm tracking-widest uppercase group active:scale-95"
         >
           <Icon
             name="mingcute:arrow-left-line"
@@ -46,7 +48,7 @@ const {
           <span>Return</span>
         </a>
 
-        <div class="flex flex-col items-center gap-4">
+        <div class="flex flex-col items-center gap-2 md:gap-4">
           <div
             class="flex flex-col items-center gap-1 text-ink-500 text-sm font-sans tracking-widest uppercase"
           >
@@ -62,13 +64,13 @@ const {
           </div>
 
           <h1
-            class="text-4xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
+            class="text-3xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
           >
             {title}
           </h1>
 
           <div
-            class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-6 transition-colors"
+            class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-3 md:mt-6 transition-colors"
           >
           </div>
         </div>
@@ -98,7 +100,7 @@ const {
       {/* --- [B] 顶部折叠目录 --- */}
       {
         headings.length > 0 && (
-          <div class="2xl:hidden mb-12">
+          <div class="2xl:hidden -mb-8">
             <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group open:shadow-ink transition-all duration-300">
               <summary class="p-4 font-serif font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
                 <div class="flex items-center gap-2">
@@ -113,7 +115,7 @@ const {
                   class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
                 />
               </summary>
-              <div class="px-4 pb-6 pt-2 border-t border-ink-200/50 dark:border-zinc-700/50">
+              <div class="px-4 pb-4 pt-4 border-t border-ink-200/50 dark:border-zinc-700/50">
                 <TableOfContents headings={headings} />
               </div>
             </details>
@@ -122,7 +124,7 @@ const {
       }
 
       {/* --- 正文内容 --- */}
-      <div class="prose prose-ink">
+      <div class="prose prose-sm md:prose-base prose-ink">
         <slot />
       </div>
     </article>

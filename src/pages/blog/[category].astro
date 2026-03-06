@@ -16,7 +16,7 @@ export async function getStaticPaths() {
   ];
   return uniqueCategories.map((category) => {
     const filteredPosts = allPosts.filter(
-      (post) => post.data.category.toLowerCase() === category
+      (post) => post.data.category.toLowerCase() === category,
     );
     return {
       params: { category: category },
@@ -32,7 +32,7 @@ const { posts } = Astro.props;
 
 const sortedPosts = posts.sort(
   (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
 );
 
 const categoryNames: Record<string, string> = {
@@ -48,9 +48,9 @@ const displayTitle = categoryNames[category] || category;
   title={`Category: ${category}`}
   description={`Posts in ${category}`}
 >
-  <section class="py-20 md:py-32">
+  <section class="py-8 md:py-16">
     <div
-      class="mb-20 px-4 text-center md:text-left border-b border-ink-900 pb-8"
+      class="mb-4 px-4 text-center md:text-left border-b border-ink-900 pb-8"
     >
       <div
         class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase"

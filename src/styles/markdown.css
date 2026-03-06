@@ -210,7 +210,7 @@
 }
 
 /* =========================================
-   2. Code Blocks 基础共享架构 (找回丢失的高亮与行号)
+   2. Code Blocks 基础共享架构
    ========================================= */
 
 .code-block-wrapper {
@@ -219,7 +219,7 @@
   margin: 2em 0;
 }
 
-/* --- 基础代码高亮与字体颜色 (双端共享) --- */
+/* --- 基础代码高亮与字体颜色 --- */
 .code-block-wrapper pre.astro-code {
   display: block;
   position: relative;
@@ -240,12 +240,12 @@ html.dark .code-block-wrapper pre.astro-code span {
   color: var(--shiki-dark) !important;
 }
 
-/* --- 基础代码内容区 (找回行号计数器) --- */
+/* --- 基础代码内容区 --- */
 .code-block-wrapper pre.astro-code > code {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  counter-reset: line; /* 找回重置行号的关键属性 */
+  counter-reset: line;
   overflow: auto;
   overscroll-behavior: none;
 }
@@ -273,7 +273,7 @@ html.dark .code-block-wrapper pre.astro-code span {
 }
 
 /* =========================================
-   3. [状态 A] macOS 风格 (默认)
+   3. [状态 A] macOS 风格
    ========================================= */
 
 /* 隐藏水墨UI */
@@ -547,14 +547,112 @@ html.dark .code-block-wrapper pre.astro-code span {
   fill: currentColor;
 }
 
-/* =========================================
-   5. 水墨风移动端交互补充
-   ========================================= */
-
-/* 移动端通过点击印章触发 .is-open 类名，强制展开卷轴 */
+/* 移动端点击印章触发 .is-open */
 .ink-actions-container.is-open .ink-scroll-panel {
   max-width: 200px !important;
   opacity: 1 !important;
   padding-left: 0.75rem !important;
   padding-right: 0.75rem !important;
+}
+
+/* =========================================
+   5. 移动端调整
+   ========================================= */
+
+@media (max-width: 640px) {
+  .prose.prose-ink p,
+  .prose.prose-ink li,
+  .prose.prose-ink blockquote,
+  .prose.prose-ink table {
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* 列表缩进 */
+  .prose.prose-ink ul,
+  .prose.prose-ink ol {
+    padding-left: 1em !important;
+  }
+
+  /* 次级列表压缩 */
+  .prose.prose-ink ul ul,
+  .prose.prose-ink ol ol,
+  .prose.prose-ink ul ol,
+  .prose.prose-ink ol ul {
+    padding-left: 0.8em !important;
+    margin-top: 0.2em !important;
+    margin-bottom: 0.2em !important;
+  }
+
+  /* 标题上下留白 */
+  .prose.prose-ink h2 {
+    margin-top: 1.5em !important;
+    margin-bottom: 0.6em !important;
+    font-size: 1.4em !important;
+  }
+  .prose.prose-ink h3 {
+    margin-top: 1.2em !important;
+    margin-bottom: 0.6em !important;
+    font-size: 1.15em !important;
+  }
+
+  /* 代码块边界延展 */
+  .prose.prose-ink pre.astro-code {
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    width: calc(100% + 2rem) !important;
+  }
+
+  /* =========================================
+  代码块压缩 - MacOs
+  ========================================= */
+
+  /* 字号缩小 */
+  .code-block-wrapper pre.astro-code {
+    font-size: 0.85rem;
+  }
+
+  /* 压缩内部左右留白 */
+  .code-block-wrapper pre.astro-code > code {
+    padding-left: 1.6rem !important;
+    padding-bottom: 0.4rem !important;
+    line-height: 0.4 !important;
+  }
+
+  /* 行号 */
+  .code-block-wrapper .line::before {
+    left: -2.5rem !important;
+    width: 2rem !important;
+  }
+
+  /* 代码块越界问题 */
+  .prose-ink li > .code-block-wrapper {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* =========================================
+  代码块压缩 - 水墨风
+  ========================================= */
+
+  /* 内部留白 */
+  .code-block-wrapper.style-ink pre.astro-code > code {
+    padding-left: 1.5rem !important;
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.12rem !important;
+  }
+
+  /* 行号 */
+  .code-block-wrapper.style-ink .line::before {
+    left: -2.3rem !important;
+    width: 1.8rem !important;
+  }
+
+  /* 背景水印 */
+  .code-block-wrapper.style-ink pre.astro-code::after {
+    font-size: 2rem !important;
+    top: 0.3rem !important;
+    right: 0.3rem !important;
+  }
 }
