@@ -5,7 +5,6 @@
    ========================================= */
 
 .prose-ink {
-  /* 基础设定 */
   color: var(--prose-body);
   font-family: var(--font-sans);
   font-size: 1.05rem;
@@ -16,14 +15,12 @@
   margin-right: auto;
 }
 
-/* 段落排版 */
 .prose-ink p {
   margin-bottom: 1.6em;
   text-wrap: pretty;
   color: var(--prose-body);
 }
 
-/* 标题排版 */
 .prose-ink h1,
 .prose-ink h2,
 .prose-ink h3,
@@ -36,42 +33,33 @@
   margin-bottom: 1em;
   position: relative;
 }
-
-/* H2 特殊装饰 */
 .prose-ink h2 {
   font-size: 1.8em;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.3em;
 }
-
 .prose-ink h3 {
   font-size: 1.4em;
   margin-top: 2em;
 }
-
-/* 斜体样式 */
 .prose-ink em {
   font-size: 1.05em;
   font-weight: 600;
 }
 
-/* 列表样式 */
 .prose-ink ul,
 .prose-ink ol {
   margin: 1.5em 0;
   padding-left: 1.5em;
   list-style: none;
 }
-
 .prose-ink li {
   margin-bottom: 0.8em;
   position: relative;
   padding-left: 0.5em;
-
   color: var(--prose-list-text, var(--prose-body));
 }
 
-/* 无序列表 */
 .prose-ink ul > li::before {
   content: "";
   position: absolute;
@@ -83,8 +71,6 @@
   transform: rotate(45deg);
   opacity: 0.8;
 }
-
-/* 有序列表 */
 .prose-ink ol {
   counter-reset: list-counter;
 }
@@ -98,8 +84,6 @@
   font-weight: bold;
   font-style: italic;
 }
-
-/* 嵌套列表 */
 .prose-ink ul ul,
 .prose-ink ol ol,
 .prose-ink ul ol,
@@ -108,7 +92,6 @@
   font-size: 0.95em;
 }
 
-/* 链接与强调 */
 .prose-ink strong {
   color: var(--prose-bold);
   font-weight: 700;
@@ -118,7 +101,6 @@
     var(--prose-highlight) 0
   );
 }
-
 .prose-ink a {
   color: var(--prose-link);
   text-decoration: none;
@@ -131,7 +113,6 @@
   border-bottom-color: var(--color-vermilion);
 }
 
-/* 引用块 */
 .prose-ink blockquote {
   margin: 2em 0;
   padding: 1em 1.5em;
@@ -149,23 +130,19 @@
   margin-bottom: 0;
 }
 
-/* 图片 */
 .prose-ink img {
   margin: 2.5em auto;
   display: block;
   border-radius: 4px;
   box-shadow: var(--shadow-ink);
-  /* filter: grayscale(100%); */
   transition:
     filter 0.5s ease,
     transform 0.3s ease;
 }
 .prose-ink img:hover {
-  /* filter: grayscale(0%); */
   transform: scale(1.01);
 }
 
-/* 行内代码 */
 .prose-ink :not(pre) > code {
   font-family: "Menlo", "Monaco", "Courier New", monospace;
   background-color: var(--prose-code-bg);
@@ -175,18 +152,17 @@
   font-size: 0.85em;
 }
 
-/* 分割线 */
 .prose-ink hr {
   border: 0;
   height: 1px;
+  margin: 4em 0;
+  position: relative;
   background: linear-gradient(
     to right,
     transparent,
     var(--prose-link-border),
     transparent
   );
-  margin: 4em 0;
-  position: relative;
 }
 .prose-ink hr::after {
   content: "§";
@@ -200,7 +176,6 @@
   font-family: var(--font-serif);
 }
 
-/* 表格 */
 .prose-ink table {
   width: 100%;
   border-collapse: collapse;
@@ -221,13 +196,13 @@
 }
 
 /* 移动端代码块边距适配 */
-.prose-ink li > pre.astro-code {
+.prose-ink li > .code-block-wrapper {
   margin-left: -2em;
   width: calc(100% + 2em);
   max-width: calc(100% + 2em);
 }
 @media (max-width: 640px) {
-  .prose-ink li > pre.astro-code {
+  .prose-ink li > .code-block-wrapper {
     margin-left: -1em;
     width: calc(100% + 1em);
     max-width: calc(100% + 1em);
@@ -235,163 +210,47 @@
 }
 
 /* =========================================
-   2. macOS Code Blocks (代码块样式)
+   2. Code Blocks 基础共享架构 (找回丢失的高亮与行号)
    ========================================= */
 
-/* 容器 */
-pre.astro-code {
+.code-block-wrapper {
+  position: relative;
+  z-index: 10;
+  margin: 2em 0;
+}
+
+/* --- 基础代码高亮与字体颜色 (双端共享) --- */
+.code-block-wrapper pre.astro-code {
   display: block;
   position: relative;
   overflow: hidden;
-  margin: 2em 0;
+  margin: 0;
   padding: 0;
   max-width: 100%;
   box-sizing: border-box;
-  border-radius: 8px;
-  box-shadow: var(--shadow-ink);
   font-size: 1rem;
-  transition:
-    max-height 0.3s ease-out,
-    background-color 0.3s ease;
-
   background-color: var(--code-block-bg) !important;
   color: var(--shiki-light);
-
-  border: 1px solid var(--border-color);
 }
-
-pre.astro-code span {
+.code-block-wrapper pre.astro-code span {
   color: var(--shiki-light);
 }
-
-html.dark pre.astro-code,
-html.dark pre.astro-code span {
+html.dark .code-block-wrapper pre.astro-code,
+html.dark .code-block-wrapper pre.astro-code span {
   color: var(--shiki-dark) !important;
 }
 
-/* 标题栏 */
-pre.astro-code::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  height: 2.6rem;
-  width: 100%;
-
-  background-color: var(--code-header-bg);
-  border-bottom: 1px solid var(--code-header-border);
-
-  /* 红黄绿按钮 */
-  background-image:
-    radial-gradient(
-      circle at 1.5rem 1.3rem,
-      #ff5f56 0.375rem,
-      transparent 0.375rem
-    ),
-    radial-gradient(
-      circle at 2.75rem 1.3rem,
-      #ffbd2e 0.375rem,
-      transparent 0.375rem
-    ),
-    radial-gradient(
-      circle at 4rem 1.3rem,
-      #27c93f 0.375rem,
-      transparent 0.375rem
-    );
-  background-repeat: no-repeat;
-}
-
-/* 语言提示 */
-pre.astro-code::after {
-  content: attr(data-language);
-  position: absolute;
-  top: 0.25rem;
-  right: 8rem;
-  padding: 0.125rem 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  z-index: 12;
-  display: inline-block;
-  color: var(--text-muted);
-}
-
-/* 代码区域 */
-pre.astro-code > code {
+/* --- 基础代码内容区 (找回行号计数器) --- */
+.code-block-wrapper pre.astro-code > code {
   display: block;
   width: 100%;
-  margin-top: 2.6rem;
-  padding: 1rem 1.5rem 1.5rem 3rem;
-  counter-reset: line;
   box-sizing: border-box;
+  counter-reset: line; /* 找回重置行号的关键属性 */
   overflow: auto;
-  max-height: 47.5rem;
-  line-height: 1;
   overscroll-behavior: none;
 }
 
-pre.astro-code.collapsed > code {
-  max-height: 21rem;
-}
-
-/* 按钮通用样式 */
-pre.astro-code .astro-code-icon-base {
-  position: absolute;
-  top: 0.3rem;
-  width: 2rem;
-  height: 2rem;
-  padding: 0.125rem;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 15;
-}
-
-pre.astro-code .astro-code-icon-btn {
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-  outline: none;
-  color: var(--text-muted);
-}
-
-pre.astro-code .astro-code-icon-btn svg,
-pre.astro-code .copy-success svg,
-.style-toggle-btn svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  fill: currentColor;
-}
-
-pre.astro-code .astro-code-icon-btn:hover {
-  color: var(--color-vermilion);
-}
-
-/* 具体按钮位置 */
-pre.astro-code .toggle-btn {
-  right: 5.5rem;
-}
-pre.astro-code .copy-btn,
-pre.astro-code .copy-success {
-  right: 1rem;
-}
-
-/* 复制成功状态 */
-pre.astro-code .copy-success {
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
-  color: var(--color-vermilion);
-}
-pre.astro-code .copy-success.show {
-  opacity: 1;
-}
-
-/* 行号 */
+/* --- 行号基础样式 --- */
 .astro-code .line {
   display: block;
   position: relative;
@@ -413,116 +272,201 @@ pre.astro-code .copy-success.show {
   color: var(--text-muted);
 }
 
-/* 滚动条美化 */
-pre.astro-code > code::-webkit-scrollbar {
+/* =========================================
+   3. [状态 A] macOS 风格 (默认)
+   ========================================= */
+
+/* 隐藏水墨UI */
+.code-block-wrapper:not(.style-ink) .ink-actions-container {
+  display: none !important;
+}
+
+/* 容器外观 */
+.code-block-wrapper:not(.style-ink) pre.astro-code {
+  border-radius: 8px;
+  box-shadow: var(--shadow-ink);
+  border: 1px solid var(--border-color);
+  transition: max-height 0.3s ease-out;
+}
+
+/* 顶部标题栏 */
+.code-block-wrapper:not(.style-ink) pre.astro-code::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  height: 2.6rem;
+  width: 100%;
+  background-color: var(--code-header-bg);
+  border-bottom: 1px solid var(--code-header-border);
+  background-image:
+    radial-gradient(
+      circle at 1.5rem 1.3rem,
+      #ff5f56 0.375rem,
+      transparent 0.375rem
+    ),
+    radial-gradient(
+      circle at 2.75rem 1.3rem,
+      #ffbd2e 0.375rem,
+      transparent 0.375rem
+    ),
+    radial-gradient(
+      circle at 4rem 1.3rem,
+      #27c93f 0.375rem,
+      transparent 0.375rem
+    );
+  background-repeat: no-repeat;
+}
+.code-block-wrapper:not(.style-ink) pre.astro-code::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.25rem;
+  right: 8rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  z-index: 12;
+  color: var(--text-muted);
+}
+
+/* 内容区排版与滚动 */
+.code-block-wrapper:not(.style-ink) pre.astro-code > code {
+  margin-top: 2.6rem;
+  padding: 1rem 1.5rem 1.5rem 3rem;
+  max-height: 47.5rem;
+  line-height: 1;
+}
+.code-block-wrapper:not(.style-ink) pre.astro-code.collapsed > code {
+  max-height: 21rem;
+}
+
+/* macOS 独立滚动条 */
+.code-block-wrapper:not(.style-ink) pre.astro-code > code::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-pre.astro-code > code::-webkit-scrollbar-track {
+.code-block-wrapper:not(.style-ink)
+  pre.astro-code
+  > code::-webkit-scrollbar-track {
   background: transparent;
 }
-pre.astro-code > code::-webkit-scrollbar-thumb {
+.code-block-wrapper:not(.style-ink)
+  pre.astro-code
+  > code::-webkit-scrollbar-thumb {
   background-color: var(--code-scroll-thumb);
   border-radius: 8px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
-pre.astro-code > code::-webkit-scrollbar-thumb:hover {
+.code-block-wrapper:not(.style-ink)
+  pre.astro-code
+  > code::-webkit-scrollbar-thumb:hover {
   background-color: var(--code-scroll-hover);
 }
-pre.astro-code > code::-webkit-scrollbar-corner {
+.code-block-wrapper:not(.style-ink)
+  pre.astro-code
+  > code::-webkit-scrollbar-corner {
   background: transparent;
 }
 
+/* macOS 操作按钮 */
+.code-block-wrapper:not(.style-ink) .mac-action-base {
+  position: absolute;
+  top: 0.3rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.125rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+}
+
+.code-block-wrapper:not(.style-ink) .mac-action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  color: var(--text-muted);
+}
+.code-block-wrapper:not(.style-ink) .mac-action-btn:hover {
+  color: var(--color-vermilion);
+}
+.code-block-wrapper:not(.style-ink) .mac-action-base svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+/* 恢复各按钮的精准位置 */
+.code-block-wrapper:not(.style-ink) .mac-toggle-btn {
+  right: 5.5rem;
+}
+.code-block-wrapper:not(.style-ink) .mac-theme-btn {
+  right: 3.25rem;
+}
+.code-block-wrapper:not(.style-ink) .mac-copy-btn,
+.code-block-wrapper:not(.style-ink) .mac-copy-success {
+  right: 1rem;
+}
+
+/* 复制成功状态 (恢复原版利用透明度渐变的覆盖逻辑) */
+.code-block-wrapper:not(.style-ink) .mac-copy-success {
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  color: var(--color-vermilion);
+}
+.code-block-wrapper:not(.style-ink) .mac-copy-success.show {
+  opacity: 1;
+}
+
+/* 确保水墨风下彻底隐藏这些按钮 */
+.code-block-wrapper.style-ink .mac-action-base {
+  display: none !important;
+}
+
 /* =========================================
-  Final Ink Style: Hybrid Interaction (Color Fixed)
-  风格：现代水墨 (朱红/淡墨)
-  交互：顶部隐形滚动条 + 底部渐隐 + 展开交互
-  ========================================= */
+   4. [状态 B] 现代水墨风格
+   ========================================= */
 
-/* 1. 容器：基础布局 */
-pre.astro-code.style-ink {
-  /* --- Reset Old Styles --- */
-  background-image: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+/* 隐藏 macOS UI，显示水墨 UI */
+.code-block-wrapper.style-ink .macos-actions {
+  display: none !important;
+}
+.code-block-wrapper.style-ink .ink-actions-container {
+  display: flex !important;
+}
 
-  /* --- Ink Styles --- */
-  position: relative;
-  margin: 2em 0;
-
-  /* 布局核心：仿 macOS 的视窗逻辑 */
-  display: block;
-  width: 100%;
-
-  /* 双向滚动 */
-  overflow: hidden !important;
-  max-height: none !important;
-
-  /* 视觉风格 */
-  border-left: 3px solid var(--color-vermilion) !important;
+/* 容器外观 */
+.code-block-wrapper.style-ink pre.astro-code {
   background: linear-gradient(
     90deg,
     var(--prose-code-bg) 0%,
     rgba(0, 0, 0, 0) 100%
   ) !important;
+  border: none !important;
+  border-left: 3px solid var(--color-vermilion) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
-/* 2. 隐藏 macOS 标题栏 */
-pre.astro-code.style-ink::before {
+/* 抹除 macOS 头部 */
+.code-block-wrapper.style-ink pre.astro-code::before {
   display: none !important;
 }
 
-/* 3. 代码内容区域 */
-pre.astro-code.style-ink > code {
-  font-family: inherit;
-
-  display: block !important;
-  width: 100% !important;
-  box-sizing: border-box;
-
-  /* 最大高度和双向滚动 */
-  overflow: auto !important;
-  max-height: 34rem !important;
-
-  padding: 1rem 1.5rem 1.5rem 3rem !important;
-  margin-top: 0 !important; /* 去掉 header 留白 */
-
-  /* 行间距设定 */
-  line-height: 1.1;
-
-  /* 确保在水印上方 */
-  position: relative;
-  z-index: 1;
-}
-
-/* 适配折叠状态 (限制内层高度) */
-pre.astro-code.style-ink.collapsed > code {
-  max-height: 21rem !important;
-}
-
-/* 4. 行号 */
-/* 确保 CSS 优先级高于通用样式 */
-pre.astro-code.style-ink .line::before {
-  left: -3.6rem;
-  width: 2.5rem;
-  text-align: right;
-
-  /* 风格化 */
-  color: var(--prose-list-marker, var(--color-vermilion));
-  opacity: 0.6;
-  font-weight: normal;
-}
-
-/* 5. 背景水印 */
-pre.astro-code.style-ink::after {
+/* 水墨背景水印 */
+.code-block-wrapper.style-ink pre.astro-code::after {
   content: attr(data-language);
   position: absolute;
   top: 0.5rem;
-  right: 0.5rem;
-
-  /* 样式设定 */
+  right: 1rem;
   font-family: var(--font-serif);
   font-weight: 900;
   font-size: 4rem;
@@ -532,99 +476,85 @@ pre.astro-code.style-ink::after {
   pointer-events: none;
   z-index: 0;
   text-transform: uppercase;
-
-  width: 0; /* 无宽度 */
-  white-space: nowrap; /* 防止文字换行 */
-  overflow: visible; /* 允许文字溢出 */
-  direction: rtl; /* 从右向左“溢出”，锚点在右侧 */
+  width: 0;
+  white-space: nowrap;
+  direction: rtl;
+  overflow: visible;
 }
 
-/* 6. 滚动条 */
-pre.astro-code.style-ink > code::-webkit-scrollbar {
-  width: 6px; /* 垂直滚动条宽度 */
-  height: 6px; /* 水平滚动条高度 */
+/* 内容区排版与滚动 */
+.code-block-wrapper.style-ink pre.astro-code > code {
+  margin-top: 0 !important;
+  padding: 1rem 1.5rem 1.5rem 3rem !important;
+  max-height: 34rem !important;
+  line-height: 1.1;
+  z-index: 1;
+  position: relative;
+}
+.code-block-wrapper.style-ink pre.astro-code.collapsed > code {
+  max-height: 21rem !important;
 }
 
-/* 滚动条轨道 */
-pre.astro-code.style-ink > code::-webkit-scrollbar-track {
-  background: transparent; /* 轨道透明 */
+/* 水墨专属行号颜色 */
+.code-block-wrapper.style-ink .line::before {
+  left: -3.6rem;
+  width: 2.5rem;
+  color: var(--prose-list-marker, var(--color-vermilion));
+  opacity: 0.6;
+  font-weight: normal;
 }
 
-/* 滚动条滑块 */
-pre.astro-code.style-ink > code::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-300); /* 默认淡墨色 */
+/* 水墨独立滚动条 */
+.code-block-wrapper.style-ink pre.astro-code > code::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.code-block-wrapper.style-ink pre.astro-code > code::-webkit-scrollbar-track {
+  background: transparent;
+}
+.code-block-wrapper.style-ink pre.astro-code > code::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-300);
   border-radius: 3px;
   cursor: pointer;
-
-  /* 增加一点边框，让滑块不至于贴死边线 */
   border: 1px solid transparent;
   background-clip: content-box;
 }
-
-/* 悬停变朱红 */
-pre.astro-code.style-ink > code::-webkit-scrollbar-thumb:hover {
+.code-block-wrapper.style-ink
+  pre.astro-code
+  > code::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-vermilion);
 }
-
-/* 解决右下角交汇处的方块背景 */
-pre.astro-code.style-ink > code::-webkit-scrollbar-corner {
+.code-block-wrapper.style-ink pre.astro-code > code::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* =========================================
-   Style Toggle Button (风格切换按钮)
-   ========================================= */
-
-/* 1. 按钮定位与基础样式 */
-.style-toggle-btn {
-  position: absolute;
-  top: 0.3rem;
-  right: 3.25rem;
-  width: 2rem;
-  height: 2rem;
-  padding: 0.125rem;
-  border-radius: 0.25rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
-  color: var(--text-muted);
+/* 水墨操作按钮 */
+.ink-action-btn {
+  width: 1.75rem;
+  height: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 15;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+.ink-action-btn svg,
+.ink-copy-success svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
 }
 
-.style-toggle-btn:hover {
-  color: var(--color-vermilion);
-}
+/* =========================================
+   5. 水墨风移动端交互补充
+   ========================================= */
 
-/* 2. 图标状态管理 */
-/* 默认情况 (macOS风格)：显示 🎨 (暗示点击切换到 Ink) */
-.style-toggle-btn .icon-macos {
-  display: none;
-}
-.style-toggle-btn .icon-ink {
-  display: block;
-}
-
-/* 当处于 Ink 风格时：显示 💻 (暗示点击切回 macOS) */
-pre.astro-code.style-ink .style-toggle-btn .icon-ink {
-  display: none;
-}
-pre.astro-code.style-ink .style-toggle-btn .icon-macos {
-  display: block;
-}
-
-/* 3. 针对 Ink 风格的位置微调 */
-/* 因为 Ink 风格去掉了标题栏，按钮位置可能需要微调 */
-pre.astro-code.style-ink .style-toggle-btn {
-  top: 0.2rem;
-  right: 12rem; /* 避开巨大的水印 */
-  opacity: 0.4; /* 在白纸上更淡一点 */
-}
-pre.astro-code.style-ink .style-toggle-btn:hover {
-  opacity: 1;
-  background-color: var(--color-ink-100);
+/* 移动端通过点击印章触发 .is-open 类名，强制展开卷轴 */
+.ink-actions-container.is-open .ink-scroll-panel {
+  max-width: 200px !important;
+  opacity: 1 !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
 }

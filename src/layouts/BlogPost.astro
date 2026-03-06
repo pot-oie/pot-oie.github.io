@@ -128,13 +128,79 @@ const {
     </article>
   </div>
 
-  {/* --- 隐藏的图标仓库：供客户端 JS 提取 SVG --- */}
+  {/* --- 图标库 --- */}
   <template id="code-icon-template">
-    <div data-icon="copy"><Icon name="mingcute:copy-fill" /></div>
-    <div data-icon="success"><Icon name="mingcute:check-fill" /></div>
-    <div data-icon="expand"><Icon name="mingcute:down-fill" /></div>
-    <div data-icon="collapse"><Icon name="mingcute:up-fill" /></div>
-    <div data-icon="theme"><Icon name="mingcute:coathanger-fill" /></div>
+    <div data-icon="mac-copy"><Icon name="mingcute:copy-fill" /></div>
+    <div data-icon="mac-success"><Icon name="mingcute:check-fill" /></div>
+    <div data-icon="mac-expand"><Icon name="mingcute:down-fill" /></div>
+    <div data-icon="mac-collapse"><Icon name="mingcute:up-fill" /></div>
+    <div data-icon="mac-theme"><Icon name="mingcute:coathanger-fill" /></div>
+
+    <div data-icon="ink-copy">
+      <Icon name="material-symbols:content-copy-outline-sharp" />
+    </div>
+    <div data-icon="ink-success"><Icon name="material-symbols:check" /></div>
+    <div data-icon="ink-expand">
+      <Icon name="material-symbols:expand-all" />
+    </div>
+    <div data-icon="ink-collapse">
+      <Icon name="material-symbols:collapse-all" />
+    </div>
+    <div data-icon="ink-theme">
+      <Icon name="material-symbols:palette-outline" />
+    </div>
+  </template>
+
+  {/* --- 水墨风 UI --- */}
+  <template id="ink-action-template">
+    <div
+      class="ink-actions-container absolute -top-10 right-2 z-30 hidden flex-row-reverse items-center gap-3 group"
+    >
+      {/* 印章 */}
+      <div
+        class="ink-seal-trigger relative w-8 h-8 shrink-0 cursor-pointer md:cursor-default"
+      >
+        <div
+          class="absolute inset-0 bg-ink-900 dark:bg-zinc-100 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] animate-[spin_8s_linear_infinite] transition-all duration-500 group-hover:scale-110 group-hover:bg-vermilion/60"
+        >
+        </div>
+        <div
+          class="absolute inset-1 bg-ink-700 dark:bg-zinc-300 rounded-[60%_40%_30%_70%/60%_30%_70%_40%] animate-[spin_12s_linear_infinite_reverse] transition-all duration-500 group-hover:bg-vermilion"
+        >
+        </div>
+        <div
+          class="absolute inset-0 flex items-center justify-center text-zinc-100 dark:text-zinc-800 transition-colors duration-300 group-hover:text-white z-10 font-serif text-xs font-bold select-none cursor-default"
+        >
+          P
+        </div>
+      </div>
+
+      {/* action bar */}
+      {/* 彻底透明化的操作栏容器 */}
+      <div
+        class="ink-scroll-panel flex items-center gap-4 overflow-hidden max-w-0 opacity-0 md:group-hover:max-w-[200px] md:group-hover:opacity-100 md:group-hover:px-4 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] bg-transparent"
+      >
+        {/* 主题切换 */}
+        <button
+          class="ink-action-btn ink-theme-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+          title="切换回 macOS 风格"></button>
+
+        {/* 临摹 */}
+        <button
+          class="ink-action-btn ink-copy-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+          title="临摹"></button>
+
+        {/* 成功状态 */}
+        <span
+          class="ink-copy-success w-7 h-7 text-vermilion hidden items-center justify-center drop-shadow-md scale-110 transform-gpu"
+        ></span>
+
+        {/* 折叠/展开 */}
+        <button
+          class="ink-action-btn ink-toggle-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+          title="折叠/展开"></button>
+      </div>
+    </div>
   </template>
 </BaseLayout>
 
@@ -151,15 +217,26 @@ const {
     return iconWrapper ? iconWrapper.innerHTML : "";
   }
 
-  // 代码块交互逻辑
+  // 代码块初始化入口
   function initCodeBlockFeatures() {
     if (document.body.dataset.codeFeaturesInitialized === "true") return;
     document.body.dataset.codeFeaturesInitialized = "true";
 
     const allCodeBlocks = document.querySelectorAll("pre.astro-code");
+    const inkTemplate = document.getElementById(
+      "ink-action-template",
+    ) as HTMLTemplateElement;
 
     allCodeBlocks.forEach((block) => {
       const pre = block as HTMLElement;
+
+      // 1. 构建独立的 Wrapper：承载印章和绝对定位逻辑
+      if (pre.parentElement?.classList.contains("code-block-wrapper")) return;
+      const wrapper = document.createElement("div");
+      wrapper.className =
+        "code-block-wrapper relative mt-12 mb-8 w-full z-10 style-ink";
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
 
       const lang =
         pre.getAttribute("lang") || pre.getAttribute("data-language");
@@ -168,7 +245,7 @@ const {
       const codeElement = pre.querySelector("code");
       if (!codeElement || !(codeElement instanceof HTMLElement)) return;
 
-      // 【Code 滚动锁】
+      // 【Code 滚动锁】防穿透代理
       codeElement.addEventListener(
         "wheel",
         (e: WheelEvent) => {
@@ -178,7 +255,6 @@ const {
           const isAtTop = scrollTop <= 0;
           const isAtBottom =
             scrollTop + clientHeight >= scrollHeight - tolerance;
-
           if ((delta < 0 && isAtTop) || (delta > 0 && isAtBottom)) {
             e.preventDefault();
           }
@@ -187,7 +263,6 @@ const {
         { passive: false },
       );
 
-      // 【Header 滚动代理】
       pre.addEventListener(
         "wheel",
         (e: WheelEvent) => {
@@ -199,95 +274,155 @@ const {
         { passive: false },
       );
 
-      // 【复制逻辑】
-      const copyButton = document.createElement("button");
-      copyButton.className =
-        "astro-code-icon-base astro-code-icon-btn copy-btn";
-      copyButton.innerHTML = getIconSvg("copy"); // 动态提取
+      // 2. 挂载 macOS 风格的 UI 容器
+      const macCopyBtn = document.createElement("button");
+      macCopyBtn.className = "mac-action-base mac-action-btn mac-copy-btn";
+      macCopyBtn.innerHTML = getIconSvg("mac-copy");
 
-      const successMessage = document.createElement("span");
-      successMessage.className = "astro-code-icon-base copy-success";
-      successMessage.innerHTML = getIconSvg("success"); // 动态提取
+      const macSuccessMsg = document.createElement("span");
+      macSuccessMsg.className = "mac-action-base mac-copy-success"; // 移除 hidden 类，靠 CSS 的 opacity 控制
+      macSuccessMsg.innerHTML = getIconSvg("mac-success");
 
-      pre.appendChild(copyButton);
-      pre.appendChild(successMessage);
+      const macThemeBtn = document.createElement("button");
+      macThemeBtn.className = "mac-action-base mac-action-btn mac-theme-btn";
+      macThemeBtn.innerHTML = getIconSvg("mac-theme");
+      macThemeBtn.title = "切换至水墨风";
 
-      copyButton.addEventListener("click", () => {
-        const allLines = codeElement.querySelectorAll(".line");
-        let codeToCopy;
-        if (allLines.length > 0) {
-          codeToCopy = Array.from(allLines)
-            .map((line) => line.textContent || "")
-            .join("\n");
-        } else {
-          codeToCopy = codeElement.innerText || "";
-        }
-        navigator.clipboard
-          .writeText(codeToCopy)
-          .then(() => {
-            successMessage.classList.add("show");
-            copyButton.style.display = "none";
-            setTimeout(() => {
-              successMessage.classList.remove("show");
-              copyButton.style.display = "flex";
-            }, 2000);
-          })
-          .catch((err) => console.error("Failed to copy text: ", err));
-      });
+      let macToggleBtn = null;
+      const isCollapsible = codeElement.querySelectorAll(".line").length > 12;
 
-      // 【折叠逻辑】
-      const lines = pre.querySelectorAll(".line");
-      if (lines.length > 12) {
+      if (isCollapsible) {
         pre.classList.add("collapsed");
-        const toggleBtn = document.createElement("button");
-        toggleBtn.className =
-          "astro-code-icon-base astro-code-icon-btn toggle-btn";
+        macToggleBtn = document.createElement("button");
+        macToggleBtn.className =
+          "mac-action-base mac-action-btn mac-toggle-btn";
+        macToggleBtn.innerHTML = getIconSvg("mac-expand");
+        pre.appendChild(macToggleBtn);
+      }
 
-        // 初始状态为折叠，显示向下(展开)按钮
-        toggleBtn.innerHTML = getIconSvg("expand");
-        pre.appendChild(toggleBtn);
+      pre.appendChild(macThemeBtn);
+      pre.appendChild(macSuccessMsg);
+      pre.appendChild(macCopyBtn);
 
-        toggleBtn.addEventListener("click", () => {
-          const isCollapsed = pre.classList.toggle("collapsed");
-          if (isCollapsed) {
-            toggleBtn.innerHTML = getIconSvg("expand"); // 动态切换 SVG
-            pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      // 3. 挂载水墨风的 UI 容器
+      let inkCopyBtn: HTMLButtonElement | null = null;
+      let inkSuccessMsg: HTMLElement | null = null;
+      let inkToggleBtn: HTMLButtonElement | null = null;
+      let inkThemeBtn: HTMLButtonElement | null = null;
+
+      if (inkTemplate) {
+        const inkActionsNode = inkTemplate.content.cloneNode(
+          true,
+        ) as DocumentFragment;
+        const inkContainer = inkActionsNode.querySelector(
+          ".ink-actions-container",
+        ) as HTMLElement;
+
+        inkCopyBtn = inkContainer.querySelector(
+          ".ink-copy-btn",
+        ) as HTMLButtonElement;
+        inkCopyBtn.innerHTML = getIconSvg("ink-copy");
+        inkSuccessMsg = inkContainer.querySelector(
+          ".ink-copy-success",
+        ) as HTMLElement;
+
+        inkThemeBtn = inkContainer.querySelector(
+          ".ink-theme-btn",
+        ) as HTMLButtonElement;
+        inkThemeBtn.innerHTML = getIconSvg("ink-theme");
+
+        inkToggleBtn = inkContainer.querySelector(
+          ".ink-toggle-btn",
+        ) as HTMLButtonElement;
+        if (isCollapsible) {
+          inkToggleBtn.innerHTML = getIconSvg("ink-expand");
+        } else {
+          inkToggleBtn.style.display = "none";
+        }
+
+        wrapper.appendChild(inkContainer); // 绑定在 wrapper 上，悬浮于代码块之外
+
+        // 移动端点击印章展开卷轴逻辑
+        const inkSealTrigger = inkContainer.querySelector(".ink-seal-trigger");
+        if (inkSealTrigger) {
+          inkSealTrigger.addEventListener("click", () => {
+            // 当屏幕宽度小于 768px (移动端) 时，通过点击切换展开状态
+            if (window.innerWidth < 768) {
+              inkContainer.classList.toggle("is-open");
+            }
+          });
+        }
+      }
+
+      // 4. 绑定通用交互逻辑
+      // --- 【复制逻辑】 ---
+      const handleCopy = (isInk: boolean) => {
+        const allLines = codeElement.querySelectorAll(".line");
+        let codeToCopy =
+          allLines.length > 0
+            ? Array.from(allLines)
+                .map((line) => line.textContent || "")
+                .join("\n")
+            : codeElement.innerText || "";
+
+        navigator.clipboard.writeText(codeToCopy).then(() => {
+          if (isInk && inkCopyBtn && inkSuccessMsg) {
+            // 水墨风：Flex 布局的显隐替换
+            inkCopyBtn.style.display = "none";
+            inkSuccessMsg.classList.remove("hidden");
+            inkSuccessMsg.classList.add("flex");
+            inkSuccessMsg.innerHTML = getIconSvg("ink-success");
+            setTimeout(() => {
+              inkSuccessMsg.classList.add("hidden");
+              inkSuccessMsg.classList.remove("flex");
+              inkCopyBtn.style.display = "flex";
+            }, 2000);
           } else {
-            toggleBtn.innerHTML = getIconSvg("collapse"); // 动态切换 SVG
+            // macOS：恢复原版的绝对定位下 display 与 opacity 结合的动画
+            macCopyBtn.style.display = "none";
+            macSuccessMsg.classList.add("show");
+            setTimeout(() => {
+              macSuccessMsg.classList.remove("show");
+              macCopyBtn.style.display = "flex";
+            }, 2000);
           }
         });
+      };
+
+      macCopyBtn.addEventListener("click", () => handleCopy(false));
+      if (inkCopyBtn) {
+        inkCopyBtn.addEventListener("click", () => handleCopy(true));
       }
+
+      // --- 【折叠逻辑】 ---
+      if (isCollapsible && macToggleBtn) {
+        const handleToggle = () => {
+          const isCollapsed = pre.classList.toggle("collapsed");
+          macToggleBtn.innerHTML = getIconSvg(
+            isCollapsed ? "mac-expand" : "mac-collapse",
+          );
+          if (inkToggleBtn)
+            inkToggleBtn.innerHTML = getIconSvg(
+              isCollapsed ? "ink-expand" : "ink-collapse",
+            );
+          if (isCollapsed)
+            pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        };
+        macToggleBtn.addEventListener("click", handleToggle);
+        if (inkToggleBtn) inkToggleBtn.addEventListener("click", handleToggle);
+      }
+
+      // --- 【风格切换逻辑】 ---
+      const handleThemeToggle = () => {
+        // 直接在 wrapper 上切换类名，由 CSS 决定两套 UI 的显隐
+        wrapper.classList.toggle("style-ink");
+      };
+      macThemeBtn.addEventListener("click", handleThemeToggle);
+      if (inkThemeBtn) inkThemeBtn.addEventListener("click", handleThemeToggle);
     });
   }
 
-  // 【调试代码块风格：独立按钮】
-  function initCodeStyleToggle() {
-    const codeBlocks = document.querySelectorAll("pre.astro-code");
-
-    codeBlocks.forEach((pre) => {
-      if (pre.querySelector(".style-toggle-btn")) return;
-
-      const btn = document.createElement("button");
-      btn.className = "style-toggle-btn";
-      btn.innerHTML = getIconSvg("theme"); // 动态提取衣架图标
-      btn.title = "切换代码风格 (macOS / Ink)";
-
-      btn.addEventListener("click", () => {
-        pre.classList.toggle("style-ink");
-        btn.style.transform = "scale(0.9)";
-        setTimeout(() => (btn.style.transform = "scale(1)"), 150);
-      });
-
-      pre.appendChild(btn);
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    initCodeBlockFeatures();
-    initCodeStyleToggle();
-  });
-  document.addEventListener("astro:page-load", () => {
-    initCodeBlockFeatures();
-    initCodeStyleToggle();
-  });
+  // 绑定生命周期
+  document.addEventListener("DOMContentLoaded", initCodeBlockFeatures);
+  document.addEventListener("astro:page-load", initCodeBlockFeatures);
 </script>
