@@ -566,12 +566,15 @@ html.dark .code-block-wrapper pre.astro-code span {
   .prose.prose-ink table {
     font-size: 0.875rem !important;
     line-height: 1.4 !important;
+    margin-bottom: 0.8em !important;
   }
 
   /* 列表缩进 */
   .prose.prose-ink ul,
   .prose.prose-ink ol {
     padding-left: 1em !important;
+    margin-top: 0.8em !important;
+    margin-bottom: 0.8em !important;
   }
 
   /* 次级列表压缩 */
@@ -601,6 +604,7 @@ html.dark .code-block-wrapper pre.astro-code span {
     margin-left: -1rem !important;
     margin-right: -1rem !important;
     width: calc(100% + 2rem) !important;
+    max-width: none !important;
   }
 
   /* =========================================
@@ -612,16 +616,16 @@ html.dark .code-block-wrapper pre.astro-code span {
     font-size: 0.85rem;
   }
 
-  /* 压缩内部左右留白 */
+  /* 内部留白 */
   .code-block-wrapper pre.astro-code > code {
-    padding-left: 1.6rem !important;
+    padding-left: 1.7rem !important;
     padding-bottom: 0.4rem !important;
     line-height: 0.4 !important;
   }
 
   /* 行号 */
   .code-block-wrapper .line::before {
-    left: -2.5rem !important;
+    left: -2.2rem !important;
     width: 2rem !important;
   }
 
@@ -638,14 +642,14 @@ html.dark .code-block-wrapper pre.astro-code span {
 
   /* 内部留白 */
   .code-block-wrapper.style-ink pre.astro-code > code {
-    padding-left: 1.5rem !important;
-    padding-top: 0.65rem !important;
-    padding-bottom: 0.12rem !important;
+    padding-left: 1.6rem !important;
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.3rem !important;
   }
 
   /* 行号 */
   .code-block-wrapper.style-ink .line::before {
-    left: -2.3rem !important;
+    left: -2rem !important;
     width: 1.8rem !important;
   }
 

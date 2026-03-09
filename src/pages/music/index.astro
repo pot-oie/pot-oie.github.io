@@ -1,5 +1,10 @@
 ---
 // src/pages/music/index.astro
+import MusicCalendarView from "../../components/MusicCalendarView.astro";
 import { getMonthKey } from "../../utils/calendar";
-return Astro.redirect(`/music/${getMonthKey(new Date())}`);
+
+// 计算当前自然月，传给组件
+const currentMonthKey = getMonthKey(new Date());
 ---
+
+<MusicCalendarView targetMonthKey={currentMonthKey} />

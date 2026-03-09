@@ -131,9 +131,16 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
           const col = cellIndex % 7;
 
           // 弹窗位置逻辑
+          const verticalPositionClass =
+            row < 1
+              ? "top-full mt-2"
+              : row < 2
+                ? "bottom-full mb-2 lg:top-full lg:mt-2 lg:bottom-auto lg:mb-0"
+                : "bottom-full mb-2";
+
           const cardPositionClasses = [
-            // 前2行向下弹，其余向上弹
-            row < 2 ? "top-full mt-2" : "bottom-full mb-2",
+            // 移动端仅首行向下；桌面端前2行向下，其余向上
+            verticalPositionClass,
 
             // 列逻辑：防止左右溢出
             col < 1
@@ -290,14 +297,14 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
           "text-ink-700",
           "dark:text-zinc-400",
           "group-hover:text-ink-900",
-          "dark:group-hover:text-zinc-200"
+          "dark:group-hover:text-zinc-200",
         );
 
         // 添加高亮样式 (朱红色 + 加粗 + 放大)
         dateCellNumber.classList.add(
           "text-vermilion",
           "font-bold",
-          "scale-110"
+          "scale-110",
         );
       }
     }

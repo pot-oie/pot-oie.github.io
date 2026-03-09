@@ -1,0 +1,81 @@
+---
+// src/components/MusicCalendarView.astro
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import MusicCalendar from "./MusicCalendar.astro";
+import {
+  getMonthKey,
+  getCalendarGrid,
+  buildMusicMap,
+  DAY_NAMES,
+} from "../utils/calendar";
+
+export interface Props {
+  targetMonthKey: string; // 例如 "24-03"
+}
+
+const { targetMonthKey } = Astro.props;
+
+// 获取所有数据并推算所有存在的月份集合
+const allMusic = await getCollection("music");
+const monthsKeys = Array.from(
+  new Set(allMusic.map((post) => getMonthKey(post.data.pubDate))),
+);
+
+// 确保目标月份一定在列表中（即使当月还没有发过音乐）
+if (!monthsKeys.includes(targetMonthKey)) {
+  monthsKeys.push(targetMonthKey);
+}
+
+// 降序排列 (YY-MM 格式直接按字符串排序即可)
+monthsKeys.sort().reverse();
+
+// 计算上个月与下个月的链接
+const currentIndex = monthsKeys.indexOf(targetMonthKey);
+const prevKey = monthsKeys[currentIndex + 1] || null; // 倒序排列，+1 是更早的月份
+const nextKey = monthsKeys[currentIndex - 1] || null;
+
+// 过滤当前目标月数据
+const musicForThisMonth = allMusic.filter(
+  (post) => getMonthKey(post.data.pubDate) === targetMonthKey,
+);
+
+// 计算日历网格参数
+const [yearStr, monthStr] = targetMonthKey.split("-");
+const year = 2000 + parseInt(yearStr);
+const monthIndex = parseInt(monthStr) - 1;
+
+const title = new Date(year, monthIndex, 1).toLocaleString("zh-CN", {
+  year: "numeric",
+  month: "long",
+});
+const { firstDayOfWeek, daysInMonth, trailingCellsCount } = getCalendarGrid(
+  year,
+  monthIndex,
+);
+const musicMap = buildMusicMap(musicForThisMonth);
+
+const today = new Date();
+const todayDate = targetMonthKey === getMonthKey(today) ? today.getDate() : -1;
+---
+
+<BaseLayout
+  title={`Music Calendar - ${title}`}
+  description="Monthly music records"
+>
+  <div class="max-w-4xl mx-auto py-2 md:py-6 px-4">
+    <MusicCalendar
+      title={title}
+      dayNames={DAY_NAMES}
+      year={year}
+      month={monthIndex + 1}
+      firstDayOfWeek={firstDayOfWeek}
+      daysInMonth={daysInMonth}
+      musicMap={musicMap}
+      todayDate={todayDate}
+      trailingCellsCount={trailingCellsCount}
+      prevMonthUrl={prevKey ? `/music/${prevKey}` : null}
+      nextMonthUrl={nextKey ? `/music/${nextKey}` : null}
+    />
+  </div>
+</BaseLayout>

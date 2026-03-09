@@ -1,84 +1,24 @@
 ---
 // src/pages/music/[month].astro
-import { getCollection, type CollectionEntry } from "astro:content";
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import MusicCalendar from "../../components/MusicCalendar.astro";
-import {
-  getMonthKey,
-  getCalendarGrid,
-  buildMusicMap,
-  DAY_NAMES,
-} from "../../utils/calendar";
+import { getCollection } from "astro:content";
+import MusicCalendarView from "../../components/MusicCalendarView.astro";
+import { getMonthKey } from "../../utils/calendar";
 
 export async function getStaticPaths() {
   const allMusic = await getCollection("music");
-  const months = new Map<string, CollectionEntry<"music">[]>();
+  const months = new Set(
+    allMusic.map((post) => getMonthKey(post.data.pubDate)),
+  );
 
-  for (const post of allMusic) {
-    const key = getMonthKey(post.data.pubDate);
-    if (!months.has(key)) months.set(key, []);
-    months.get(key)!.push(post);
-  }
+  // 确保当月即使没有数据也能生成一个空日历页
+  months.add(getMonthKey(new Date()));
 
-  const now = new Date();
-  const currentMonthKey = getMonthKey(now);
-  if (!months.has(currentMonthKey)) months.set(currentMonthKey, []);
-
-  const allMonthKeys = [...months.keys()].sort().reverse();
-  return allMonthKeys.map((monthKey, index) => {
-    const prevKey = allMonthKeys[index + 1] || null;
-    const nextKey = allMonthKeys[index - 1] || null;
-
-    return {
-      params: { month: monthKey },
-      props: {
-        musicForThisMonth: months.get(monthKey)!,
-        prevMonthUrl: prevKey ? `/music/${prevKey}` : null,
-        nextMonthUrl: nextKey ? `/music/${nextKey}` : null,
-      },
-    };
-  });
+  return Array.from(months).map((monthKey) => ({
+    params: { month: monthKey },
+  }));
 }
 
 const { month } = Astro.params;
-const { musicForThisMonth, prevMonthUrl, nextMonthUrl } = Astro.props;
-
-// 构建日历数据
-const [yearStr, monthStr] = month.split("-");
-const year = 2000 + parseInt(yearStr);
-const monthIndex = parseInt(monthStr) - 1;
-
-const title = new Date(year, monthIndex, 1).toLocaleString("zh-CN", {
-  year: "numeric",
-  month: "long",
-});
-const { firstDayOfWeek, daysInMonth, trailingCellsCount } = getCalendarGrid(
-  year,
-  monthIndex,
-);
-const musicMap = buildMusicMap(musicForThisMonth);
-
-const today = new Date();
-const todayDate = month === getMonthKey(today) ? today.getDate() : -1;
 ---
 
-<BaseLayout
-  title={`Music Calendar - ${title}`}
-  description="Monthly music records"
->
-  <div class="max-w-4xl mx-auto py-2 md:py-6 px-4">
-    <MusicCalendar
-      title={title}
-      dayNames={DAY_NAMES}
-      year={year}
-      month={parseInt(monthStr)}
-      firstDayOfWeek={firstDayOfWeek}
-      daysInMonth={daysInMonth}
-      musicMap={musicMap}
-      todayDate={todayDate}
-      trailingCellsCount={trailingCellsCount}
-      prevMonthUrl={prevMonthUrl}
-      nextMonthUrl={nextMonthUrl}
-    />
-  </div>
-</BaseLayout>
+<MusicCalendarView targetMonthKey={month} />
