@@ -129,6 +129,11 @@
 .prose-ink blockquote p:last-of-type {
   margin-bottom: 0;
 }
+html.dark .prose-ink blockquote {
+  border-left-color: var(--color-vermilion, rgba(255, 255, 255, 0.4));
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--prose-body);
+}
 
 .prose-ink img {
   margin: 2.5em auto;
@@ -181,6 +186,9 @@
   border-collapse: collapse;
   margin: 2em 0;
   font-size: 0.95em;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .prose-ink th {
   text-align: left;
@@ -188,11 +196,14 @@
   border-bottom: 2px solid var(--prose-heading);
   font-family: var(--font-serif);
   color: var(--prose-heading);
+  white-space: nowrap;
 }
 .prose-ink td {
   padding: 0.75em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--prose-link-border);
   vertical-align: top;
+  color: var(--prose-body);
+  min-width: 80px;
 }
 
 /* 移动端代码块边距适配 */
@@ -471,7 +482,7 @@ html.dark .code-block-wrapper pre.astro-code span {
   font-weight: 900;
   font-size: 4rem;
   line-height: 1;
-  color: var(--color-ink-900);
+  color: var(--code-watermark);
   opacity: 0.06;
   pointer-events: none;
   z-index: 0;
@@ -565,7 +576,7 @@ html.dark .code-block-wrapper pre.astro-code span {
   .prose.prose-ink blockquote,
   .prose.prose-ink table {
     font-size: 0.875rem !important;
-    line-height: 1.4 !important;
+    line-height: 1.7 !important;
     margin-bottom: 0.8em !important;
   }
 
@@ -649,8 +660,9 @@ html.dark .code-block-wrapper pre.astro-code span {
 
   /* 行号 */
   .code-block-wrapper.style-ink .line::before {
-    left: -2rem !important;
+    left: -1.6rem !important;
     width: 1.8rem !important;
+    text-align: center !important;
   }
 
   /* 背景水印 */
