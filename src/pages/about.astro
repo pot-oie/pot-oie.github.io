@@ -18,10 +18,10 @@ const techStack = [
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-  <section class="py-20 md:py-32 px-4 max-w-3xl mx-auto">
+  <section class="py-8 md:py-16 px-4 max-w-3xl mx-auto">
     {/* --- 头部：大标题与格言 --- */}
     <div
-      class="mb-16 border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
+      class="mb-8 md:mb-12 border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
     >
       <h1
         class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-6 tracking-tight transition-colors"
@@ -39,7 +39,7 @@ const techStack = [
     <div class="prose prose-ink">
       {/* 简介 */}
       <h2
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-10 md:mt-14 leading-tight"
       >
         <Icon name="mingcute:user-3-line" class="w-6 h-6 text-vermilion" />
         <span>Who am I / 我是谁</span>
@@ -47,12 +47,12 @@ const techStack = [
       <p class="mb-6 text-ink-700 dark:text-zinc-300">
         你好，我是桂圆子。
         <br />
-        [ ... ]
+        一名正在学习的大三学生。
       </p>
 
       {/* Timeline 时间轴 */}
       <h2
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-10 md:mt-14 leading-tight"
       >
         <Icon name="mingcute:time-line" class="w-6 h-6 text-vermilion" />
         <span>Timeline / 时间轴</span>
@@ -61,7 +61,7 @@ const techStack = [
       <div
         class="relative border-l border-ink-200 dark:border-zinc-800 ml-3 space-y-12 pb-4 pt-2"
       >
-        {/* 2025 (Current) */}
+        {/* 2026 (Current) */}
         <div class="relative pl-8 group">
           <div
             class="absolute -left-[6.5px] top-2 w-3.5 h-3.5 rounded-full bg-vermilion shadow-[0_0_0_4px_var(--bg-body)] transition-colors"
@@ -73,7 +73,7 @@ const techStack = [
           >
             <span
               class="font-bold text-2xl text-ink-900 dark:text-zinc-100 font-serif group-hover:text-vermilion transition-colors"
-              >2025</span
+              >2026</span
             >
             <span
               class="text-xs font-bold font-sans tracking-widest text-vermilion uppercase bg-vermilion/10 px-2 py-0.5 rounded-sm self-start sm:self-auto"
@@ -83,7 +83,7 @@ const techStack = [
           <p
             class="mt-3 text-ink-700 dark:text-zinc-300 m-0 text-base leading-relaxed"
           >
-            正在构建这个博客，记录思想的流淌。
+            完善博客，并刷 LeetCode 提升编程能力。
           </p>
         </div>
 
@@ -95,36 +95,19 @@ const techStack = [
 
           <span
             class="font-bold text-xl text-ink-900 dark:text-zinc-100 font-serif group-hover:text-ink-600 dark:group-hover:text-zinc-300 transition-colors"
-            >2024</span
+            >2025</span
           >
           <p
             class="mt-2 text-ink-700 dark:text-zinc-300 m-0 text-base leading-relaxed"
           >
-            [留空] 这一年发生了什么...
-          </p>
-        </div>
-
-        <div class="relative pl-8 group">
-          <div
-            class="absolute -left-[5px] top-2.5 w-2.5 h-2.5 rounded-full bg-ink-300 dark:bg-zinc-600 shadow-[0_0_0_4px_var(--bg-body)] transition-colors group-hover:bg-ink-500 dark:group-hover:bg-zinc-400"
-          >
-          </div>
-
-          <span
-            class="font-bold text-xl text-ink-900 dark:text-zinc-100 font-serif group-hover:text-ink-600 dark:group-hover:text-zinc-300 transition-colors"
-            >...</span
-          >
-          <p
-            class="mt-2 text-ink-700 dark:text-zinc-300 m-0 text-base leading-relaxed"
-          >
-            [更多过往经历...]
+            搭建博客，并积极尝试各类语言开发。
           </p>
         </div>
       </div>
 
       {/* Now 近况 */}
       <h2
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-10 md:mt-14 leading-tight"
       >
         <Icon
           name="mingcute:location-line"
@@ -150,7 +133,7 @@ const techStack = [
               正在学习
             </h4>
             <p class="text-ink-600 dark:text-zinc-400 text-sm m-0 mb-2!">
-              计算机网络
+              leetcode算法
             </p>
           </div>
         </div>
@@ -198,7 +181,7 @@ const techStack = [
 
       {/* Tech Stack */}
       <h2
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-10 md:mt-14 leading-tight"
       >
         <Icon
           name="mingcute:terminal-box-line"
@@ -218,7 +201,7 @@ const techStack = [
 
       {/* Connect */}
       <h2
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-16 leading-tight"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-10 md:mt-14 leading-tight"
       >
         <Icon
           name="mingcute:send-plane-line"
@@ -230,7 +213,7 @@ const techStack = [
         你可以通过以下方式找到我：
       </p>
 
-      <ul class="list-none pl-0 space-y-4 -ml-8! not-prose">
+      <ul class="connect-list list-none pl-0 space-y-4 not-prose">
         {/* 列表项 1 */}
         <li
           class="flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-hidden"
@@ -279,7 +262,7 @@ const techStack = [
 
         {/* 列表项 3 */}
         <li
-          class="flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-hidden"
+          class="relative flex items-center gap-4 p-3 border-b border-ink-200 dark:border-zinc-800 overflow-visible"
         >
           <Icon
             name="mingcute:wechat-fill"
@@ -290,17 +273,51 @@ const techStack = [
               class="text-xs text-ink-400 dark:text-zinc-500 uppercase tracking-wider"
               >WeChat</span
             >
-            <span
-              class="text-ink-900 dark:text-zinc-100 font-bold select-all block"
-            >
-              g954693353
-            </span>
+            <div class="relative w-fit group/qr">
+              <button
+                type="button"
+                class="text-ink-900 dark:text-zinc-100 font-bold select-all block text-left hover:text-vermilion transition-colors focus:outline-none"
+                aria-label="显示微信二维码"
+              >
+                pot-oie
+              </button>
+
+              <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white dark:bg-zinc-800 backdrop-blur-sm rounded-xl shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 scale-95 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 group-hover/qr:scale-100 group-hover/qr:pointer-events-auto group-focus-within/qr:opacity-100 group-focus-within/qr:translate-y-0 group-focus-within/qr:scale-100 group-focus-within/qr:pointer-events-auto w-44 z-20"
+              >
+                <div
+                  class="bg-white rounded-md shadow-sm w-full overflow-hidden"
+                >
+                  <img
+                    src="/docs/wechat-qr.png"
+                    alt="微信添加好友二维码"
+                    class="block w-full h-auto object-contain"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div
+                  class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-zinc-800"
+                >
+                </div>
+              </div>
+            </div>
           </div>
         </li>
       </ul>
 
       {/* 滚动条 */}
       <style>
+        .prose-ink .connect-list,
+        .prose-ink .connect-list li {
+          margin: 0;
+          padding-left: 0;
+        }
+
+        .prose-ink .connect-list > li::before {
+          content: none;
+        }
+
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }

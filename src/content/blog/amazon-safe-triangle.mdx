@@ -1,0 +1,57 @@
+---
+title: '多级菜单交互的解决方案'
+description: '亚马逊“安全三角区域”算法的原理与实现。'
+pubDate: '03 24 2026'
+updatedDate: '03 25 2026'
+draft: false
+category: 'learn'
+techCategory: 'frontend'
+tags: ['交互', 'UI/UX', 'JavaScript']
+---
+
+import MenuRaw from '../../components/blog/amazon/MenuRaw.astro';
+import MenuClick from '../../components/blog/amazon/MenuClick.astro';
+import MenuDelay from '../../components/blog/amazon/MenuDelay.astro';
+import MenuTriangle from '../../components/blog/amazon/MenuTriangle.astro';
+
+> 本文讨论 Web 的前端交互设计，内嵌组件没有也不会针对移动端适配，所以请避免在移动端浏览。
+
+## 背景
+
+多级菜单是很多网站中常见的组件。但如果是不加任何优化的原始组件，往往会有一个烦人的交互问题：当我们将鼠标从主菜单移向子菜单时，一旦不小心略过其他主菜单项或是超界，子菜单便瞬间切换或消失。
+
+<MenuRaw />
+
+针对这个问题，设计师提出了多种解决方案。
+
+## 点击激活
+
+这应该是最直接的物理隔离方案了。直接放弃 hover 触发逻辑，强制用户点击展开对应子菜单。
+
+<MenuClick />
+
+这个方案的问题显而易见：虽然逻辑简单清晰，且天然**适配移动端**。但用户的**交互成本大幅增加**，而且在用户不确定所需要的内容在哪个子菜单时，遍历点击所有选项的体验是灾难性的。
+
+## 延迟消失
+
+在取舍之下，一些开发者引入**延迟策略**。当鼠标离开当前菜单项时等待一个短暂的延迟，如果在这期间没有进入子菜单才进行状态刷新。
+
+<MenuDelay />
+
+这是一个折中的方案，避免了直接切换的抖动，也用延迟减缓了点击的“顿挫感”。
+
+但折中也意味着**两面不讨好**：延迟太短，一样容易触发误切；延迟太长，UI 响应迟钝带来的等待还不如让用户干脆地点击。无论如何调整延迟时长，千人千面，总是无法做到所有人都满意。
+
+## 最优解 —— 亚马逊“安全三角区域”
+
+2013年，Ben Kamens 发现亚马逊的商品分类菜单既“重量级”，又可以灵敏切换，拆解研究后，提出了**安全三角区域**的概念。
+
+<a href="https://bjk5.com/post/44698559168/breaking-down-amazons-mega-dropdown" target="_blank" rel="noopener noreferrer">点击跳转博客原文</a>
+
+<MenuTriangle />
+
+这个三角区域巧妙地**预判了用户的移动意图**：通过记录鼠标的实时位置，与子菜单的左上角、左下角连接构成一个**三角形**。
+
+如果用户鼠标的移动轨迹持续落在三角形内部，系统就判定用户“正在前往子菜单”，不触发任何切换。
+
+博客作者还提出，亚马逊对用户的移动意图预判更包括**用线性代数/跨积来检测三角形的内部移动**，这个复刻难度就有点高了，我在这就只做一个简单的实现。

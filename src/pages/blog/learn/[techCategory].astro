@@ -1,0 +1,97 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PostCard from "../../../components/PostCard.astro";
+import { Icon } from "astro-icon/components";
+import { TECH_CATEGORY_META_LIST } from "../../../consts";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection(
+    "blog",
+    ({ data }) => data.draft !== true,
+  );
+
+  return TECH_CATEGORY_META_LIST.map((meta) => {
+    const posts = allPosts
+      .filter(
+        (post) =>
+          post.data.category === "learn" && post.data.techCategory === meta.key,
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.data.updatedDate ?? b.data.pubDate).valueOf() -
+          new Date(a.data.updatedDate ?? a.data.pubDate).valueOf(),
+      );
+
+    return {
+      params: { techCategory: meta.slug },
+      props: {
+        posts,
+        meta,
+      },
+    };
+  });
+}
+
+const { posts, meta } = Astro.props;
+---
+
+<BaseLayout title={meta.label} description={meta.description}>
+  <section class="py-8 md:py-16">
+    <div
+      class="mb-4 px-4 text-center md:text-left border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
+    >
+      <div
+        class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase transition-colors"
+      >
+        <a href="/" class="hover:text-vermilion transition-colors">Home</a>
+        <span>/</span>
+        <a href="/blog/learn/" class="hover:text-vermilion transition-colors"
+          >Learn</a
+        >
+        <span>/</span>
+        <span class="text-ink-900 dark:text-zinc-100">{meta.slug}</span>
+      </div>
+
+      <h1
+        class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-2 tracking-tight transition-colors"
+      >
+        {meta.label}
+      </h1>
+
+      <p
+        class="font-sans text-xs md:text-sm tracking-[0.22em] uppercase text-ink-400 dark:text-zinc-500 mb-4"
+      >
+        {meta.englishLabel}
+      </p>
+
+      <p class="text-ink-500 dark:text-zinc-400 max-w-2xl">
+        {meta.description}
+      </p>
+    </div>
+
+    {
+      posts.length > 0 ? (
+        <div class="flex flex-col max-w-4xl mx-auto">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      ) : (
+        <div class="max-w-4xl mx-auto px-4 py-10 border border-dashed border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400">
+          该分类暂时还没有文章。
+        </div>
+      )
+    }
+
+    <div class="mt-20 text-center">
+      <a
+        href="/blog/learn/"
+        class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion transition-colors text-sm tracking-widest uppercase"
+      >
+        <Icon name="mingcute:arrow-left-line" />
+        <span>Back to Learn Archives</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,7 +1,8 @@
 ---
 // src/pages/blog/[...slug].astro
 import { type CollectionEntry, getCollection, render } from "astro:content";
-import BlogPost from "../../layouts/BlogPost.astro";
+import LifePost from "../../layouts/LifePost.astro";
+import TechPost from "../../layouts/TechPost.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => {
@@ -19,6 +20,14 @@ const post = Astro.props;
 const { Content, headings } = await render(post);
 ---
 
-<BlogPost {...post.data} headings={headings}>
-  <Content />
-</BlogPost>
+{
+  post.data.category === "life" ? (
+    <LifePost {...post.data}>
+      <Content />
+    </LifePost>
+  ) : (
+    <TechPost {...post.data} headings={headings}>
+      <Content />
+    </TechPost>
+  )
+}

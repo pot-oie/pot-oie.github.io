@@ -26,6 +26,7 @@
   ![grid](image/index-movie.png)
 - **全局搜索**: 集成 **Pagefind**，提供快速、精准的静态全站搜索体验。
   ![search](image/search.png)
+- **搜索可观测性 (本地轻量版)**: 内置前端事件统计（无后端依赖），会记录搜索成功/无结果/错误、最近查询结构和基础计数，默认保存在浏览器 `localStorage`。
 - **平滑体验**: 集成 **Lenis** 实现平滑滚动，并结合 Astro 的 **View Transitions** 实现无缝页面切换。
 
 ## 🛠️ 技术栈 (Tech Stack)
@@ -55,6 +56,74 @@
     ```bash
     npm run build
     ```
+
+## 🔎 搜索统计查看
+
+项目当前没有接入第三方统计平台（如 Umami/GA），搜索统计使用站内轻量方案：
+
+1. 打开调试日志（可选）
+
+```js
+localStorage.setItem("pot-search-debug", "1");
+```
+
+2. 读取统计
+
+```js
+window.__potSearchMetrics?.read();
+```
+
+3. 清空统计
+
+```js
+window.__potSearchMetrics?.clear();
+```
+
+统计存储键：`pot-search-metrics-v1`
+
+## 🔐 Dashboard 访问保护（Nginx）
+
+本项目约定后台路径为 `/dashboard`，不在站内提供跳转入口。
+
+推荐最小防护：`Basic Auth + 限流（中等档 20 req/min per IP）`
+
+1. 生成密码文件（服务器执行）
+
+```bash
+sudo apt-get install apache2-utils -y
+sudo htpasswd -c /etc/nginx/.htpasswd-dashboard your_admin_name
+```
+
+2. 在站点 Nginx 配置中加入（示例）
+
+```nginx
+# 全局或 server 内：中等限流（每 IP 每分钟 20 请求）
+limit_req_zone $binary_remote_addr zone=dashboard_limit:10m rate=20r/m;
+
+server {
+  # ... 你的现有配置
+
+  location ^~ /dashboard {
+   auth_basic "Dashboard";
+   auth_basic_user_file /etc/nginx/.htpasswd-dashboard;
+
+   limit_req zone=dashboard_limit burst=5 nodelay;
+
+   try_files $uri $uri/ /dashboard/index.html;
+  }
+}
+```
+
+3. 重载配置
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+4. 验证
+1. 未登录访问 `/dashboard` 返回 401。
+1. 输入正确账号口令后可访问。
+1. 压测高频访问可触发 429。
 
 ## ✅ 待办清单 (ToDo List)
 

@@ -134,6 +134,111 @@ import { Icon } from "astro-icon/components";
   import type * as Pagefind from "/pagefind/pagefind.js";
 
   let pagefind: typeof Pagefind | null = null;
+  const MAX_VISIBLE_RESULTS = 10;
+  const MAX_SUMMARY_RESULTS = 1;
+  const RAW_CANDIDATE_LIMIT = 30;
+  const BLOG_SUMMARY_SEGMENTS = new Set(["learn", "life"]);
+
+  type ResultKind = "detail" | "summary";
+
+  interface RawSearchResult {
+    url: string;
+    excerpt: string;
+    meta: {
+      title?: string;
+      [key: string]: unknown;
+    };
+  }
+
+  interface ClassifiedSearchResult extends RawSearchResult {
+    kind: ResultKind;
+    kindLabel: "正文" | "概括页";
+    normalizedUrl: string;
+  }
+
+  function emitSearchMetric(event: string, payload: Record<string, unknown>) {
+    const detail = {
+      event,
+      payload,
+      timestamp: Date.now(),
+    };
+
+    window.dispatchEvent(new CustomEvent("pot:search-metric", { detail }));
+
+    if (window.localStorage.getItem("pot-search-debug") === "1") {
+      console.info("[search-metric]", detail);
+    }
+  }
+
+  function normalizeUrlPath(rawUrl: string) {
+    try {
+      const path = new URL(rawUrl, window.location.origin).pathname || "/";
+      if (path.length > 1 && path.endsWith("/")) return path.slice(0, -1);
+      return path;
+    } catch {
+      return rawUrl;
+    }
+  }
+
+  function getResultKind(path: string): ResultKind {
+    if (path === "/") return "summary";
+
+    if (path === "/blog") return "summary";
+    if (path.startsWith("/blog/learn")) return "summary";
+
+    if (/^\/blog\/[^/]+$/.test(path)) {
+      const segment = path.split("/")[2]?.toLowerCase() || "";
+      return BLOG_SUMMARY_SEGMENTS.has(segment) ? "summary" : "detail";
+    }
+
+    if (path === "/movie") return "summary";
+    if (/^\/movie\/\d+$/.test(path)) return "summary";
+    if (path.startsWith("/movie/")) return "detail";
+
+    if (path === "/music") return "summary";
+    if (/^\/music\/[^/]+$/.test(path)) return "summary";
+
+    return "detail";
+  }
+
+  function classifyResult(item: RawSearchResult): ClassifiedSearchResult {
+    const normalizedUrl = normalizeUrlPath(item.url);
+    const kind = getResultKind(normalizedUrl);
+
+    return {
+      ...item,
+      kind,
+      kindLabel: kind === "detail" ? "正文" : "概括页",
+      normalizedUrl,
+    };
+  }
+
+  function pickVisibleResults(results: ClassifiedSearchResult[]) {
+    const detailResults = results.filter((item) => item.kind === "detail");
+    const summaryResults = results.filter((item) => item.kind === "summary");
+
+    const selectedDetail = detailResults.slice(0, MAX_VISIBLE_RESULTS);
+    const remainingSlots = Math.max(
+      0,
+      MAX_VISIBLE_RESULTS - selectedDetail.length,
+    );
+    const summaryQuota = Math.min(MAX_SUMMARY_RESULTS, remainingSlots);
+    const selectedSummary = summaryResults.slice(0, summaryQuota);
+
+    return {
+      visible: [...selectedDetail, ...selectedSummary],
+      stats: {
+        detailTotal: detailResults.length,
+        summaryTotal: summaryResults.length,
+        detailShown: selectedDetail.length,
+        summaryShown: selectedSummary.length,
+        summaryTrimmed: Math.max(
+          0,
+          summaryResults.length - selectedSummary.length,
+        ),
+      },
+    };
+  }
 
   // 将 DOM 元素的引用移入函数内部，确保每次都能获取到当前页面的最新元素
   function getElements() {
@@ -171,6 +276,8 @@ import { Icon } from "astro-icon/components";
 
   async function performSearch(query: string) {
     const els = getElements(); // 获取当前元素
+    const startedAt = performance.now();
+
     if (!query.trim()) {
       if (els.emptyState) els.emptyState.classList.add("hidden");
       renderResults([]);
@@ -187,22 +294,55 @@ import { Icon } from "astro-icon/components";
       els.loadingState?.classList.add("hidden");
       // 仅在真正需要搜索时才显示错误（比如开发模式下）
       els.errorState?.classList.remove("hidden");
+      emitSearchMetric("search_error", {
+        query,
+        stage: "init",
+        reason: "pagefind_unavailable",
+      });
       return;
     }
 
-    const search = await pagefind.search(query);
+    try {
+      const search = await pagefind.search(query);
 
-    // 使用 Promise.all 获取详细数据
-    const data = await Promise.all(
-      search.results.slice(0, 10).map((r: any) => r.data())
-    );
+      // 先扩大候选池，再应用正文优先和概括页限流策略。
+      const rawCandidates = search.results.slice(0, RAW_CANDIDATE_LIMIT);
+      const data = await Promise.all(rawCandidates.map((r: any) => r.data()));
+      const classified = data.map(classifyResult);
+      const { visible, stats } = pickVisibleResults(classified);
 
-    els.loadingState?.classList.add("hidden");
-    renderResults(data);
+      els.loadingState?.classList.add("hidden");
+      renderResults(visible);
+
+      const durationMs = Math.round(performance.now() - startedAt);
+      emitSearchMetric("search_success", {
+        query,
+        rawTotal: search.results.length,
+        fetched: rawCandidates.length,
+        shown: visible.length,
+        durationMs,
+        ...stats,
+      });
+
+      if (visible.length === 0) {
+        emitSearchMetric("search_no_results", {
+          query,
+          durationMs,
+        });
+      }
+    } catch (error) {
+      els.loadingState?.classList.add("hidden");
+      els.errorState?.classList.remove("hidden");
+      emitSearchMetric("search_error", {
+        query,
+        stage: "query",
+        reason: error instanceof Error ? error.message : "unknown_error",
+      });
+    }
   }
 
   // 为 results 参数添加类型
-  function renderResults(results: Pagefind.PagefindSearchResult[]) {
+  function renderResults(results: ClassifiedSearchResult[]) {
     const els = getElements();
     if (!els.resultsList) return;
 
@@ -214,13 +354,21 @@ import { Icon } from "astro-icon/components";
     }
 
     results.forEach((item) => {
+      const badgeClass =
+        item.kind === "detail"
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+          : "bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200";
+
       const li = document.createElement("li");
       li.className = "group";
       li.innerHTML = `
         <a href="${item.url}" class="block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200">
-          <h3 class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 mb-1 group-hover:text-vermilion transition-colors">
-            ${item.meta.title}
-          </h3>
+          <div class="mb-2 flex items-center gap-2">
+            <span class="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase ${badgeClass}">${item.kindLabel}</span>
+            <h3 class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 group-hover:text-vermilion transition-colors">
+              ${item.meta.title || "Untitled"}
+            </h3>
+          </div>
           <p class="text-sm text-ink-500 dark:text-zinc-400 font-sans leading-relaxed line-clamp-2">
             ${item.excerpt}
           </p>

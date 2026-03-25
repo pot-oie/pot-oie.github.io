@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { TECH_CATEGORIES, normalizeBlogTag } from './utils/blogTaxonomy';
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
@@ -7,27 +8,46 @@ const BLOG_CATEGORIES = z.enum([
 	'life', // 生活随笔
 ]);
 
+const TECH_CATEGORY_ENUM = z.enum(TECH_CATEGORIES);
+
 const blog = defineCollection({
 	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			// 为了优化主页展示，生活随笔要加短标题
-			shortTitle: z.string().optional(),
-			description: z.string(),
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			// 文章头图
-			heroImage: image().optional(),
-			// 展示图
-			coverImage: image().optional(),
-			// 草稿过滤
-			draft: z.boolean().optional(),
-			// 分类
-			category: BLOG_CATEGORIES,
-			// 标签
-			// 可能会用上，再分类
-			tags: z.array(z.string()).optional(),
-		}),
+		z
+			.object({
+				title: z.string(),
+				// 为了优化主页展示，生活随笔要加短标题
+				shortTitle: z.string().optional(),
+				description: z.string(),
+				pubDate: z.coerce.date(),
+				updatedDate: z.coerce.date().optional(),
+				// 文章头图
+				heroImage: image().optional(),
+				// 展示图
+				coverImage: image().optional(),
+				// 草稿过滤
+				draft: z.boolean().optional(),
+				// 分类
+				category: BLOG_CATEGORIES,
+				// 技术文章的大类
+				techCategory: TECH_CATEGORY_ENUM.optional(),
+				// 二级标签（会按注册表做样式映射）
+				tags: z
+					.array(z.string().min(1))
+					.optional()
+					.transform((value) => {
+						if (!value) return value;
+						return [...new Set(value.map((tag) => normalizeBlogTag(tag)))];
+					}),
+			})
+			.superRefine((value, ctx) => {
+				if (value.category === 'learn' && !value.techCategory) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "learn 分类文章必须设置 techCategory",
+						path: ['techCategory'],
+					});
+				}
+			}),
 });
 
 // 电影集合

@@ -8,6 +8,10 @@ import type Lenis from 'lenis';
 declare global {
   interface Window {
     lenis: Lenis;
+    __potSearchMetrics?: {
+      read: () => any;
+      clear: () => void;
+    };
   }
 }
 

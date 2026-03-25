@@ -1,0 +1,72 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import { Icon } from "astro-icon/components";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="py-8 md:py-16 w-full max-w-3xl mx-auto px-3 md:px-6">
+    <header class="text-center mb-8 md:mb-12">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-4 md:mb-8 text-sm tracking-widest uppercase group active:scale-95"
+      >
+        <Icon
+          name="mingcute:arrow-left-line"
+          class="group-hover:-translate-x-1 transition-transform"
+        />
+        <span>Return</span>
+      </a>
+
+      <div class="flex flex-col items-center gap-2 md:gap-4">
+        <div
+          class="flex flex-col items-center gap-1 text-ink-500 text-sm font-sans tracking-widest uppercase"
+        >
+          <FormattedDate date={pubDate} />
+          {
+            updatedDate && (
+              <div class="flex items-center gap-2 opacity-85">
+                <span class="italic">Updated</span>
+                <FormattedDate date={updatedDate} />
+              </div>
+            )
+          }
+        </div>
+
+        <h1
+          class="text-3xl md:text-6xl font-serif font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
+        >
+          {title}
+        </h1>
+
+        <div
+          class="w-12 h-1 bg-ink-900 dark:bg-zinc-100 mt-3 md:mt-6 transition-colors"
+        >
+        </div>
+      </div>
+    </header>
+
+    {
+      heroImage && (
+        <div class="w-full mb-12 md:mb-16 group">
+          <img
+            src={heroImage.src}
+            alt={title}
+            loading="eager"
+            decoding="async"
+            class="w-full h-auto object-cover rounded-sm shadow-ink filter grayscale transition-all duration-700 md:group-hover:grayscale-0"
+          />
+        </div>
+      )
+    }
+
+    <div class="prose prose-sm md:prose-base prose-ink">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

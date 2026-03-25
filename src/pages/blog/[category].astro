@@ -5,6 +5,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
 import { Icon } from "astro-icon/components";
+import { TECH_CATEGORY_META_LIST } from "../../consts";
 
 export async function getStaticPaths() {
   const allPosts = await getCollection("blog", ({ data }) => {
@@ -32,7 +33,8 @@ const { posts } = Astro.props;
 
 const sortedPosts = posts.sort(
   (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
+    new Date(b.data.updatedDate ?? b.data.pubDate).valueOf() -
+    new Date(a.data.updatedDate ?? a.data.pubDate).valueOf(),
 );
 
 const categoryNames: Record<string, string> = {
@@ -42,6 +44,7 @@ const categoryNames: Record<string, string> = {
 
 // 页面标题逻辑
 const displayTitle = categoryNames[category] || category;
+const isLearnCategory = category === "learn";
 ---
 
 <BaseLayout
@@ -75,6 +78,22 @@ const displayTitle = categoryNames[category] || category;
           {posts.length === 1 ? "entry" : "entries"} collected.
         </p>
       </div>
+
+      {
+        isLearnCategory && (
+          <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
+            {TECH_CATEGORY_META_LIST.map((meta) => (
+              <a
+                href={`/blog/learn/${meta.slug}/`}
+                class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
+              >
+                <Icon name={meta.icon} class="w-4 h-4" />
+                {meta.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
     </div>
 
     {/* 列表区域：复用 PostCard */}

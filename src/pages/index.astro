@@ -2,7 +2,7 @@
 // src/pages/index.astro
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import PostCard from "../components/PostCard.astro";
+import PostCardForIndex from "../components/PostCardForIndex.astro";
 import RecentMusic from "../components/RecentMusic.astro";
 import MovieScroll from "../components/MovieScroll.astro";
 import { Icon } from "astro-icon/components";
@@ -15,7 +15,7 @@ const sortedPosts = allPosts.sort(
   (a, b) =>
     new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
 );
-const recentPosts = sortedPosts.slice(0, 5); // 首页显示 5 篇
+const recentPosts = sortedPosts.slice(0, 5);
 
 // 随机文章逻辑
 let randomPostUrl = "/blog";
@@ -58,7 +58,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
     </p>
   </section>
 
-  {/* --- Blog Section: 目录流 --- */}
+  {/* --- Blog Section: 扁平化展示最新文章 --- */}
   <section class="py-4 md:py-8">
     <div
       class="flex items-center justify-between mb-6 md:mb-12 border-b border-ink-900 dark:border-zinc-700 pb-4 transition-colors"
@@ -70,8 +70,8 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       </h2>
     </div>
 
-    <div class="flex flex-col">
-      {recentPosts.map((post) => <PostCard post={post} />)}
+    <div class="space-y-6">
+      {recentPosts.map((post) => <PostCardForIndex post={post} />)}
     </div>
 
     <div

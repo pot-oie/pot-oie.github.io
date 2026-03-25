@@ -1,0 +1,341 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { MarkdownHeading } from "astro";
+import BaseLayout from "./BaseLayout.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import { Icon } from "astro-icon/components";
+import {
+  TECH_CATEGORY_META_LIST,
+  getBlogTagMeta,
+  DEFAULT_TAG_META,
+} from "../consts";
+
+type Props = CollectionEntry<"blog">["data"] & {
+  headings?: MarkdownHeading[];
+};
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  techCategory,
+  tags = [],
+  headings = [],
+} = Astro.props;
+
+const categoryMeta = TECH_CATEGORY_META_LIST.find(
+  (item) => item.key === techCategory,
+);
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="relative w-full">
+    <aside
+      class="hidden xl:block fixed top-32 left-[calc(50%+26rem)] w-72 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
+    >
+      <TableOfContents headings={headings} />
+    </aside>
+
+    <article
+      class="py-6 md:py-16 w-full max-w-4xl mx-auto px-3 md:px-6 relative z-0"
+    >
+      <header class="mb-8 md:mb-12">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all mb-6 text-sm tracking-widest uppercase group active:scale-95"
+        >
+          <Icon
+            name="mingcute:arrow-left-line"
+            class="group-hover:-translate-x-1 transition-transform"
+          />
+          <span>Return</span>
+        </a>
+
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span
+            class="inline-flex items-center gap-1 text-xs font-semibold tracking-widest uppercase px-2 py-1 rounded border border-ink-300 text-ink-700 dark:border-zinc-600 dark:text-zinc-300"
+          >
+            <Icon
+              name={categoryMeta?.icon || "mingcute:book-2-line"}
+              class="w-4 h-4"
+            />
+            {categoryMeta?.label || "技术学习"}
+          </span>
+
+          {
+            tags.map((tag) => {
+              const tagMeta = getBlogTagMeta(tag);
+              const token = tagMeta.styleToken || DEFAULT_TAG_META.styleToken;
+
+              return (
+                <span
+                  class={`tag-pill inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded border tag-token-${token}`}
+                >
+                  <Icon name={tagMeta.icon} class="w-4 h-4" />
+                  {tagMeta.label}
+                </span>
+              );
+            })
+          }
+        </div>
+
+        <h1
+          class="text-3xl md:text-5xl font-bold text-ink-900 dark:text-zinc-100 leading-tight tracking-tight"
+        >
+          {title}
+        </h1>
+
+        <div
+          class="mt-4 flex flex-wrap items-center gap-3 text-sm text-ink-500 dark:text-zinc-400 uppercase tracking-widest"
+        >
+          <FormattedDate date={pubDate} />
+          {
+            updatedDate && (
+              <span class="inline-flex items-center gap-1">
+                <Icon name="mingcute:refresh-2-line" class="w-4 h-4" />
+                Updated <FormattedDate date={updatedDate} />
+              </span>
+            )
+          }
+        </div>
+      </header>
+
+      {
+        heroImage && (
+          <div class="w-full mb-10 md:mb-14 group">
+            <img
+              src={heroImage.src}
+              alt={title}
+              loading="eager"
+              decoding="async"
+              class="w-full h-auto object-cover rounded-sm shadow-ink transition-transform duration-500 md:group-hover:scale-[1.01]"
+            />
+          </div>
+        )
+      }
+
+      {
+        headings.length > 0 && (
+          <div class="xl:hidden mb-6">
+            <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group">
+              <summary class="p-4 font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
+                <div class="flex items-center gap-2">
+                  <Icon
+                    name="mingcute:list-check-line"
+                    class="w-5 h-5 text-vermilion"
+                  />
+                  <span>Table of Contents</span>
+                </div>
+                <Icon
+                  name="mingcute:down-line"
+                  class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
+                />
+              </summary>
+              <div class="px-4 pb-4 pt-4 border-t border-ink-200/50 dark:border-zinc-700/50">
+                <TableOfContents headings={headings} />
+              </div>
+            </details>
+          </div>
+        )
+      }
+
+      <div class="prose prose-sm md:prose-base prose-ink max-w-none">
+        <slot />
+      </div>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-pill {
+    backdrop-filter: blur(2px);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .tag-pill:hover {
+    transform: translateY(-1px);
+  }
+
+  .tag-pill :global(svg) {
+    opacity: 0.9;
+  }
+
+  .tag-token-default {
+    border-color: rgb(203 213 225 / 0.8);
+    background: rgb(248 250 252 / 0.6);
+    color: rgb(51 65 85 / 1);
+    box-shadow: 0 6px 16px -14px rgb(15 23 42 / 0.55);
+  }
+
+  .tag-token-default:hover {
+    border-color: rgb(148 163 184 / 0.85);
+    background: rgb(241 245 249 / 0.88);
+    box-shadow: 0 10px 20px -16px rgb(15 23 42 / 0.65);
+  }
+
+  .tag-token-interaction {
+    border-color: rgb(186 230 253 / 0.9);
+    background: rgb(240 249 255 / 0.9);
+    color: rgb(3 105 161 / 1);
+    box-shadow: 0 8px 18px -14px rgb(2 132 199 / 0.75);
+  }
+
+  .tag-token-interaction:hover {
+    border-color: rgb(125 211 252 / 0.95);
+    background: rgb(224 242 254 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(2 132 199 / 0.9);
+  }
+
+  .tag-token-design {
+    border-color: rgb(251 207 232 / 0.9);
+    background: rgb(253 242 248 / 0.95);
+    color: rgb(157 23 77 / 1);
+    box-shadow: 0 8px 18px -14px rgb(190 24 93 / 0.7);
+  }
+
+  .tag-token-design:hover {
+    border-color: rgb(249 168 212 / 0.95);
+    background: rgb(252 231 243 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(190 24 93 / 0.9);
+  }
+
+  .tag-token-frontend {
+    border-color: rgb(167 243 208 / 0.9);
+    background: rgb(236 253 245 / 0.9);
+    color: rgb(6 95 70 / 1);
+    box-shadow: 0 8px 18px -14px rgb(5 150 105 / 0.8);
+  }
+
+  .tag-token-frontend:hover {
+    border-color: rgb(110 231 183 / 0.95);
+    background: rgb(220 252 231 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(5 150 105 / 0.95);
+  }
+
+  .tag-token-backend {
+    border-color: rgb(191 219 254 / 0.9);
+    background: rgb(239 246 255 / 0.9);
+    color: rgb(30 64 175 / 1);
+    box-shadow: 0 8px 18px -14px rgb(37 99 235 / 0.75);
+  }
+
+  .tag-token-backend:hover {
+    border-color: rgb(147 197 253 / 0.95);
+    background: rgb(219 234 254 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(37 99 235 / 0.9);
+  }
+
+  .tag-token-algorithm {
+    border-color: rgb(254 215 170 / 0.9);
+    background: rgb(255 247 237 / 0.9);
+    color: rgb(154 52 18 / 1);
+    box-shadow: 0 8px 18px -14px rgb(194 65 12 / 0.75);
+  }
+
+  .tag-token-algorithm:hover {
+    border-color: rgb(253 186 116 / 0.95);
+    background: rgb(255 237 213 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(194 65 12 / 0.9);
+  }
+
+  .tag-token-system {
+    border-color: rgb(209 213 219 / 0.9);
+    background: rgb(249 250 251 / 0.9);
+    color: rgb(55 65 81 / 1);
+    box-shadow: 0 8px 18px -14px rgb(75 85 99 / 0.7);
+  }
+
+  .tag-token-system:hover {
+    border-color: rgb(156 163 175 / 0.9);
+    background: rgb(243 244 246 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(75 85 99 / 0.85);
+  }
+
+  .tag-token-study {
+    border-color: rgb(196 181 253 / 0.85);
+    background: rgb(245 243 255 / 0.92);
+    color: rgb(91 33 182 / 1);
+    box-shadow: 0 8px 18px -14px rgb(109 40 217 / 0.75);
+  }
+
+  .tag-token-study:hover {
+    border-color: rgb(167 139 250 / 0.9);
+    background: rgb(237 233 254 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(109 40 217 / 0.9);
+  }
+
+  .tag-token-database {
+    border-color: rgb(250 204 21 / 0.65);
+    background: rgb(254 252 232 / 0.9);
+    color: rgb(113 63 18 / 1);
+    box-shadow: 0 8px 18px -14px rgb(202 138 4 / 0.75);
+  }
+
+  .tag-token-database:hover {
+    border-color: rgb(245 158 11 / 0.85);
+    background: rgb(254 249 195 / 0.95);
+    box-shadow: 0 12px 24px -16px rgb(202 138 4 / 0.95);
+  }
+
+  :global(.dark) .tag-token-default {
+    border-color: rgb(100 116 139 / 0.55);
+    background: rgb(15 23 42 / 0.55);
+    color: rgb(226 232 240 / 0.95);
+  }
+
+  :global(.dark) .tag-token-interaction {
+    border-color: rgb(14 165 233 / 0.4);
+    background: rgb(12 74 110 / 0.35);
+    color: rgb(186 230 253 / 0.95);
+  }
+
+  :global(.dark) .tag-token-design {
+    border-color: rgb(190 24 93 / 0.45);
+    background: rgb(131 24 67 / 0.32);
+    color: rgb(251 207 232 / 0.96);
+  }
+
+  :global(.dark) .tag-token-frontend {
+    border-color: rgb(16 185 129 / 0.42);
+    background: rgb(6 78 59 / 0.34);
+    color: rgb(167 243 208 / 0.95);
+  }
+
+  :global(.dark) .tag-token-backend {
+    border-color: rgb(59 130 246 / 0.45);
+    background: rgb(30 58 138 / 0.34);
+    color: rgb(191 219 254 / 0.95);
+  }
+
+  :global(.dark) .tag-token-algorithm {
+    border-color: rgb(249 115 22 / 0.45);
+    background: rgb(124 45 18 / 0.34);
+    color: rgb(254 215 170 / 0.95);
+  }
+
+  :global(.dark) .tag-token-system {
+    border-color: rgb(148 163 184 / 0.45);
+    background: rgb(30 41 59 / 0.5);
+    color: rgb(226 232 240 / 0.95);
+  }
+
+  :global(.dark) .tag-token-study {
+    border-color: rgb(139 92 246 / 0.45);
+    background: rgb(76 29 149 / 0.35);
+    color: rgb(221 214 254 / 0.95);
+  }
+
+  :global(.dark) .tag-token-database {
+    border-color: rgb(234 179 8 / 0.45);
+    background: rgb(113 63 18 / 0.35);
+    color: rgb(254 240 138 / 0.95);
+  }
+</style>

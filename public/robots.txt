@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /dashboard
+Allow: /
+
+Sitemap: https://passpot.cn/sitemap-index.xml

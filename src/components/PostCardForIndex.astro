@@ -1,0 +1,123 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import FormattedDate from "./FormattedDate.astro";
+import type { CollectionEntry } from "astro:content";
+import { TECH_CATEGORY_META_LIST } from "../consts";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const slug = post.id.replace(/\.mdx?$/, "");
+
+const isUpdated = !!post.data.updatedDate;
+const displayDate = post.data.updatedDate ?? post.data.pubDate;
+
+const techCategoryLabelMap = new Map(
+  TECH_CATEGORY_META_LIST.map((meta) => [meta.key, meta.label]),
+);
+const techCategoryIconMap = new Map(
+  TECH_CATEGORY_META_LIST.map((meta) => [meta.key, meta.icon]),
+);
+
+const badgeText =
+  post.data.category === "learn"
+    ? (post.data.techCategory && techCategoryLabelMap.get(post.data.techCategory)) ||
+      "学习笔记"
+    : "生活随笔";
+
+const badgeIcon =
+  post.data.category === "learn"
+    ? (post.data.techCategory && techCategoryIconMap.get(post.data.techCategory)) ||
+      "mingcute:book-2-line"
+    : "mingcute:book-2-line";
+---
+
+<a
+  href={`/blog/${slug}/`}
+  class="post-card-link group relative block py-6 md:py-8 border-t border-ink-300/30 first:border-t-0
+         transition-all duration-500
+         hover:pl-4
+         active:pl-4 active:duration-200
+         group-[.is-active]:pl-4 group-[.is-active]:duration-200"
+>
+  {
+    post.data.coverImage && (
+      <div
+        class="absolute right-0 top-1/2 -translate-y-1/2 h-[120%] w-2/3 md:w-1/2 opacity-0 
+                  group-hover:opacity-15 
+                  group-active:opacity-15 group-active:duration-300
+                  group-[.is-active]:opacity-15 group-[.is-active]:duration-300
+                  transition-opacity duration-700 ease-out pointer-events-none mix-blend-multiply dark:mix-blend-overlay grayscale blur-[1px] overflow-hidden select-none z-0"
+      >
+        <Image
+          src={post.data.coverImage}
+          alt=""
+          width={600}
+          quality={80}
+          format="webp"
+          loading="eager"
+          class="w-full h-full object-cover mask-image-gradient"
+        />
+      </div>
+    )
+  }
+
+  <div class="relative z-10 flex flex-col gap-4 md:gap-5">
+    <div class="flex items-center justify-between gap-4">
+      <span
+        class="inline-flex items-center rounded-md pl-0 pr-2.5 py-1 text-sm tracking-wide
+               bg-ink-100/80 text-ink-500
+               dark:bg-zinc-800/80 dark:text-zinc-400
+               transition-colors"
+      >
+        <Icon name={badgeIcon} class="w-3.5 h-3.5 mr-1.5" />
+        {badgeText}
+      </span>
+
+      <div
+        class="shrink-0 font-sans text-sm font-medium tracking-widest uppercase transition-colors flex items-center gap-2
+        text-ink-300
+        group-hover:text-ink-500 group-active:text-ink-500 group-[.is-active]:text-ink-500
+        dark:text-zinc-500 dark:group-hover:text-zinc-300 dark:group-active:text-zinc-300 dark:group-[.is-active]:text-zinc-300"
+      >
+        {
+          isUpdated && (
+            <div
+              class="flex items-center gap-1 transition-colors duration-300
+                     text-vermilion"
+            >
+              <Icon
+                name="mingcute:refresh-2-line"
+                class="w-4 h-4 transition-transform duration-500 ease-in-out group-hover:rotate-180"
+              />
+              <span class="font-bold text-xs">Updated</span>
+            </div>
+          )
+        }
+        <FormattedDate date={displayDate} />
+      </div>
+    </div>
+
+    <h3
+      class="text-3xl md:text-4xl font-serif font-bold text-ink-900 dark:text-zinc-100
+             group-hover:text-vermilion dark:group-hover:text-vermilion
+             group-active:text-vermilion dark:group-active:text-vermilion
+             group-[.is-active]:text-vermilion dark:group-[.is-active]:text-vermilion
+             transition-colors duration-300 active:duration-150 group-[.is-active]:duration-150"
+    >
+      {post.data.shortTitle || post.data.title}
+    </h3>
+
+    <p
+      class="max-w-2xl text-lg leading-relaxed line-clamp-2 transition-colors duration-300
+      text-ink-500
+      group-hover:text-ink-700 group-active:text-ink-700 group-[.is-active]:text-ink-700
+      dark:text-zinc-400 dark:group-hover:text-zinc-200 dark:group-active:text-zinc-200 dark:group-[.is-active]:text-zinc-200"
+    >
+      {post.data.description}
+    </p>
+  </div>
+</a>
