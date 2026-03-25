@@ -1,0 +1,42 @@
+---
+title: 'leetcode 02：双指针'
+description: '双指针的学习'
+pubDate: '03 25 2026'
+# updatedDate: '03 25 2026'
+# heroImage: '../../assets/XXX.jpg'
+draft: false
+category: 'learn'
+techCategory: 'leetcode'
+tags: ['leetcode']
+---
+## 283. 移动零
+给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+### 示例
+> **输入：** nums = [0,1,0,3,12]
+>
+> **输出：** [1,3,12,0,0]
+
+### 提示
+- `1 <= nums.length <= 10^4`
+- `-2^31 <= nums[i] <= 2^31 - 1`
+- **必须在原数组上操作，不能拷贝额外的数组。**
+
+### 快慢指针解法
+挺简单的题，需要注意迭代器的使用，如果用 `:` 方法遍历，fast 是实数值，没有办法 `swap`。
+```cpp
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        auto slow = nums.begin();
+        for (auto fast = nums.begin(); fast != nums.end(); fast++){
+            if (*fast){
+                iter_swap(slow, fast);
+                slow++;
+            }
+        }
+        return;
+    }
+};
+```
+

@@ -93,11 +93,12 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth <= 3);
     links.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        const targetId = link.getAttribute("href");
-        if (!targetId) return;
-        const targetElement = document.querySelector(
-          targetId,
-        ) as HTMLElement | null;
+        const targetHash = link.getAttribute("href");
+        if (!targetHash || !targetHash.startsWith("#")) return;
+
+        // 用 getElementById 避免 querySelector 对数字开头 id 的选择器兼容问题
+        const rawId = decodeURIComponent(targetHash.slice(1));
+        const targetElement = document.getElementById(rawId);
 
         if (targetElement) {
           // 使用 window.lenis
@@ -110,7 +111,7 @@ const toc = headings.filter((h) => h.depth > 1 && h.depth <= 3);
             // 原生降级
             targetElement.scrollIntoView({ behavior: "smooth" });
           }
-          history.pushState(null, "", targetId);
+          history.pushState(null, "", targetHash);
         }
       });
     });
