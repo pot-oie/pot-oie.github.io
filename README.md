@@ -61,78 +61,11 @@
     npm run build
     ```
 
-## 🔎 搜索统计查看
-
-项目当前没有接入第三方统计平台（如 Umami/GA），搜索统计使用站内轻量方案：
-
-1. 打开调试日志（可选）
-
-```js
-localStorage.setItem("pot-search-debug", "1");
-```
-
-2. 读取统计
-
-```js
-window.__potSearchMetrics?.read();
-```
-
-3. 清空统计
-
-```js
-window.__potSearchMetrics?.clear();
-```
-
-统计存储键：`pot-search-metrics-v1`
-
-## 🔐 Dashboard 访问保护（Nginx）
-
-本项目约定后台路径为 `/dashboard`，不在站内提供跳转入口。
-
-推荐最小防护：`Basic Auth + 限流（中等档 20 req/min per IP）`
-
-1. 生成密码文件（服务器执行）
-
-```bash
-sudo apt-get install apache2-utils -y
-sudo htpasswd -c /etc/nginx/.htpasswd-dashboard your_admin_name
-```
-
-2. 在站点 Nginx 配置中加入（示例）
-
-```nginx
-# 全局或 server 内：中等限流（每 IP 每分钟 20 请求）
-limit_req_zone $binary_remote_addr zone=dashboard_limit:10m rate=20r/m;
-
-server {
-  # ... 你的现有配置
-
-  location ^~ /dashboard {
-   auth_basic "Dashboard";
-   auth_basic_user_file /etc/nginx/.htpasswd-dashboard;
-
-   limit_req zone=dashboard_limit burst=5 nodelay;
-
-   try_files $uri $uri/ /dashboard/index.html;
-  }
-}
-```
-
-3. 重载配置
-
-```bash
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-4. 验证
-1. 未登录访问 `/dashboard` 返回 401。
-1. 输入正确账号口令后可访问。
-1. 压测高频访问可触发 429。
-
 ## ✅ 待办清单 (ToDo List)
 
 ### 🔧 功能增强
 
+- [ ] **Dashboard 增强**: 增加更多维度的监控数据（如页面停留时间、点击热力、音乐播放统计等）。
 - [ ] **评论系统**: 接入 Giscus 或 Waline，增加博客互动性。
 
 ### ⚡️ 工程与 SEO
