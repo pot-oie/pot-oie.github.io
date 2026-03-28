@@ -17,7 +17,9 @@ export interface Props {
 const { targetMonthKey } = Astro.props;
 
 // 获取所有数据并推算所有存在的月份集合
-const allMusic = await getCollection("music");
+const rawMusic = await getCollection("music");
+const allMusic = rawMusic.filter((post) => !post.data.album);
+
 const monthsKeys = Array.from(
   new Set(allMusic.map((post) => getMonthKey(post.data.pubDate))),
 );

@@ -1,0 +1,26 @@
+---
+// src/components/ScoreBox.astro
+interface Props {
+  score: string | number;
+  label?: string;
+}
+
+const { score, label } = Astro.props;
+const numScore = typeof score === 'string' ? parseFloat(score) : score;
+const percentage = Math.min(Math.max((numScore / 10) * 100, 0), 100);
+---
+
+<div class="my-4 flex items-center gap-4 group">
+  {label && <span class="font-serif text-ink-500 text-sm border-l-2 border-ink-200 pl-3">{label}</span>}
+  
+  <div class="grow h-0.5 bg-ink-300/10 dark:bg-zinc-800 relative rounded-full overflow-hidden">
+    <div 
+      class="absolute inset-y-0 left-0 bg-vermilion transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(185,54,41,0.3)] rounded-full"
+      style={`width: ${percentage}%`}
+    ></div>
+  </div>
+
+  <div class="shrink-0 border border-vermilion px-2 py-0.5 min-w-12 text-center">
+    <span class="font-serif font-bold text-vermilion text-lg italic">{numScore.toFixed(1)}</span>
+  </div>
+</div>

@@ -3,7 +3,7 @@ import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import FormattedDate from "./FormattedDate.astro";
 import type { CollectionEntry } from "astro:content";
-import { TECH_CATEGORY_META_LIST } from "../consts";
+import { TECH_CATEGORY_META_LIST, LIFE_CATEGORY_META_LIST } from "../consts";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -22,17 +22,26 @@ const techCategoryIconMap = new Map(
   TECH_CATEGORY_META_LIST.map((meta) => [meta.key, meta.icon]),
 );
 
+const lifeCategoryLabelMap = new Map(
+  LIFE_CATEGORY_META_LIST.map((meta) => [meta.key, meta.label]),
+);
+const lifeCategoryIconMap = new Map(
+  LIFE_CATEGORY_META_LIST.map((meta) => [meta.key, meta.icon]),
+);
+
 const badgeText =
   post.data.category === "learn"
     ? (post.data.techCategory && techCategoryLabelMap.get(post.data.techCategory)) ||
       "学习笔记"
-    : "生活随笔";
+    : (post.data.lifeCategory && lifeCategoryLabelMap.get(post.data.lifeCategory)) ||
+      "生活记录";
 
 const badgeIcon =
   post.data.category === "learn"
     ? (post.data.techCategory && techCategoryIconMap.get(post.data.techCategory)) ||
       "mingcute:book-2-line"
-    : "mingcute:book-2-line";
+    : (post.data.lifeCategory && lifeCategoryIconMap.get(post.data.lifeCategory)) ||
+      "mingcute:book-2-line";
 ---
 
 <a
@@ -67,14 +76,14 @@ const badgeIcon =
 
   <div class="relative z-10 flex flex-col gap-4 md:gap-5">
     <div class="flex items-center justify-between gap-4">
-      <span
-        class="inline-flex items-center rounded-md pl-0 pr-2.5 py-1 text-sm tracking-wide
-               bg-ink-100/80 text-ink-500
-               dark:bg-zinc-800/80 dark:text-zinc-400
-               transition-colors"
+      <span class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs tracking-wide 
+         transition-colors
+         bg-ink-100/80 text-ink-500 
+         dark:bg-zinc-800/80 dark:text-zinc-400
+         sm:text-sm sm:px-2.5 sm:py-1"
       >
-        <Icon name={badgeIcon} class="w-3.5 h-3.5 mr-1.5" />
-        {badgeText}
+        <Icon name={badgeIcon} class="w-3.5 h-3.5 mr-1.5 shrink-0" />
+        <span class="leading-none">{badgeText}</span>
       </span>
 
       <div

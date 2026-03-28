@@ -1,0 +1,138 @@
+---
+// src/components/TrackControl.astro
+import { getEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+export interface Props {
+  trackId: string;
+}
+
+const { trackId } = Astro.props;
+
+// 从 music 集合中抓取你脚本生成的 yaml 数据
+const track = await getEntry("music", trackId);
+---
+
+{/* 模板区：在这里进行条件渲染，而不是在 --- 顶部 return */}
+{!track ? (
+  <span class="text-ink-300 mx-2 text-sm italic">[Track Not Found]</span>
+) : (
+  <span 
+    class="track-control inline-flex items-center align-middle mx-3 -translate-y-0.5" 
+    data-id={trackId}
+    data-url={track.data.audioPreview || ""}
+    data-title={track.data.title}
+    data-artist={track.data.artist}
+  >
+    {track.data.audioPreview ? (
+      <button
+        class="play-btn text-ink-300 hover:text-vermilion transition-all duration-300 focus:outline-none cursor-pointer group active:scale-90"
+        aria-label={`播放 ${track.data.title}`}
+        title="点击试听"
+      >
+        {/* 未播放状态：空心播放键 */}
+        <Icon name="mingcute:play-circle-line" class="w-6 h-6 icon-play group-hover:hidden" />
+        {/* Hover 状态：实心播放键 */}
+        <Icon name="mingcute:play-circle-fill" class="w-6 h-6 icon-play-hover hidden group-hover:block" />
+        
+        {/* 播放中状态：动态呼吸的朱红色暂停键 */}
+        <Icon name="mingcute:pause-circle-fill" class="w-6 h-6 icon-pause hidden text-vermilion animate-pulse" />
+      </button>
+    ) : (
+      // 降级状态：如果没有试听链接，展示淡墨色圆环
+      <span class="text-ink-300/50 cursor-not-allowed" title="该平台暂无 30s 试听片段">
+        <Icon name="mingcute:round-line" class="w-5 h-5" />
+      </span>
+    )}
+  </span>
+)}
+
+<script>
+  interface AudioStateDetail {
+    id: string | null;
+    state: "playing" | "paused" | "ended";
+  }
+
+  interface PlayRequestDetail {
+    id: string;
+    url: string;
+    title: string;
+    artist: string;
+  }
+
+  declare global {
+    interface Window {
+      hasInitTrackControls?: boolean;
+    }
+    interface WindowEventMap {
+      "pot:audio-state": CustomEvent<AudioStateDetail>;
+      "pot:play-request": CustomEvent<PlayRequestDetail>;
+    }
+  }
+
+  function initTrackControls(): void {
+    const selector = '.track-control';
+    const controls = document.querySelectorAll<HTMLElement>(selector);
+    
+    // 如果已经初始化过（判断自定义属性），则跳过
+    if (window.hasInitTrackControls) return;
+    window.hasInitTrackControls = true;
+
+    controls.forEach((ctrl) => {
+      const btn = ctrl.querySelector<HTMLButtonElement>('.play-btn');
+      if (!btn) return;
+      
+      const { id, url, title, artist } = ctrl.dataset;
+
+      btn.addEventListener('click', (e: MouseEvent) => {
+        e.preventDefault();
+        
+        if (!id || !url || !title || !artist) return;
+
+        window.dispatchEvent(new CustomEvent<PlayRequestDetail>("pot:play-request", {
+          detail: { id, url, title, artist }
+        }));
+      });
+    });
+
+    window.addEventListener("pot:audio-state", (e: CustomEvent<AudioStateDetail>) => {
+      const { id, state } = e.detail;
+      
+      // 改为遍历所有控件，而不是只查找指定的 id
+      // 这样当 A 播放时，B 发现 id 不匹配，就会自动复位到播放图标
+      const allCtrls = document.querySelectorAll<HTMLElement>('.track-control');
+      
+      allCtrls.forEach(ctrl => {
+        const btn = ctrl.querySelector<HTMLButtonElement>('.play-btn');
+        if (!btn) return;
+        
+        const ctrlId = ctrl.dataset.id;
+        const playIcon = btn.querySelector<HTMLElement>('.icon-play');
+        const hoverIcon = btn.querySelector<HTMLElement>('.icon-play-hover');
+        const pauseIcon = btn.querySelector<HTMLElement>('.icon-pause');
+        if (!playIcon || !hoverIcon || !pauseIcon) return;
+
+        // 逻辑：只有当 ID 匹配且状态是 playing 时，才显示暂停图标
+        if (ctrlId === id && state === "playing") {
+          playIcon.classList.add('hidden');
+          hoverIcon.classList.remove('group-hover:block');
+          pauseIcon.classList.remove('hidden');
+          btn.classList.add('text-vermilion'); 
+        } else {
+          // 其他所有情况（ID不匹配，或者状态是 paused/ended），都显示播放图标
+          playIcon.classList.remove('hidden');
+          hoverIcon.classList.add('group-hover:block');
+          pauseIcon.classList.add('hidden');
+          btn.classList.remove('text-vermilion'); 
+        }
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initTrackControls);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTrackControls);
+  } else {
+    initTrackControls();
+  }
+</script>

@@ -1,0 +1,73 @@
+---
+// src/layouts/AlbumPost.astro
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import AlbumSidebar from "../components/AlbumSidebar.astro";
+import { Icon } from "astro-icon/components";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, description, pubDate, updatedDate, heroImage, coverImage, albumTitle = "Unknown Album", albumArtist = "Unknown Artist" } = Astro.props;
+
+const displayCover = heroImage;
+---
+
+<BaseLayout title={title} description={description}>
+  {/* 全项目统一 max-w-4xl 容器 */}
+  <div class="max-w-4xl mx-auto py-8 md:py-16 px-4">
+    
+    {/* 面包屑导航 */}
+    <aside class="mb-10">
+      <a
+        href="/blog/life/album/"
+        class="inline-flex items-center gap-2 text-ink-500 hover:text-vermilion transition-all text-sm tracking-widest uppercase group active:scale-95"
+      >
+        <Icon name="mingcute:arrow-left-line" class="group-hover:-translate-x-1 transition-transform" />
+        <span>Album Archives</span>
+      </a>
+    </aside>
+
+    {/* 双栏布局：在桌面端使用 CSS Grid */}
+    <div class="md:grid md:grid-cols-[240px_1fr] md:gap-x-20 md:items-start relative">
+      
+      {/* === 左侧：水墨悬浮播放器 === */}
+      <aside class="md:sticky md:top-24 mb-12 md:mb-0 z-10 w-full md:w-60">
+          <AlbumSidebar 
+            coverImage={displayCover} 
+            albumTitle={albumTitle} 
+            albumArtist={albumArtist} 
+          />
+      </aside>
+
+      {/* === 右侧：文章正文区 === */}
+      <article class="min-w-0 flex-1">
+        <header class="mb-12 md:mb-16 border-b border-ink-300/30 dark:border-zinc-700 pb-8">
+          <div class="flex flex-col gap-3 text-ink-400 text-xs font-sans tracking-[0.2em] uppercase mb-6">
+            <div class="flex items-center gap-4">
+              <FormattedDate date={pubDate} />
+              {updatedDate && (
+                <div class="flex items-center gap-2 opacity-70">
+                  <span class="italic underline underline-offset-4 decoration-vermilion/30">Updated</span>
+                  <FormattedDate date={updatedDate} />
+                </div>
+              )}
+            </div>
+          </div>
+          <h1 class="text-4xl md:text-6xl font-serif font-black text-ink-900 dark:text-zinc-100 leading-[1.1] tracking-tighter mb-6">
+            {title}
+          </h1>
+          <p class="text-ink-500 dark:text-zinc-400 font-serif italic text-lg md:text-xl max-w-2xl leading-relaxed">
+            {description}
+          </p>
+        </header>
+
+        {/* 正文插槽：增加行高和字间距，提升阅读感 */}
+        <div class="prose prose-sm md:prose-base prose-ink prose-serif prose-headings:font-serif dark:prose-invert max-w-none transition-colors 
+          prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6 prose-p:leading-loose prose-p:text-ink-800 dark:prose-p:text-zinc-300">
+          <slot />
+        </div>
+      </article>
+    </div>
+  </div>
+</BaseLayout>

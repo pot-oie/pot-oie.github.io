@@ -3,6 +3,7 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import LifePost from "../../layouts/LifePost.astro";
 import TechPost from "../../layouts/TechPost.astro";
+import AlbumPost from "../../layouts/AlbumPost.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => {
@@ -22,9 +23,15 @@ const { Content, headings } = await render(post);
 
 {
   post.data.category === "life" ? (
-    <LifePost {...post.data}>
-      <Content />
-    </LifePost>
+    post.data.lifeCategory === "album" ? (
+      <AlbumPost {...post.data}>
+        <Content />
+      </AlbumPost>
+    ) : (
+      <LifePost {...post.data}>
+        <Content />
+      </LifePost>
+    )
   ) : (
     <TechPost {...post.data} headings={headings}>
       <Content />

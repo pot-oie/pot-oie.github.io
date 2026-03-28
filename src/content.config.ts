@@ -1,104 +1,137 @@
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
-import { TECH_CATEGORIES, normalizeBlogTag } from './utils/blogTaxonomy';
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
+import { TECH_CATEGORIES, normalizeBlogTag } from "./utils/blogTaxonomy";
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
-	'learn', // 学习笔记
-	'life', // 生活随笔
+  "learn", // 学习笔记
+  "life", // 生活记录
+]);
+
+// 生活记录的大类枚举
+const LIFE_CATEGORIES = z.enum([
+  "daily", // 日常随笔
+  "album", // 专辑鉴赏
+  "movie", // 电影长评
 ]);
 
 const TECH_CATEGORY_ENUM = z.enum(TECH_CATEGORIES);
 
 const blog = defineCollection({
-	schema: ({ image }) =>
-		z
-			.object({
-				title: z.string(),
-				// 为了优化主页展示，生活随笔要加短标题
-				shortTitle: z.string().optional(),
-				description: z.string(),
-				pubDate: z.coerce.date(),
-				updatedDate: z.coerce.date().optional(),
-				// 文章头图
-				heroImage: image().optional(),
-				// 展示图
-				coverImage: image().optional(),
-				// 草稿过滤
-				draft: z.boolean().optional(),
-				// 分类
-				category: BLOG_CATEGORIES,
-				// 技术文章的大类
-				techCategory: TECH_CATEGORY_ENUM.optional(),
-				// 二级标签（会按注册表做样式映射）
-				tags: z
-					.array(z.string().min(1))
-					.optional()
-					.transform((value) => {
-						if (!value) return value;
-						return [...new Set(value.map((tag) => normalizeBlogTag(tag)))];
-					}),
-			})
-			.superRefine((value, ctx) => {
-				if (value.category === 'learn' && !value.techCategory) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: "learn 分类文章必须设置 techCategory",
-						path: ['techCategory'],
-					});
-				}
-			}),
+  schema: ({ image }) =>
+    z
+      .object({
+        title: z.string(),
+        // 为了优化主页展示，生活记录要加短标题
+        shortTitle: z.string().optional(),
+        description: z.string(),
+        pubDate: z.coerce.date(),
+        updatedDate: z.coerce.date().optional(),
+        // 文章头图
+        heroImage: image().optional(),
+        // 展示图
+        coverImage: image().optional(),
+        // 草稿过滤
+        draft: z.boolean().optional(),
+        // 分类
+        category: BLOG_CATEGORIES,
+        // 生活记录的大类
+        lifeCategory: LIFE_CATEGORIES.optional(),
+        // 技术文章的大类
+        techCategory: TECH_CATEGORY_ENUM.optional(),
+        // 专辑鉴赏文章
+        albumTitle: z.string().optional(),
+        albumArtist: z.string().optional(),
+        // 二级标签（会按注册表做样式映射）
+        tags: z
+          .array(z.string().min(1))
+          .optional()
+          .transform((value) => {
+            if (!value) return value;
+            return [...new Set(value.map((tag) => normalizeBlogTag(tag)))];
+          }),
+      })
+      // 添加跨字段验证
+      .superRefine((value, ctx) => {
+        // learn 校验
+        if (value.category === "learn" && !value.techCategory) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "learn 分类文章必须设置 techCategory",
+            path: ["techCategory"],
+          });
+        }
+        // life 校验
+        if (value.category === "life" && !value.lifeCategory) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "life 分类文章必须设置 lifeCategory",
+            path: ["lifeCategory"],
+          });
+        }
+      }),
 });
 
 // 电影集合
 const movie = defineCollection({
-    schema: ({ image }) =>
-        z.object({
-            title: z.string(),
-			// 上映时间
-            releaseDate: z.coerce.date().optional(), 
-			// 观影时间 (用于排序)
-            viewingDate: z.coerce.date(), 
-			// 评分 0-5
-            rating: z.number().min(0).max(5),
-			// 海报
-            coverImage: image(), 
-			// 首页短评
-            shortReview: z.string(), 
-			// 是否有长评
-			haveReview: z.boolean(),
-        }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      // 上映时间
+      releaseDate: z.coerce.date().optional(),
+      // 观影时间 (用于排序)
+      viewingDate: z.coerce.date(),
+      // 评分 0-5
+      rating: z.number().min(0).max(5),
+      // 海报
+      coverImage: image(),
+      // 首页短评
+      shortReview: z.string(),
+      // 是否有长评
+      haveReview: z.boolean(),
+    }),
 });
 
 // 音乐集合
 const music = defineCollection({
-    // 使用 glob loader 加载 src/content/music 下的所有 yaml/json 文件
-    loader: glob({ pattern: '**/*.{yaml,json}', base: "./src/content/music" }),
-    schema: ({ image }) => z.object({
-        title: z.string(),
-        artist: z.string(),
-        // 封面图
-        coverImage: image(),
-        // 记录时间
-        pubDate: z.coerce.date(),
-		// 试听链接
-		audioPreview: z.string().optional(),
-        // 外部链接
-        links: z.object({
-            spotify: z.string().nullable().optional(),
-            netease: z.string().nullable().optional(),
-            qqMusic: z.string().nullable().optional(),
-        }).optional(),
-		// 应用内链接
-		appLinks: z.object({
-            netease: z.string().nullable().optional(),
-            qqMusic: z.string().nullable().optional(),
-        }).optional(),
+  // 使用 glob loader 加载 src/content/music 下的所有 yaml/json 文件
+  loader: glob({
+    pattern: "**/*.{yaml,yml,json}",
+    base: "./src/content/music",
+  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      artist: z.string(),
+      // 专辑
+      album: z.string().optional(),
+      trackNumber: z.number().optional(),
+      // 封面图
+      coverImage: image(),
+      // 记录时间
+      pubDate: z.coerce.date(),
+      // 试听链接
+      audioPreview: z.string().optional(),
+      // 外部链接
+      links: z
+        .object({
+          spotify: z.string().nullable().optional(),
+          netease: z.string().nullable().optional(),
+          qqMusic: z.string().nullable().optional(),
+        })
+        .optional(),
+      // 应用内链接
+      appLinks: z
+        .object({
+          netease: z.string().nullable().optional(),
+          qqMusic: z.string().nullable().optional(),
+        })
+        .optional(),
     }),
 });
 
-export const collections = { 
-	blog, 
-	movie,
-	music
+export const collections = {
+  blog,
+  movie,
+  music,
 };

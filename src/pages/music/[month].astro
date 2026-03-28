@@ -5,7 +5,8 @@ import MusicCalendarView from "../../components/MusicCalendarView.astro";
 import { getMonthKey } from "../../utils/calendar";
 
 export async function getStaticPaths() {
-  const allMusic = await getCollection("music");
+  const rawMusic = await getCollection("music");
+  const allMusic = rawMusic.filter((post) => !post.data.album);
   const months = new Set(
     allMusic.map((post) => getMonthKey(post.data.pubDate)),
   );
