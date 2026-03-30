@@ -7,7 +7,7 @@ import QRCodeTooltip from "./QRCodeTooltip.astro";
 
 const allMusic = await getCollection("music");
 // 过滤掉带有 album 字段的条目，只保留单曲
-const singleMusic = allMusic.filter(song => !song.data.album); 
+const singleMusic = allMusic.filter((song) => !song.data.album);
 
 const sortedMusic = singleMusic.sort(
   (a, b) =>
@@ -20,16 +20,13 @@ const sortedMusic = singleMusic.sort(
     sortedMusic.map((song) => (
       <article
         data-music-item
+        data-id={song.data.title}
         data-title={song.data.title}
         data-artist={song.data.artist}
         data-cover={song.data.coverImage.src}
+        data-audio-url={song.data.audioPreview}
         class="group flex items-center gap-6 py-6 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 md:hover:pl-4"
       >
-        {/* 隐藏的音频元素 */}
-        {song.data.audioPreview && (
-          <audio data-audio src={song.data.audioPreview} preload="none" />
-        )}
-
         {/* === 1. 封面区域 === */}
         <div
           class="relative shrink-0 z-10 cursor-pointer group/cover"
@@ -194,109 +191,110 @@ const sortedMusic = singleMusic.sort(
 <script>
   import QRCode from "qrcode";
 
-  function initAudioPlayers() {
+  function initRecentMusic() {
     const articles = document.querySelectorAll<HTMLElement>(
       "[data-music-item]:not([data-initialized])",
     );
-    let currentAudio: HTMLAudioElement | null = null;
 
     articles.forEach((article) => {
       article.setAttribute("data-initialized", "true");
 
-      const audio = article.querySelector<HTMLAudioElement>("[data-audio]");
-      if (!audio) return;
+      const id = article.dataset.id;
+      const url = article.dataset.audioUrl;
+      if (!url) return;
 
       const playBtn =
         article.querySelector<HTMLButtonElement>("[data-play-btn]");
-      // 获取封面节点
       const coverBtn = article.querySelector<HTMLElement>("[data-cover-btn]");
-
       const progressContainer = article.querySelector<HTMLElement>(
         "[data-progress-container]",
-      );
-      const progressFill = article.querySelector<HTMLElement>(
-        "[data-progress-fill]",
       );
       const volumeContainer = article.querySelector<HTMLElement>(
         "[data-volume-container]",
       );
-      const volumeFill =
-        article.querySelector<HTMLElement>("[data-volume-fill]");
 
-      audio.addEventListener("play", () => {
-        article.classList.add("is-playing");
-        currentAudio = audio;
-
-        if ("mediaSession" in navigator) {
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: article.dataset.title,
-            artist: article.dataset.artist,
-            artwork: [
-              {
-                src: article.dataset.cover || "",
-                sizes: "512x512",
-                type: "image/webp",
-              },
-            ],
-          });
-
-          navigator.mediaSession.setActionHandler("play", () => audio.play());
-          navigator.mediaSession.setActionHandler("pause", () => audio.pause());
-        }
-      });
-
-      audio.addEventListener("pause", () => {
-        article.classList.remove("is-playing");
-      });
-
-      audio.addEventListener("ended", () => {
-        if (progressFill) progressFill.style.width = "0%";
-      });
-
-      // 核心播放逻辑，供桌面按钮和移动端封面共用
-      const togglePlay = (e: Event) => {
+      // 发射播放请求
+      const sendPlayRequest = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
-
-        if (currentAudio && currentAudio !== audio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-        }
-
-        if (audio.paused) {
-          audio.play().catch((err) => console.warn("播放被拦截:", err));
-        } else {
-          audio.pause();
-        }
+        window.dispatchEvent(
+          new CustomEvent("pot:play-request", {
+            detail: {
+              id: id,
+              url: url,
+              title: article.dataset.title,
+              artist: article.dataset.artist,
+              cover: article.dataset.cover,
+            },
+          }),
+        );
       };
 
-      playBtn?.addEventListener("click", togglePlay);
-      coverBtn?.addEventListener("click", togglePlay);
+      playBtn?.addEventListener("click", sendPlayRequest);
+      coverBtn?.addEventListener("click", sendPlayRequest);
 
-      audio.addEventListener("timeupdate", () => {
-        if (!progressFill) return;
-        const percent = (audio.currentTime / audio.duration) * 100;
-        progressFill.style.width = `${percent || 0}%`;
-      });
-
+      // 发射进度拖拽请求
       progressContainer?.addEventListener("click", (e) => {
         const rect = progressContainer.getBoundingClientRect();
         const pos = (e.clientX - rect.left) / rect.width;
-        audio.currentTime = pos * audio.duration;
+        window.dispatchEvent(
+          new CustomEvent("pot:seek-request", {
+            detail: { id, percentage: pos },
+          }),
+        );
       });
 
+      // 发射音量调节请求
       volumeContainer?.addEventListener("click", (e) => {
         const rect = volumeContainer.getBoundingClientRect();
-        let pos = (e.clientX - rect.left) / rect.width;
-        pos = Math.max(0, Math.min(1, pos));
-        audio.volume = pos;
+        const pos = (e.clientX - rect.left) / rect.width;
+        window.dispatchEvent(
+          new CustomEvent("pot:volume-request", {
+            detail: { id, volume: pos },
+          }),
+        );
+        const volumeFill =
+          article.querySelector<HTMLElement>("[data-volume-fill]");
         if (volumeFill) volumeFill.style.width = `${pos * 100}%`;
       });
-
-      audio.volume = 0.3;
-      if (volumeFill) volumeFill.style.width = "30%";
     });
 
+    // --- 监听全局广播，更新本组件 UI ---
+    const handleAudioState = (e: any) => {
+      document
+        .querySelectorAll<HTMLElement>("[data-music-item]")
+        .forEach((article) => {
+          if (article.dataset.id === e.detail.id) {
+            if (e.detail.state === "playing")
+              article.classList.add("is-playing");
+            else article.classList.remove("is-playing");
+          } else {
+            article.classList.remove("is-playing");
+          }
+        });
+    };
+
+    const handleAudioProgress = (e: any) => {
+      const activeArticle = document.querySelector<HTMLElement>(
+        `[data-music-item][data-id="${e.detail.id}"]`,
+      );
+      if (activeArticle) {
+        const fill = activeArticle.querySelector<HTMLElement>(
+          "[data-progress-fill]",
+        );
+        if (fill)
+          fill.style.width = `${(e.detail.currentTime / e.detail.duration) * 100}%`;
+      }
+    };
+
+    // 确保解绑再绑定，防止 SPA 路由残留
+    window.removeEventListener("pot:audio-state", handleAudioState);
+    window.addEventListener("pot:audio-state", handleAudioState);
+
+    window.removeEventListener("pot:audio-progress", handleAudioProgress);
+    window.addEventListener("pot:audio-progress", handleAudioProgress);
+
+    // 二维码初始化保留
     document
       .querySelectorAll<HTMLCanvasElement>(
         "canvas[data-qr-url]:not([data-initialized])",
@@ -313,10 +311,5 @@ const sortedMusic = singleMusic.sort(
       });
   }
 
-  document.addEventListener("astro:page-load", initAudioPlayers);
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAudioPlayers);
-  } else {
-    initAudioPlayers();
-  }
+  document.addEventListener("astro:page-load", initRecentMusic);
 </script>

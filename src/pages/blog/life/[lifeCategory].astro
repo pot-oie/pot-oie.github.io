@@ -39,22 +39,31 @@ const { posts, meta } = Astro.props;
 
 <BaseLayout title={meta.label} description={meta.description}>
   <section class="py-8 md:py-16">
-    <div class="mb-4 px-4 text-center md:text-left border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors">
-      
+    <div
+      class="mb-4 px-4 text-center md:text-left border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
+    >
       {/* 面包屑：指向 Life 归档 */}
-      <div class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase transition-colors">
+      <div
+        class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase transition-colors"
+      >
         <a href="/" class="hover:text-vermilion transition-colors">Home</a>
         <span>/</span>
-        <a href="/blog/life/" class="hover:text-vermilion transition-colors">Life</a>
+        <a href="/blog/life/" class="hover:text-vermilion transition-colors"
+          >Life</a
+        >
         <span>/</span>
         <span class="text-ink-900 dark:text-zinc-100">{meta.slug}</span>
       </div>
 
-      <h1 class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-2 tracking-tight transition-colors">
+      <h1
+        class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-2 tracking-tight transition-colors"
+      >
         {meta.label}
       </h1>
 
-      <p class="font-sans text-xs md:text-sm tracking-[0.22em] uppercase text-ink-400 dark:text-zinc-500 mb-4">
+      <p
+        class="font-sans text-xs md:text-sm tracking-[0.22em] uppercase text-ink-400 dark:text-zinc-500 mb-4"
+      >
         {meta.englishLabel}
       </p>
 

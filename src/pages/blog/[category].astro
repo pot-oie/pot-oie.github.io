@@ -80,33 +80,37 @@ const isLifeCategory = category === "life";
         </p>
       </div>
 
-      {isLearnCategory && (
-        <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
-          {TECH_CATEGORY_META_LIST.map((meta) => (
-            <a
-              href={`/blog/learn/${meta.slug}/`}
-              class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
-             >
-              <Icon name={meta.icon} class="w-4 h-4" />
-              {meta.label}
-            </a>
-          ))}
-        </div>
-     )}
+      {
+        isLearnCategory && (
+          <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
+            {TECH_CATEGORY_META_LIST.map((meta) => (
+              <a
+                href={`/blog/learn/${meta.slug}/`}
+                class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
+              >
+                <Icon name={meta.icon} class="w-4 h-4" />
+                {meta.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
 
-      {isLifeCategory && (
-        <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
-          {LIFE_CATEGORY_META_LIST.map((meta) => (
-            <a
-              href={`/blog/life/${meta.slug}/`}
-              class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
-            >
-              <Icon name={meta.icon} class="w-4 h-4" />
-              {meta.label}
-            </a>
-          ))}
-        </div>
-      )}
+      {
+        isLifeCategory && (
+          <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
+            {LIFE_CATEGORY_META_LIST.map((meta) => (
+              <a
+                href={`/blog/life/${meta.slug}/`}
+                class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
+              >
+                <Icon name={meta.icon} class="w-4 h-4" />
+                {meta.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
     </div>
 
     {/* 列表区域：复用 PostCard */}
