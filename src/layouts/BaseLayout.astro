@@ -3,6 +3,7 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { ClientRouter } from "astro:transitions";
+import "katex/dist/katex.min.css";
 
 export interface Props {
   title: string;
@@ -311,11 +312,50 @@ const { title, description } = Astro.props;
         });
       }
 
+      /**
+       * 初始化公式滚动提示
+       */
+      export function initMathScrollHints(): void {
+        const containers = document.querySelectorAll<HTMLElement>(
+          ".prose-ink div, .prose-ink span",
+        );
+
+        containers.forEach((el: HTMLElement) => {
+          const sWidth: number = el.scrollWidth;
+          const cWidth: number = el.clientWidth;
+
+          if (sWidth > cWidth + 5) {
+            if (el.dataset.hasHint === "true") return;
+
+            const isMath: boolean =
+              el.classList.contains("katex") ||
+              el.classList.contains("math") ||
+              el.querySelector(".katex") !== null;
+
+            if (isMath) {
+              const hint: HTMLDivElement = document.createElement("div");
+              hint.className = "scroll-hint-tail";
+
+              // 使用一左一右的文字样式，并为箭头添加朱红色的 class
+              hint.innerHTML = `
+                <span class="arrow">←</span>
+                <span>滑动查看</span>
+                <span class="arrow">→</span>
+              `;
+
+              el.dataset.hasHint = "true";
+              el.after(hint);
+            }
+          }
+        });
+      }
+
       // 绑定到 Astro 的生命周期
       document.addEventListener("astro:page-load", () => {
         initLenis();
         installSearchMetrics();
         initGlobalAudio();
+        initMathScrollHints();
       });
     </script>
   </body>

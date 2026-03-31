@@ -1,16 +1,17 @@
 ---
-title: 'leetcode 01：哈希表'
-description: 'set 和 map 的学习'
-pubDate: '03 24 2026'
-updatedDate: '03 25 2026'
+title: "leetcode 01：哈希表"
+description: "set 和 map 的学习"
+pubDate: "03 24 2026"
+updatedDate: "03 25 2026"
 # heroImage: '../../assets/XXX.jpg'
 draft: false
-category: 'learn'
-techCategory: 'leetcode'
-tags: ['leetcode']
+category: "learn"
+techCategory: "leetcode"
+tags: ["leetcode"]
 ---
 
 ## 1. 两数之和
+
 给定一个整数数组 `nums` 和一个整数目标值 `target`，在数组中找出**和为目标值** `target` 的**两个**整数，并返回它们的数组下标。
 
 每种输入只会对应一个答案，且不能使用两次相同元素。
@@ -18,17 +19,20 @@ tags: ['leetcode']
 可以按任意顺序返回答案。
 
 ### 示例
+
 > **输入：** nums = [3,2,4], target = 6
 >
 > **输出：** [1,2]
 
 ### 提示
-- `2 <= nums.length <= 10^4`
-- `-10^9 <= nums[i] <= 10^9`
-- `-10^9 <= target <= 10^9`
+
+- $2 \leq \text{nums.length} \leq 10^4$
+- $-10^9 \leq \text{nums}[i] \leq 10^9$
+- $-10^9 \leq \text{target} \leq 10^9$
 - **只会存在一个有效答案**
 
 ### 初始解
+
 很久没有手撕代码了，磕磕绊绊的写了暴力解，还好测试是一遍过了。
 
 跟以前写整个文件不一样，只写方法类的话可以直接 return 解，不再需要一层层 break 嵌套了。
@@ -52,6 +56,7 @@ public:
 ```
 
 ### 学习哈希
+
 了解后发现，其实在算法设计上学习的 hash table 就是哈希表，但之前只是学习基本原理，没有学到具体的使用实例。
 
 哈希表在现在已经是一个很宽泛的概念，只要是将 KEY 和 VALUE 建立起映射关系的集合就可以叫哈希表。换而言之，之前在数据结构上学习的 ASCII 码数组也可以看作哈希表思想。
@@ -59,14 +64,17 @@ public:
 ### 数组作哈希表
 
 #### 242. 有效的字母异位词
+
 给定两个字符串 `s` 和 `t`，编写一个函数来判断 `t` 是否是 `s` 的字母异位词。
 
 #### 示例
+
 > **输入：** s = "anagram", t = "nagaram"
 >
 > **输出：** true
 
 #### 解法
+
 ```cpp
 class Solution {
 public:
@@ -85,32 +93,38 @@ public:
     }
 };
 ```
+
 ### set 和 map 作哈希表
+
 哈希表在 C++ 中通常就是指 `set` 和 `map` 容器了，但其实只有 `unordered_set` 和 `unordered_map` 是真正的哈希表实现。
 
 #### `set`：
-| 容器类型 | 底层实现 | 是否有序 | 数值重复 | 查询效率 | 增删效率 |
-| --- | --- | --- | --- | --- | --- |
-| `set` | 红黑树 | 有序 | 不允许 | O(log n) | O(log n) |
-| `multiset` | 红黑树 | 有序 | 允许 | O(log n) | O(log n) |
-| `unordered_set` | 哈希表 | 无序 | 不允许 | O(1) | O(1) |
+
+| 容器类型        | 底层实现 | 是否有序 | 数值重复 | 查询效率    | 增删效率    |
+| --------------- | -------- | -------- | -------- | ----------- | ----------- |
+| `set`           | 红黑树   | 有序     | 不允许   | $O(\log n)$ | $O(\log n)$ |
+| `multiset`      | 红黑树   | 有序     | 允许     | $O(\log n)$ | $O(\log n)$ |
+| `unordered_set` | 哈希表   | 无序     | 不允许   | $O(1)$      | $O(1)$      |
 
 #### `map`：
-| 容器类型 | 底层实现 | 是否有序 | 数值重复 | 查询效率 | 增删效率 |
-| --- | --- | --- | --- | --- | --- |
-| `map` | 红黑树 | 有序 | 不允许 | O(log n) | O(log n) |
-| `multimap` | 红黑树 | 有序 | 允许 | O(log n) | O(log n) |
-| `unordered_map` | 哈希表 | 无序 | 不允许 | O(1) | O(1) |
+
+| 容器类型        | 底层实现 | 是否有序 | 数值重复 | 查询效率    | 增删效率    |
+| --------------- | -------- | -------- | -------- | ----------- | ----------- |
+| `map`           | 红黑树   | 有序     | 不允许   | $O(\log n)$ | $O(\log n)$ |
+| `multimap`      | 红黑树   | 有序     | 允许     | $O(\log n)$ | $O(\log n)$ |
+| `unordered_map` | 哈希表   | 无序     | 不允许   | $O(1)$      | $O(1)$      |
 
 红黑树是**自平衡二叉搜索树**，每次增删后自调整保持平衡；而哈希表则是用空间换取时间。两者底层原理不同，但对外的表现都是提供**键值对的映射关系**，所以都可以归为**哈希法**。
 
 ### 哈希表解法
+
 使用哈希表前最重要的是确定题目的需求，以选用合适的容器类型。
 
 - 对于这道题，首先排除数组的可能性，因为 `nums[i]` 的范围太大，固定数组会浪费大量空间。
 - 其次排除 `set`，因为题目最后要求返回**数组下标**，所以我们需要储存**数值 + 下标**，因此选择 `map`。
 
 #### 粗糙解法
+
 ```cpp
 class Solution {
 public:
@@ -127,11 +141,13 @@ public:
 ```
 
 以上是我自己写的解法，AI 指出了三点不足：
+
 1. `map` 的优势在于有序存储，但这道题对此没有任何要求，应该改用 `unordered_map` 省时间。
 2. C++ 标准库中对 `count` 等方法的使用都是安全的，不需要额外检查。
 3. 使用了两次寻址（`M.count(nums[i])` 和 `M[nums[i]]`）略显冗余。
 
 #### 优化解法
+
 ```cpp
 class Solution {
 public:
@@ -139,7 +155,7 @@ public:
         unordered_map<int, int> M; // num-slot
         for (int i = 0; i < nums.size(); i++){
             // 存键值对，避免多次查询
-            auto it = M.find(nums[i]); 
+            auto it = M.find(nums[i]);
             if (it != M.end()){
                 return {it->second, i};
             }
@@ -152,22 +168,27 @@ public:
 ```
 
 ## 49. 字母异位词分组
+
 给定一个字符串数组 `strs`，将字母异位词组合在一起。可以按任意顺序返回结果列表。
 
 ### 示例：
+
 > **输入：** strs = ["eat","tea","tan","ate","nat","bat"]
 >
 > **输出：** [["bat"],["nat","tan"],["ate","eat","tea"]]
 
 ### 提示
-- `1 <= strs.length <= 10^4`
-- `0 <= strs[i].length <= 100`
-- `strs[i]` 仅包含小写字母
+
+- $1 \leq \text{strs.length} \leq 10^4$
+- $0 \leq \text{strs}[i].\text{length} \leq 100$
+- $\text{strs}[i]$ 仅包含小写字母
 
 ### 大致思路
+
 在掌握哈希表后，题目的思路就清晰了，**字母异位词**的特征是**字符组成相同**，很容易想到将该特征作为 KEY 处理，既避免了新开数组，又达到了归类的目的。
 
 ### 粗糙解法
+
 ```cpp
 class Solution {
 public:
@@ -191,13 +212,16 @@ public:
     }
 };
 ```
+
 `emplace_back` 是 C++11 引入的一个方法，直接在容器末尾构造元素，避免了 `push_back` 的拷贝操作。
 
 **可改进点：**
+
 1. `emplace_back(temp)` 已经包括了空则插入的前置判断。
 2. `for (auto it : M)` 会在遍历时复制整个 `unordered_map`。
 
 ### 优化解法
+
 ```cpp
 class Solution {
 public:
@@ -218,6 +242,7 @@ public:
 ```
 
 ### 另一个思路
+
 也可以用**字符频次**作 KEY，优势是避免排序的时间复杂度，只用遍历一次即可拿到所需信息；劣势是空间复杂度偏高，且高度依赖题目提供的字符集大小。
 
 ```cpp
@@ -231,9 +256,11 @@ for (string& S : strs){
 ```
 
 ## 128. 最长连续序列
+
 给定一个未排序的整数数组 `nums`，找出数字连续的最长序列，并返回其长度。
 
 ### 示例
+
 > **输入：** nums = [100,4,200,1,3,2]
 >
 > **输出：** 4
@@ -241,14 +268,17 @@ for (string& S : strs){
 > **解释：** 最长连续序列是 [1, 2, 3, 4]。长度为 4。
 
 ### 提示
-- `0 <= nums.length <= 10^5`
-- `-10^9 <= nums[i] <= 10^9`
-- **算法的时间复杂度可以优化至 O(n)**
+
+- $0 \leq \text{nums.length} \leq 10^5$
+- $-10^9 \leq \text{nums}[i] \leq 10^9$
+- **算法的时间复杂度可以优化至 $O(n)$**
 
 ### 大致思路
+
 首先想到的解法就是利用 `set` 的有序和去重特性，将数组元素遍历插入后统计最长连续序列的长度。
 
 ### 粗糙解法
+
 ```cpp
 class Solution {
 public:
@@ -279,13 +309,14 @@ public:
 };
 ```
 
-问题很明显： `set` 的插入和遍历都是 O(log n)，所以这里需要使用 O(n) 的 `unordered_set` 。
+问题很明显： `set` 的插入和遍历都是 $O(\log n)$，所以这里需要使用 $O(n)$ 的 `unordered_set` 。
 
 我一开始也考虑过哈希表，但没想到怎么去解决哈希表元素无序的问题，后来才想起来直接使用 `count` 去找下一个元素就好了。
 
 本质还是对 `set` 用法不够熟练。
 
 ### 优化解法
+
 ```cpp
 class Solution {
 public:
@@ -317,30 +348,32 @@ public:
 ![result](../../assets/blog/content/leetcode-128.png)
 
 这是哈希表本身的劣势：
+
 - **动态内存分配：** `vector` 作为动态数组，在数据转移时无法预知大小，这会导致建立哈希表时会进行多次扩容和重哈希，这是很耗时的操作。
-- **哈希函数计算：** 虽然查表的理论时间复杂度是 O(1)，但实际上每次函数的计算映射隐形开销也是不小的成本。
+- **哈希函数计算：** 虽然查表的理论时间复杂度是 $O(1)$，但实际上每次函数的计算映射隐形开销也是不小的成本。
 
 如果不使用哈希表而直接使用数组，效果会很好，但是一般情境下没有必要做到这种程度的优化。
 
 ### 数组解法
+
 ```cpp
 class Solution {
 public:
     int longestConsecutive(vector<int>& nums) {
         if (nums.empty()) return 0;
         // 原址排序
-        sort(nums.begin(), nums.end()); 
+        sort(nums.begin(), nums.end());
         int max_length = 1;
         int cur_length = 1;
         for (size_t i = 1; i < nums.size(); i++) {
             // 重复元素跳过
             if (nums[i] == nums[i - 1]) {
-                continue; 
+                continue;
             }
             // 连续递增
             if (nums[i] == nums[i - 1] + 1) {
                 cur_length++;
-            } 
+            }
             // 断开，结算长度并重置
             else {
                 max_length = max_length > cur_length ? max_length : cur_length;

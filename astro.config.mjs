@@ -3,6 +3,8 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 
@@ -18,6 +20,8 @@ export default defineConfig({
       },
       defaultColor: false,
     },
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
   },
 
   integrations: [

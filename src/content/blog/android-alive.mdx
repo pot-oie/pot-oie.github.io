@@ -1,12 +1,12 @@
 ---
-title: 'Android 后台保活的实现'
-description: '解决 MIUI 冻结后台应用的问题。'
-pubDate: '12 08 2025'
+title: "Android 后台保活的实现"
+description: "解决 MIUI 冻结后台应用的问题。"
+pubDate: "12 08 2025"
 # heroImage: '../../assets/XXX.jpg'
 draft: false
-category: 'learn'
-techCategory: 'backend'
-tags: ['Android', 'Kotlin']
+category: "learn"
+techCategory: "backend"
+tags: ["Android", "Kotlin"]
 ---
 
 > 饱受期末忍不住刷手机的困扰，我决定开发一个自律应用 **Pebble** 。
@@ -38,13 +38,16 @@ tags: ['Android', 'Kotlin']
 补丁越打越多，问题却得不到解决，只能选择重构所有代码。
 
 ### 方案切换
+
 放弃被动的无障碍服务，改用 **`UsageStatsManager` (使用情况统计)** 配合 **前台服务 (Foreground Service)** 进行每秒一次的主动轮询。
 
-* **数据源**：使用 `queryEvents()` 查询实时的系统动作流，避开 `queryUsageStats` 的延迟。
-* **轮询机制**：在 Service 中启动一个协程或 Handler，每 400ms~1000ms 检查一次。
+- **数据源**：使用 `queryEvents()` 查询实时的系统动作流，避开 `queryUsageStats` 的延迟。
+- **轮询机制**：在 Service 中启动一个协程或 Handler，每 400ms~1000ms 检查一次。
 
 ### 诡异的 Bug
+
 在 USB 连接调试时，一切都可以正常运行。但是一旦拔掉 USB 线，使用 Release 包安装测试，事件积压（后台冻结）又发生了：
+
 1. 只要 Pebble 在前台，检测正常。
 2. 一旦 Pebble 切到后台，**轮询停止**。
 3. 切回 Pebble，日志才突然大量跳出。
@@ -60,6 +63,7 @@ tags: ['Android', 'Kotlin']
 只要 `WindowManager` 认为我在画图，我就属于“图形处理前台进程”，可以一直保持高优先级，避免被灭活。
 
 ### 实现细节
+
 不再把平时状态的 View 设为 `View.GONE`，这样系统知道我只是在后台静默，依旧惨遭冻结毒手。
 
 我们对视图的要求应该是**用户不可见，但系统可感知**，即透明化处理。
@@ -74,9 +78,9 @@ tags: ['Android', 'Kotlin']
 hiddenParams = WindowManager.LayoutParams(
     1, // 宽 1px
     1, // 高 1px
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
-        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY 
-    else 
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+    else
         WindowManager.LayoutParams.TYPE_PHONE,
     // 关键 flag：不可触摸、不可获取焦点
     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -85,13 +89,14 @@ hiddenParams = WindowManager.LayoutParams(
 ).apply {
     gravity = Gravity.TOP or Gravity.LEFT
     // 关键 trick：不能是 0 (全透明会被优化)，0.01 是系统认为可见的最小值
-    alpha = 0.01f 
+    alpha = 0.01f
     x = 0
     y = 0
 }
 ```
 
 ### 配合 HandlerThread
+
 除了 UI 锚点，我还将轮询逻辑从主线程移到了独立的 HandlerThread。
 
 主线程在后台容易被系统降低调度权重，而独立的后台线程配合前台服务，存活率更高。
@@ -107,7 +112,9 @@ monitorHandler.post(pollRunnable)
 ```
 
 ## 总结
+
 经过一番鏖战，总结出在恶劣的 ROM 环境下做实时监测的架构：
+
 1. **像素锚点** (`TYPE_APPLICATION_OVERLAY`)：欺骗 WindowManager，防止进程挂起。
 2. **UsageStats 事件流** (`queryEvents`)：获取绝对准确、无延迟的系统操作记录。
 3. **HandlerThread 轮询**：脱离主线程的独立心跳，保证检测频率稳定。

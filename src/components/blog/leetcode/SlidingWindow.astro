@@ -1,0 +1,438 @@
+---
+// src/components/SlidingWindow.astro
+
+export interface Props {
+  s?: string;
+  p?: string;
+}
+
+const { s = "bbacbac", p = "abc" } = Astro.props;
+---
+
+<div
+  class="sw-container"
+  id={`sw-demo-${Math.random().toString(36).substr(2, 9)}`}
+  data-s={s}
+  data-p={p}
+>
+  <div class="status-panel">
+    <div class="status-text font-sans" data-elem="message">
+      点击「右移」开始探索
+    </div>
+    <div class="status-match font-serif" data-elem="match-msg"></div>
+  </div>
+
+  <div class="string-wrapper">
+    <div class="string-display" data-elem="string-container"></div>
+  </div>
+
+  <div class="cnt-panel">
+    <div class="cnt-title font-sans">当前配额表 (cnt 数组) :</div>
+    <div class="cnt-boxes" data-elem="cnt-container"></div>
+  </div>
+
+  <div class="controls font-sans">
+    <button data-elem="btn-right" class="btn btn-ink"
+      >下一步 (Right 右移)</button
+    >
+    <button data-elem="btn-left" class="btn btn-vermilion" disabled
+      >处理债务 (Left 收缩)</button
+    >
+    <button data-elem="btn-reset" class="btn btn-ghost">重置</button>
+  </div>
+</div>
+
+<style>
+  /* 基础卡片：墨色系统与深浅模式适配 */
+  .sw-container {
+    background-color: #ffffff; /* 亮色卡片 */
+    box-shadow: var(--shadow-ink, 0 10px 40px -10px rgba(0, 0, 0, 0.15));
+    padding: 1.5rem;
+    margin: 2rem 0;
+    position: relative;
+    border-left: 3px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  :global(.dark) .sw-container {
+    background-color: #27272a; /* 暗色卡片 Zinc-800 */
+  }
+  .sw-container.has-debt {
+    border-left-color: var(
+      --color-vermilion,
+      #b91c1c
+    ); /* 债务状态：左侧朱红边框预警 */
+  }
+
+  /* 状态提示 */
+  .status-panel {
+    margin-bottom: 1.5rem;
+    min-height: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-ink-100, #f5f5f5);
+    padding-bottom: 0.5rem;
+  }
+  :global(.dark) .status-panel {
+    border-bottom-color: #3f3f46;
+  }
+  .status-text {
+    font-size: 0.95rem;
+    color: var(--color-ink-500, #555555);
+    transition: color 0.3s;
+  }
+  :global(.dark) .status-text {
+    color: #a1a1aa;
+  }
+
+  .status-text.debt {
+    color: var(--color-vermilion, #b91c1c);
+    font-weight: bold;
+  }
+  .status-match {
+    color: var(--color-vermilion, #b91c1c);
+    font-size: 1.1rem;
+    font-style: italic;
+  }
+
+  /* 字符串展示 - 移动端越界设计 */
+  .string-wrapper {
+    margin-bottom: 2rem;
+    padding: 1.5rem 0;
+  }
+  @media (max-width: 639px) {
+    .string-wrapper {
+      margin-left: -1rem;
+      margin-right: -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      overflow-x: auto;
+    }
+  }
+  .string-display {
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+
+  :global(.char-box) {
+    width: 2.5rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-ink-300, #a3a3a3);
+    font-size: 1.25rem;
+    font-family: monospace;
+    color: var(--color-ink-700, #2a2a2a);
+    position: relative;
+    background: transparent;
+    transition: all 0.2s;
+  }
+  :global(.dark) .char-box {
+    color: #e4e4e7;
+    border-color: #52525b;
+  }
+
+  :global(.char-box.in-window) {
+    border-color: var(--color-ink-900, #0f0f0f);
+    background: var(--color-ink-100, #f5f5f5);
+  }
+  :global(.dark) .char-box.in-window {
+    border-color: #d4d4d8;
+    background: #3f3f46;
+  }
+
+  /* 指针采用衬线体增强水墨文化感 */
+  :global(.pointer-label) {
+    position: absolute;
+    font-size: 0.85rem;
+    font-family: "Noto Serif SC", serif;
+    font-style: italic;
+  }
+  :global(.pointer-label.left) {
+    top: -1.75rem;
+    color: var(--color-vermilion, #b91c1c); /* 左指针（收债人）用朱红 */
+  }
+  :global(.pointer-label.right) {
+    bottom: -1.75rem;
+    color: var(--color-ink-900, #0f0f0f); /* 右指针（探索者）用焦墨 */
+  }
+  :global(.dark) .pointer-label.right {
+    color: #f4f4f5;
+  }
+
+  /* 配额表 */
+  .cnt-panel {
+    margin-bottom: 1.5rem;
+  }
+  .cnt-title {
+    font-size: 0.85rem;
+    color: var(--color-ink-500, #555555);
+    margin-bottom: 0.75rem;
+  }
+  :global(.dark) .cnt-title {
+    color: #a1a1aa;
+  }
+
+  .cnt-boxes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  :global(.cnt-item) {
+    display: flex;
+    border: 1px solid var(--color-ink-300, #a3a3a3);
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  :global(.dark) .cnt-item {
+    border-color: #52525b;
+  }
+
+  :global(.cnt-key) {
+    padding: 0.25rem 0.5rem;
+    background: var(--color-ink-100, #f5f5f5);
+    color: var(--color-ink-700, #2a2a2a);
+    border-right: 1px solid var(--color-ink-300, #a3a3a3);
+  }
+  :global(.dark) .cnt-key {
+    background: #3f3f46;
+    color: #e4e4e7;
+    border-right-color: #52525b;
+  }
+
+  :global(.cnt-val) {
+    padding: 0.25rem 0.75rem;
+    color: var(--color-ink-900, #0f0f0f);
+  }
+  :global(.dark) .cnt-val {
+    color: #e4e4e7;
+  }
+
+  /* 债务状态底色反转为朱红 */
+  :global(.cnt-val.negative) {
+    background: var(--color-vermilion, #b91c1c);
+    color: #ffffff;
+  }
+
+  /* 按钮控制 */
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .btn-ink {
+    background: var(--color-ink-900, #0f0f0f);
+    color: #ffffff;
+  }
+  :global(.dark) .btn-ink {
+    background: #e4e4e7;
+    color: #09090b;
+  }
+  .btn-vermilion {
+    background: transparent;
+    border-color: var(--color-vermilion, #b91c1c);
+    color: var(--color-vermilion, #b91c1c);
+  }
+  .btn-vermilion:not(:disabled):hover {
+    background: var(--color-vermilion, #b91c1c);
+    color: #ffffff;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink-500, #555555);
+    border-color: var(--color-ink-300, #a3a3a3);
+  }
+  :global(.dark) .btn-ghost {
+    color: #a1a1aa;
+    border-color: #52525b;
+  }
+</style>
+
+<script>
+  // Strict 模式下的纯 TS 交互逻辑
+  class SlidingWindowDemo {
+    private container: HTMLElement;
+    private strS: string;
+    private strP: string;
+
+    private left: number = 0;
+    private right: number = -1;
+    private cnt: Record<string, number> = {};
+    private targetLen: number;
+
+    private elements: {
+      msg: HTMLElement;
+      matchMsg: HTMLElement;
+      stringContainer: HTMLElement;
+      cntContainer: HTMLElement;
+      btnRight: HTMLButtonElement;
+      btnLeft: HTMLButtonElement;
+      btnReset: HTMLButtonElement;
+    };
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.strS = container.dataset.s || "";
+      this.strP = container.dataset.p || "";
+      this.targetLen = this.strP.length;
+
+      this.elements = {
+        msg: container.querySelector('[data-elem="message"]') as HTMLElement,
+        matchMsg: container.querySelector(
+          '[data-elem="match-msg"]',
+        ) as HTMLElement,
+        stringContainer: container.querySelector(
+          '[data-elem="string-container"]',
+        ) as HTMLElement,
+        cntContainer: container.querySelector(
+          '[data-elem="cnt-container"]',
+        ) as HTMLElement,
+        btnRight: container.querySelector(
+          '[data-elem="btn-right"]',
+        ) as HTMLButtonElement,
+        btnLeft: container.querySelector(
+          '[data-elem="btn-left"]',
+        ) as HTMLButtonElement,
+        btnReset: container.querySelector(
+          '[data-elem="btn-reset"]',
+        ) as HTMLButtonElement,
+      };
+
+      this.bindEvents();
+      this.init();
+    }
+
+    private init() {
+      this.left = 0;
+      this.right = -1;
+      this.cnt = {};
+
+      const allChars = new Set((this.strS + this.strP).split(""));
+      allChars.forEach((char) => {
+        this.cnt[char] = 0;
+      });
+      for (const char of this.strP) {
+        this.cnt[char]++;
+      }
+
+      this.elements.msg.textContent = "点击「右移」开始探索";
+      this.elements.msg.className = "status-text";
+      this.elements.matchMsg.textContent = "";
+      this.container.classList.remove("has-debt");
+
+      this.render();
+    }
+
+    private bindEvents() {
+      this.elements.btnRight.addEventListener("click", () => this.stepRight());
+      this.elements.btnLeft.addEventListener("click", () => this.stepLeft());
+      this.elements.btnReset.addEventListener("click", () => this.init());
+    }
+
+    private hasDebt(): boolean {
+      return Object.values(this.cnt).some((val) => val < 0);
+    }
+
+    private stepRight() {
+      if (this.right < this.strS.length - 1 && !this.hasDebt()) {
+        this.right++;
+        const char = this.strS[this.right];
+        this.cnt[char]--;
+        this.render();
+      }
+    }
+
+    private stepLeft() {
+      if (this.left <= this.right && this.hasDebt()) {
+        const char = this.strS[this.left];
+        this.cnt[char]++;
+        this.left++;
+        this.render();
+      }
+    }
+
+    private render() {
+      const debtExists = this.hasDebt();
+
+      // 控制面板状态
+      this.elements.btnRight.disabled =
+        debtExists || this.right >= this.strS.length - 1;
+      this.elements.btnLeft.disabled = !debtExists;
+
+      // 文本与容器视觉状态
+      if (debtExists) {
+        this.container.classList.add("has-debt");
+        this.elements.msg.textContent = `透支！配额不足，请收缩 L 指针处理债务。`;
+        this.elements.msg.className = "status-text debt";
+        this.elements.matchMsg.textContent = "";
+      } else {
+        this.container.classList.remove("has-debt");
+        this.elements.msg.textContent = "配额正常。";
+        this.elements.msg.className = "status-text";
+
+        const currentLen = this.right - this.left + 1;
+        if (currentLen === this.targetLen) {
+          this.elements.matchMsg.textContent = `§ 锁定异位词，起点: ${this.left}`;
+        } else {
+          this.elements.matchMsg.textContent = "";
+        }
+      }
+
+      // 渲染字符串
+      this.elements.stringContainer.innerHTML = "";
+      for (let i = 0; i < this.strS.length; i++) {
+        const inWindow = i >= this.left && i <= this.right;
+        const div = document.createElement("div");
+        div.className = `char-box ${inWindow ? "in-window" : ""}`;
+        div.textContent = this.strS[i];
+
+        if (i === this.left) {
+          const lLbl = document.createElement("span");
+          lLbl.className = "pointer-label left";
+          lLbl.textContent = "L";
+          div.appendChild(lLbl);
+        }
+        if (i === this.right) {
+          const rLbl = document.createElement("span");
+          rLbl.className = "pointer-label right";
+          rLbl.textContent = "R";
+          div.appendChild(rLbl);
+        }
+
+        this.elements.stringContainer.appendChild(div);
+      }
+
+      // 渲染配额表
+      this.elements.cntContainer.innerHTML = "";
+      const sortedKeys = Object.keys(this.cnt).sort();
+      for (const k of sortedKeys) {
+        const val = this.cnt[k];
+        const item = document.createElement("div");
+        item.className = "cnt-item";
+        item.innerHTML = `
+          <div class="cnt-key">${k}</div>
+          <div class="cnt-val ${val < 0 ? "negative" : ""}">${val}</div>
+        `;
+        this.elements.cntContainer.appendChild(item);
+      }
+    }
+  }
+
+  // 挂载
+  const containers = document.querySelectorAll(".sw-container");
+  containers.forEach((container) => {
+    new SlidingWindowDemo(container as HTMLElement);
+  });
+</script>

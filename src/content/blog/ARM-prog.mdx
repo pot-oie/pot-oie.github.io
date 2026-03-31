@@ -1,27 +1,30 @@
 ---
-title: 'ARM 实现字节序反转'
-description: '记录个人觉得很巧妙的算法实现。'
-pubDate: '12 14 2025'
+title: "ARM 实现字节序反转"
+description: "记录个人觉得很巧妙的算法实现。"
+pubDate: "12 14 2025"
 # heroImage: '../../assets/XXX.jpg'
 draft: false
-category: 'learn'
-techCategory: 'classroom'
-tags: ['ARM', '嵌入式']
+category: "learn"
+techCategory: "classroom"
+tags: ["ARM", "嵌入式"]
 ---
 
 > 内容均来自嵌入式系统设计课程的课件，只在此作整理。
 
 ## 字节序反转
+
 场景：实现 32 位数据大小端模式的转换。
 ![example](../../assets/blog/content/arm-prog-ex.svg)
 
 ### 异或交换法
+
 ```asm
 EOR     R1, R0, R0, ROR #16    ; 计算高低位差异
 BIC     R1, R1, #0xFF0000      ; 清除 R1 无用位
 MOV     R0, R0, ROR #8         ; R0 整体轮转
 EOR     R0, R0, R1, LSR #8     ; 再次异或修正
 ```
+
 ![EOR](../../assets/blog/content/arm-prog-ex-1.svg)
 
 - **思路**：利用“异或（XOR）”运算的特性来交换数据。
@@ -29,6 +32,7 @@ EOR     R0, R0, R1, LSR #8     ; 再次异或修正
 - **总结**：非常数学、精练的写法，代码紧凑。
 
 ### 掩码位移法
+
 ```asm
 MOV R2, #0xFF
 ORR R2, R2, #0xFF0000      ; 选中第1、3字节
@@ -36,6 +40,7 @@ AND R1, R2, R0             ; 提取 R0 第1、3字节
 AND R0, R2, R0, ROR #24    ; R0 右移24位后提取
 ORR R0, R0, R1, ROR #8     ; 把 R1 右移8位，与 R0 拼合
 ```
+
 ![Mask](../../assets/blog/content/arm-prog-ex-2.svg)
 
 - **思路**：通过掩码（Mask）提取特定位，然后位移拼合。
@@ -43,6 +48,7 @@ ORR R0, R0, R1, ROR #8     ; 把 R1 右移8位，与 R0 拼合
 - **总结**：适合初学者理解字节操作的基本原理。
 
 ### 拓展
+
 以上的汇编代码是针对“**一个 32 位整数内部字节翻转**”的场景设计，即大小端转换（`BSWAP` 或 `std::byteswap`）。
 
 在查询资料的过程中，发现 C++ 标准库中有一个通用函数 `std::reverse`。其兼容性更强，可以用于数组、容器、字符串等任意长度的序列。
