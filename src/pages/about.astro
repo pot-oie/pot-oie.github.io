@@ -8,10 +8,14 @@ const pageDescription = "关于 Pot 的一些介绍。";
 
 // 技术栈列表
 const techStack = [
-  "Vue 3",
-  "Astro",
-  "Tailwind CSS",
+  "C++",
   "Java",
+  "Kotlin",
+  "JS / TS",
+  "Vue",
+  "Astro",
+  "Flutter",
+  "Qt",
   "Python",
   "Waiting to fill...",
 ];
@@ -133,7 +137,7 @@ const techStack = [
               正在学习
             </h4>
             <p class="text-ink-600 dark:text-zinc-400 text-sm m-0 mb-2!">
-              leetcode算法
+              leetcode & 408
             </p>
           </div>
         </div>
@@ -273,32 +277,35 @@ const techStack = [
               class="text-xs text-ink-400 dark:text-zinc-500 uppercase tracking-wider"
               >WeChat</span
             >
-            <div class="relative w-fit group/qr">
-              <button
-                type="button"
-                class="text-ink-900 dark:text-zinc-100 font-bold select-all block text-left hover:text-vermilion transition-colors focus:outline-none"
-                aria-label="显示微信二维码"
-              >
-                pot-oie
-              </button>
-
-              <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white dark:bg-zinc-800 backdrop-blur-sm rounded-xl shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 scale-95 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 group-hover/qr:scale-100 group-hover/qr:pointer-events-auto group-focus-within/qr:opacity-100 group-focus-within/qr:translate-y-0 group-focus-within/qr:scale-100 group-focus-within/qr:pointer-events-auto w-44 z-20"
-              >
-                <div
-                  class="bg-white rounded-md shadow-sm w-full overflow-hidden"
+            <div class="qr-wrapper not-prose inline-block">
+              <div class="relative w-fit group/qr not-prose">
+                <button
+                  type="button"
+                  class="text-ink-900 dark:text-zinc-100 font-bold select-all block text-left hover:text-vermilion transition-colors focus:outline-none"
+                  aria-label="显示微信二维码"
                 >
-                  <img
-                    src="/docs/wechat-qr.png"
-                    alt="微信添加好友二维码"
-                    class="block w-full h-auto object-contain"
-                    loading="lazy"
-                  />
-                </div>
+                  pot-oie
+                </button>
 
                 <div
-                  class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-zinc-800"
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white dark:bg-zinc-800 backdrop-blur-sm rounded-xl shadow-xl border border-ink-100/5 transition-all duration-300 opacity-0 translate-y-2 scale-95 pointer-events-none group-hover/qr:opacity-100 group-hover/qr:translate-y-0 group-hover/qr:scale-100 group-hover/qr:pointer-events-auto group-focus-within/qr:opacity-100 group-focus-within/qr:translate-y-0 group-focus-within/qr:scale-100 group-focus-within/qr:pointer-events-auto w-44 z-20"
                 >
+                  <div
+                    class="bg-white rounded-md shadow-sm w-full aspect-square overflow-hidden"
+                  >
+                    <img
+                      src="/docs/wechat-qr.png"
+                      alt="微信添加好友二维码"
+                      class="block w-full h-full object-cover object-top"
+                      style="margin:0"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div
+                    class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white dark:border-t-zinc-800"
+                  >
+                  </div>
                 </div>
               </div>
             </div>

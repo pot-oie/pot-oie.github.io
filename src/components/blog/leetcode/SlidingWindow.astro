@@ -16,28 +16,37 @@ const { s = "bbacbac", p = "abc" } = Astro.props;
   data-p={p}
 >
   <div class="status-panel">
-    <div class="status-text font-sans" data-elem="message">
-      点击「右移」开始探索
+    <div class="status-main">
+      <div class="status-text font-sans" data-elem="message">
+        点击「右移」开始探索
+      </div>
+      <div class="status-match font-serif" data-elem="match-msg"></div>
     </div>
-    <div class="status-match font-serif" data-elem="match-msg"></div>
+    <div class="target-info font-sans">
+      目标: <span class="badge">{p}</span>
+    </div>
   </div>
 
   <div class="string-wrapper">
-    <div class="string-display" data-elem="string-container"></div>
+    <div class="string-scroll-container">
+      <div class="string-display" data-elem="string-container"></div>
+    </div>
   </div>
 
-  <div class="cnt-panel">
-    <div class="cnt-title font-sans">当前配额表 (cnt 数组) :</div>
-    <div class="cnt-boxes" data-elem="cnt-container"></div>
+  <div class="data-grid">
+    <div class="cnt-panel">
+      <div class="cnt-title font-sans">当前配额 (cnt 数组):</div>
+      <div class="cnt-boxes" data-elem="cnt-container"></div>
+    </div>
   </div>
 
   <div class="controls font-sans">
-    <button data-elem="btn-right" class="btn btn-ink"
-      >下一步 (Right 右移)</button
-    >
-    <button data-elem="btn-left" class="btn btn-vermilion" disabled
-      >处理债务 (Left 收缩)</button
-    >
+    <button data-elem="btn-right" class="btn btn-ink">
+      <span class="icon">→</span> 下一步
+    </button>
+    <button data-elem="btn-left" class="btn btn-vermilion" disabled>
+      <span class="icon">←</span> 处理债务
+    </button>
     <button data-elem="btn-reset" class="btn btn-ghost">重置</button>
   </div>
 </div>
@@ -45,133 +54,192 @@ const { s = "bbacbac", p = "abc" } = Astro.props;
 <style>
   /* 基础卡片：墨色系统与深浅模式适配 */
   .sw-container {
-    background-color: #ffffff; /* 亮色卡片 */
+    background-color: #ffffff;
     box-shadow: var(--shadow-ink, 0 10px 40px -10px rgba(0, 0, 0, 0.15));
     padding: 1.5rem;
     margin: 2rem 0;
     position: relative;
-    border-left: 3px solid transparent;
-    transition: border-color 0.3s ease;
+    border: 1px solid var(--color-ink-100, #f5f5f5);
+    border-radius: 4px;
+    transition: all 0.3s ease;
   }
   :global(.dark) .sw-container {
-    background-color: #27272a; /* 暗色卡片 Zinc-800 */
+    background-color: #1a1a1a;
+    border-color: #2a2a2a;
   }
   .sw-container.has-debt {
-    border-left-color: var(
-      --color-vermilion,
-      #b91c1c
-    ); /* 债务状态：左侧朱红边框预警 */
+    border-top: 4px solid var(--color-vermilion, #b91c1c);
   }
 
   /* 状态提示 */
   .status-panel {
     margin-bottom: 1.5rem;
-    min-height: 40px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 1rem;
     border-bottom: 1px solid var(--color-ink-100, #f5f5f5);
-    padding-bottom: 0.5rem;
+    padding-bottom: 1rem;
   }
   :global(.dark) .status-panel {
-    border-bottom-color: #3f3f46;
+    border-bottom-color: #2a2a2a;
+  }
+  .status-main {
+    flex: 1;
   }
   .status-text {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--color-ink-500, #555555);
-    transition: color 0.3s;
+    margin-bottom: 0.25rem;
+    min-height: 1.4rem;
   }
   :global(.dark) .status-text {
-    color: #a1a1aa;
+    color: #a3a3a3;
   }
-
   .status-text.debt {
     color: var(--color-vermilion, #b91c1c);
-    font-weight: bold;
+    font-weight: 600;
   }
   .status-match {
     color: var(--color-vermilion, #b91c1c);
     font-size: 1.1rem;
-    font-style: italic;
+    font-weight: 700;
+    min-height: 1.5rem;
+  }
+  .target-info {
+    font-size: 0.8rem;
+    color: var(--color-ink-500, #555555);
+    white-space: nowrap;
+  }
+  .badge {
+    background: var(--color-ink-100, #f5f5f5);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-weight: bold;
+    color: var(--color-ink-900, #0f0f0f);
+  }
+  :global(.dark) .badge {
+    background: #2a2a2a;
+    color: #f5f5f5;
   }
 
-  /* 字符串展示 - 移动端越界设计 */
+  /* 字符串展示 - 响应式滚动 */
   .string-wrapper {
-    margin-bottom: 2rem;
-    padding: 1.5rem 0;
+    margin: 2.5rem 0;
+    position: relative;
   }
-  @media (max-width: 639px) {
-    .string-wrapper {
-      margin-left: -1rem;
-      margin-right: -1rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      overflow-x: auto;
-    }
+  .string-scroll-container {
+    overflow-x: auto;
+    padding: 2rem 0.5rem;
+    /* 隐藏滚动条但保留功能 */
+    scrollbar-width: thin;
+    -ms-overflow-style: none;
   }
+  .string-scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  .string-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-ink-100, #f5f5f5);
+    border-radius: 2px;
+  }
+
   .string-display {
     display: inline-flex;
-    gap: 0.25rem;
+    gap: 0.4rem;
+    min-width: 100%;
+    justify-content: center;
+  }
+  @media (max-width: 640px) {
+    .string-display {
+      justify-content: flex-start;
+    }
   }
 
   :global(.char-box) {
     width: 2.5rem;
     height: 3rem;
+    min-width: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--color-ink-300, #a3a3a3);
     font-size: 1.25rem;
-    font-family: monospace;
+    font-family: var(--font-mono, monospace);
     color: var(--color-ink-700, #2a2a2a);
     position: relative;
-    background: transparent;
-    transition: all 0.2s;
+    background: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
   }
   :global(.dark) .char-box {
-    color: #e4e4e7;
-    border-color: #52525b;
+    background: #1a1a1a;
+    color: #e5e7eb;
+    border-color: #3f3f46;
   }
 
   :global(.char-box.in-window) {
     border-color: var(--color-ink-900, #0f0f0f);
     background: var(--color-ink-100, #f5f5f5);
+    box-shadow: inset 0 0 0 1px var(--color-ink-900);
+    transform: translateY(-2px);
   }
   :global(.dark) .char-box.in-window {
-    border-color: #d4d4d8;
-    background: #3f3f46;
+    border-color: #f5f5f5;
+    background: #2a2a2a;
+    box-shadow: inset 0 0 0 1px #f5f5f5;
   }
 
-  /* 指针采用衬线体增强水墨文化感 */
+  /* 指针样式定义 */
   :global(.pointer-label) {
     position: absolute;
-    font-size: 0.85rem;
-    font-family: "Noto Serif SC", serif;
-    font-style: italic;
+    font-size: 0.75rem;
+    font-weight: 900;
+    width: 1.2rem;
+    height: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 10;
   }
   :global(.pointer-label.left) {
-    top: -1.75rem;
-    color: var(--color-vermilion, #b91c1c); /* 左指针（收债人）用朱红 */
+    top: -1rem;
+    left: -0.5rem;
+    background: var(--color-vermilion, #b91c1c);
+    color: #ffffff;
   }
   :global(.pointer-label.right) {
-    bottom: -1.75rem;
-    color: var(--color-ink-900, #0f0f0f); /* 右指针（探索者）用焦墨 */
+    bottom: -1rem;
+    right: -0.5rem;
+    background: var(--color-ink-900, #0f0f0f);
+    color: #ffffff;
   }
   :global(.dark) .pointer-label.right {
-    color: #f4f4f5;
+    background: #f5f5f5;
+    color: #0f0f0f;
   }
 
-  /* 配额表 */
-  .cnt-panel {
+  /* 配额表网格布局 */
+  .data-grid {
+    background: var(--color-ink-100, #f5f5f5);
+    padding: 1rem;
+    border-radius: 4px;
     margin-bottom: 1.5rem;
   }
+  :global(.dark) .data-grid {
+    background: #262626;
+  }
+
   .cnt-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--color-ink-500, #555555);
     margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
   :global(.dark) .cnt-title {
-    color: #a1a1aa;
+    color: #a3a3a3;
   }
 
   .cnt-boxes {
@@ -181,82 +249,106 @@ const { s = "bbacbac", p = "abc" } = Astro.props;
   }
   :global(.cnt-item) {
     display: flex;
+    background: #ffffff;
     border: 1px solid var(--color-ink-300, #a3a3a3);
-    font-family: monospace;
-    font-size: 0.9rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+    border-radius: 3px;
+    overflow: hidden;
   }
   :global(.dark) .cnt-item {
-    border-color: #52525b;
+    background: #1a1a1a;
+    border-color: #3f3f46;
   }
 
   :global(.cnt-key) {
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.6rem;
     background: var(--color-ink-100, #f5f5f5);
     color: var(--color-ink-700, #2a2a2a);
-    border-right: 1px solid var(--color-ink-300, #a3a3a3);
+    font-weight: bold;
   }
   :global(.dark) .cnt-key {
-    background: #3f3f46;
-    color: #e4e4e7;
-    border-right-color: #52525b;
+    background: #2a2a2a;
+    color: #e5e7eb;
   }
 
   :global(.cnt-val) {
-    padding: 0.25rem 0.75rem;
-    color: var(--color-ink-900, #0f0f0f);
+    padding: 0.2rem 0.6rem;
+    min-width: 2rem;
+    text-align: center;
+    transition: all 0.2s;
   }
-  :global(.dark) .cnt-val {
-    color: #e4e4e7;
-  }
-
-  /* 债务状态底色反转为朱红 */
   :global(.cnt-val.negative) {
     background: var(--color-vermilion, #b91c1c);
     color: #ffffff;
+    font-weight: bold;
   }
 
   /* 按钮控制 */
   .controls {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
     gap: 0.75rem;
-    flex-wrap: wrap;
   }
+  @media (max-width: 480px) {
+    .controls {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .btn {
-    padding: 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
     font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     border: 1px solid transparent;
+    border-radius: 4px;
   }
   .btn:disabled {
-    opacity: 0.3;
+    opacity: 0.2;
     cursor: not-allowed;
+    filter: grayscale(1);
   }
   .btn-ink {
     background: var(--color-ink-900, #0f0f0f);
     color: #ffffff;
   }
+  .btn-ink:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
   :global(.dark) .btn-ink {
-    background: #e4e4e7;
-    color: #09090b;
+    background: #f5f5f5;
+    color: #0f0f0f;
   }
+
   .btn-vermilion {
-    background: transparent;
-    border-color: var(--color-vermilion, #b91c1c);
+    border: 1.5px solid var(--color-vermilion, #b91c1c);
     color: var(--color-vermilion, #b91c1c);
+    background: transparent;
   }
-  .btn-vermilion:not(:disabled):hover {
+  .btn-vermilion:hover:not(:disabled) {
     background: var(--color-vermilion, #b91c1c);
     color: #ffffff;
   }
+
   .btn-ghost {
     background: transparent;
     color: var(--color-ink-500, #555555);
     border-color: var(--color-ink-300, #a3a3a3);
   }
-  :global(.dark) .btn-ghost {
-    color: #a1a1aa;
-    border-color: #52525b;
+  .btn-ghost:hover {
+    background: var(--color-ink-100, #f5f5f5);
+    color: var(--color-ink-900, #0f0f0f);
+  }
+  :global(.dark) .btn-ghost:hover {
+    background: #2a2a2a;
+    color: #f5f5f5;
   }
 </style>
 
