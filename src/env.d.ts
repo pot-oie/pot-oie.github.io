@@ -2,12 +2,9 @@
 
 /// <reference path="../.astro/types.d.ts" />
 
-import type Lenis from 'lenis';
-
 // 全局声明 Window 接口
 declare global {
   interface Window {
-    lenis: Lenis;
     __potSearchMetrics?: {
       read: () => any;
       clear: () => void;

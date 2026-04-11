@@ -603,13 +603,11 @@ html.dark .code-block-wrapper pre.astro-code span {
     margin-top: 1.5em !important;
     margin-bottom: 0.6em !important;
     font-size: 1.4em !important;
-    scroll-margin-top: 80px;
   }
   .prose.prose-ink h3 {
     margin-top: 1.2em !important;
     margin-bottom: 0.6em !important;
     font-size: 1.15em !important;
-    scroll-margin-top: 80px;
   }
 
   /* 代码块边界延展 */
