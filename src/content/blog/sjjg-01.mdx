@@ -1,9 +1,9 @@
 ---
-title: "数据结构复习01"
-description: "对应朱老师 PPT 的 lec3~7"
+title: "数据结构复习 - 01"
+description: "对应朱老师 PPT 的 lec3~4，主要涉及链表相关。"
 pubDate: "04 10 2026"
 # heroImage: '../../assets/XXX.jpg'
-draft: true
+draft: false
 category: "learn"
 techCategory: "classroom"
 tags: ["数据结构"]
@@ -211,6 +211,82 @@ ListNode* middleNode(ListNode* head) {
 
 答案其实出乎意料的简单：只需要在遍历开始之前让快指针先走一步就行了。
 
+### 206. 反转链表
+
+https://leetcode.cn/problems/reverse-linked-list/description/
+
+给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
+
+#### 示例
+
+> **输入：** head = [1,2,3,4,5]
+>
+> **输出：** [5,4,3,2,1]
+
+#### 提示
+
+- 链表中节点数目范围是 `[0, 5000]`。
+- $-5000 \le \text{Node.val} \le 5000$
+
+#### 迭代法
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr; // 已反转部分头部
+    ListNode* curr = head;    // 当前正在处理节点
+    while (curr) {
+        ListNode* nextTemp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = nextTemp;
+    }
+    return prev;
+}
+```
+
+![4](../../assets/blog/content/sjjg-01-4.svg)
+
+#### 递归法
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    // 基准情况：空链表/单节点
+    if (!head || !head->next) {
+        return head;
+    }
+    // 递归找到最后一个节点作为新头
+    ListNode* newHead = reverseList(head->next);
+    // 翻转
+    head->next->next = head;
+    head->next = nullptr;
+    return newHead;
+}
+```
+
+![5](../../assets/blog/content/sjjg-01-5.svg)
+
+#### 头插法 - PPT解法
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    if (head == nullptr) return head;
+    ListNode *p = head, *q = head->next;
+    while (q != nullptr) {
+        p->next = q->next;
+        q->next = head;
+        head = q;
+        q = p->next;
+    }
+    return head;
+}
+```
+
+`p` 指针永远固定不动，从一开始的 `head` 逐渐滑落到队尾；`q` 指针指向 `p->next`，扮演被操作节点。
+
+优势在于逻辑直接，且工作区一直维持在 `head` 和 `p` 之间，可以利用上 `head` 来操作。
+
+![6](../../assets/blog/content/sjjg-01-6.png)
+
 ### 160. 相交链表
 
 https://leetcode.cn/problems/intersection-of-two-linked-lists/description/
@@ -245,3 +321,30 @@ ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
 ```
 
 <IntersectionDemo />
+
+## 138. 随机链表的复制
+
+https://leetcode.cn/problems/copy-list-with-random-pointer/description/
+
+题目太长，就不放在这里了，思路就是用[哈希表](https://passpot.cn/blog/leetcode01/#%E5%AD%A6%E4%B9%A0%E5%93%88%E5%B8%8C)建立映射关系。
+
+```cpp
+Node* copyRandomList(Node* head) {
+    if (!head) return nullptr;
+    // 第一遍遍历：建立映射
+    Node* cur = head;
+    unordered_map<Node*, Node*> map;
+    while (cur) {
+        map[cur] = new Node (cur->val);
+        cur = cur->next;
+    }
+    // 第二遍遍历：建立连接
+    cur = head;
+    while (cur) {
+        map[cur]->next = map[cur->next];
+        map[cur]->random = map[cur->random];
+        cur = cur->next;
+    }
+    return map[head];
+}
+```
