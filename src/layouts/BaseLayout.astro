@@ -181,20 +181,6 @@ const { title, description } = Astro.props;
         }
 
         requestAnimationFrame(raf);
-
-        // 页面加载时如果 URL 带 hash，用 Lenis scrollTo 精准跳转
-        // 需要延迟执行以覆盖浏览器原生 hash jump
-        if (location.hash) {
-          const id = decodeURIComponent(location.hash.slice(1));
-          const scrollToHash = () => {
-            const target = document.getElementById(id);
-            if (target) {
-              lenis.scrollTo(target, { offset: -90, immediate: true });
-            }
-          };
-          // 用 setTimeout 确保在浏览器原生 hash jump 之后执行
-          setTimeout(scrollToHash, 100);
-        }
       }
 
       // 全局音频播放器，支持淡入淡出和系统媒体控制
@@ -373,6 +359,20 @@ const { title, description } = Astro.props;
         installSearchMetrics();
         initGlobalAudio();
         initMathScrollHints();
+
+        // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转
+        if (location.hash && (window as any).lenis) {
+          const id = decodeURIComponent(location.hash.slice(1));
+          requestAnimationFrame(() => {
+            const target = document.getElementById(id);
+            if (target) {
+              (window as any).lenis.scrollTo(target, {
+                offset: -90,
+                immediate: true,
+              });
+            }
+          });
+        }
       });
     </script>
   </body>
