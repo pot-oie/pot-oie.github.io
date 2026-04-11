@@ -1,0 +1,411 @@
+---
+// src/components/IntersectionDemo.astro
+// 基于现代水墨 (Modern Ink-wash) 风格的单链表相交双指针演示组件
+---
+
+<div
+  id="intersection-demo"
+  class="not-prose my-8 p-6 rounded-lg bg-[#ffffff] dark:bg-[#27272a] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] font-sans relative overflow-hidden group"
+>
+  <h3
+    class="demo-title text-xl font-serif font-bold text-ink-900 dark:text-[#e4e4e7] mb-2 border-l-[3px] border-vermilion pl-3"
+  >
+    双指针算法演示
+  </h3>
+
+  <blockquote
+    class="demo-quote text-sm text-ink-500 dark:text-zinc-300 mb-3 py-2 px-4 bg-transparent dark:bg-white/5 border-l-4 border-ink-700 dark:border-vermilion italic font-serif"
+  >
+    "互换轨道，走过彼此走过的路，最后必定在交点重逢。"
+  </blockquote>
+
+  <div
+    id="demo-desktop"
+    class="hidden sm:block w-full overflow-x-auto hide-scrollbar py-8 select-none text-center"
+  >
+    <div class="inline-flex items-center text-left px-4">
+      <div class="flex flex-col items-end gap-6">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-serif text-ink-500 dark:text-zinc-400 mr-2"
+            >A:</span
+          >
+          <div id="node-a4" class="demo-node">
+            <span class="font-serif">4</span>
+          </div>
+          <span class="text-ink-300">→</span>
+          <div id="node-a1" class="demo-node">
+            <span class="font-serif">1</span>
+          </div>
+          <span class="text-ink-300 text-xl w-4 translate-y-3 translate-x-1"
+            >↘</span
+          >
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-serif text-ink-500 dark:text-zinc-400 mr-2"
+            >B:</span
+          >
+          <div id="node-b5" class="demo-node">
+            <span class="font-serif">5</span>
+          </div>
+          <span class="text-ink-300">→</span>
+          <div id="node-b0" class="demo-node">
+            <span class="font-serif">0</span>
+          </div>
+          <span class="text-ink-300">→</span>
+          <div id="node-b1" class="demo-node">
+            <span class="font-serif">1</span>
+          </div>
+          <span class="text-ink-300 text-xl w-4 -translate-y-3 translate-x-1"
+            >↗</span
+          >
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 ml-4 relative">
+        <div id="node-c8" class="demo-node relative">
+          <span class="font-serif">8</span>
+          <div
+            id="success-seal"
+            class="absolute -right-4 -top-4 w-6 h-6 border border-vermilion text-vermilion rounded-sm text-[10px] flex items-center justify-center font-serif rotate-12 opacity-0 transition-opacity duration-500"
+          >
+            合
+          </div>
+        </div>
+        <span class="text-ink-300">→</span>
+        <div id="node-c4" class="demo-node">
+          <span class="font-serif">4</span>
+        </div>
+        <span class="text-ink-300">→</span>
+        <div id="node-c5" class="demo-node">
+          <span class="font-serif">5</span>
+        </div>
+        <span class="text-ink-300">→</span>
+        <div
+          id="node-Null"
+          class="demo-node border-dashed bg-transparent text-ink-300 dark:text-ink-500"
+        >
+          <span class="font-serif text-sm italic">Null</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="demo-mobile"
+    class="sm:hidden w-full overflow-x-auto hide-scrollbar py-6 select-none text-center"
+  >
+    <div class="inline-flex items-center text-left px-4">
+      <div class="flex flex-col items-end gap-4">
+        <div class="flex items-center gap-1.5">
+          <span
+            class="text-[10px] font-serif text-ink-500 dark:text-zinc-400 mr-1"
+            >A:</span
+          >
+          <div id="m-node-a4" class="demo-node demo-node-sm">
+            <span class="font-serif text-sm">4</span>
+          </div>
+          <span class="text-ink-300 text-xs">→</span>
+          <div id="m-node-a1" class="demo-node demo-node-sm">
+            <span class="font-serif text-sm">1</span>
+          </div>
+          <span class="text-ink-300 text-sm w-3 translate-y-2.5 translate-x-1"
+            >↘</span
+          >
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <span
+            class="text-[10px] font-serif text-ink-500 dark:text-zinc-400 mr-1"
+            >B:</span
+          >
+          <div id="m-node-b5" class="demo-node demo-node-sm">
+            <span class="font-serif text-sm">5</span>
+          </div>
+          <span class="text-ink-300 text-xs">→</span>
+          <div id="m-node-b0" class="demo-node demo-node-sm">
+            <span class="font-serif text-sm">0</span>
+          </div>
+          <span class="text-ink-300 text-xs">→</span>
+          <div id="m-node-b1" class="demo-node demo-node-sm">
+            <span class="font-serif text-sm">1</span>
+          </div>
+          <span class="text-ink-300 text-sm w-3 -translate-y-2.5 translate-x-1"
+            >↗</span
+          >
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 ml-3 relative">
+        <div id="m-node-c8" class="demo-node demo-node-sm relative">
+          <span class="font-serif text-sm">8</span>
+          <div
+            id="m-success-seal"
+            class="absolute -right-3 -top-3 w-5 h-5 border border-vermilion text-vermilion rounded-sm text-[8px] flex items-center justify-center font-serif rotate-12 opacity-0 transition-opacity duration-500"
+          >
+            合
+          </div>
+        </div>
+        <span class="text-ink-300 text-xs">→</span>
+        <div id="m-node-c4" class="demo-node demo-node-sm">
+          <span class="font-serif text-sm">4</span>
+        </div>
+        <span class="text-ink-300 text-xs">→</span>
+        <div id="m-node-c5" class="demo-node demo-node-sm">
+          <span class="font-serif text-sm">5</span>
+        </div>
+        <span class="text-ink-300 text-xs">→</span>
+        <div
+          id="m-node-Null"
+          class="demo-node demo-node-sm border-dashed bg-transparent text-ink-300 dark:text-ink-500"
+        >
+          <span class="font-serif text-[10px] italic">Null</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 控制栏 -->
+  <div
+    class="flex flex-col sm:flex-row items-center justify-between mt-2 border-t border-ink-300/20 pt-3 gap-2"
+  >
+    <div class="text-sm font-serif text-ink-700 dark:text-zinc-200 shrink-0">
+      步数: <span id="step-count" class="font-bold text-vermilion">0</span>
+    </div>
+
+    <div
+      id="log-text"
+      class="text-center text-xs text-ink-500 dark:text-zinc-400 font-serif transition-colors duration-300 flex-1 min-w-0"
+    >
+      pA 指向 A:4，pB 指向 B:5，准备出发。
+    </div>
+
+    <div class="flex gap-3 shrink-0">
+      <button
+        id="btn-step"
+        class="px-5 py-1.5 border border-ink-300 rounded-sm text-ink-700 dark:text-zinc-200 hover:text-white dark:hover:text-[#18181b] hover:bg-vermilion hover:border-vermilion transition-all duration-300 font-serif text-sm"
+      >
+        单步执行
+      </button>
+      <button
+        id="btn-reset"
+        class="px-5 py-1.5 border border-ink-300 rounded-sm text-ink-500 dark:text-zinc-400 hover:text-vermilion dark:hover:text-vermilion hover:border-vermilion transition-all duration-300 font-serif text-sm"
+      >
+        重置
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @reference "../../../styles/global.css";
+
+  #intersection-demo .demo-title {
+    margin-top: 0 !important;
+  }
+  #intersection-demo .demo-quote {
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .demo-node {
+    @apply w-12 h-12 flex items-center justify-center rounded-full border-2 border-ink-300 text-ink-700 dark:text-zinc-200 bg-[#f2f2f2] dark:bg-[#18181b] transition-colors duration-300 relative z-10;
+  }
+  .demo-node-sm {
+    @apply w-9 h-9;
+  }
+
+  /* 边框高亮样式 */
+  .demo-node.active-pA {
+    @apply border-vermilion shadow-[0_0_15px_rgba(185,28,28,0.15)];
+  }
+  .demo-node.active-pB {
+    @apply border-ink-700 dark:border-zinc-400;
+  }
+  .demo-node.active-both {
+    @apply border-vermilion bg-vermilion text-white dark:text-white shadow-[0_0_20px_rgba(185,28,28,0.3)];
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* =========================================
+     利用伪元素动态生成 pA 和 pB 指针文字
+     ========================================= */
+
+  /* 基础公共样式，默认透明不可见 */
+  .demo-node::before,
+  .demo-node::after {
+    @apply absolute left-1/2 -translate-x-1/2 font-bold text-xs font-serif whitespace-nowrap opacity-0 transition-opacity duration-300 pointer-events-none;
+  }
+
+  /* --- 1. 上方分支 (A链)：所有标签都在上面 --- */
+  [id*="-a"].active-pA::before {
+    content: "pA";
+    @apply -top-6 text-vermilion opacity-100;
+  }
+  [id*="-a"].active-pB::before {
+    content: "pB";
+    @apply -top-6 text-ink-500 dark:text-zinc-300 opacity-100;
+  }
+
+  /* --- 2. 下方分支 (B链)：所有标签都在下面 --- */
+  [id*="-b"].active-pA::after {
+    content: "pA";
+    @apply -bottom-6 text-vermilion opacity-100;
+  }
+  [id*="-b"].active-pB::after {
+    content: "pB";
+    @apply -bottom-6 text-ink-500 dark:text-zinc-300 opacity-100;
+  }
+
+  /* --- 3. 公共部分 (C链及Null)：pA在上，pB在下 --- */
+  [id*="-c"].active-pA::before,
+  [id*="-Null"].active-pA::before,
+  .demo-node.active-both::before {
+    content: "pA";
+    @apply -top-6 text-vermilion opacity-100;
+  }
+
+  [id*="-c"].active-pB::after,
+  [id*="-Null"].active-pB::after {
+    content: "pB";
+    @apply -bottom-6 text-ink-500 dark:text-zinc-300 opacity-100;
+  }
+
+  /* 相遇点高亮：下方的 pB 也变成红色 */
+  .demo-node.active-both::after {
+    content: "pB";
+    @apply -bottom-6 text-vermilion opacity-100;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const nodeLabels: Record<string, string> = {
+      a4: "A:4",
+      a1: "A:1",
+      b5: "B:5",
+      b0: "B:0",
+      b1: "B:1",
+      c8: "8",
+      c4: "4",
+      c5: "5",
+    };
+
+    const pathA = [
+      "a4",
+      "a1",
+      "c8",
+      "c4",
+      "c5",
+      "Null",
+      "b5",
+      "b0",
+      "b1",
+      "c8",
+    ];
+    const pathB = [
+      "b5",
+      "b0",
+      "b1",
+      "c8",
+      "c4",
+      "c5",
+      "Null",
+      "a4",
+      "a1",
+      "c8",
+    ];
+
+    let currentStep = 0;
+    const maxSteps = pathA.length - 1;
+
+    const btnStep = document.getElementById(
+      "btn-step",
+    ) as HTMLButtonElement | null;
+    const btnReset = document.getElementById(
+      "btn-reset",
+    ) as HTMLButtonElement | null;
+    const stepCountEl = document.getElementById("step-count");
+    const logTextEl = document.getElementById("log-text");
+    const sealEl = document.getElementById("success-seal");
+    const mSealEl = document.getElementById("m-success-seal");
+
+    if (!btnStep || !btnReset || !stepCountEl || !logTextEl || !sealEl) return;
+
+    const updateUI = () => {
+      // 清除所有高亮
+      document.querySelectorAll(".demo-node").forEach((node) => {
+        node.classList.remove("active-pA", "active-pB", "active-both");
+      });
+      sealEl.classList.remove("opacity-100");
+      sealEl.classList.add("opacity-0");
+      mSealEl?.classList.remove("opacity-100");
+      mSealEl?.classList.add("opacity-0");
+      logTextEl.classList.remove("text-[#b91c1c]");
+
+      const locA = pathA[currentStep];
+      const locB = pathB[currentStep];
+
+      // 同时高亮桌面端和移动端节点
+      const getNodes = (id: string) =>
+        [
+          document.getElementById(`node-${id}`),
+          document.getElementById(`m-node-${id}`),
+        ].filter(Boolean) as HTMLElement[];
+
+      if (locA === locB && locA !== "Null") {
+        getNodes(locA).forEach((n) => n.classList.add("active-both"));
+        sealEl.classList.remove("opacity-0");
+        sealEl.classList.add("opacity-100");
+        mSealEl?.classList.remove("opacity-0");
+        mSealEl?.classList.add("opacity-100");
+        logTextEl.textContent = `成功！pA 与 pB 在节点 ${nodeLabels[locA] ?? locA} 处相遇。`;
+        logTextEl.classList.add("text-[#b91c1c]");
+        btnStep.disabled = true;
+        btnStep.classList.add("opacity-50", "cursor-not-allowed");
+      } else {
+        getNodes(locA).forEach((n) => n.classList.add("active-pA"));
+        getNodes(locB).forEach((n) => n.classList.add("active-pB"));
+
+        const msgA =
+          locA === "Null"
+            ? "pA 到达末尾，切换至 B 头部"
+            : `pA → ${nodeLabels[locA] ?? locA}`;
+        const msgB =
+          locB === "Null"
+            ? "pB 到达末尾，切换至 A 头部"
+            : `pB → ${nodeLabels[locB] ?? locB}`;
+
+        logTextEl.textContent =
+          currentStep === 0
+            ? "pA 指向 A:4，pB 指向 B:5，准备出发。"
+            : `${msgA}；${msgB}。`;
+      }
+
+      stepCountEl.textContent = String(currentStep);
+    };
+
+    btnStep.addEventListener("click", () => {
+      if (currentStep < maxSteps) {
+        currentStep++;
+        updateUI();
+      }
+    });
+
+    btnReset.addEventListener("click", () => {
+      currentStep = 0;
+      btnStep.disabled = false;
+      btnStep.classList.remove("opacity-50", "cursor-not-allowed");
+      updateUI();
+    });
+
+    updateUI();
+  });
+</script>

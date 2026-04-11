@@ -12,6 +12,8 @@ tags: ["leetcode"]
 
 ## 1. 两数之和
 
+https://leetcode.cn/problems/two-sum/description/
+
 给定一个整数数组 `nums` 和一个整数目标值 `target`，在数组中找出**和为目标值** `target` 的**两个**整数，并返回它们的数组下标。
 
 每种输入只会对应一个答案，且不能使用两次相同元素。
@@ -38,21 +40,18 @@ tags: ["leetcode"]
 跟以前写整个文件不一样，只写方法类的话可以直接 return 解，不再需要一层层 break 嵌套了。
 
 ```cpp
-class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        int length = nums.size();
-        for (int i = 0; i < length; i++){
-            int value = target - nums[i];
-            for (int j = i + 1; j < length; j++){
-                if (value == nums[j]) {
-                    return {i, j};
-                }
+vector<int> twoSum(vector<int>& nums, int target) {
+    int length = nums.size();
+    for (int i = 0; i < length; i++){
+        int value = target - nums[i];
+        for (int j = i + 1; j < length; j++){
+            if (value == nums[j]) {
+                return {i, j};
             }
         }
-        return {};
     }
-};
+    return {};
+}
 ```
 
 ### 学习哈希
@@ -65,6 +64,8 @@ public:
 
 #### 242. 有效的字母异位词
 
+https://leetcode.cn/problems/valid-anagram/description/
+
 给定两个字符串 `s` 和 `t`，编写一个函数来判断 `t` 是否是 `s` 的字母异位词。
 
 #### 示例
@@ -76,22 +77,19 @@ public:
 #### 解法
 
 ```cpp
-class Solution {
-public:
-    bool isAnagram(string s, string t) {
-        if (s.size() != t.size()) return false;
-        int table[26] = {0};
-        for (int i = 0; i < s.size(); i++){
-            table[s[i] - 'a']++;
-        }
-        for (int j = 0; j < t.size(); j++){
-            table[t[j] - 'a']--;
-            // 这个提前剪枝我没有想到，很巧妙地规避了再次遍历
-            if (table[t[j] - 'a'] < 0) return false;
-        }
-        return true;
+bool isAnagram(string s, string t) {
+    if (s.size() != t.size()) return false;
+    int table[26] = {0};
+    for (int i = 0; i < s.size(); i++){
+        table[s[i] - 'a']++;
     }
-};
+    for (int j = 0; j < t.size(); j++){
+        table[t[j] - 'a']--;
+        // 这个提前剪枝我没有想到，很巧妙地规避了再次遍历
+        if (table[t[j] - 'a'] < 0) return false;
+    }
+    return true;
+}
 ```
 
 ### set 和 map 作哈希表
@@ -126,18 +124,15 @@ public:
 #### 粗糙解法
 
 ```cpp
-class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        map<int, int> M; // num-slot
-        for (int i = 0; i < nums.size(); i++){
-            int val = target - nums[i];
-            if (!M.empty() && M.count(nums[i])) return {M[nums[i]], i};
-            M.insert({val, i});
-        }
-        return {};
+vector<int> twoSum(vector<int>& nums, int target) {
+    map<int, int> M; // num-slot
+    for (int i = 0; i < nums.size(); i++){
+        int val = target - nums[i];
+        if (!M.empty() && M.count(nums[i])) return {M[nums[i]], i};
+        M.insert({val, i});
     }
-};
+    return {};
+}
 ```
 
 以上是我自己写的解法，AI 指出了三点不足：
@@ -149,25 +144,24 @@ public:
 #### 优化解法
 
 ```cpp
-class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> M; // num-slot
-        for (int i = 0; i < nums.size(); i++){
-            // 存键值对，避免多次查询
-            auto it = M.find(nums[i]);
-            if (it != M.end()){
-                return {it->second, i};
-            }
-            int val = target - nums[i];
-            M.insert({val, i});
+vector<int> twoSum(vector<int>& nums, int target) {
+    unordered_map<int, int> M; // num-slot
+    for (int i = 0; i < nums.size(); i++){
+        // 存键值对，避免多次查询
+        auto it = M.find(nums[i]);
+        if (it != M.end()){
+            return {it->second, i};
         }
-        return {};
+        int val = target - nums[i];
+        M.insert({val, i});
     }
-};
+    return {};
+}
 ```
 
 ## 49. 字母异位词分组
+
+https://leetcode.cn/problems/group-anagrams/description/
 
 给定一个字符串数组 `strs`，将字母异位词组合在一起。可以按任意顺序返回结果列表。
 
@@ -190,27 +184,24 @@ public:
 ### 粗糙解法
 
 ```cpp
-class Solution {
-public:
-    vector<vector<string>> groupAnagrams(vector<string>& strs) {
-        unordered_map<string, vector<string>> M;
-        for (string& S : strs){
-            string temp = S;
-            sort(S.begin(), S.end());
-            auto it = M.find(S);
-            if (it == M.end()){
-                M.insert({S, {temp}});
-                continue;
-            }
-            it->second.emplace_back(temp);
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    unordered_map<string, vector<string>> M;
+    for (string& S : strs){
+        string temp = S;
+        sort(S.begin(), S.end());
+        auto it = M.find(S);
+        if (it == M.end()){
+            M.insert({S, {temp}});
+            continue;
         }
-        vector<vector<string>> ans;
-        for (auto it : M){
-            ans.emplace_back(it.second);
-        }
-        return ans;
+        it->second.emplace_back(temp);
     }
-};
+    vector<vector<string>> ans;
+    for (auto it : M){
+        ans.emplace_back(it.second);
+    }
+    return ans;
+}
 ```
 
 `emplace_back` 是 C++11 引入的一个方法，直接在容器末尾构造元素，避免了 `push_back` 的拷贝操作。
@@ -223,22 +214,19 @@ public:
 ### 优化解法
 
 ```cpp
-class Solution {
-public:
-    vector<vector<string>> groupAnagrams(vector<string>& strs) {
-        unordered_map<string, vector<string>> M;
-        for (string& S : strs){
-            string temp = S;
-            sort(S.begin(), S.end());
-            M[S].emplace_back(temp);
-        }
-        vector<vector<string>> ans;
-        for (auto& pair : M){
-            ans.emplace_back(pair.second);
-        }
-        return ans;
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    unordered_map<string, vector<string>> M;
+    for (string& S : strs){
+        string temp = S;
+        sort(S.begin(), S.end());
+        M[S].emplace_back(temp);
     }
-};
+    vector<vector<string>> ans;
+    for (auto& pair : M){
+        ans.emplace_back(pair.second);
+    }
+    return ans;
+}
 ```
 
 ### 另一个思路
@@ -256,6 +244,8 @@ for (string& S : strs){
 ```
 
 ## 128. 最长连续序列
+
+https://leetcode.cn/problems/longest-consecutive-sequence/description/
 
 给定一个未排序的整数数组 `nums`，找出数字连续的最长序列，并返回其长度。
 
@@ -280,33 +270,30 @@ for (string& S : strs){
 ### 粗糙解法
 
 ```cpp
-class Solution {
-public:
-    int longestConsecutive(vector<int>& nums) {
-        set<int> S;
-        for (int it : nums){
-            S.insert(it);
-        }
-        int max_length = 0;
-        int cur_length = 0;
-        int last_num = 0;
-        bool isFirst = true;
-        for (int key : S){
-            int cur_num = key;
-            if (isFirst || cur_num == (last_num + 1)){
-                isFirst = false;
-                last_num = cur_num;
-                cur_length++;
-                continue;
-            }
-            // 断增
-            max_length = max_length > cur_length ? max_length : cur_length;
-            last_num = cur_num;
-            cur_length = 1;
-        }
-        return max(max_length, cur_length);
+int longestConsecutive(vector<int>& nums) {
+    set<int> S;
+    for (int it : nums){
+        S.insert(it);
     }
-};
+    int max_length = 0;
+    int cur_length = 0;
+    int last_num = 0;
+    bool isFirst = true;
+    for (int key : S){
+        int cur_num = key;
+        if (isFirst || cur_num == (last_num + 1)){
+            isFirst = false;
+            last_num = cur_num;
+            cur_length++;
+            continue;
+        }
+        // 断增
+        max_length = max_length > cur_length ? max_length : cur_length;
+        last_num = cur_num;
+        cur_length = 1;
+    }
+    return max(max_length, cur_length);
+}
 ```
 
 问题很明显： `set` 的插入和遍历都是 $O(\log n)$，所以这里需要使用 $O(n)$ 的 `unordered_set` 。
@@ -318,29 +305,26 @@ public:
 ### 优化解法
 
 ```cpp
-class Solution {
-public:
-    int longestConsecutive(vector<int>& nums) {
-        // 充分利用构造函数
-        unordered_set<int> S(nums.begin(), nums.end());
-        int max_length = 0;
-        // 哈希表元素不可修改，强制要求 const
-        for (const int& p : S){
-            int cur_num, cur_length = 0;
-            // 剪枝优化
-            if (!S.count(p - 1)){
-                cur_num = p;
-                cur_length = 1;
-            }
-            while (S.count(cur_num + 1)){
-                cur_num++;
-                cur_length++;
-            }
-            max_length = max(max_length, cur_length);
+int longestConsecutive(vector<int>& nums) {
+    // 充分利用构造函数
+    unordered_set<int> S(nums.begin(), nums.end());
+    int max_length = 0;
+    // 哈希表元素不可修改，强制要求 const
+    for (const int& p : S){
+        int cur_num, cur_length = 0;
+        // 剪枝优化
+        if (!S.count(p - 1)){
+            cur_num = p;
+            cur_length = 1;
         }
-        return max_length;
+        while (S.count(cur_num + 1)){
+            cur_num++;
+            cur_length++;
+        }
+        max_length = max(max_length, cur_length);
     }
-};
+    return max_length;
+}
 ```
 
 利用构造函数、`count` 和剪枝优化后，代码的空间消耗降低，但时间消耗还是很差。
@@ -357,32 +341,29 @@ public:
 ### 数组解法
 
 ```cpp
-class Solution {
-public:
-    int longestConsecutive(vector<int>& nums) {
-        if (nums.empty()) return 0;
-        // 原址排序
-        sort(nums.begin(), nums.end());
-        int max_length = 1;
-        int cur_length = 1;
-        for (size_t i = 1; i < nums.size(); i++) {
-            // 重复元素跳过
-            if (nums[i] == nums[i - 1]) {
-                continue;
-            }
-            // 连续递增
-            if (nums[i] == nums[i - 1] + 1) {
-                cur_length++;
-            }
-            // 断开，结算长度并重置
-            else {
-                max_length = max_length > cur_length ? max_length : cur_length;
-                cur_length = 1;
-            }
+int longestConsecutive(vector<int>& nums) {
+    if (nums.empty()) return 0;
+    // 原址排序
+    sort(nums.begin(), nums.end());
+    int max_length = 1;
+    int cur_length = 1;
+    for (size_t i = 1; i < nums.size(); i++) {
+        // 重复元素跳过
+        if (nums[i] == nums[i - 1]) {
+            continue;
         }
-        return max(max_length, cur_length);
+        // 连续递增
+        if (nums[i] == nums[i - 1] + 1) {
+            cur_length++;
+        }
+        // 断开，结算长度并重置
+        else {
+            max_length = max_length > cur_length ? max_length : cur_length;
+            cur_length = 1;
+        }
     }
-};
+    return max(max_length, cur_length);
+}
 ```
 
 ![improve_result](../../assets/blog/content/leetcode-128-1.png)

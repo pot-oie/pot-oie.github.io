@@ -14,6 +14,8 @@ import TrappingWater from "../../components/blog/leetcode/TrappingWater.astro";
 
 ## 283. 移动零
 
+https://leetcode.cn/problems/move-zeroes/description/
+
 给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
 
 ### 示例
@@ -35,22 +37,21 @@ import TrappingWater from "../../components/blog/leetcode/TrappingWater.astro";
 #### 实现
 
 ```cpp
-class Solution {
-public:
-    void moveZeroes(vector<int>& nums) {
-        auto slow = nums.begin();
-        for (auto fast = nums.begin(); fast != nums.end(); fast++){
-            if (*fast){
-                iter_swap(slow, fast);
-                slow++;
-            }
+void moveZeroes(vector<int>& nums) {
+    auto slow = nums.begin();
+    for (auto fast = nums.begin(); fast != nums.end(); fast++){
+        if (*fast){
+            iter_swap(slow, fast);
+            slow++;
         }
-        return;
     }
-};
+    return;
+}
 ```
 
 ## 11. 盛最多水的容器
+
+https://leetcode.cn/problems/container-with-most-water/description/
 
 给定一个长度为 `n` 的整数数组 `height`，有 `n` 条垂线，第 `i` 条线的坐标是 `(i, height[i])`。找出其中的两条线，使得它们与 `x` 轴共同构成一个容器，容器能够容纳最多的水。
 
@@ -93,22 +94,19 @@ public:
 ### 代码实现
 
 ```cpp
-class Solution {
-public:
-    int maxArea(vector<int>& height) {
-        int max_v = 0;
-        int cur_v = 0;
-        int left = 0;
-        int right = height.size() - 1;
-        while (left != right){
-            cur_v = (right - left) * min(height[left], height[right]);
-            max_v = max(max_v, cur_v);
-            if (height[left] > height[right]) right--;
-            else left++;
-        }
-        return max_v;
+int maxArea(vector<int>& height) {
+    int max_v = 0;
+    int cur_v = 0;
+    int left = 0;
+    int right = height.size() - 1;
+    while (left != right){
+        cur_v = (right - left) * min(height[left], height[right]);
+        max_v = max(max_v, cur_v);
+        if (height[left] > height[right]) right--;
+        else left++;
     }
-};
+    return max_v;
+}
 ```
 
 #### 优化点总结
@@ -120,6 +118,8 @@ public:
 - **重要：** 如果下一条边**小于等于当前边**可以直接跳过。
 
 ## 15. 三数之和
+
+https://leetcode.cn/problems/3sum/description/
 
 一个包含 `n` 个整数的数组 `nums`，判断 `nums` 中是否存在三个元素 `a`，`b`，`c`，使得 `a + b + c = 0`。找出所有满足条件的三元组。
 
@@ -165,51 +165,50 @@ public:
 ### 代码实现
 
 ```cpp
-class Solution {
-public:
-    vector<vector<int>> threeSum(vector<int>& nums) {
-        vector<vector<int>> ans;
-        sort(nums.begin(), nums.end());
-        int l = nums.size() - 1;
-        for (int i = 0; i < l - 1; i++){
-            // 剪枝：最小都大于零
-            if (nums[i] > 0) break;
-            // 去重
-            // [-2, -2, 1, 1] [-1 -1 -1 2]
-            if (i > 0 && nums[i] == nums[i - 1]) continue;
-            int left = i + 1;
-            int right = l;
-            while (left < right){
-                int sum = nums[i] + nums[left] + nums[right];
-                if (sum == 0) {
-                    ans.push_back({nums[i], nums[left], nums[right]});
-                    // 去重
-                    while (left < right && nums[left] == nums[left + 1]){
-                        left++;
-                    }
-                    while (left < right && nums[right] == nums[right - 1]){
-                        right--;
-                    }
-                    // 同时向内收缩
-                    // [-4(固), -2, 0, 4, 6]
-                    left++;
-                    right--;
-                }
-                else if (sum < 0) {
+vector<vector<int>> threeSum(vector<int>& nums) {
+    vector<vector<int>> ans;
+    sort(nums.begin(), nums.end());
+    int l = nums.size() - 1;
+    for (int i = 0; i < l - 1; i++){
+        // 剪枝：最小都大于零
+        if (nums[i] > 0) break;
+        // 去重
+        // [-2, -2, 1, 1] [-1 -1 -1 2]
+        if (i > 0 && nums[i] == nums[i - 1]) continue;
+        int left = i + 1;
+        int right = l;
+        while (left < right){
+            int sum = nums[i] + nums[left] + nums[right];
+            if (sum == 0) {
+                ans.push_back({nums[i], nums[left], nums[right]});
+                // 去重
+                while (left < right && nums[left] == nums[left + 1]){
                     left++;
                 }
-                else {
+                while (left < right && nums[right] == nums[right - 1]){
                     right--;
                 }
+                // 同时向内收缩
+                // [-4(固), -2, 0, 4, 6]
+                left++;
+                right--;
             }
-
+            else if (sum < 0) {
+                left++;
+            }
+            else {
+                right--;
+            }
         }
-        return ans;
+
     }
-};
+    return ans;
+}
 ```
 
 ## 42. 接雨水
+
+https://leetcode.cn/problems/trapping-rain-water/description/
 
 给定 `n` 个非负整数表示每个宽度为 `1` 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
 
@@ -281,26 +280,23 @@ public:
 #### 代码实现
 
 ```cpp
-class Solution {
-public:
-    int trap(vector<int>& height) {
-        int left = 0, right = height.size() - 1;
-        int left_max = 0, right_max = 0;
-        int sum = 0;
-        while (left < right) {
-            left_max = max(left_max, height[left]);
-            right_max = max(right_max, height[right]);
-            if (left_max < right_max) {
-                sum += (left_max - height[left]);
-                left++;
-            } else {
-                sum += (right_max - height[right]);
-                right--;
-            }
+int trap(vector<int>& height) {
+    int left = 0, right = height.size() - 1;
+    int left_max = 0, right_max = 0;
+    int sum = 0;
+    while (left < right) {
+        left_max = max(left_max, height[left]);
+        right_max = max(right_max, height[right]);
+        if (left_max < right_max) {
+            sum += (left_max - height[left]);
+            left++;
+        } else {
+            sum += (right_max - height[right]);
+            right--;
         }
-        return sum;
     }
-};
+    return sum;
+}
 ```
 
 #### 可视化

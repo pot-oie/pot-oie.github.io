@@ -12,6 +12,8 @@ tags: ["leetcode"]
 
 ## 560. 和为 K 的子数组
 
+https://leetcode.cn/problems/subarray-sum-equals-k/description/
+
 提供一个整数数组 `nums` 和一个整数 `k` ，请统计并返回该数组中和为 `k` 的**子数组** 的个数。
 
 **子数组** 是数组中的一个连续部分。
@@ -33,25 +35,22 @@ tags: ["leetcode"]
 一开始还是**移动窗口**的思路：维护左右双指针，当窗口和小于 k 时右指针右移；窗口和大于 k 时左指针右移；窗口和等于 k 时计数器加一，并右移右指针。
 
 ```cpp
-class Solution {
-public:
-    int subarraySum(vector<int>& nums, int k) {
-        int left = 0;
-        int sum = nums[left];
-        int cnt = (sum == k) ? 1 : 0;
-        for (int right = 1; right < nums.size(); right++) {
-            sum += nums[right];
-            while (sum > k) {
-                sum -= nums[left];
-                left++;
-            }
-            if (sum == k) {
-                cnt++;
-            }
+int subarraySum(vector<int>& nums, int k) {
+    int left = 0;
+    int sum = nums[left];
+    int cnt = (sum == k) ? 1 : 0;
+    for (int right = 1; right < nums.size(); right++) {
+        sum += nums[right];
+        while (sum > k) {
+            sum -= nums[left];
+            left++;
         }
-        return cnt;
+        if (sum == k) {
+            cnt++;
+        }
     }
-};
+    return cnt;
+}
 ```
 
 其实样例点都可以通过，说明这个思路解决一般情况还是比较优秀的，可惜题目明确说明**数组中可能包含负数**，所以没有办法简单地用窗口和来判断下一步处理逻辑。
@@ -75,25 +74,22 @@ public:
 在遍历到位置 `j` 时，如果 `mp.count(pre_sum - k)` 存在，执行 `cnt += mp[pre_sum - k]`。
 
 ```cpp
-class Solution {
-public:
-    int subarraySum(vector<int>& nums, int k) {
-        unordered_map<int, int> mp;
-        mp[0] = 1;
-        int cnt = 0;
-        int pre_sum = 0;
-        for (int i = 0; i < nums.size(); i++) {
-            pre_sum += nums[i];
-            // | (pre_sum - k) | k |
-            if (mp.count(pre_sum - k)) {
-                // 有多少配对串，就有多少 k 串
-                cnt += mp[pre_sum - k];
-            }
-            mp[pre_sum]++;
+int subarraySum(vector<int>& nums, int k) {
+    unordered_map<int, int> mp;
+    mp[0] = 1;
+    int cnt = 0;
+    int pre_sum = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        pre_sum += nums[i];
+        // | (pre_sum - k) | k |
+        if (mp.count(pre_sum - k)) {
+            // 有多少配对串，就有多少 k 串
+            cnt += mp[pre_sum - k];
         }
-        return cnt;
+        mp[pre_sum]++;
     }
-};
+    return cnt;
+}
 ```
 
 还有一点值得学习，在初始化时先写 `mp[0] = 1`，这是为了处理前缀和直接等于 `k` 的情况。
@@ -103,6 +99,8 @@ public:
 当然，也可以选择在 `for` 循环中先执行 `mp[pre_sum]++`，再计算前缀和以及查 `count`，相当于每次循环都处理了当前位置之前的前缀和，这样就无需在初始化时写 `mp[0] = 1` 了。
 
 ## 239. 滑动窗口最大值
+
+https://leetcode.cn/problems/sliding-window-maximum/description/
 
 给你一个整数数组 `nums`，有一个大小为 `k` 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 `k` 个数字。滑动窗口每次只向右移动一位。
 

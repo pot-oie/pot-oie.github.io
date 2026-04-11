@@ -183,6 +183,21 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:code-line",
     styleToken: "algorithm",
   },
+  数据结构: {
+    label: "数据结构",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  计组: {
+    label: "计组",
+    icon: "mingcute:chip-line",
+    styleToken: "system",
+  },
+  操作系统: {
+    label: "操作系统",
+    icon: "mingcute:server-line",
+    styleToken: "system",
+  },
 };
 
 export const TAG_ALIASES: Record<string, string> = {
