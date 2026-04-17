@@ -1,14 +1,16 @@
 ---
 title: "leetcode 05：回溯"
-description: "to write"
-pubDate: "04 17 2026"
-# updatedDate: "04 17 2026"
+description: "掌握基本模版后，难点在于如何找分界点。"
+pubDate: "04 18 2026"
+# updatedDate: "04 18 2026"
 # heroImage: '../../assets/XXX.jpg'
-draft: true
+draft: false
 category: "learn"
 techCategory: "leetcode"
 tags: ["leetcode"]
 ---
+
+import SubsetsVisualizer from "../../components/blog/leetcode/SubsetsVisualizer.astro";
 
 ## 78. 子集
 
@@ -40,4 +42,367 @@ vector<vector<int>> subsets(vector<int>& nums) {
     dfs(0);
     return ans;
 }
+```
+
+### 思路二：位运算
+
+想要构建子集，对长度为 $n$ 的数组，其每个元素都有**选**与**不选**两种可能，正对应二进制位的 $0$ 和 $1$。
+
+所以换个角度，长度为 $n$ 的数组的子集总数为 $2^n$，正对应二进制数 $0$ 到 $2^n - 1$ 的每个数。
+
+<SubsetsVisualizer />
+
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+    int n = nums.size();
+    vector<vector<int>> ans(1 << n);
+    for (int i = 0; i < (1 << n); i++) {
+        for (int j = 0; j < n; j++) {
+            if (i >> j & 1) {
+                ans[i].push_back(nums[j]);
+            }
+        }
+    }
+    return ans;
+}
+```
+
+## 17. 电话号码的字母组合
+
+https://leetcode.cn/problems/letter-combinations-of-a-phone-number/description/
+
+### 思路一：标准解法
+
+没啥好说的，常规的回溯解法。
+
+```cpp
+vector<string> letterCombinations(string digits) {
+    vector<string> ans;
+    if (digits.empty()) return ans;
+
+    string res = "";
+    vector<string> phone(
+        {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
+    );
+
+    auto dfs = [&](this auto&& dfs, int idx) -> void {
+        if (idx == digits.size()) {
+            ans.emplace_back(res);
+            return;
+        }
+
+        string letters = phone[digits[idx] - '0'];
+
+        for (char c : letters) {
+            res.push_back(c);
+            dfs(idx + 1);
+            res.pop_back();
+        }
+    };
+    dfs(0);
+    return ans;
+}
+```
+
+### 思路二：优化
+
+1. 使用 `static constexpr` 定义常量数组，避免重复创建。
+2. 预先分配路径字符串的长度，避免长度校验等动态操作。
+3. 直接在路径字符串上修改，避免 `push_back` 和 `pop_back` 操作。
+
+```cpp
+class Solution {
+private:
+    static constexpr string PHONE[10] = {
+        "", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"
+    };
+public:
+    vector<string> letterCombinations(string digits) {
+        int n = digits.length();
+        if (n == 0) {
+            return {};
+        }
+
+        vector<string> ans;
+        string path(n, 0);
+
+        auto dfs = [&](this auto&& dfs, int i) -> void {
+            if (i == n) {
+                ans.emplace_back(path);
+                return;
+            }
+
+            for (char c : PHONE[digits[i] - '0']) {
+                path[i] = c;
+                dfs(i + 1);
+            }
+        };
+        dfs(0);
+        return ans;
+    }
+};
+```
+
+## 22. 括号生成
+
+https://leetcode.cn/problems/generate-parentheses/description/
+
+### 思路一：基础解法
+
+```cpp
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        if (!n) return {};
+        int length = 2 * n;
+        vector<string> ans;
+        string path = "";
+
+        auto dfs = [&](this auto&& dfs, int left, int right) {
+            if (left == n && right == n) {
+                ans.emplace_back(path);
+                return;
+            }
+
+            if (left < right || left + right == length) {
+                return;
+            }
+
+            path.push_back('(');
+            dfs(left + 1, right);
+            path.pop_back();
+
+            path.push_back(')');
+            dfs(left, right + 1);
+            path.pop_back();
+        };
+        return ans;
+    }
+};
+```
+
+### 思路二：优化
+
+又从题解学到几招：
+
+1. 依旧是事先分配路径字符串的长度，在回溯时直接覆盖。
+2. 对回溯的情况分类不够清晰，经过调整后可以省略很多条件判断。
+
+```cpp
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        if (!n) return {};
+        int length = 2 * n;
+        vector<string> ans;
+        string path(length, 0);
+
+        auto dfs = [&](this auto&& dfs, int left, int right) {
+            if (right == n) {
+                ans.emplace_back(path);
+                return;
+            }
+
+            if (left < n) {
+                path[left + right] = '(';
+                dfs(left + 1, right);
+            }
+
+            if (right < left) {
+                path[left + right] = ')';
+                dfs(left, right + 1);
+            }
+        };
+        dfs(0, 0);
+        return ans;
+    }
+};
+```
+
+## 79. 单词搜索
+
+https://leetcode.cn/problems/word-search/description/
+
+### 思路一：基础解法
+
+```cpp
+class Solution {
+private:
+    static constexpr pair<int, int> MOVE[4] = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        int M = board.size();
+        int N = board[0].size();
+        int len = word.size();
+        vector<vector<bool>> visit(M, vector<bool>(N, false));
+
+        auto dfs = [&](this auto&& dfs, int curLen, int m, int n) -> bool {
+            if (curLen == len) {
+                return true;
+            }
+
+            if (m < 0 || m >= M || n < 0 || n >= N || visit[m][n] || board[m][n] != word[curLen]) {
+                return false;
+            }
+
+            visit[m][n] = true;
+
+            for (int i = 0; i < 4; i++) {
+                if (dfs(curLen + 1, m + MOVE[i].first, n + MOVE[i].second))
+                    return true;
+            }
+
+            visit[m][n] = false;
+            return false;
+        };
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                if (dfs(0, i, j))
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+### 思路二：优化
+
+这次的优化思路跟以往不同，是针对该题的极致优化，我感觉可以学学思路，但是不用硬记。
+
+#### 优化一
+
+> 字符频数校验（提前拒绝）
+>
+> 思路：预检验避免白忙活。
+
+1. 首先统计了整个棋盘（`board`）上所有字符的出现总次数（存入 `cnt`）。
+2. 然后遍历要找的 `word`，对比每个字符的需求量。
+3. 如果 `word` 中需要的某个字符数量，大于棋盘上该字符的总数，直接返回 `false`。
+
+**关键之处**：标准的 DFS 是“不到黄河心不死”，它会去尝试各种可能的路径。假设棋盘有 $100 \times 100$ 这么大，里面全是字母 `A` 到 `Y`，而我们要找的单词是 `"APPLEZ"`。如果不做这个优化，DFS 会在棋盘上无数次尝试拼凑 `"APPLE"`，直到最后一步才发现根本没有 `Z`，浪费巨大算力。
+
+#### 优化二
+
+> 选择更稀有的字母作为起点（反转搜索方向）
+>
+> 思路：擒贼先擒王，从最难找的字母开始找。
+
+对比单词首字母 `word[0]` 和尾字母 `word.back()` 在棋盘上的出现频率。如果尾字母更稀有（出现次数更少），就把整个单词反转（`ranges::reverse(word)`）。
+
+**极端对比**：假设棋盘上全都是字母 `A`，只有一个角落里有个字母 `B`。我们要找的单词是 `"AAAAAAAAAAB"`。
+
+- **如果不反转（从 `A` 开始搜）**： 棋盘上到处都是 `A`，程序会把每一个 `A` 都当作起点，然后向四周展开庞大的搜索树，在经历了无数次尝试和回溯后才发现走不通，导致严重的超时。
+- **如果反转（变成找 `"BAAAAAAAAAA"`）**： 首字母变成了 `B`。程序一眼看出棋盘上只有一个 `B`，于是只从这个点开始起步搜 `A`。如果走得通很快就能找到，如果走不通也会立刻结束。原本庞大的搜索树被砍得只剩下一根小树枝。
+
+#### 代码实现
+
+```cpp
+class Solution {
+    static constexpr int DIRS[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        unordered_map<char, int> cnt;
+        for (auto& row : board) {
+            for (char c : row) {
+                cnt[c]++;
+            }
+        }
+
+        // 优化一
+        unordered_map<char, int> word_cnt;
+        for (char c : word) {
+            if (++word_cnt[c] > cnt[c]) {
+                return false;
+            }
+        }
+
+        // 优化二
+        if (cnt[word.back()] < cnt[word[0]]) {
+            ranges::reverse(word);
+        }
+
+        int m = board.size(), n = board[0].size();
+        auto dfs = [&](this auto&& dfs, int i, int j, int k) -> bool {
+            if (board[i][j] != word[k]) { // 匹配失败
+                return false;
+            }
+            if (k + 1 == word.length()) { // 匹配成功！
+                return true;
+            }
+            board[i][j] = 0; // 标记访问过
+            for (auto& [dx, dy] : DIRS) {
+                int x = i + dx, y = j + dy; // 相邻格子
+                if (0 <= x && x < m && 0 <= y && y < n && dfs(x, y, k + 1)) {
+                    return true; // 搜到了！
+                }
+            }
+            board[i][j] = word[k]; // 恢复现场
+            return false; // 没搜到
+        };
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dfs(i, j, 0)) {
+                    return true; // 搜到了！
+                }
+            }
+        }
+        return false; // 没搜到
+    }
+};
+```
+
+## 131. 分割回文串
+
+https://leetcode.cn/problems/palindrome-partitioning/description/
+
+### 思路
+
+实话实说，题解思路太条理清楚了，我感觉一时半会还做不到自己想出来，先学会吧。
+
+把是否分割作为回溯的决策点，在执行前作条件判断，其实结构很像之前的括号生成。
+
+```cpp
+class Solution {
+    bool is_palindrome(const string& s, int left, int right) {
+        while (left < right) {
+            if (s[left++] != s[right--]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+public:
+    vector<vector<string>> partition(string s) {
+        int n = s.size();
+        vector<vector<string>> ans;
+        vector<string> path;
+
+        // 现在 s 未被分割的部分为 [start, n-1]
+        // 当前位于下标 i，讨论是否在 i 和 i+1 之间切一刀
+        auto dfs = [&](this auto&& dfs, int i, int start) {
+            if (i == n) { // s 分割完毕
+                ans.emplace_back(path);
+                return;
+            }
+
+            // 不分割
+            if (i < n - 1) { // i=n-1 时必须分割（这是最后一段），i<n-1 时才可以不分割
+                dfs(i + 1, start);
+            }
+
+            // 分割，那么得到子串 [start, i]
+            if (is_palindrome(s, start, i)) { // 判断子串 [start, i] 是不是回文串
+                path.emplace_back(s.substr(start, i - start + 1));
+                // 现在 s 未被分割的部分为 [i+1, n-1]
+                dfs(i + 1, i + 1);
+                path.pop_back(); // 恢复现场
+            }
+        };
+
+        dfs(0, 0);
+        return ans;
+    }
+};
 ```

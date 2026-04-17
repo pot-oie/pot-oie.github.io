@@ -1,0 +1,304 @@
+---
+// src/components/blog/leetcode/SubsetsVisualizer.astro
+import katex from "katex";
+
+const iEq = katex.renderToString("i =", { throwOnError: false });
+const shiftExpr = katex.renderToString("i \\gg j \\ \\& \\ 1", {
+  throwOnError: false,
+});
+---
+
+<div class="prose-ink max-w-[65ch] mx-auto my-6">
+  <div
+    class="bg-ink-100/50 dark:bg-zinc-800/20 border border-ink-300/30 rounded-lg p-4 md:p-6 shadow-ink relative overflow-hidden"
+  >
+    <!-- 标题 -->
+    <h3
+      class="font-serif text-ink-900 dark:text-zinc-100 text-lg font-bold mt-0 mb-0.5 text-center"
+    >
+      逐位检测演示
+    </h3>
+    <p
+      class="text-center text-xs text-ink-400 dark:text-zinc-500 mb-1 font-sans"
+    >
+      <Fragment set:html={shiftExpr} /> = 提取 i 的第 j 位
+    </p>
+    <p
+      class="text-center text-xs text-ink-300 dark:text-zinc-600 mb-4 font-mono"
+    >
+      以 nums = [1, 2, 3] 为例
+    </p>
+
+    <!-- ── i 滑块 ── -->
+    <div class="flex flex-col items-center mb-4">
+      <input
+        type="range"
+        id="sv-slider"
+        min="0"
+        max="7"
+        value="5"
+        class="w-full max-w-60 accent-vermilion cursor-pointer mb-2"
+      />
+      <div
+        class="font-mono text-ink-900 dark:text-zinc-200 flex items-center gap-2"
+      >
+        <span><Fragment set:html={iEq} /></span>
+        <span id="sv-i" class="text-xl font-bold text-vermilion w-5 text-center"
+          >5</span
+        >
+        <span class="text-ink-300 dark:text-zinc-600 text-sm">=</span>
+        <span
+          id="sv-bin"
+          class="text-sm font-bold text-ink-700 dark:text-zinc-300 tracking-widest"
+          >101</span
+        ><sub class="text-[10px] text-ink-300 dark:text-zinc-600 ml-0.5"
+          >(2)</sub
+        >
+      </div>
+    </div>
+
+    <!-- ── j 选择器 ── -->
+    <div class="flex justify-center gap-2 mb-3">
+      <button data-j="0" class="sv-j-btn">j = 0</button>
+      <button data-j="1" class="sv-j-btn">j = 1</button>
+      <button data-j="2" class="sv-j-btn">j = 2</button>
+    </div>
+
+    <!-- ── 三步分解 ── -->
+    <div
+      id="sv-detail"
+      class="border border-ink-300/20 dark:border-zinc-700/30 rounded-lg p-3 md:p-4 mb-4 bg-white/40 dark:bg-zinc-900/30"
+    >
+      <!-- 由 JS 填充 -->
+    </div>
+
+    <!-- ── 汇总表 ── -->
+    <div class="border-t border-ink-300/30 pt-3">
+      <div
+        class="text-xs font-sans text-ink-400 dark:text-zinc-500 mb-1.5 text-center tracking-wider"
+      >
+        三位汇总
+      </div>
+      <div id="sv-summary" class="space-y-1 font-mono text-sm"></div>
+    </div>
+
+    <!-- ── 结果 ── -->
+    <div class="text-center pt-3 mt-3 border-t border-ink-300/30">
+      <div class="text-sm font-sans text-ink-500 dark:text-zinc-400 mb-1">
+        ans[<span id="sv-ri" class="font-mono">5</span>]
+      </div>
+      <div
+        id="sv-result"
+        class="font-mono text-xl tracking-widest text-ink-900 dark:text-zinc-100 min-h-8"
+      >
+        [ ]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const slider = document.getElementById(
+      "sv-slider",
+    ) as HTMLInputElement | null;
+    const iEl = document.getElementById("sv-i");
+    const binEl = document.getElementById("sv-bin");
+    const detail = document.getElementById("sv-detail");
+    const summary = document.getElementById("sv-summary");
+    const riEl = document.getElementById("sv-ri");
+    const resultEl = document.getElementById("sv-result");
+    const jBtns = document.querySelectorAll(".sv-j-btn");
+
+    if (!slider || !iEl || !binEl || !detail || !summary || !riEl || !resultEl)
+      return;
+
+    const nums = [1, 2, 3];
+    const n = nums.length;
+    let curJ = 0;
+
+    // ── 渲染一列（方块 + 标签垂直堆叠）──
+    const col = (
+      val: number,
+      labelText: string,
+      highlight: boolean,
+      active: boolean,
+    ) => {
+      let boxHtml: string;
+      if (highlight) {
+        boxHtml = active
+          ? `<span class="w-9 h-9 md:w-10 md:h-10 inline-flex items-center justify-center rounded-md bg-vermilion text-white font-bold text-base md:text-lg shadow-sm">${val}</span>`
+          : `<span class="w-9 h-9 md:w-10 md:h-10 inline-flex items-center justify-center rounded-md bg-ink-300 dark:bg-zinc-600 text-white font-bold text-base md:text-lg">${val}</span>`;
+      } else {
+        boxHtml = `<span class="w-9 h-9 md:w-10 md:h-10 inline-flex items-center justify-center rounded-md border border-ink-200 dark:border-zinc-700 text-ink-400 dark:text-zinc-500 text-base md:text-lg">${val}</span>`;
+      }
+      const labelHtml = highlight
+        ? `<span class="text-[11px] text-vermilion font-bold">${labelText}</span>`
+        : `<span class="text-[11px] text-ink-300 dark:text-zinc-600">${labelText}</span>`;
+      return `<div class="flex flex-col items-center gap-1">${boxHtml}${labelHtml}</div>`;
+    };
+
+    // ── 单独方块（用于 step③）──
+    const singleBox = (val: number, active: boolean) => {
+      return active
+        ? `<span class="w-9 h-9 md:w-10 md:h-10 inline-flex items-center justify-center rounded-md bg-vermilion text-white font-bold text-base md:text-lg shadow-sm">${val}</span>`
+        : `<span class="w-9 h-9 md:w-10 md:h-10 inline-flex items-center justify-center rounded-md bg-ink-300 dark:bg-zinc-600 text-white font-bold text-base md:text-lg">${val}</span>`;
+    };
+
+    // ── 更新三步分解 ──
+    const updateDetail = (i: number, j: number) => {
+      const bit = (i >> j) & 1;
+      const shifted = i >> j;
+
+      // Step ① 原始二进制，高亮第 j 位
+      let origCols = "";
+      for (let k = n - 1; k >= 0; k--) {
+        const b = (i >> k) & 1;
+        origCols += col(b, `bit${k}`, k === j, bit === 1);
+      }
+
+      // Step ② 右移后的二进制，高亮 bit0
+      let shiftCols = "";
+      for (let k = n - 1; k >= 0; k--) {
+        const b = (shifted >> k) & 1;
+        shiftCols += col(b, `bit${k}`, k === 0, bit === 1);
+      }
+
+      const verdict = bit
+        ? `<span class="inline-flex items-center gap-1.5 text-vermilion font-bold">✓ 选入 nums[${j}] = ${nums[j]}</span>`
+        : `<span class="inline-flex items-center gap-1.5 text-ink-400 dark:text-zinc-500">✗ 不选 nums[${j}] = ${nums[j]}</span>`;
+
+      detail.innerHTML = `
+        <!-- Step ① -->
+        <div class="mb-3">
+          <div class="text-xs font-sans text-ink-500 dark:text-zinc-400 mb-1.5">
+            <span class="text-vermilion font-bold mr-1">①</span> 定位第 ${j} 位
+          </div>
+          <div class="flex justify-center gap-2 md:gap-3">${origCols}</div>
+        </div>
+
+        <!-- 箭头 -->
+        <div class="text-center text-ink-300 dark:text-zinc-600 text-[11px] mb-2 font-sans">
+          ↓ 右移 ${j} 位，让 bit${j} 滑到 bit0 位置
+        </div>
+
+        <!-- Step ② -->
+        <div class="mb-3">
+          <div class="text-xs font-sans text-ink-500 dark:text-zinc-400 mb-1.5">
+            <span class="text-vermilion font-bold mr-1">②</span> i >> ${j} = ${shifted}
+          </div>
+          <div class="flex justify-center gap-2 md:gap-3">${shiftCols}</div>
+        </div>
+
+        <!-- 箭头 -->
+        <div class="text-center text-ink-300 dark:text-zinc-600 text-[11px] mb-2 font-sans">
+          ↓ & 1 只保留最右一位
+        </div>
+
+        <!-- Step ③ -->
+        <div class="mb-3">
+          <div class="text-xs font-sans text-ink-500 dark:text-zinc-400 mb-1.5">
+            <span class="text-vermilion font-bold mr-1">③</span> & 1
+          </div>
+          <div class="flex justify-center">
+            ${singleBox(bit, bit === 1)}
+          </div>
+        </div>
+
+        <!-- 结论 -->
+        <div class="text-center text-sm font-sans pt-2 border-t border-ink-200/30 dark:border-zinc-700/30">
+          ${verdict}
+        </div>
+      `;
+    };
+
+    // ── 更新汇总 + 结果 ──
+    const updateSummary = (i: number) => {
+      iEl.textContent = i.toString();
+      binEl.textContent = i.toString(2).padStart(n, "0");
+      riEl.textContent = i.toString();
+      const subset: number[] = [];
+      let html = "";
+
+      for (let j = 0; j < n; j++) {
+        const bit = (i >> j) & 1;
+        if (bit) subset.push(nums[j]);
+
+        const active = j === curJ;
+        const rowBg = active ? "bg-ink-100/60 dark:bg-zinc-800/40 rounded" : "";
+        const icon = bit
+          ? `<span class="text-vermilion font-bold">✓</span>`
+          : `<span class="text-ink-300 dark:text-zinc-600">✗</span>`;
+        const text = bit
+          ? `<span class="text-vermilion font-bold">选入 ${nums[j]}</span>`
+          : `<span class="text-ink-300 dark:text-zinc-600 line-through">跳过 ${nums[j]}</span>`;
+
+        html += `<div class="flex items-center gap-2 px-3 py-1 ${rowBg} transition-all duration-200">
+          <span class="w-8 text-xs text-ink-500 dark:text-zinc-400 shrink-0">j=${j}</span>
+          <span class="text-xs text-ink-400 dark:text-zinc-500 shrink-0">bit${j}=${bit}</span>
+          ${icon} ${text}
+        </div>`;
+      }
+
+      summary.innerHTML = html;
+      resultEl.textContent = "[ " + subset.join(", ") + " ]";
+    };
+
+    // ── j 按钮高亮 ──
+    const syncJBtns = () => {
+      jBtns.forEach((btn) => {
+        const j = parseInt((btn as HTMLElement).dataset.j!);
+        if (j === curJ) {
+          btn.className =
+            "sv-j-btn px-3 py-1 rounded-full text-sm font-sans font-bold bg-vermilion text-white shadow-sm transition-all duration-200";
+        } else {
+          btn.className =
+            "sv-j-btn px-3 py-1 rounded-full text-sm font-sans border border-ink-300/50 dark:border-zinc-700 text-ink-500 dark:text-zinc-400 hover:border-vermilion hover:text-vermilion transition-all duration-200 cursor-pointer";
+        }
+      });
+    };
+
+    // ── 完整刷新 ──
+    const refresh = () => {
+      const i = parseInt(slider.value);
+      updateDetail(i, curJ);
+      updateSummary(i);
+      syncJBtns();
+    };
+
+    // ── 事件绑定 ──
+    slider.addEventListener("input", refresh);
+    jBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        curJ = parseInt((btn as HTMLElement).dataset.j!);
+        refresh();
+      });
+    });
+
+    refresh();
+  });
+</script>
+
+<style>
+  input[type="range"] {
+    -webkit-appearance: none;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--color-vermilion, #b91c1c);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: var(--shadow-ink);
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: var(--color-ink-300, #a3a3a3);
+    border-radius: 2px;
+  }
+</style>
