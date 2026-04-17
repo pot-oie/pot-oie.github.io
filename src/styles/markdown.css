@@ -715,7 +715,7 @@ html.dark .prose-ink :not(.katex-display) > .katex {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  vertical-align: middle; /* 和周围文字对齐 */
+  vertical-align: -0.3em; /* 微调基线偏移，让公式与正文视觉对齐 */
   scrollbar-width: none; /* Firefox 隐藏滚动条 */
 }
 /* Webkit 浏览器隐藏行内滚动条 */
@@ -728,12 +728,9 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 /* 外层容器 */
 .prose-ink .katex-display {
   display: block;
-  margin: 2.5em 0; /* 呼吸空间 */
-  padding: 1.5em 1.2em;
-
-  /* 背景渐变 */
-  background: linear-gradient(90deg, var(--prose-code-bg) 0%, transparent 100%);
-  border-left: 2px solid var(--color-ink-300);
+  margin: 1.5em 0; /* 呼吸空间 */
+  padding: 1em 0;
+  text-align: center;
 
   /* 开启横向滚动 */
   overflow-x: auto;
@@ -742,39 +739,27 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 
   /* 覆盖 prose 默认行高 */
   line-height: normal;
-  transition:
-    border-color 0.4s ease,
-    background 0.4s ease;
 }
 
-/* 核心盒子：物理撑破 */
+/* 核心盒子 */
 .prose-ink .katex-display > .katex {
   display: inline-block;
-  min-width: 100%;
   width: max-content;
+  max-width: 100%;
 }
 
 /* 内部排版 */
 .prose-ink .katex-display .katex-html {
-  font-size: 1.4em;
+  font-size: 1.2em;
   padding-bottom: 0.5em; /* 底部余量，防字母截断 */
 }
 
 /* 交互：悬停朱红 */
-.prose-ink .katex-display:hover {
-  border-left-color: var(--color-vermilion);
-  background: linear-gradient(
-    90deg,
-    rgba(185, 28, 28, 0.05) 0%,
-    transparent 100%
-  );
+.prose-ink .katex-display:hover .katex {
+  color: var(--color-vermilion);
 }
-html.dark .prose-ink .katex-display:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(248, 113, 113, 0.08) 0%,
-    transparent 100%
-  );
+html.dark .prose-ink .katex-display:hover .katex {
+  color: #f87171;
 }
 
 /* 横向滚动条 */

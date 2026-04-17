@@ -4,5 +4,8 @@
   "exclude": ["dist"],
   "compilerOptions": {
     "strictNullChecks": true
+  },
+  "mdx": {
+    "plugins": ["remark-math"]
   }
 }

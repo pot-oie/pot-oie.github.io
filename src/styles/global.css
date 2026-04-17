@@ -13,8 +13,11 @@
   --color-ink-900: #0f0f0f; /* 焦墨 - 极深 */
   --color-ink-800: #1a1a1a;
   --color-ink-700: #2a2a2a; /* 浓墨 - 正文 */
+  --color-ink-600: #3d3d3d;
   --color-ink-500: #555555; /* 重墨 */
+  --color-ink-400: #787878;
   --color-ink-300: #a3a3a3; /* 淡墨 - 线条 */
+  --color-ink-200: #d4d4d4;
   --color-ink-100: #f5f5f5; /* 纸色 */
 
   /* 强调色：朱红 (印章感) */

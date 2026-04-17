@@ -59,10 +59,10 @@ export const TECH_CATEGORY_META_LIST: TechCategoryMeta[] = [
   },
   {
     key: "classroom",
-    label: "课程学习",
-    englishLabel: "Classroom Notes",
+    label: "知识学习",
+    englishLabel: "Knowledge Notes",
     description:
-      "Absorbing lectures, grasping knowledge, grounding fundamentals.",
+      "Exploring concepts, building foundations, deepening understanding.",
     slug: "classroom",
     icon: "mingcute:book-2-line",
     order: 5,
@@ -198,6 +198,11 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:server-line",
     styleToken: "system",
   },
+  "C++": {
+    label: "C++",
+    icon: "mingcute:code-line",
+    styleToken: "system",
+  },
 };
 
 export const TAG_ALIASES: Record<string, string> = {
@@ -218,6 +223,8 @@ export const TAG_ALIASES: Record<string, string> = {
   embedded: "嵌入式",
   编码: "算法",
   algorithm: "算法",
+  "c++": "C++",
+  cpp: "C++",
 };
 
 export function normalizeBlogTag(rawTag: string): string {
