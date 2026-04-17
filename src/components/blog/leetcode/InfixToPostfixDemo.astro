@@ -1,0 +1,228 @@
+---
+// src/components/blog/leetcode/InfixToPostfixDemo.astro
+---
+
+<div
+  id="infix-demo"
+  class="not-prose my-8 p-6 rounded-lg bg-[#ffffff] dark:bg-[#27272a] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] font-sans relative overflow-hidden group"
+>
+  <h3
+    class="demo-title text-xl font-serif font-bold text-ink-900 dark:text-[#e4e4e7] mb-2 border-l-[3px] border-vermilion pl-3"
+  >
+    手工解法演示
+  </h3>
+
+  <div
+    class="relative min-h-[260px] flex flex-col justify-start p-6 bg-[#f8f8f8] dark:bg-[#1f1f22] rounded-md border border-ink-300/30 mb-4 select-none overflow-x-auto hide-scrollbar"
+  >
+    <div id="expr-list" class="flex flex-col gap-5 w-max min-w-full"></div>
+  </div>
+
+  <div
+    class="flex flex-col sm:flex-row items-center justify-between mt-2 border-t border-ink-300/20 pt-4 gap-3"
+  >
+    <div class="text-sm font-serif text-ink-700 dark:text-zinc-200 shrink-0">
+      阶段: <span
+        id="infix-step-count"
+        class="font-bold text-vermilion transition-colors duration-300">0</span
+      ><span class="text-ink-400">/3</span>
+    </div>
+
+    <div
+      id="infix-log-text"
+      class="text-center text-sm text-ink-600 dark:text-zinc-400 font-serif transition-colors duration-300 flex-1 min-w-0 px-2"
+    >
+      初始中缀表达式，准备开始转换。
+    </div>
+
+    <div class="flex gap-3 shrink-0">
+      <button
+        id="infix-btn-step"
+        class="px-5 py-1.5 border border-ink-300 rounded-sm text-ink-700 dark:text-zinc-200 hover:text-white dark:hover:text-[#18181b] hover:bg-vermilion hover:border-vermilion transition-all duration-300 font-serif text-sm"
+      >
+        下一步
+      </button>
+      <button
+        id="infix-btn-reset"
+        class="px-5 py-1.5 border border-ink-300 rounded-sm text-ink-500 dark:text-zinc-400 hover:text-vermilion dark:hover:text-vermilion hover:border-vermilion transition-all duration-300 font-serif text-sm"
+      >
+        重置
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @reference "../../../styles/global.css";
+
+  #infix-demo .demo-title {
+    margin-top: 0 !important;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  #infix-demo :global(.expr-row) {
+    @apply transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-start w-full whitespace-nowrap;
+    font-family:
+      "Charter", "Bitstream Charter", "Sitka Text", "Cambria",
+      "Source Han Serif SC", "Source Han Serif CN", "STSong", "华文宋体",
+      "Songti SC", serif;
+  }
+
+  #infix-demo :global(.row-enter-active) {
+    animation: slide-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  #infix-demo :global(.row-history) {
+    @apply opacity-40 scale-[0.96] origin-left;
+  }
+  #infix-demo :global(.row-current) {
+    @apply opacity-100 scale-100 origin-left;
+    letter-spacing: 0.05em;
+  }
+
+  /* 基础符号样式 */
+  #infix-demo :global(.op-base) {
+    @apply font-medium inline-block transition-all duration-300;
+  }
+  #infix-demo :global(.bracket-base) {
+    @apply font-light inline-block transition-all duration-300;
+  }
+
+  /* 新操作高亮 */
+  #infix-demo :global(.is-new) {
+    @apply font-bold scale-110 drop-shadow-sm;
+  }
+
+  /* 硬编码颜色类 */
+  #infix-demo :global(.c-pink) {
+    color: #d946ef;
+  } /* 对应最外层 A-() */
+  #infix-demo :global(.c-green) {
+    color: #10b981;
+  } /* 对应 ()xE */
+  #infix-demo :global(.c-red) {
+    color: #ef4444;
+  } /* 对应 B+() */
+  #infix-demo :global(.c-blue) {
+    color: #3b82f6;
+  } /* 对应 C/D */
+
+  @keyframes slide-fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const listContainer = document.getElementById("expr-list");
+    const logText = document.getElementById("infix-log-text");
+    const stepCount = document.getElementById("infix-step-count");
+    const btnStep = document.getElementById(
+      "infix-btn-step",
+    ) as HTMLButtonElement | null;
+    const btnReset = document.getElementById(
+      "infix-btn-reset",
+    ) as HTMLButtonElement | null;
+
+    if (!listContainer || !logText || !stepCount || !btnStep || !btnReset)
+      return;
+
+    const labels = ["源:", "①:", "②:", "③:"];
+
+    const steps = [
+      {
+        log: "初始中缀表达式，准备开始转换。",
+        html: `A <span class="op-base c-pink">-</span> ( B <span class="op-base c-red">+</span> C <span class="op-base c-blue">/</span> D ) <span class="op-base c-green">×</span> E`,
+      },
+      {
+        log: "① 充分加括号：最终使每一对括号里仅有一个运算符。",
+        html: `<span class="bracket-base c-pink is-new">(</span> A <span class="op-base c-pink">-</span> <span class="bracket-base c-green is-new">(</span> <span class="bracket-base c-red is-new">(</span> B <span class="op-base c-red">+</span> <span class="bracket-base c-blue is-new">(</span> C <span class="op-base c-blue">/</span> D <span class="bracket-base c-blue is-new">)</span> <span class="bracket-base c-red is-new">)</span> <span class="op-base c-green">×</span> E <span class="bracket-base c-green is-new">)</span> <span class="bracket-base c-pink is-new">)</span>`,
+      },
+      {
+        log: "② 移动运算符：使之放在与之对应的右括号后面。",
+        html: `<span class="bracket-base c-pink">(</span> A <span class="bracket-base c-green">(</span> <span class="bracket-base c-red">(</span> <span class="bracket-base c-blue">(</span> C D <span class="bracket-base c-blue">)</span> <span class="op-base c-blue is-new">/</span> <span class="bracket-base c-red">)</span> <span class="op-base c-red is-new">+</span> E <span class="bracket-base c-green">)</span> <span class="op-base c-green is-new">×</span> <span class="bracket-base c-pink">)</span> <span class="op-base c-pink is-new">-</span>`,
+      },
+      {
+        log: "③ 抹除所有括号：得到最终的后缀表达式。",
+        html: `A B C D <span class="op-base c-blue is-new">/</span> <span class="op-base c-red is-new">+</span> E <span class="op-base c-green is-new">×</span> <span class="op-base c-pink is-new">-</span>`,
+      },
+    ];
+
+    let currentStep = 0;
+    const maxSteps = steps.length - 1;
+
+    const rowNodes = steps.map((step, i) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.innerHTML = `
+        <span class="prefix-label mr-3 font-bold transition-colors duration-700">${labels[i]}</span>
+        <div class="flex-1">${step.html}</div>
+      `;
+      return rowDiv;
+    });
+
+    const updateUI = (isReset = false) => {
+      if (isReset) {
+        listContainer.innerHTML = "";
+        const initNode = rowNodes[0];
+        initNode.className = "expr-row row-current row-enter-active";
+        initNode.querySelector(".prefix-label")!.className =
+          "prefix-label mr-3 font-bold text-vermilion transition-colors duration-700";
+        listContainer.appendChild(initNode);
+      } else {
+        if (currentStep > 0) {
+          const prevNode = rowNodes[currentStep - 1];
+          prevNode.className = "expr-row row-history";
+          prevNode.querySelector(".prefix-label")!.className =
+            "prefix-label mr-3 font-bold text-ink-300 dark:text-zinc-600 transition-colors duration-700";
+        }
+
+        const currNode = rowNodes[currentStep];
+        currNode.className = "expr-row row-current row-enter-active";
+        currNode.querySelector(".prefix-label")!.className =
+          "prefix-label mr-3 font-bold text-vermilion transition-colors duration-700";
+        listContainer.appendChild(currNode);
+      }
+
+      logText.textContent = steps[currentStep].log;
+      stepCount.textContent = String(currentStep);
+
+      if (currentStep === maxSteps) {
+        logText.classList.add("text-vermilion", "font-bold");
+        btnStep.disabled = true;
+        btnStep.classList.add("opacity-50", "cursor-not-allowed");
+      } else {
+        logText.classList.remove("text-vermilion", "font-bold");
+        btnStep.disabled = false;
+        btnStep.classList.remove("opacity-50", "cursor-not-allowed");
+      }
+    };
+
+    btnStep.addEventListener("click", () => {
+      if (currentStep < maxSteps) {
+        currentStep++;
+        updateUI();
+      }
+    });
+
+    btnReset.addEventListener("click", () => {
+      if (currentStep !== 0) {
+        currentStep = 0;
+        updateUI(true);
+      }
+    });
+
+    updateUI(true);
+  });
+</script>

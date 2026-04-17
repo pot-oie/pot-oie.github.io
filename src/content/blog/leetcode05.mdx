@@ -1,0 +1,43 @@
+---
+title: "leetcode 05：回溯"
+description: "to write"
+pubDate: "04 17 2026"
+# updatedDate: "04 17 2026"
+# heroImage: '../../assets/XXX.jpg'
+draft: true
+category: "learn"
+techCategory: "leetcode"
+tags: ["leetcode"]
+---
+
+## 78. 子集
+
+https://leetcode.cn/problems/subsets/description/
+
+### 思路一：回溯
+
+用到了 [Lambda](https://passpot.cn/blog/lambda) 的语法糖。
+
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+    if (nums.empty()) return {};
+    int n = nums.size();
+    vector<vector<int>> ans;
+    vector<int> path;
+
+    auto dfs = [&](this auto&& dfs, int i) -> void {
+        if (i == n) { // 到底
+            ans.emplace_back(path);
+            return;
+        }
+        // 不选此位
+        dfs(i + 1);
+        // 选此位
+        path.emplace_back(nums[i]);
+        dfs(i + 1);
+        path.pop_back();
+    };
+    dfs(0);
+    return ans;
+}
+```
