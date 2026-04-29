@@ -1,5 +1,7 @@
 ---
 // src/components/blog/leetcode/SubsetsVisualizer.astro
+// for leetcode05
+
 import katex from "katex";
 
 const iEq = katex.renderToString("i =", { throwOnError: false });
@@ -98,7 +100,7 @@ const shiftExpr = katex.renderToString("i \\gg j \\ \\& \\ 1", {
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  function initSubsetsVisualizer() {
     const slider = document.getElementById(
       "sv-slider",
     ) as HTMLInputElement | null;
@@ -276,7 +278,10 @@ const shiftExpr = katex.renderToString("i \\gg j \\ \\& \\ 1", {
     });
 
     refresh();
-  });
+  }
+
+  document.addEventListener("astro:page-load", initSubsetsVisualizer);
+  document.addEventListener("DOMContentLoaded", initSubsetsVisualizer);
 </script>
 
 <style>

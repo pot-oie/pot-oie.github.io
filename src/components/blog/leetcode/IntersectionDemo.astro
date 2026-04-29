@@ -1,6 +1,6 @@
 ---
-// src/components/IntersectionDemo.astro
-// 基于现代水墨 (Modern Ink-wash) 风格的单链表相交双指针演示组件
+// src/components/blog/leetcode/IntersectionDemo.astro
+// for sjjg-01
 ---
 
 <div
@@ -286,7 +286,7 @@
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  function initIntersectionDemo() {
     const nodeLabels: Record<string, string> = {
       a4: "A:4",
       a1: "A:1",
@@ -407,5 +407,8 @@
     });
 
     updateUI();
-  });
+  }
+
+  document.addEventListener("astro:page-load", initIntersectionDemo);
+  document.addEventListener("DOMContentLoaded", initIntersectionDemo);
 </script>

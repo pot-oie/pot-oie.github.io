@@ -2,7 +2,7 @@
 title: "leetcode 04：子串"
 description: "T560、T239、T155、T209、T76，涉及滑动窗口和单调队列。"
 pubDate: "04 16 2026"
-updatedDate: "04 17 2026"
+updatedDate: "04 18 2026"
 # heroImage: '../../assets/XXX.jpg'
 draft: false
 category: "learn"
@@ -97,6 +97,8 @@ int subarraySum(vector<int>& nums, int k) {
 ![result](../../assets/blog/content/leetcode-4-2.svg)
 
 当然，也可以选择在 `for` 循环中先执行 `mp[pre_sum]++`，再计算前缀和以及查 `count`，相当于每次循环都处理了当前位置之前的前缀和，这样就无需在初始化时写 `mp[0] = 1` 了。
+
+这道题还有进阶版：[862. 和至少为 K 的最短子数组](/blog/leetcode04/#862-和至少为-k-的最短子数组)，因为涉及到双端队列的使用，我放在文章最末尾了。
 
 ## 239. 滑动窗口最大值
 
@@ -391,3 +393,73 @@ string minWindow(string s, string t) {
     return minLen == INT_MAX ? "" : s.substr(start, minLen);
 }
 ```
+
+## 862. 和至少为 K 的最短子数组
+
+https://leetcode.cn/problems/shortest-subarray-with-sum-at-least-k/description/
+
+给你一个整数数组 `nums` 和一个整数 `k` 。返回 `nums` 中和至少为 `k` 的最短非空子数组的长度。如果没有这样的子数组，返回 `-1` 。
+
+子数组是数组中元素的连续非空序列。
+
+### 示例
+
+> **输入：** nums = [1], k = 1
+>
+> **输出：** 1
+>
+> **解释：** 整个数组是唯一一个和至少为 1 的子数组。
+
+### 提示
+
+- $1 \leq \text{nums.length} \leq 10^5$
+- $-10^5 \leq \text{nums}[i] \leq 10^5$
+- $1 \leq k \leq 10^9$
+
+### 思路
+
+这道题是复合条件，我们可以思考之前遇到此类题的解决手法：
+
+- 数组元素可能有负数 —— 应使用[前缀和](/blog/leetcode04/#前缀和--哈希表)来维护数值。
+- `sum >= k` 的子数组 —— 用[滑动窗口](/blog/leetcode04/#209-长度最小的子数组)动态处理。
+
+通过它们的组合，我们可以得到一个常规解法，但是写着写着就能发现，这两个思路其实没有那么**契合**。
+
+**滑动窗口**的核心在于**窗口内元素的数值和**，维护窗口的左右边界就相当于在维护这个子集；而**前缀和**是把全局的信息高度概括到每个位置上，即如果 `[i, j]` 满足条件，那么当前遍历选中的元素就是 `i` 和 `j`，中间元素在**前缀和**思路下只起到路径累加的作用，并不直接参与决策。
+
+**前缀和**辛辛苦苦维护了每个位置的数值和，但在**滑动窗口**的思路下却得不到充分利用，试想这个场景：
+
+![5](../../assets/blog/content/leetcode-4-5.svg)
+
+很明显，`3` 比 `1` 更靠前，数值却更低，是一个在右边界处理时就应该删去的元素，于是提出靠**单调队列**来维护“优质候选人”。
+
+```cpp
+int shortestSubarray(vector<int>& nums, int k) {
+    int ans = INT_MAX;
+    deque<pair<long long, int>> dq;
+    dq.emplace_back(0, -1);
+    long long curSum = 0LL;
+
+    for (int i = 0; i < nums.size(); i++) {
+        curSum += nums[i];
+        while (!dq.empty() && curSum - dq.front().first >= k) {
+            ans = min((i - dq.front().second), ans);
+            dq.pop_front();
+        }
+        while (!dq.empty() && dq.back().first >= curSum) {
+            dq.pop_back();
+        }
+        dq.emplace_back(curSum, i);
+    }
+
+    return ans == INT_MAX ? -1 : ans;
+}
+```
+
+#### 优化一
+
+![6](../../assets/blog/content/leetcode-4-6.png)
+
+#### 优化二
+
+![7](../../assets/blog/content/leetcode-4-7.png)

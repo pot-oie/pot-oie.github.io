@@ -1,5 +1,6 @@
 ---
 // src/components/blog/leetcode/InfixToPostfixDemo.astro
+// for sjjg-02
 ---
 
 <div
@@ -125,7 +126,7 @@
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  function initInfixToPostfixDemo() {
     const listContainer = document.getElementById("expr-list");
     const logText = document.getElementById("infix-log-text");
     const stepCount = document.getElementById("infix-step-count");
@@ -224,5 +225,8 @@
     });
 
     updateUI(true);
-  });
+  }
+
+  document.addEventListener("astro:page-load", initInfixToPostfixDemo);
+  document.addEventListener("DOMContentLoaded", initInfixToPostfixDemo);
 </script>
