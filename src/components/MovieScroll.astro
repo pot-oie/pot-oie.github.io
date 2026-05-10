@@ -30,11 +30,9 @@ const { posts } = Astro.props;
   >
     {
       posts.map((post) => {
-        const slug = post.id.replace(/\.mdx?$/, "");
         return (
-          <a
-            href={`/movie/${slug}/`}
-            class="scroll-card-link relative shrink-0 snap-center w-40 md:w-[200px] aspect-2/3 group/card transition-all duration-500 ease-out active:scale-95 md:hover:scale-105 md:hover:-translate-y-2 z-0 md:hover:z-10 select-none"
+          <div
+            class="scroll-card relative shrink-0 snap-center w-40 md:w-[200px] aspect-2/3 group/card transition-all duration-500 ease-out active:scale-95 md:hover:scale-105 md:hover:-translate-y-2 z-0 md:hover:z-10 select-none"
             draggable="false"
           >
             {/* 图片容器 */}
@@ -44,8 +42,7 @@ const { posts } = Astro.props;
                 alt={post.data.title}
                 width={600}
                 loading="eager"
-                transition:name={`movie-${slug}`}
-                class="w-full h-full object-cover filter grayscale contrast-[1.1] transition-all duration-700 pointer-events-none md:group-hover/card:grayscale-0 md:group-hover/card:contrast-100 group-[.is-active]/card:grayscale-0 group-[.is-active]/card:contrast-100 active:grayscale-0 active:contrast-100"
+                class="w-full h-full object-cover transition-all duration-700 pointer-events-none"
                 draggable="false"
               />
 
@@ -60,14 +57,17 @@ const { posts } = Astro.props;
                 </span>
               </div>
 
-              {/* 底部渐变标题 */}
-              <div class="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-ink-900/80 to-transparent flex items-end transition-opacity duration-300 opacity-0 md:group-hover/card:opacity-100 group-[.is-active]/card:opacity-100">
-                <h4 class="text-ink-100 font-serif text-sm font-bold leading-tight line-clamp-2 shadow-black drop-shadow-md">
+              {/* 底部渐变信息 */}
+              <div class="absolute inset-0 p-3 bg-linear-to-t from-ink-900/90 via-ink-900/55 to-transparent flex flex-col justify-end transition-opacity duration-300 opacity-0 md:group-hover/card:opacity-100 group-[.is-active]/card:opacity-100">
+                <h4 class="text-ink-100 font-serif text-sm font-bold leading-tight line-clamp-2 drop-shadow-md">
                   {post.data.title}
                 </h4>
+                <p class="mt-1 text-ink-100/90 text-xs leading-relaxed line-clamp-4 drop-shadow-md">
+                  {post.data.shortReview}
+                </p>
               </div>
             </div>
-          </a>
+          </div>
         );
       })
     }
@@ -115,7 +115,7 @@ const { posts } = Astro.props;
       { passive: false }
     );
 
-    // 2. 鼠标拖拽滚动逻辑 + 点击冲突处理
+    // 2. 鼠标拖拽滚动逻辑
     let isDown = false;
     let startX = 0;
     let scrollLeft = 0;
@@ -150,32 +150,18 @@ const { posts } = Astro.props;
       scrollContainer.scrollLeft = scrollLeft - walk;
     });
 
-    // 3. 链接点击拦截逻辑
-    const links = scrollContainer.querySelectorAll(".scroll-card-link");
-    links.forEach((link) => {
-      link.addEventListener("click", (e) => {
-        const target = e.currentTarget as HTMLAnchorElement;
-        const mouseEvent = e as MouseEvent;
+    const cards = scrollContainer.querySelectorAll(".scroll-card");
+    cards.forEach((element) => {
+      const card = element as HTMLElement;
+      if (card.dataset.bound === "true") return;
+      card.dataset.bound = "true";
 
-        if (hasMoved) {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
+      card.addEventListener("click", () => {
+        if (hasMoved) return;
 
-        if (
-          mouseEvent.metaKey ||
-          mouseEvent.ctrlKey ||
-          target.classList.contains("is-active")
-        )
-          return;
-
-        e.preventDefault();
-        target.classList.add("is-active");
-
-        setTimeout(() => {
-          window.location.href = target.href;
-        }, 400);
+        const wasActive = card.classList.contains("is-active");
+        cards.forEach((item) => item.classList.remove("is-active"));
+        if (!wasActive) card.classList.add("is-active");
       });
     });
   }

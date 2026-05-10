@@ -18,11 +18,11 @@ This project is a personal content site built with Astro 5. It combines a blog a
 
 `src/pages` is the route layer. Astro files here define URLs and assemble data, layouts, and components.
 
-`src/layouts` is the page skeleton layer. Layouts such as `BaseLayout.astro`, `TechPost.astro`, `LifePost.astro`, `MoviePost.astro`, and `AlbumPost.astro` define major page structures.
+`src/layouts` is the page skeleton layer. Layouts such as `BaseLayout.astro`, `TechPost.astro`, `LifePost.astro`, and `AlbumPost.astro` define major page structures.
 
 `src/components` is the reusable UI and interaction layer. It includes site chrome, cards, search, music controls, table of contents, and article-specific demos.
 
-`src/content` is the content source layer. Blog and movie entries are MDX. Music entries are YAML loaded through a glob loader.
+`src/content` is the content source layer. Blog entries are MDX. Movie and music entries are YAML loaded through glob loaders.
 
 `src/styles` is the global style layer. `global.css` defines the theme tokens and site-wide behavior. `markdown.css` handles rendered article content.
 

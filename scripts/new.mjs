@@ -225,20 +225,15 @@ async function handleMovie() {
       formattedReleaseDate = `${rMonth} ${rDay} ${rYear}`;
     }
 
-    const mdxContent = `---
-title: '${movieZH.title}'
-releaseDate: '${formattedReleaseDate}'
-viewingDate: '${new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, ' ')}'
+    const yamlContent = `title: ${JSON.stringify(movieZH.title)}
+releaseDate: ${JSON.stringify(formattedReleaseDate)}
+viewingDate: ${JSON.stringify(new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, ' '))}
 rating: 0
-coverImage: '../../assets/movie/${posterFilename}'
-shortReview: ''
-haveReview: false
----
-
-暂无长评...
+coverImage: ${JSON.stringify(`../../assets/movie/${posterFilename}`)}
+shortReview: ""
 `;
 
-    const fileName = `${slugName}.mdx`;
+    const fileName = `${slugName}.yaml`;
     const filePath = path.join(PATHS.movieContent, fileName);
 
     if (fs.existsSync(filePath)) {
@@ -252,7 +247,7 @@ haveReview: false
       }
     }
 
-    await fs.writeFile(filePath, mdxContent);
+    await fs.writeFile(filePath, yamlContent);
     
     // 风格化表格
     printResultTable('MOVIE ENTRY CREATED', [

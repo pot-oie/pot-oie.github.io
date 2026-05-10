@@ -136,27 +136,28 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
     >
       {
         recentMovies.map((movie) => {
-          const slug = movie.id.replace(/\.mdx?$/, "");
           return (
-            <div class="group">
-              <a
-                href={`/movie/${slug}/`}
-                class="js-delayed-link block overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] active:duration-150 transition-all duration-500"
+            <div class="group movie-review-card">
+              <div
+                class="block overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] active:duration-150 transition-all duration-500 cursor-pointer"
               >
                 <img
                   src={movie.data.coverImage.src}
                   alt={movie.data.title}
                   loading="eager"
                   decoding="async"
-                  transition:name={`movie-${slug}`}
                   class="w-full h-full object-cover transition-transform duration-700 
-                         md:group-hover:scale-105 md:group-hover:grayscale-0 
-                         group-active:scale-105 group-active:grayscale-0 
-                         group-[.is-active]:scale-105 group-[.is-active]:grayscale-0
-                         filter grayscale 
+                         md:group-hover:scale-105 group-active:scale-105 group-[.is-active]:scale-105
                          active:duration-200 group-[.is-active]:duration-200"
                 />
-              </a>
+                <div
+                  class="absolute inset-0 flex items-end p-3 bg-linear-to-t from-ink-900/90 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
+                >
+                  <p class="text-ink-100 text-sm leading-relaxed line-clamp-5 drop-shadow-md">
+                    {movie.data.shortReview}
+                  </p>
+                </div>
+              </div>
               <h3
                 class="mt-3 text-lg font-serif font-bold text-ink-900 dark:text-zinc-200 
                        md:group-hover:text-vermilion 
@@ -266,6 +267,19 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
         });
       }
     }
+
+    const movieCards = document.querySelectorAll(".movie-review-card");
+    movieCards.forEach((element) => {
+      const card = element as HTMLElement;
+      if (card.dataset.bound === "true") return;
+      card.dataset.bound = "true";
+
+      card.addEventListener("click", () => {
+        const wasActive = card.classList.contains("is-active");
+        movieCards.forEach((item) => item.classList.remove("is-active"));
+        if (!wasActive) card.classList.add("is-active");
+      });
+    });
 
     // 通用延迟跳转逻辑 (电影卡片 + 底部按钮)
     // 查找所有带 js-delayed-link 类的元素

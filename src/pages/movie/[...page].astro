@@ -59,12 +59,10 @@ const pageTitle = "Cinema Records";
     >
       {
         pageMovies.map((post) => {
-          const slug = post.id.replace(/\.mdx?$/, "");
           return (
-            <article class="group flex flex-col gap-3">
-              <a
-                href={`/movie/${slug}/`}
-                class="movie-card-link block overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] transition-transform duration-200"
+            <article class="group movie-review-card flex flex-col gap-3">
+              <div
+                class="block overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] transition-transform duration-200 cursor-pointer"
               >
                 {post.data.coverImage && (
                   <Image
@@ -72,23 +70,29 @@ const pageTitle = "Cinema Records";
                     alt={post.data.title}
                     width={600}
                     loading="eager"
-                    transition:name={`movie-${slug}`}
-                    class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-105 filter grayscale contrast-[1.1] md:group-hover:grayscale-0 md:group-hover:contrast-100 active:grayscale-0 active:contrast-100 group-[.is-active]:grayscale-0 group-[.is-active]:contrast-100"
+                    class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-105 group-[.is-active]:scale-105"
                   />
                 )}
+                <div
+                  class="absolute inset-0 flex items-end p-4 bg-linear-to-t from-ink-900/90 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
+                >
+                  <p class="text-ink-100 text-sm leading-relaxed line-clamp-5 drop-shadow-md">
+                    {post.data.shortReview}
+                  </p>
+                </div>
                 {/* 评分印章 */}
                 <div class="absolute top-2 right-2 bg-ink-100/90 backdrop-blur-sm px-2 py-1 text-xs font-serif font-bold text-vermilion rounded-sm shadow-sm transition-all duration-300 opacity-100 translate-y-0 md:opacity-0 md:-translate-y-2.5 md:group-hover:opacity-100 md:group-hover:translate-y-0">
                   {post.data.rating.toFixed(1)}
                 </div>
-              </a>
+              </div>
 
               <div class="flex flex-col">
                 <h2 class="text-lg font-serif font-bold text-ink-900 md:group-hover:text-vermilion active:text-vermilion group-[.is-active]:text-vermilion transition-colors leading-tight line-clamp-1">
-                  <a href={`/movie/${slug}/`}>{post.data.title}</a>
+                  {post.data.title}
                 </h2>
-                <p class="text-xs text-ink-500 font-sans tracking-wide mt-1 line-clamp-1 opacity-100 md:opacity-80 md:group-hover:opacity-100 transition-opacity">
-                  {post.data.shortReview}
-                </p>
+                <div class="flex text-yellow-600 dark:text-yellow-500 text-xs mt-1 gap-1">
+                  <span>★ {post.data.rating.toFixed(1)}</span>
+                </div>
               </div>
             </article>
           );
@@ -144,51 +148,22 @@ const pageTitle = "Cinema Records";
 </BaseLayout>
 
 <script>
-  function setupMovieGridInteractions() {
-    const cleanupActiveStates = () => {
-      document.querySelectorAll(".is-active").forEach((el) => {
-        el.classList.remove("is-active");
-      });
-    };
+  function setupMovieReviewCards() {
+    const cards = document.querySelectorAll(".movie-review-card");
 
-    cleanupActiveStates();
-    window.addEventListener("pageshow", (event) => {
-      if (event.persisted) {
-        cleanupActiveStates();
-      }
-    });
+    cards.forEach((element) => {
+      const card = element as HTMLElement;
+      if (card.dataset.bound === "true") return;
+      card.dataset.bound = "true";
 
-    const links = document.querySelectorAll(".movie-card-link");
-
-    links.forEach((element) => {
-      const link = element as HTMLAnchorElement;
-
-      if (link.dataset.bound === "true") return;
-      link.dataset.bound = "true";
-
-      link.addEventListener("click", (e) => {
-        const mouseEvent = e as MouseEvent;
-        const target = e.currentTarget as HTMLAnchorElement;
-        const group = target.closest(".group");
-
-        if (
-          mouseEvent.metaKey ||
-          mouseEvent.ctrlKey ||
-          (group && group.classList.contains("is-active"))
-        )
-          return;
-
-        e.preventDefault();
-
-        if (group) group.classList.add("is-active");
-
-        setTimeout(() => {
-          window.location.href = target.href;
-        }, 400);
+      card.addEventListener("click", () => {
+        const wasActive = card.classList.contains("is-active");
+        cards.forEach((item) => item.classList.remove("is-active"));
+        if (!wasActive) card.classList.add("is-active");
       });
     });
   }
 
-  document.addEventListener("DOMContentLoaded", setupMovieGridInteractions);
-  document.addEventListener("astro:page-load", setupMovieGridInteractions);
+  document.addEventListener("DOMContentLoaded", setupMovieReviewCards);
+  document.addEventListener("astro:page-load", setupMovieReviewCards);
 </script>
