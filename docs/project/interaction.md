@@ -1,0 +1,138 @@
+# Interaction
+
+This document records cross-page runtime behavior, browser events, storage keys, and initialization points. Update it whenever an interaction crosses component or page boundaries.
+
+## Initialization Lifecycle
+
+The project uses Astro View Transitions through `ClientRouter` in `src/layouts/BaseLayout.astro`.
+
+Most browser-side initializers are attached to `astro:page-load` so they run after initial load and after view transitions. Some scripts also listen to `DOMContentLoaded` for the first non-transition load.
+
+Common pattern:
+
+```ts
+document.addEventListener("astro:page-load", initFeature);
+```
+
+When adding a script, make it idempotent. View transitions can re-run setup on the same browser session.
+
+## Global Layout Behavior
+
+`src/layouts/BaseLayout.astro` owns these global behaviors:
+
+- Lenis smooth scrolling.
+- Search metrics storage and event collection.
+- Persistent global audio element.
+- MediaSession metadata for audio playback.
+- Math overflow scroll hints.
+- Hash scrolling after View Transitions.
+
+Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.
+
+## Storage Keys
+
+- `theme`: selected color mode, managed by `BaseHead.astro` and `Header.astro`.
+- `pot-search-metrics-v1`: search metrics store, written by `BaseLayout.astro` in response to search metric events.
+- `pot-search-debug`: optional debug flag. When set to `1`, search metrics are logged in the console.
+
+## Custom Events
+
+### Search
+
+`Search.astro` dispatches:
+
+- `pot:search-metric`
+
+Payload shape:
+
+```ts
+{
+  event: string;
+  payload: Record<string, unknown>;
+  timestamp: number;
+}
+```
+
+Known event names:
+
+- `search_success`
+- `search_no_results`
+- `search_error`
+
+`BaseLayout.astro` listens for these events and writes aggregate data to `localStorage`.
+
+### Audio
+
+Playback requests are emitted by music UI and consumed by `BaseLayout.astro`.
+
+Inbound events listened to by the global audio controller:
+
+- `pot:play-request`
+- `pot:seek-request`
+- `pot:volume-request`
+
+Outbound events emitted by the global audio controller:
+
+- `pot:audio-state`
+- `pot:audio-progress`
+
+Important producers:
+
+- `RecentMusic.astro`
+- `TrackControl.astro`
+
+Important consumers:
+
+- `RecentMusic.astro`
+- `TrackControl.astro`
+- `AlbumSidebar.astro`
+
+The global audio element has `transition:persist`, so playback state can survive Astro page transitions.
+
+## Keyboard Shortcuts
+
+`Search.astro` owns global search shortcuts:
+
+- `Escape`: close search modal.
+- `Ctrl+K` or `Meta+K`: open search modal.
+
+When adding a new global shortcut, check for conflicts here first.
+
+## Page-Specific Interactions
+
+### Home Page
+
+`src/pages/index.astro` owns:
+
+- movie grid/scroll view toggle
+- active-state cleanup for BFCache restore
+- delayed navigation for selected links/cards
+
+This behavior is page-local and should not move into shared components unless it is reused elsewhere.
+
+### Movie List
+
+`src/pages/movie/[...page].astro` owns movie-grid interactions for the paginated movie list.
+
+### Dashboard
+
+`src/pages/dashboard.astro` reads and clears `pot-search-metrics-v1`.
+
+## Scroll Boundaries
+
+Components with their own scroll surface should use `data-lenis-prevent` to avoid Lenis taking over nested scrolling.
+
+Current examples:
+
+- Search modal scroll container.
+- Desktop table-of-contents sidebar in `TechPost.astro`.
+
+## Maintenance Checklist
+
+When changing interactions:
+
+1. Confirm initialization is idempotent across `astro:page-load`.
+2. Document new custom events and storage keys.
+3. Avoid duplicate global listeners after View Transitions.
+4. Check nested scroll behavior with Lenis.
+5. If the change affects search or audio, test at least one route transition.
