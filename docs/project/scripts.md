@@ -14,7 +14,7 @@ Project scripts are defined in `package.json`. Content automation scripts live i
 
 ## Content Scripts
 
-`scripts/new.mjs` is an interactive content manager for movie and music records. Movie creation can use TMDB through `TMDB_API_KEY` and a proxy configured by `PROXY_URL`.
+`scripts/new.mjs` is an interactive content manager for movie and music records. Movie creation can use TMDB through `TMDB_API_KEY` and a proxy configured by `PROXY_URL`, then writes a YAML record under `src/content/movie`.
 
 `scripts/update-music.mjs` updates music records.
 

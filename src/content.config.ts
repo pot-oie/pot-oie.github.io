@@ -12,7 +12,7 @@ const BLOG_CATEGORIES = z.enum([
 const LIFE_CATEGORIES = z.enum([
   "daily", // 日常随笔
   "album", // 专辑鉴赏
-  "movie", // 电影长评
+  "movie", // 电影文章
 ]);
 
 const TECH_CATEGORY_ENUM = z.enum(TECH_CATEGORIES);
@@ -74,6 +74,10 @@ const blog = defineCollection({
 
 // 电影集合
 const movie = defineCollection({
+  loader: glob({
+    pattern: "**/*.{yaml,yml,json}",
+    base: "./src/content/movie",
+  }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -87,8 +91,6 @@ const movie = defineCollection({
       coverImage: image(),
       // 首页短评
       shortReview: z.string(),
-      // 是否有长评
-      haveReview: z.boolean(),
     }),
 });
 

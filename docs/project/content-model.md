@@ -53,7 +53,7 @@ Tags are normalized by `normalizeBlogTag` from `src/utils/blogTaxonomy.ts`. Dupl
 
 Source directory: `src/content/movie`
 
-File type: MDX
+File type: YAML, YML, or JSON
 
 Fields:
 
@@ -63,7 +63,6 @@ Fields:
 - `rating`
 - `coverImage`
 - `shortReview`
-- `haveReview`
 
 `rating` must be between `0` and `5`. `coverImage` is required.
 

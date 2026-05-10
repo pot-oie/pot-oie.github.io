@@ -41,6 +41,10 @@ Dark mode is enabled through:
 - Astro View Transitions are enabled in `BaseLayout.astro`.
 - Lenis smooth scrolling is initialized globally in `BaseLayout.astro`.
 
+## Movie Cards
+
+Movie posters are shown in color by default. Short reviews live in an image overlay that appears on hover and through the `.is-active` selected state used for touch interactions.
+
 ## Code Blocks
 
 Code blocks support a customized reading experience with:

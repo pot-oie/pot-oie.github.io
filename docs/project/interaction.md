@@ -105,6 +105,7 @@ When adding a new global shortcut, check for conflicts here first.
 `src/pages/index.astro` owns:
 
 - movie grid/scroll view toggle
+- movie review overlay selection for recent movie cards
 - active-state cleanup for BFCache restore
 - delayed navigation for selected links/cards
 
@@ -112,7 +113,7 @@ This behavior is page-local and should not move into shared components unless it
 
 ### Movie List
 
-`src/pages/movie/[...page].astro` owns movie-grid interactions for the paginated movie list.
+`src/pages/movie/[...page].astro` owns movie review overlay selection for the paginated movie list. Movie cards show short reviews on hover-capable devices and toggle the overlay with a click/tap for touch devices.
 
 ### Dashboard
 

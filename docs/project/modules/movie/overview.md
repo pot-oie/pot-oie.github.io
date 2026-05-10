@@ -1,19 +1,18 @@
 # Movie Module
 
-The movie module records watched movies and optional long reviews.
+The movie module records watched movies as structured data. Long-form movie writing belongs in the `blog` collection under the life/movie taxonomy.
 
 ## Source Areas
 
 - Content: `src/content/movie`
 - Assets: `src/assets/movie`
-- Routes: `src/pages/movie/[...page].astro`, `src/pages/movie/[slug].astro`
-- Layout: `src/layouts/MoviePost.astro`
+- Routes: `src/pages/movie/[...page].astro`
 - Components: `src/components/MovieCard.astro`, `src/components/MovieScroll.astro`, `src/components/ScoreBox.astro`
 - Creation script: `scripts/new.mjs`
 
 ## Content Rules
 
-Movie entries are MDX files validated by the `movie` collection schema.
+Movie entries are YAML/YML/JSON files loaded by the `movie` collection schema.
 
 Required fields:
 
@@ -22,7 +21,6 @@ Required fields:
 - `rating`
 - `coverImage`
 - `shortReview`
-- `haveReview`
 
 Optional field:
 
@@ -34,7 +32,9 @@ Optional field:
 
 Movie list views sort primarily by `viewingDate`. The home page shows recent movie records and includes a grid/scroll view toggle.
 
-The interactive movie creation path in `scripts/new.mjs` can search TMDB, download a poster, and generate a movie MDX entry when `TMDB_API_KEY` is configured.
+Movie cards show posters in color by default. `shortReview` appears in a poster overlay on hover and can be toggled by click/tap on touch devices.
+
+Movie entries do not have detail pages. The interactive movie creation path in `scripts/new.mjs` can search TMDB, download a poster, and generate a movie YAML entry when `TMDB_API_KEY` is configured.
 
 ## Maintenance Notes
 

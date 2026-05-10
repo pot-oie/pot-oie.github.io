@@ -11,7 +11,6 @@ interface Props {
 
 const { post } = Astro.props;
 const { title, shortReview, coverImage, rating } = post.data;
-const slug = post.id.replace(/\.mdx?$/, "");
 
 // 数字到图标的映射逻辑
 function generateStars(rating: number) {
@@ -36,9 +35,8 @@ function generateStars(rating: number) {
 const starIcons = generateStars(rating);
 ---
 
-<a
-  href={`/movie/${slug}/`}
-  class="group relative block aspect-2/3 w-full rounded-lg overflow-hidden shadow-lg bg-zinc-100 dark:bg-zinc-800 transition-transform transform hover:-translate-y-1"
+<article
+  class="group movie-review-card relative block aspect-2/3 w-full rounded-lg overflow-hidden shadow-lg bg-zinc-100 dark:bg-zinc-800 transition-transform transform hover:-translate-y-1 cursor-pointer"
 >
   {
     coverImage ? (
@@ -48,17 +46,17 @@ const starIcons = generateStars(rating);
         width={600}
         height={600}
         format="webp"
-        class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-40"
+        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-[.is-active]:scale-105"
       />
     ) : (
-      <div class="w-full h-full flex items-center justify-center p-4 transition-opacity duration-300 group-hover:opacity-40">
+      <div class="w-full h-full flex items-center justify-center p-4">
         <span class="text-zinc-500 text-sm text-center">{title}</span>
       </div>
     )
   }
 
   <div
-    class="absolute inset-0 p-4 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    class="absolute inset-0 p-4 flex flex-col justify-end bg-linear-to-t from-black/85 via-black/50 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
   >
     <h4 class="text-white text-lg font-bold line-clamp-2">{title}</h4>
 
@@ -69,4 +67,25 @@ const starIcons = generateStars(rating);
 
     <p class="text-zinc-300 text-sm mt-1 line-clamp-3">{shortReview}</p>
   </div>
-</a>
+</article>
+
+<script>
+  function setupMovieReviewCards() {
+    const cards = document.querySelectorAll(".movie-review-card");
+
+    cards.forEach((element) => {
+      const card = element as HTMLElement;
+      if (card.dataset.bound === "true") return;
+      card.dataset.bound = "true";
+
+      card.addEventListener("click", () => {
+        const wasActive = card.classList.contains("is-active");
+        cards.forEach((item) => item.classList.remove("is-active"));
+        if (!wasActive) card.classList.add("is-active");
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", setupMovieReviewCards);
+  document.addEventListener("astro:page-load", setupMovieReviewCards);
+</script>

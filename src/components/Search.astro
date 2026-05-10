@@ -193,7 +193,6 @@ import { Icon } from "astro-icon/components";
 
     if (path === "/movie") return "summary";
     if (/^\/movie\/\d+$/.test(path)) return "summary";
-    if (path.startsWith("/movie/")) return "detail";
 
     if (path === "/music") return "summary";
     if (/^\/music\/[^/]+$/.test(path)) return "summary";

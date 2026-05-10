@@ -18,7 +18,7 @@ export async function GET(context) {
 			title: `[观影] ${post.data.title} (${post.data.rating}★)`,
 			description: post.data.shortReview,
 			pubDate: post.data.viewingDate, // 使用观影日期作为发布日期
-			link: `/movie/${post.id.replace(/\.mdx?$/, '')}/`,
+			link: `/movie/`,
 			customData: `<category>Movie</category>`
 		})),
 		...music.map((post) => ({
