@@ -24,7 +24,10 @@ When adding a script, make it idempotent. View transitions can re-run setup on t
 - Search metrics storage and event collection.
 - Persistent global audio element.
 - MediaSession metadata for audio playback.
-- Math overflow scroll hints.
+- Math overflow scroll hints for KaTeX block formulas. The initializer runs
+  after layout and again after font loading so `.katex-display` width checks
+  are based on the rendered formula size. Overflowing formulas also support
+  mouse drag-to-scroll for devices without horizontal touchpad gestures.
 - Hash scrolling after View Transitions.
 
 Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.

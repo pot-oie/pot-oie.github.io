@@ -55,6 +55,13 @@ Code blocks support a customized reading experience with:
 
 Most article-specific code rendering styles live in `src/styles/markdown.css`.
 
+## Article Math
+
+MDX math is rendered through KaTeX. Article math keeps large, non-wrapping
+formula text for readability, while overflowing block formulas hide the native
+horizontal scrollbar and use a subtle right-edge fade to indicate additional
+content.
+
 ## Maintenance Rules
 
 - Keep new UI aligned with the ink grayscale and vermilion accent system.

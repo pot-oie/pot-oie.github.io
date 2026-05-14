@@ -728,6 +728,7 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 /* 外层容器 */
 .prose-ink .katex-display {
   display: block;
+  position: relative;
   margin: 1.5em 0; /* 呼吸空间 */
   padding: 1em 0;
   text-align: center;
@@ -736,6 +737,8 @@ html.dark .prose-ink :not(.katex-display) > .katex {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   /* 覆盖 prose 默认行高 */
   line-height: normal;
@@ -745,7 +748,30 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 .prose-ink .katex-display > .katex {
   display: inline-block;
   width: max-content;
-  max-width: 100%;
+}
+
+.prose-ink .katex-display.math-scrollable:not(.math-scroll-end) {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
+}
+
+.prose-ink .katex-display.math-scrollable {
+  cursor: grab;
+}
+
+.prose-ink .katex-display.math-scrollable.math-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 /* 内部排版 */
@@ -762,21 +788,11 @@ html.dark .prose-ink .katex-display:hover .katex {
   color: #f87171;
 }
 
-/* 横向滚动条 */
+/* 横向滚动条：块公式用右侧渐隐提示，隐藏原生滚动条 */
 .prose-ink .katex-display::-webkit-scrollbar {
-  height: 6px;
-}
-.prose-ink .katex-display::-webkit-scrollbar-track {
-  background: transparent;
-}
-.prose-ink .katex-display::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-300);
-  border-radius: 3px;
-  background-clip: content-box;
-  border: 1px solid transparent;
-}
-.prose-ink .katex-display::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-vermilion);
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* =========================================
@@ -788,7 +804,8 @@ html.dark .prose-ink .katex-display:hover .katex {
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
-  margin-top: 0.25rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.75rem;
   padding-right: 0.5rem;
 
   /* 主体文字淡墨色、斜体 */
