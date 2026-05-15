@@ -46,7 +46,9 @@ Dark mode is enabled through:
 - Lenis smooth scrolling is initialized globally in `BaseLayout.astro`.
 - Article images in `.prose-ink` can open in a focused lightbox overlay. The
   overlay uses a dark ink backdrop, restrained motion, and the vermilion accent
-  for the close affordance.
+  for the close affordance. Lightbox images support zoom, drag gestures,
+  previous/next navigation, a compact zoom toolbar, a loading state, and an
+  original-image link while keeping the controls visually minimal.
 
 ## Movie Cards
 

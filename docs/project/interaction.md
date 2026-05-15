@@ -30,7 +30,12 @@ When adding a script, make it idempotent. View transitions can re-run setup on t
   mouse drag-to-scroll for devices without horizontal touchpad gestures.
 - Article image lightbox for `.prose-ink` images. The initializer skips linked
   images and `.not-prose` component content, supports click, keyboard activation,
-  overlay/close-button dismissal, and `Escape`.
+  touch pinch zoom, trackpad/browser pinch zoom, drag panning when zoomed,
+  toolbar zoom controls, original-image opening, previous/next navigation,
+  loading/error feedback, focus restoration on close, overlay/close-button
+  dismissal, and `Escape`. Keyboard controls inside the open lightbox include
+  `ArrowLeft`/`ArrowRight` for image navigation, `+`/`-` for zoom, and `0` for
+  zoom reset.
 - Hash scrolling after View Transitions.
 
 Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.

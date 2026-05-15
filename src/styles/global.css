@@ -166,6 +166,23 @@ body {
   object-fit: contain;
   border-radius: 4px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  cursor: zoom-in;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.18s ease;
+  will-change: transform;
+}
+
+.article-image-lightbox.is-loading .article-image-lightbox__image {
+  opacity: 0.55;
+}
+
+.article-image-lightbox__image.is-zoomed {
+  cursor: grab;
+}
+
+.article-image-lightbox__image.is-transforming {
+  transition: none;
 }
 
 .article-image-lightbox__caption {
@@ -177,12 +194,137 @@ body {
   text-align: center;
 }
 
+.article-image-lightbox__topbar {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 15, 15, 0.52);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+  transform: translateX(-50%);
+  backdrop-filter: blur(16px);
+}
+
+.article-image-lightbox__tool {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.article-image-lightbox__tool > span,
+.article-image-lightbox__close > span,
+.article-image-lightbox__nav > span {
+  display: block;
+  line-height: 1;
+  transform: translateY(-0.08em);
+}
+
+.article-image-lightbox__tool:hover,
+.article-image-lightbox__tool:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  outline: none;
+}
+
+.article-image-lightbox__tool:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.article-image-lightbox__original {
+  margin-left: 0.1rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.8rem;
+}
+
+.article-image-lightbox__nav {
+  position: fixed;
+  top: 50%;
+  z-index: 2;
+  display: none;
+  width: 2.75rem;
+  height: 3.75rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 15, 15, 0.42);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 2.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.article-image-lightbox.has-multiple .article-image-lightbox__nav {
+  display: grid;
+  place-items: center;
+}
+
+.article-image-lightbox__nav--prev {
+  left: 1rem;
+}
+
+.article-image-lightbox__nav--next {
+  right: 1rem;
+}
+
+.article-image-lightbox__nav:hover,
+.article-image-lightbox__nav:focus-visible {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  outline: none;
+}
+
+.article-image-lightbox__status {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 15, 15, 0.58);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(12px);
+}
+
 .article-image-lightbox__close {
   position: fixed;
   top: 1rem;
   right: 1rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
   width: 2.5rem;
   height: 2.5rem;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
   background: rgba(15, 15, 15, 0.4);
@@ -204,6 +346,38 @@ body {
   color: white;
   transform: scale(1.04);
   outline: none;
+}
+
+@media (max-width: 640px) {
+  .article-image-lightbox {
+    padding: 0.85rem;
+  }
+
+  .article-image-lightbox__topbar {
+    top: auto;
+    bottom: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .article-image-lightbox__tool {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.55rem;
+  }
+
+  .article-image-lightbox__nav {
+    width: 2.25rem;
+    height: 3rem;
+    font-size: 1.9rem;
+  }
+
+  .article-image-lightbox__nav--prev {
+    left: 0.55rem;
+  }
+
+  .article-image-lightbox__nav--next {
+    right: 0.55rem;
+  }
 }
 
 /* 全局噪点材质 */
