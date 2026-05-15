@@ -1,36 +1,43 @@
 # Deployment
 
-The site is built as a static Astro site and deployed through GitHub Actions.
+The site is built as a static Astro site on the cloud server that hosts `passpot.cn`.
 
-## Workflow
+## Build Environment
 
-Deployment workflow:
+Use the Node.js version declared in the repository root:
 
-- `.github/workflows/deploy.yml`
+- `.node-version`: `24.11.0`
+
+Server build command:
+
+```bash
+npm ci
+npm run build
+```
+
+The production output is written to `dist/`.
+
+## GitHub Workflow
+
+GitHub Actions is used as a build check only. It does not deploy the site.
+
+Workflow:
+
+- `.github/workflows/ci.yml`
 
 Triggers:
 
 - push to `main`
+- pull request targeting `main`
 - manual `workflow_dispatch`
 
-Build environment:
+The workflow installs dependencies with `npm ci` and runs `npm run build`.
 
-- Ubuntu latest runner
-- Node.js `24.11.0`
-- `npm ci`
-- `npm run build`
+## Environment Variables
 
-Deployment target:
+Runtime deployment does not require repository secrets.
 
-- Aliyun server through `easingthemes/ssh-deploy`
-- Source directory: `dist/`
-- Remote target: `/var/www/passpot`
-
-## Required Secrets
-
-- `ALIYUN_KEY`
-- `ALIYUN_HOST`
-- `ALIYUN_USER`
+Local content automation can use the variables documented in `.env.example`.
 
 ## Site Configuration
 
@@ -45,4 +52,4 @@ This value is used by sitemap and RSS-related output.
 ## Maintenance Notes
 
 - Run `npm run build` locally before changing deployment-sensitive behavior when possible.
-- If deployment target, Node version, or build command changes, update this document.
+- If deployment target, Node version, build command, or server process changes, update this document.

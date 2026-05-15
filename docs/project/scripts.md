@@ -22,6 +22,7 @@ Project scripts are defined in `package.json`. Content automation scripts live i
 
 ## Maintenance Notes
 
+- Copy `.env.example` to `.env` for local content automation that needs external APIs or a proxy.
 - When adding a script, document its purpose, inputs, and outputs here.
 - If a script changes content schema expectations, update `docs/project/content-model.md`.
 - If a script needs secrets or environment variables, document them here and in deployment notes when relevant.

@@ -1,6 +1,7 @@
 {
-  "name": "tremendous-telescope",
+  "name": "passpot-site",
   "type": "module",
+  "private": true,
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
