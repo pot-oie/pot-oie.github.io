@@ -5,6 +5,7 @@
    ========================================= */
 
 .prose-ink {
+  counter-reset: prose-section;
   color: var(--prose-body);
   font-family: var(--font-sans);
   font-size: 1.05rem;
@@ -33,14 +34,62 @@
   margin-bottom: 1em;
   position: relative;
 }
-.prose-ink h2 {
-  font-size: 1.8em;
+.prose-ink > h2 {
+  counter-increment: prose-section;
+  font-size: 2em;
+  margin-top: 2.65em;
+  margin-bottom: 1em;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.3em;
+  padding-bottom: 0.38em;
 }
-.prose-ink h3 {
-  font-size: 1.4em;
-  margin-top: 2em;
+.prose-ink > h2::before {
+  content: counter(prose-section, decimal-leading-zero);
+  position: absolute;
+  left: -0.08em;
+  bottom: -0.04em;
+  color: var(--prose-heading-watermark);
+  font-family: var(--font-sans);
+  font-size: 2.4em;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  pointer-events: none;
+}
+.prose-ink > h3 {
+  display: table;
+  width: fit-content;
+  padding: 0 0.1em;
+  font-size: 1.55em;
+  margin-top: 2.15em;
+  margin-bottom: 0.9em;
+  background: linear-gradient(
+    transparent 64%,
+    var(--prose-heading-highlight) 64%,
+    var(--prose-heading-highlight) 90%,
+    transparent 90%
+  );
+}
+.prose-ink > h4 {
+  display: table;
+  width: fit-content;
+  padding: 0 0.08em;
+  font-size: 1.28em;
+  margin-top: 2.3em;
+  margin-bottom: 1.65em;
+  background: linear-gradient(
+    transparent 66%,
+    var(--prose-heading-muted-highlight) 66%,
+    var(--prose-heading-muted-highlight) 90%,
+    transparent 90%
+  );
+}
+.prose-ink .not-prose h2,
+.prose-ink .not-prose h3,
+.prose-ink .not-prose h4 {
+  counter-increment: none;
+}
+.prose-ink .not-prose h2::before {
+  content: none;
 }
 .prose-ink em {
   font-size: 1.05em;
@@ -63,12 +112,12 @@
 .prose-ink ul > li::before {
   content: "";
   position: absolute;
-  left: -1.2em;
-  top: 0.65em;
+  left: -0.95em;
+  top: 0.88em;
   width: 6px;
   height: 6px;
   background-color: var(--prose-list-marker, var(--color-vermilion));
-  transform: rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
   opacity: 0.8;
 }
 .prose-ink ol {
@@ -146,6 +195,9 @@ html.dark .prose-ink blockquote {
 }
 .prose-ink img:hover {
   transform: scale(1.01);
+}
+.prose-ink img[data-lightbox-enabled="true"] {
+  cursor: zoom-in;
 }
 
 .prose-ink :not(pre) > code {
@@ -599,15 +651,20 @@ html.dark .code-block-wrapper pre.astro-code span {
   }
 
   /* 标题上下留白 */
-  .prose.prose-ink h2 {
-    margin-top: 1.5em !important;
-    margin-bottom: 0.6em !important;
-    font-size: 1.4em !important;
+  .prose.prose-ink > h2 {
+    margin-top: 1.65em !important;
+    margin-bottom: 0.65em !important;
+    font-size: 1.55em !important;
   }
-  .prose.prose-ink h3 {
-    margin-top: 1.2em !important;
-    margin-bottom: 0.6em !important;
-    font-size: 1.15em !important;
+  .prose.prose-ink > h3 {
+    margin-top: 1.35em !important;
+    margin-bottom: 0.65em !important;
+    font-size: 1.28em !important;
+  }
+  .prose.prose-ink > h4 {
+    margin-top: 1.65em !important;
+    margin-bottom: 1em !important;
+    font-size: 1.12em !important;
   }
 
   /* 代码块边界延展 */

@@ -28,6 +28,9 @@ When adding a script, make it idempotent. View transitions can re-run setup on t
   after layout and again after font loading so `.katex-display` width checks
   are based on the rendered formula size. Overflowing formulas also support
   mouse drag-to-scroll for devices without horizontal touchpad gestures.
+- Article image lightbox for `.prose-ink` images. The initializer skips linked
+  images and `.not-prose` component content, supports click, keyboard activation,
+  overlay/close-button dismissal, and `Escape`.
 - Hash scrolling after View Transitions.
 
 Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.

@@ -33,6 +33,10 @@ Dark mode is enabled through:
 - Serif stack: `Noto Serif SC`, `Songti SC`, serif.
 - Headings use the serif stack globally.
 - Article content is rendered through `.prose` and `.prose-ink` patterns.
+- Article `h2` headings use a faint generated chapter watermark. Article `h3`
+  and `h4` headings use restrained paper-highlight backgrounds, with separate
+  dark-mode decoration tokens so the effects stay visible without competing with
+  the text.
 
 ## Global Texture And Motion
 
@@ -40,6 +44,9 @@ Dark mode is enabled through:
 - `main` uses a short fade-in animation.
 - Astro View Transitions are enabled in `BaseLayout.astro`.
 - Lenis smooth scrolling is initialized globally in `BaseLayout.astro`.
+- Article images in `.prose-ink` can open in a focused lightbox overlay. The
+  overlay uses a dark ink backdrop, restrained motion, and the vermilion accent
+  for the close affordance.
 
 ## Movie Cards
 

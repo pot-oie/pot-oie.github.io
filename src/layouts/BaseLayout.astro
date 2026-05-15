@@ -65,6 +65,10 @@ const { title, description } = Astro.props;
         __potSearchMetrics?: SearchMetricApi;
       };
 
+      type ArticleImageLightboxWindow = Window & {
+        __potImageLightboxInstalled?: boolean;
+      };
+
       function createEmptyMetricStore(): SearchMetricStore {
         return {
           version: 1,
@@ -419,12 +423,136 @@ const { title, description } = Astro.props;
         document.fonts?.ready.then(updateHints).catch(() => {});
       }
 
+      /**
+       * 初始化正文图片大图预览
+       */
+      export function initArticleImageLightbox(): void {
+        const lightboxWindow = window as ArticleImageLightboxWindow;
+        const overlayId = "article-image-lightbox";
+
+        const ensureOverlay = (): HTMLElement => {
+          const existing = document.getElementById(overlayId);
+          if (existing) return existing;
+
+          const overlay = document.createElement("div");
+          overlay.id = overlayId;
+          overlay.className = "article-image-lightbox";
+          overlay.setAttribute("role", "dialog");
+          overlay.setAttribute("aria-modal", "true");
+          overlay.setAttribute("aria-hidden", "true");
+          overlay.setAttribute("inert", "");
+          overlay.innerHTML = `
+            <button class="article-image-lightbox__close" type="button" aria-label="关闭大图">×</button>
+            <figure class="article-image-lightbox__figure">
+              <img class="article-image-lightbox__image" alt="" />
+              <figcaption class="article-image-lightbox__caption"></figcaption>
+            </figure>
+          `;
+          document.body.append(overlay);
+          return overlay;
+        };
+
+        const closeLightbox = (): void => {
+          const overlay = document.getElementById(overlayId);
+          if (!overlay) return;
+          if (!overlay.classList.contains("is-open")) return;
+
+          overlay.classList.remove("is-open");
+          overlay.setAttribute("aria-hidden", "true");
+          overlay.setAttribute("inert", "");
+          document.documentElement.classList.remove("article-lightbox-open");
+          (window as any).lenis?.start?.();
+        };
+
+        const openLightbox = (img: HTMLImageElement): void => {
+          const overlay = ensureOverlay();
+          const overlayImage = overlay.querySelector<HTMLImageElement>(
+            ".article-image-lightbox__image",
+          );
+          const caption = overlay.querySelector<HTMLElement>(
+            ".article-image-lightbox__caption",
+          );
+
+          if (!overlayImage || !caption) return;
+
+          const src = img.currentSrc || img.src;
+          const alt = img.alt || "";
+
+          overlayImage.src = src;
+          overlayImage.alt = alt;
+          caption.textContent = alt;
+          caption.hidden = alt.trim().length === 0;
+
+          overlay.classList.add("is-open");
+          overlay.setAttribute("aria-hidden", "false");
+          overlay.removeAttribute("inert");
+          document.documentElement.classList.add("article-lightbox-open");
+          (window as any).lenis?.stop?.();
+
+          overlay
+            .querySelector<HTMLButtonElement>(".article-image-lightbox__close")
+            ?.focus();
+        };
+
+        const installGlobalListeners = (): void => {
+          if (lightboxWindow.__potImageLightboxInstalled) return;
+
+          document.addEventListener("click", (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            const overlay = target?.closest<HTMLElement>(
+              ".article-image-lightbox",
+            );
+            if (!overlay) return;
+
+            if (
+              target?.closest(".article-image-lightbox__close") ||
+              target === overlay
+            ) {
+              closeLightbox();
+            }
+          });
+
+          document.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (event.key === "Escape") closeLightbox();
+          });
+
+          document.addEventListener("astro:before-swap", closeLightbox);
+          lightboxWindow.__potImageLightboxInstalled = true;
+        };
+
+        installGlobalListeners();
+
+        document
+          .querySelectorAll<HTMLImageElement>(".prose-ink img")
+          .forEach((img) => {
+            if (img.dataset.lightboxInstalled === "true") return;
+            if (img.closest(".not-prose") || img.closest("a")) return;
+
+            img.dataset.lightboxEnabled = "true";
+            img.dataset.lightboxInstalled = "true";
+            img.tabIndex = 0;
+            img.setAttribute("role", "button");
+            img.setAttribute(
+              "aria-label",
+              img.alt ? `查看大图：${img.alt}` : "查看大图",
+            );
+
+            img.addEventListener("click", () => openLightbox(img));
+            img.addEventListener("keydown", (event: KeyboardEvent) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              openLightbox(img);
+            });
+          });
+      }
+
       // 绑定到 Astro 的生命周期
       document.addEventListener("astro:page-load", () => {
         initLenis();
         installSearchMetrics();
         initGlobalAudio();
         initMathScrollHints();
+        initArticleImageLightbox();
 
         // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转
         if (location.hash && (window as any).lenis) {
