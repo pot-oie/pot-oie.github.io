@@ -37,6 +37,7 @@ This repository is Pot's personal Astro content site. Read this file first, then
 - Overall architecture: `docs/project/architecture.md`
 - Routes: `docs/project/routing.md`
 - Content model: `docs/project/content-model.md`
+- Writing style guide: `docs/project/writing-style.md`
 - Styling system: `docs/project/styling.md`
 - Components: `docs/project/components.md`
 - Interaction behavior: `docs/project/interaction.md`
