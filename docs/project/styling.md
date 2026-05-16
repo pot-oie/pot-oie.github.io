@@ -39,6 +39,10 @@ Dark mode is enabled through:
   and `h4` headings use restrained paper-highlight backgrounds, with separate
   dark-mode decoration tokens so the effects stay visible without competing with
   the text.
+- Article quote blocks use a full-height left accent line and shared quote
+  background across desktop and mobile. Mobile quote blocks use compact spacing
+  with quote-local paragraph margins so inherited prose spacing does not pull the
+  text block out of balance.
 
 ## Global Texture And Motion
 
