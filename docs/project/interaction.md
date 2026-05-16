@@ -126,6 +126,10 @@ This behavior is page-local and should not move into shared components unless it
 
 `src/pages/movie/[...page].astro` owns movie review overlay selection for the paginated movie list. Movie cards show short reviews on hover-capable devices and toggle the overlay with a click/tap for touch devices.
 
+### Technical Post Detail
+
+`src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time.
+
 ### Dashboard
 
 `src/pages/dashboard.astro` reads and clears `pot-search-metrics-v1`.
@@ -137,7 +141,8 @@ Components with their own scroll surface should use `data-lenis-prevent` to avoi
 Current examples:
 
 - Search modal scroll container.
-- Desktop table-of-contents sidebar in `TechPost.astro`.
+- Desktop series/table-of-contents sidebars in `TechPost.astro`.
+- Mobile technical-post reading toggle panels in `MobileReadingNavigation.astro`.
 
 ## Maintenance Checklist
 

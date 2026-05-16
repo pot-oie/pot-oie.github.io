@@ -40,7 +40,115 @@
   --text-main: var(--color-ink-900);
   --text-muted: var(--color-ink-500);
   --border-color: #e5e7eb;
-  --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+  --shadow-depth: 0 10px 40px -10px rgb(var(--color-rgb-shadow) / 0.15);
+
+  /* --- RGB 通道资产：用于需要透明度的颜色组合 --- */
+  --color-rgb-ink-900: 15 15 15; /* 焦墨 RGB，遮罩与深色投影 */
+  --color-rgb-ink-300: 163 163 163; /* 淡墨 RGB，滚动条与弱边界 */
+  --color-rgb-paper: 255 255 255; /* 纸白 RGB，浮层控件与浅色文字 */
+  --color-rgb-shadow: 0 0 0; /* 投影 RGB，统一阴影透明度 */
+  --color-rgb-vermilion: 185 28 28; /* 朱红 RGB，强调色透明度 */
+  --color-rgb-vermilion-note: 180 41 25; /* 笔记导航选中态朱红 */
+
+  /* --- CSS mask 资产：只参与透明遮罩，不作为可见颜色 --- */
+  --mask-visible-stop: #000; /* mask 可见区域停止色 */
+
+  /* --- 文章大图预览 --- */
+  --lightbox-backdrop-rest: rgb(var(--color-rgb-ink-900) / 0); /* 关闭态遮罩 */
+  --lightbox-backdrop-open: rgb(var(--color-rgb-ink-900) / 0.86); /* 打开态遮罩 */
+  --lightbox-image-shadow: 0 24px 80px rgb(var(--color-rgb-shadow) / 0.45); /* 大图投影 */
+  --lightbox-caption-text: rgb(var(--color-rgb-paper) / 0.78); /* 图注文字 */
+  --lightbox-control-border: rgb(var(--color-rgb-paper) / 0.18); /* 工具边框 */
+  --lightbox-control-border-strong: rgb(var(--color-rgb-paper) / 0.22); /* 关闭按钮边框 */
+  --lightbox-control-border-hover: rgb(var(--color-rgb-paper) / 0.34); /* 控件悬停边框 */
+  --lightbox-control-bg: rgb(var(--color-rgb-ink-900) / 0.52); /* 工具栏底色 */
+  --lightbox-control-bg-muted: rgb(var(--color-rgb-ink-900) / 0.42); /* 翻页按钮底色 */
+  --lightbox-control-bg-soft: rgb(var(--color-rgb-ink-900) / 0.4); /* 关闭按钮底色 */
+  --lightbox-control-hover-bg: rgb(var(--color-rgb-paper) / 0.12); /* 控件悬停底色 */
+  --lightbox-status-bg: rgb(var(--color-rgb-ink-900) / 0.58); /* 加载提示底色 */
+  --lightbox-control-text: rgb(var(--color-rgb-paper) / 0.88); /* 工具按钮文字 */
+  --lightbox-control-text-muted: rgb(var(--color-rgb-paper) / 0.72); /* 原图链接文字 */
+  --lightbox-control-text-soft: rgb(var(--color-rgb-paper) / 0.82); /* 翻页/状态文字 */
+  --lightbox-control-text-strong: var(--color-rgb-paper); /* 控件悬停白色文字 */
+  --lightbox-close-hover-bg: rgb(var(--color-rgb-vermilion) / 0.72); /* 关闭按钮悬停底色 */
+
+  /* --- 文章数学公式 --- */
+  --math-inline-bg: rgb(var(--color-rgb-shadow) / 0.02); /* 行内公式淡背景 */
+  --math-hover-text: var(--color-vermilion); /* 块公式悬停文字 */
+
+  /* --- 笔记导览组件 --- */
+  --reading-nav-trigger-active-bg: rgb(var(--color-rgb-paper) / 0.68); /* 移动端导览选中底色 */
+  --reading-nav-trigger-active-text: rgb(var(--color-rgb-vermilion-note) / 1); /* 移动端导览选中文字 */
+  --reading-nav-current-bg: rgb(var(--color-rgb-vermilion-note) / 0.075); /* 当前笔记项底色 */
+
+  /* --- 目录滚动条 --- */
+  --toc-scroll-thumb: rgb(var(--color-rgb-ink-300) / 0.4); /* 目录滚动条滑块 */
+  --toc-scroll-thumb-hover: rgb(var(--color-rgb-ink-300) / 0.6); /* 目录滚动条悬停 */
+
+  /* --- 技术文章标签：浅色模式分类色板 --- */
+  --tag-default-border: rgb(203 213 225 / 0.8); /* 默认标签边框 */
+  --tag-default-bg: rgb(248 250 252 / 0.6); /* 默认标签底色 */
+  --tag-default-text: rgb(51 65 85 / 1); /* 默认标签文字 */
+  --tag-default-shadow: 0 6px 16px -14px rgb(15 23 42 / 0.55); /* 默认标签阴影 */
+  --tag-default-border-hover: rgb(148 163 184 / 0.85); /* 默认标签悬停边框 */
+  --tag-default-bg-hover: rgb(241 245 249 / 0.88); /* 默认标签悬停底色 */
+  --tag-default-shadow-hover: 0 10px 20px -16px rgb(15 23 42 / 0.65); /* 默认标签悬停阴影 */
+  --tag-interaction-border: rgb(186 230 253 / 0.9); /* 交互标签边框 */
+  --tag-interaction-bg: rgb(240 249 255 / 0.9); /* 交互标签底色 */
+  --tag-interaction-text: rgb(3 105 161 / 1); /* 交互标签文字 */
+  --tag-interaction-shadow: 0 8px 18px -14px rgb(2 132 199 / 0.75); /* 交互标签阴影 */
+  --tag-interaction-border-hover: rgb(125 211 252 / 0.95); /* 交互标签悬停边框 */
+  --tag-interaction-bg-hover: rgb(224 242 254 / 0.95); /* 交互标签悬停底色 */
+  --tag-interaction-shadow-hover: 0 12px 24px -16px rgb(2 132 199 / 0.9); /* 交互标签悬停阴影 */
+  --tag-design-border: rgb(251 207 232 / 0.9); /* 设计标签边框 */
+  --tag-design-bg: rgb(253 242 248 / 0.95); /* 设计标签底色 */
+  --tag-design-text: rgb(157 23 77 / 1); /* 设计标签文字 */
+  --tag-design-shadow: 0 8px 18px -14px rgb(190 24 93 / 0.7); /* 设计标签阴影 */
+  --tag-design-border-hover: rgb(249 168 212 / 0.95); /* 设计标签悬停边框 */
+  --tag-design-bg-hover: rgb(252 231 243 / 0.95); /* 设计标签悬停底色 */
+  --tag-design-shadow-hover: 0 12px 24px -16px rgb(190 24 93 / 0.9); /* 设计标签悬停阴影 */
+  --tag-frontend-border: rgb(167 243 208 / 0.9); /* 前端标签边框 */
+  --tag-frontend-bg: rgb(236 253 245 / 0.9); /* 前端标签底色 */
+  --tag-frontend-text: rgb(6 95 70 / 1); /* 前端标签文字 */
+  --tag-frontend-shadow: 0 8px 18px -14px rgb(5 150 105 / 0.8); /* 前端标签阴影 */
+  --tag-frontend-border-hover: rgb(110 231 183 / 0.95); /* 前端标签悬停边框 */
+  --tag-frontend-bg-hover: rgb(220 252 231 / 0.95); /* 前端标签悬停底色 */
+  --tag-frontend-shadow-hover: 0 12px 24px -16px rgb(5 150 105 / 0.95); /* 前端标签悬停阴影 */
+  --tag-backend-border: rgb(191 219 254 / 0.9); /* 后端标签边框 */
+  --tag-backend-bg: rgb(239 246 255 / 0.9); /* 后端标签底色 */
+  --tag-backend-text: rgb(30 64 175 / 1); /* 后端标签文字 */
+  --tag-backend-shadow: 0 8px 18px -14px rgb(37 99 235 / 0.75); /* 后端标签阴影 */
+  --tag-backend-border-hover: rgb(147 197 253 / 0.95); /* 后端标签悬停边框 */
+  --tag-backend-bg-hover: rgb(219 234 254 / 0.95); /* 后端标签悬停底色 */
+  --tag-backend-shadow-hover: 0 12px 24px -16px rgb(37 99 235 / 0.9); /* 后端标签悬停阴影 */
+  --tag-algorithm-border: rgb(254 215 170 / 0.9); /* 算法标签边框 */
+  --tag-algorithm-bg: rgb(255 247 237 / 0.9); /* 算法标签底色 */
+  --tag-algorithm-text: rgb(154 52 18 / 1); /* 算法标签文字 */
+  --tag-algorithm-shadow: 0 8px 18px -14px rgb(194 65 12 / 0.75); /* 算法标签阴影 */
+  --tag-algorithm-border-hover: rgb(253 186 116 / 0.95); /* 算法标签悬停边框 */
+  --tag-algorithm-bg-hover: rgb(255 237 213 / 0.95); /* 算法标签悬停底色 */
+  --tag-algorithm-shadow-hover: 0 12px 24px -16px rgb(194 65 12 / 0.9); /* 算法标签悬停阴影 */
+  --tag-system-border: rgb(209 213 219 / 0.9); /* 系统标签边框 */
+  --tag-system-bg: rgb(249 250 251 / 0.9); /* 系统标签底色 */
+  --tag-system-text: rgb(55 65 81 / 1); /* 系统标签文字 */
+  --tag-system-shadow: 0 8px 18px -14px rgb(75 85 99 / 0.7); /* 系统标签阴影 */
+  --tag-system-border-hover: rgb(156 163 175 / 0.9); /* 系统标签悬停边框 */
+  --tag-system-bg-hover: rgb(243 244 246 / 0.95); /* 系统标签悬停底色 */
+  --tag-system-shadow-hover: 0 12px 24px -16px rgb(75 85 99 / 0.85); /* 系统标签悬停阴影 */
+  --tag-study-border: rgb(196 181 253 / 0.85); /* 学习标签边框 */
+  --tag-study-bg: rgb(245 243 255 / 0.92); /* 学习标签底色 */
+  --tag-study-text: rgb(91 33 182 / 1); /* 学习标签文字 */
+  --tag-study-shadow: 0 8px 18px -14px rgb(109 40 217 / 0.75); /* 学习标签阴影 */
+  --tag-study-border-hover: rgb(167 139 250 / 0.9); /* 学习标签悬停边框 */
+  --tag-study-bg-hover: rgb(237 233 254 / 0.95); /* 学习标签悬停底色 */
+  --tag-study-shadow-hover: 0 12px 24px -16px rgb(109 40 217 / 0.9); /* 学习标签悬停阴影 */
+  --tag-database-border: rgb(250 204 21 / 0.65); /* 数据库标签边框 */
+  --tag-database-bg: rgb(254 252 232 / 0.9); /* 数据库标签底色 */
+  --tag-database-text: rgb(113 63 18 / 1); /* 数据库标签文字 */
+  --tag-database-shadow: 0 8px 18px -14px rgb(202 138 4 / 0.75); /* 数据库标签阴影 */
+  --tag-database-border-hover: rgb(245 158 11 / 0.85); /* 数据库标签悬停边框 */
+  --tag-database-bg-hover: rgb(254 249 195 / 0.95); /* 数据库标签悬停底色 */
+  --tag-database-shadow-hover: 0 12px 24px -16px rgb(202 138 4 / 0.95); /* 数据库标签悬停阴影 */
 
   /* --- 文章排版 --- */
   --prose-body: var(--color-ink-700); /* 正文颜色 */
@@ -51,7 +159,7 @@
   --prose-quote-bg: #f9f9f7; /* 引用块背景 */
   --prose-quote-text: var(--color-ink-600); /* 引用块文字 */
   --prose-quote-border: var(--color-ink-900); /* 引用块边框 */
-  --prose-code-bg: rgba(0, 0, 0, 0.06); /* 行内代码背景 */
+  --prose-code-bg: rgb(var(--color-rgb-shadow) / 0.06); /* 行内代码背景 */
   --prose-code-text: #b91c1c; /* 行内代码文字 */
   --prose-heading-watermark: rgba(185, 28, 28, 0.18); /* h2 标题水印 */
   --prose-heading-highlight: rgba(185, 28, 28, 0.12); /* h3 标题高亮 */
@@ -61,11 +169,15 @@
   --code-block-bg: #d3d3d3; /* 代码块背景 */
   --code-header-bg: #eaeaea; /* 标题栏背景 */
   --code-header-border: #dbeafe; /* 标题栏边框 */
-  --code-scroll-thumb: rgba(0, 0, 0, 0.2); /* 滚动条滑块 */
-  --code-scroll-hover: rgba(0, 0, 0, 0.4); /* 滚动条悬停 */
+  --code-scroll-thumb: rgb(var(--color-rgb-shadow) / 0.2); /* 滚动条滑块 */
+  --code-scroll-hover: rgb(var(--color-rgb-shadow) / 0.4); /* 滚动条悬停 */
+  --code-window-dot-close: #ff5f56; /* macOS 关闭圆点 */
+  --code-window-dot-minimize: #ffbd2e; /* macOS 最小化圆点 */
+  --code-window-dot-zoom: #27c93f; /* macOS 缩放圆点 */
 
   /* --- 水墨代码块 --- */
   --code-watermark: var(--color-ink-900); /* 水印颜色 */
+  --code-ink-gradient-end: rgb(var(--color-rgb-shadow) / 0); /* 水墨代码块渐变尾端 */
 }
 
 /* 暗色模式 (黑底/白墨) */
@@ -75,8 +187,45 @@
   --text-main: #e4e4e7;
   --text-muted: #a1a1aa;
   --border-color: #3f3f46;
+  --color-rgb-zinc-700: 113 113 122; /* 暗色目录滚动条基色 */
+  --color-rgb-zinc-800: 39 39 42; /* 暗色笔记导览浮层 */
+  --color-rgb-vermilion-note: 248 113 92; /* 暗色笔记导航选中朱红 */
   /* 暗色模式下阴影 */
-  --shadow-depth: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --shadow-depth: 0 10px 40px -10px rgb(var(--color-rgb-shadow) / 0.5);
+  --math-inline-bg: rgb(var(--color-rgb-paper) / 0.03); /* 暗色行内公式淡背景 */
+  --math-hover-text: #f87171; /* 暗色块公式悬停文字 */
+  --reading-nav-trigger-active-bg: rgb(var(--color-rgb-zinc-800) / 0.7); /* 暗色导览选中底色 */
+  --reading-nav-trigger-active-text: rgb(var(--color-rgb-vermilion-note) / 1); /* 暗色导览选中文字 */
+  --reading-nav-current-bg: rgb(var(--color-rgb-vermilion-note) / 0.1); /* 暗色当前笔记项底色 */
+  --toc-scroll-thumb: rgb(var(--color-rgb-zinc-700) / 0.4); /* 暗色目录滚动条滑块 */
+  --toc-scroll-thumb-hover: rgb(var(--color-rgb-zinc-700) / 0.6); /* 暗色目录滚动条悬停 */
+  --tag-default-border: rgb(100 116 139 / 0.55); /* 暗色默认标签边框 */
+  --tag-default-bg: rgb(15 23 42 / 0.55); /* 暗色默认标签底色 */
+  --tag-default-text: rgb(226 232 240 / 0.95); /* 暗色默认标签文字 */
+  --tag-interaction-border: rgb(14 165 233 / 0.4); /* 暗色交互标签边框 */
+  --tag-interaction-bg: rgb(12 74 110 / 0.35); /* 暗色交互标签底色 */
+  --tag-interaction-text: rgb(186 230 253 / 0.95); /* 暗色交互标签文字 */
+  --tag-design-border: rgb(190 24 93 / 0.45); /* 暗色设计标签边框 */
+  --tag-design-bg: rgb(131 24 67 / 0.32); /* 暗色设计标签底色 */
+  --tag-design-text: rgb(251 207 232 / 0.96); /* 暗色设计标签文字 */
+  --tag-frontend-border: rgb(16 185 129 / 0.42); /* 暗色前端标签边框 */
+  --tag-frontend-bg: rgb(6 78 59 / 0.34); /* 暗色前端标签底色 */
+  --tag-frontend-text: rgb(167 243 208 / 0.95); /* 暗色前端标签文字 */
+  --tag-backend-border: rgb(59 130 246 / 0.45); /* 暗色后端标签边框 */
+  --tag-backend-bg: rgb(30 58 138 / 0.34); /* 暗色后端标签底色 */
+  --tag-backend-text: rgb(191 219 254 / 0.95); /* 暗色后端标签文字 */
+  --tag-algorithm-border: rgb(249 115 22 / 0.45); /* 暗色算法标签边框 */
+  --tag-algorithm-bg: rgb(124 45 18 / 0.34); /* 暗色算法标签底色 */
+  --tag-algorithm-text: rgb(254 215 170 / 0.95); /* 暗色算法标签文字 */
+  --tag-system-border: rgb(148 163 184 / 0.45); /* 暗色系统标签边框 */
+  --tag-system-bg: rgb(30 41 59 / 0.5); /* 暗色系统标签底色 */
+  --tag-system-text: rgb(226 232 240 / 0.95); /* 暗色系统标签文字 */
+  --tag-study-border: rgb(139 92 246 / 0.45); /* 暗色学习标签边框 */
+  --tag-study-bg: rgb(76 29 149 / 0.35); /* 暗色学习标签底色 */
+  --tag-study-text: rgb(221 214 254 / 0.95); /* 暗色学习标签文字 */
+  --tag-database-border: rgb(234 179 8 / 0.45); /* 暗色数据库标签边框 */
+  --tag-database-bg: rgb(113 63 18 / 0.35); /* 暗色数据库标签底色 */
+  --tag-database-text: rgb(254 240 138 / 0.95); /* 暗色数据库标签文字 */
 
   /* --- 文章排版 --- */
   --prose-body: #d4d4d8; /* Zinc 300 */
@@ -87,7 +236,7 @@
   --prose-quote-bg: #27272a; /* 深色背景 */
   --prose-quote-text: #a1a1aa;
   --prose-quote-border: #71717a; /* Zinc 500 */
-  --prose-code-bg: rgba(255, 255, 255, 0.1);
+  --prose-code-bg: rgb(var(--color-rgb-paper) / 0.1);
   --prose-code-text: #f87171; /* Red 400 (更亮的红) */
   --prose-list-text: #e4e4e7; /* 比正文略亮，提升列表可读性 */
   --prose-list-marker: #f87171; /* 使用亮红 */
@@ -99,11 +248,11 @@
   --code-block-bg: #1f1f22; /* 近黑色 */
   --code-header-bg: #27272a; /* 深灰标题栏 */
   --code-header-border: #3f3f46;
-  --code-scroll-thumb: rgba(255, 255, 255, 0.2);
-  --code-scroll-hover: rgba(255, 255, 255, 0.4);
+  --code-scroll-thumb: rgb(var(--color-rgb-paper) / 0.2);
+  --code-scroll-hover: rgb(var(--color-rgb-paper) / 0.4);
 
   /* --- 水墨代码块 --- */
-  --code-watermark: rgba(--color-ink-300); /* 更淡的水印 */
+  --code-watermark: rgb(var(--color-rgb-ink-300) / 0.35); /* 更淡的水印 */
 }
 
 /* ------ 基础重置与材质 ------ */
@@ -132,7 +281,7 @@ body {
   display: grid;
   place-items: center;
   padding: 1.25rem;
-  background: rgba(15, 15, 15, 0);
+  background: var(--lightbox-backdrop-rest);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -141,7 +290,7 @@ body {
 }
 
 .article-image-lightbox.is-open {
-  background: rgba(15, 15, 15, 0.86);
+  background: var(--lightbox-backdrop-open);
   opacity: 1;
   pointer-events: auto;
 }
@@ -165,7 +314,7 @@ body {
   max-height: 82vh;
   object-fit: contain;
   border-radius: 4px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--lightbox-image-shadow);
   cursor: zoom-in;
   touch-action: none;
   user-select: none;
@@ -188,7 +337,7 @@ body {
 .article-image-lightbox__caption {
   max-width: 72ch;
   margin: 0 auto;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--lightbox-caption-text);
   font-size: 0.875rem;
   line-height: 1.6;
   text-align: center;
@@ -203,10 +352,10 @@ body {
   gap: 0.35rem;
   align-items: center;
   padding: 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--lightbox-control-border);
   border-radius: 999px;
-  background: rgba(15, 15, 15, 0.52);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+  background: var(--lightbox-control-bg);
+  box-shadow: 0 14px 40px rgb(var(--color-rgb-shadow) / 0.22);
   transform: translateX(-50%);
   backdrop-filter: blur(16px);
 }
@@ -220,7 +369,7 @@ body {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--lightbox-control-text);
   font: inherit;
   font-size: 0.9rem;
   line-height: 1;
@@ -242,8 +391,8 @@ body {
 
 .article-image-lightbox__tool:hover,
 .article-image-lightbox__tool:focus-visible {
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
+  background: var(--lightbox-control-hover-bg);
+  color: rgb(var(--lightbox-control-text-strong) / 1);
   outline: none;
 }
 
@@ -254,7 +403,7 @@ body {
 
 .article-image-lightbox__original {
   margin-left: 0.1rem;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--lightbox-control-text-muted);
   font-size: 0.8rem;
 }
 
@@ -266,10 +415,10 @@ body {
   width: 2.75rem;
   height: 3.75rem;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--lightbox-control-border);
   border-radius: 999px;
-  background: rgba(15, 15, 15, 0.42);
-  color: rgba(255, 255, 255, 0.82);
+  background: var(--lightbox-control-bg-muted);
+  color: var(--lightbox-control-text-soft);
   font-size: 2.25rem;
   line-height: 1;
   cursor: pointer;
@@ -295,9 +444,9 @@ body {
 
 .article-image-lightbox__nav:hover,
 .article-image-lightbox__nav:focus-visible {
-  border-color: rgba(255, 255, 255, 0.34);
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
+  border-color: var(--lightbox-control-border-hover);
+  background: var(--lightbox-control-hover-bg);
+  color: rgb(var(--lightbox-control-text-strong) / 1);
   outline: none;
 }
 
@@ -308,8 +457,8 @@ body {
   z-index: 1;
   padding: 0.45rem 0.75rem;
   border-radius: 999px;
-  background: rgba(15, 15, 15, 0.58);
-  color: rgba(255, 255, 255, 0.82);
+  background: var(--lightbox-status-bg);
+  color: var(--lightbox-control-text-soft);
   font-size: 0.82rem;
   transform: translate(-50%, -50%);
   backdrop-filter: blur(12px);
@@ -325,10 +474,10 @@ body {
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--lightbox-control-border-strong);
   border-radius: 999px;
-  background: rgba(15, 15, 15, 0.4);
-  color: rgba(255, 255, 255, 0.86);
+  background: var(--lightbox-control-bg-soft);
+  color: var(--lightbox-control-text);
   font-size: 1.75rem;
   line-height: 1;
   cursor: pointer;
@@ -342,8 +491,8 @@ body {
 .article-image-lightbox__close:hover,
 .article-image-lightbox__close:focus-visible {
   border-color: var(--color-vermilion);
-  background: rgba(185, 28, 28, 0.72);
-  color: white;
+  background: var(--lightbox-close-hover-bg);
+  color: rgb(var(--lightbox-control-text-strong) / 1);
   transform: scale(1.04);
   outline: none;
 }
@@ -474,7 +623,7 @@ a:hover {
     transform: translateY(0);
   }
 }
-main {
+.page-fade-in {
   animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 

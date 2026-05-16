@@ -21,6 +21,8 @@ Accent:
 
 - `--color-vermilion`: vermilion red for hover, selected, seal-like emphasis, and important interaction states.
 
+Transparent and component-specific colors are centralized in `src/styles/global.css` as commented CSS variables. Use the `--color-rgb-*` channel assets for opacity-based colors, and prefer semantic tokens such as `--lightbox-*`, `--math-*`, `--reading-nav-*`, `--toc-scroll-*`, and `--tag-*` before introducing raw `rgb(...)` or `rgba(...)` values in components.
+
 Dark mode is enabled through:
 
 ```css
@@ -41,7 +43,9 @@ Dark mode is enabled through:
 ## Global Texture And Motion
 
 - `body::before` adds a subtle fixed noise texture.
-- `main` uses a short fade-in animation.
+- Page entry motion is opt-in through `.page-fade-in`; technical article
+  content uses it while fixed side navigation stays outside transformed
+  animation scopes.
 - Astro View Transitions are enabled in `BaseLayout.astro`.
 - Lenis smooth scrolling is initialized globally in `BaseLayout.astro`.
 - Article images in `.prose-ink` can open in a focused lightbox overlay. The
@@ -49,6 +53,15 @@ Dark mode is enabled through:
   for the close affordance. Lightbox images support zoom, drag gestures,
   previous/next navigation, a compact zoom toolbar, a loading state, and an
   original-image link while keeping the controls visually minimal.
+
+## Article Navigation
+
+- Desktop technical posts use distinct side helpers: the series guide emphasizes
+  the current article with a soft filled state, while the table of contents keeps
+  a linear active indicator.
+- Mobile technical posts use `MobileReadingNavigation.astro`, a separate compact
+  toggle surface that renders series entries and table-of-contents entries with
+  one shared rhythm instead of reusing the two desktop components directly.
 
 ## Movie Cards
 

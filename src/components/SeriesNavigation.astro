@@ -1,0 +1,82 @@
+---
+export type SeriesNavItem = {
+  title: string;
+  subtitle?: string;
+  href: string;
+  order: number;
+  current: boolean;
+};
+
+export type SeriesNavData = {
+  title: string;
+  items: SeriesNavItem[];
+};
+
+type Props = {
+  series: SeriesNavData;
+};
+
+const { series } = Astro.props;
+const items = series.items;
+---
+
+{
+  items.length > 1 && (
+    <nav
+      class="series-nav rounded-sm border border-ink-200/50 bg-stone-50/55 p-2.5 text-sm font-sans backdrop-blur-[2px] dark:border-zinc-800/65 dark:bg-zinc-900/45"
+      aria-label={`${series.title} 系列导航`}
+      data-pagefind-ignore
+    >
+      <div class="mb-2 border-b border-ink-200/50 pb-1.5 dark:border-zinc-800/80">
+        <p class="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-vermilion/85">
+          Series
+        </p>
+        <h2 class="truncate font-serif text-base font-bold tracking-wide text-ink-900 dark:text-zinc-100">
+          {series.title}
+        </h2>
+      </div>
+
+      <ol class="flex flex-col gap-0.5">
+        {items.map((item) => {
+          const subtitle = item.subtitle?.trim() ?? "";
+          const accessibleTitle = subtitle || item.title;
+
+          return (
+            <li>
+              <a
+                href={item.href}
+                aria-current={item.current ? "page" : undefined}
+                aria-label={`${item.order}. ${accessibleTitle}`}
+                title={accessibleTitle}
+                class:list={[
+                  "series-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2 py-1.5 leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
+                  item.current
+                    ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
+                    : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
+                ]}
+              >
+                <span
+                  class:list={[
+                    "series-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
+                    item.current
+                      ? "rounded-full bg-vermilion text-white"
+                      : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
+                  ]}
+                >
+                  {item.order}
+                </span>
+                <span class="min-w-0 truncate">{subtitle}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .series-link.is-current {
+    background: var(--reading-nav-current-bg);
+  }
+</style>

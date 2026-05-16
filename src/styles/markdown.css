@@ -179,8 +179,8 @@
   margin-bottom: 0;
 }
 html.dark .prose-ink blockquote {
-  border-left-color: var(--color-vermilion, rgba(255, 255, 255, 0.4));
-  background-color: rgba(255, 255, 255, 0.05);
+  border-left-color: var(--color-vermilion);
+  background-color: var(--prose-quote-bg);
   color: var(--prose-body);
 }
 
@@ -366,17 +366,17 @@ html.dark .code-block-wrapper pre.astro-code span {
   background-image:
     radial-gradient(
       circle at 1.5rem 1.3rem,
-      #ff5f56 0.375rem,
+      var(--code-window-dot-close) 0.375rem,
       transparent 0.375rem
     ),
     radial-gradient(
       circle at 2.75rem 1.3rem,
-      #ffbd2e 0.375rem,
+      var(--code-window-dot-minimize) 0.375rem,
       transparent 0.375rem
     ),
     radial-gradient(
       circle at 4rem 1.3rem,
-      #27c93f 0.375rem,
+      var(--code-window-dot-zoom) 0.375rem,
       transparent 0.375rem
     );
   background-repeat: no-repeat;
@@ -511,7 +511,7 @@ html.dark .code-block-wrapper pre.astro-code span {
   background: linear-gradient(
     90deg,
     var(--prose-code-bg) 0%,
-    rgba(0, 0, 0, 0) 100%
+    var(--code-ink-gradient-end) 100%
   ) !important;
   border: none !important;
   border-left: 3px solid var(--color-vermilion) !important;
@@ -757,11 +757,8 @@ html.dark .code-block-wrapper pre.astro-code span {
   padding: 0 0.15em;
   margin: 0 0.1em;
   /* 淡背景色 */
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: var(--math-inline-bg);
   border-radius: 3px;
-}
-html.dark .prose-ink :not(.katex-display) > .katex {
-  background-color: rgba(255, 255, 255, 0.03);
 }
 
 /* 行内长公式防溢出保护 */
@@ -810,14 +807,14 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 .prose-ink .katex-display.math-scrollable:not(.math-scroll-end) {
   -webkit-mask-image: linear-gradient(
     to right,
-    #000 0,
-    #000 calc(100% - 3rem),
+    var(--mask-visible-stop) 0,
+    var(--mask-visible-stop) calc(100% - 3rem),
     transparent 100%
   );
   mask-image: linear-gradient(
     to right,
-    #000 0,
-    #000 calc(100% - 3rem),
+    var(--mask-visible-stop) 0,
+    var(--mask-visible-stop) calc(100% - 3rem),
     transparent 100%
   );
 }
@@ -839,10 +836,7 @@ html.dark .prose-ink :not(.katex-display) > .katex {
 
 /* 交互：悬停朱红 */
 .prose-ink .katex-display:hover .katex {
-  color: var(--color-vermilion);
-}
-html.dark .prose-ink .katex-display:hover .katex {
-  color: #f87171;
+  color: var(--math-hover-text);
 }
 
 /* 横向滚动条：块公式用右侧渐隐提示，隐藏原生滚动条 */

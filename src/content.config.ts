@@ -12,7 +12,7 @@ const BLOG_CATEGORIES = z.enum([
 const LIFE_CATEGORIES = z.enum([
   "daily", // 日常随笔
   "album", // 专辑鉴赏
-  "movie", // 电影文章
+  "movie", // 电影长评
 ]);
 
 const TECH_CATEGORY_ENUM = z.enum(TECH_CATEGORIES);
@@ -50,6 +50,15 @@ const blog = defineCollection({
             if (!value) return value;
             return [...new Set(value.map((tag) => normalizeBlogTag(tag)))];
           }),
+        // 成套学习笔记导航
+        series: z
+          .object({
+            key: z.string().min(1),
+            title: z.string().min(1),
+            subtitle: z.string().optional(),
+            order: z.number().int().positive(),
+          })
+          .optional(),
       })
       // 添加跨字段验证
       .superRefine((value, ctx) => {

@@ -18,6 +18,7 @@ Blog entries are MDX files with frontmatter validated by the `blog` collection s
 - Life posts use `category: "life"` and must set `lifeCategory`.
 - Draft posts should use `draft: true`.
 - Tags are optional, normalized, and rendered in technical post layouts.
+- Technical posts can opt into same-series navigation with `series.key`, `series.title`, `series.subtitle`, and `series.order`.
 
 ## Rendering
 
@@ -25,7 +26,8 @@ Technical posts use `TechPost.astro`, which includes:
 
 - category and tag pills
 - optional hero image
-- table of contents
+- optional left-side series navigation for published posts sharing the same `series.key`; item labels use each post's `series.subtitle`
+- table of contents; on mobile, series navigation and the table of contents share one two-sided toggle panel when both are available
 - code block interaction templates
 
 Life posts use `LifePost.astro`, which has a quieter centered article layout.

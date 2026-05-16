@@ -27,6 +27,7 @@ Optional fields:
 - `albumTitle`
 - `albumArtist`
 - `tags`
+- `series`
 
 Category rules:
 
@@ -48,6 +49,15 @@ Current life categories:
 - `movie`
 
 Tags are normalized by `normalizeBlogTag` from `src/utils/blogTaxonomy.ts`. Duplicate normalized tags are removed.
+
+Technical learning-note series can use `series` to opt into article-to-article navigation on the detail page:
+
+- `series.key`: stable grouping key shared by every post in the same set.
+- `series.title`: display title for the set.
+- `series.subtitle`: optional per-post label shown in the series navigation.
+- `series.order`: positive integer used for ordering within the set.
+
+Draft posts may carry `series` metadata, but detail-page navigation only lists published posts.
 
 ## Movie Collection
 

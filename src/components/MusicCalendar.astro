@@ -252,7 +252,7 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
   }
 
   .calendar-cell.is-active .indicator {
-    border-color: rgba(var(--color-vermilion), 1);
+    border-color: rgb(var(--color-rgb-vermilion) / 1);
     transform: scale(1.1);
   }
 
@@ -266,7 +266,7 @@ const musicDays = Array.from(musicMap.keys()).sort((a, b) => a - b);
       pointer-events: auto;
     }
     .calendar-cell:hover .indicator {
-      border-color: rgba(var(--color-vermilion), 0.5);
+      border-color: rgb(var(--color-rgb-vermilion) / 0.5);
     }
   }
 </style>

@@ -4,6 +4,9 @@ import type { MarkdownHeading } from "astro";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import TableOfContents from "../components/TableOfContents.astro";
+import SeriesNavigation from "../components/SeriesNavigation.astro";
+import MobileReadingNavigation from "../components/MobileReadingNavigation.astro";
+import type { SeriesNavData } from "../components/SeriesNavigation.astro";
 import { Icon } from "astro-icon/components";
 import {
   TECH_CATEGORY_META_LIST,
@@ -13,6 +16,7 @@ import {
 
 type Props = CollectionEntry<"blog">["data"] & {
   headings?: MarkdownHeading[];
+  series?: SeriesNavData;
 };
 
 const {
@@ -24,24 +28,42 @@ const {
   techCategory,
   tags = [],
   headings = [],
+  series,
 } = Astro.props;
 
 const categoryMeta = TECH_CATEGORY_META_LIST.find(
   (item) => item.key === techCategory,
 );
+const hasSeriesNav = Boolean(series && series.items.length > 1);
+const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 3);
 ---
 
 <BaseLayout title={title} description={description}>
   <div class="relative w-full">
-    <aside
-      class="toc-scroll hidden xl:block fixed top-32 left-[calc(50%+26rem)] w-72 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden overscroll-contain z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
-      data-lenis-prevent
-    >
-      <TableOfContents headings={headings} />
-    </aside>
+    {
+      hasSeriesNav && series && (
+        <aside
+          class="toc-scroll side-scroll-fade hidden xl:block fixed top-32 right-[calc(50%+28rem)] 2xl:right-[calc(50%+29rem)] w-44 2xl:w-56 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden overscroll-contain z-10 opacity-90 hover:opacity-100 transition-opacity duration-300"
+          data-lenis-prevent
+        >
+          <SeriesNavigation series={series} />
+        </aside>
+      )
+    }
+
+    {
+      hasToc && (
+        <aside
+          class="toc-scroll side-scroll-fade hidden xl:block fixed top-32 left-[calc(50%+26rem)] w-72 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden overscroll-contain z-10 opacity-80 hover:opacity-100 transition-opacity duration-300"
+          data-lenis-prevent
+        >
+          <TableOfContents headings={headings} />
+        </aside>
+      )
+    }
 
     <article
-      class="py-6 md:py-16 w-full max-w-4xl mx-auto px-3 md:px-6 relative z-0"
+      class="page-fade-in py-6 md:py-16 w-full max-w-4xl mx-auto px-3 md:px-6 relative z-0"
     >
       <header class="mb-8 md:mb-12">
         <a
@@ -118,30 +140,7 @@ const categoryMeta = TECH_CATEGORY_META_LIST.find(
         )
       }
 
-      {
-        headings.length > 0 && (
-          <div class="xl:hidden mb-6">
-            <details class="bg-ink-50 dark:bg-zinc-800/50 rounded-sm border border-ink-200 dark:border-zinc-700 group">
-              <summary class="p-4 font-bold text-ink-900 dark:text-zinc-100 cursor-pointer flex items-center justify-between list-none select-none">
-                <div class="flex items-center gap-2">
-                  <Icon
-                    name="mingcute:list-check-line"
-                    class="w-5 h-5 text-vermilion"
-                  />
-                  <span>Table of Contents</span>
-                </div>
-                <Icon
-                  name="mingcute:down-line"
-                  class="w-5 h-5 transition-transform duration-300 group-open:rotate-180 text-ink-400"
-                />
-              </summary>
-              <div class="px-4 pb-4 pt-4 border-t border-ink-200/50 dark:border-zinc-700/50">
-                <TableOfContents headings={headings} />
-              </div>
-            </details>
-          </div>
-        )
-      }
+      <MobileReadingNavigation series={series} headings={headings} />
 
       <div class="prose prose-sm md:prose-base prose-ink max-w-none">
         <slot />
@@ -228,6 +227,10 @@ const categoryMeta = TECH_CATEGORY_META_LIST.find(
 
 <style>
   .tag-pill {
+    border-color: var(--tag-border, var(--tag-default-border));
+    background: var(--tag-bg, var(--tag-default-bg));
+    color: var(--tag-text, var(--tag-default-text));
+    box-shadow: var(--tag-shadow, var(--tag-default-shadow));
     backdrop-filter: blur(2px);
     transition:
       transform 180ms ease,
@@ -238,182 +241,137 @@ const categoryMeta = TECH_CATEGORY_META_LIST.find(
   }
 
   .tag-pill:hover {
+    border-color: var(--tag-border-hover, var(--tag-border));
+    background: var(--tag-bg-hover, var(--tag-bg));
+    box-shadow: var(--tag-shadow-hover, var(--tag-shadow));
     transform: translateY(-1px);
+  }
+
+  :global(.dark) .tag-pill:hover {
+    border-color: var(--tag-border);
+    background: var(--tag-bg);
+    box-shadow: var(--tag-shadow);
   }
 
   .tag-pill :global(svg) {
     opacity: 0.9;
   }
 
-  .tag-token-default {
-    border-color: rgb(203 213 225 / 0.8);
-    background: rgb(248 250 252 / 0.6);
-    color: rgb(51 65 85 / 1);
-    box-shadow: 0 6px 16px -14px rgb(15 23 42 / 0.55);
+  .side-scroll-fade {
+    --side-scroll-top-fade: var(--mask-visible-stop);
+    --side-scroll-bottom-fade: var(--mask-visible-stop);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) 1.25rem,
+      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--side-scroll-bottom-fade)
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) 1.25rem,
+      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--side-scroll-bottom-fade)
+    );
   }
 
-  .tag-token-default:hover {
-    border-color: rgb(148 163 184 / 0.85);
-    background: rgb(241 245 249 / 0.88);
-    box-shadow: 0 10px 20px -16px rgb(15 23 42 / 0.65);
+  .side-scroll-fade.has-top-fade {
+    --side-scroll-top-fade: transparent;
+  }
+
+  .side-scroll-fade.has-bottom-fade {
+    --side-scroll-bottom-fade: transparent;
+  }
+
+  .tag-token-default {
+    --tag-border: var(--tag-default-border);
+    --tag-bg: var(--tag-default-bg);
+    --tag-text: var(--tag-default-text);
+    --tag-shadow: var(--tag-default-shadow);
+    --tag-border-hover: var(--tag-default-border-hover);
+    --tag-bg-hover: var(--tag-default-bg-hover);
+    --tag-shadow-hover: var(--tag-default-shadow-hover);
   }
 
   .tag-token-interaction {
-    border-color: rgb(186 230 253 / 0.9);
-    background: rgb(240 249 255 / 0.9);
-    color: rgb(3 105 161 / 1);
-    box-shadow: 0 8px 18px -14px rgb(2 132 199 / 0.75);
-  }
-
-  .tag-token-interaction:hover {
-    border-color: rgb(125 211 252 / 0.95);
-    background: rgb(224 242 254 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(2 132 199 / 0.9);
+    --tag-border: var(--tag-interaction-border);
+    --tag-bg: var(--tag-interaction-bg);
+    --tag-text: var(--tag-interaction-text);
+    --tag-shadow: var(--tag-interaction-shadow);
+    --tag-border-hover: var(--tag-interaction-border-hover);
+    --tag-bg-hover: var(--tag-interaction-bg-hover);
+    --tag-shadow-hover: var(--tag-interaction-shadow-hover);
   }
 
   .tag-token-design {
-    border-color: rgb(251 207 232 / 0.9);
-    background: rgb(253 242 248 / 0.95);
-    color: rgb(157 23 77 / 1);
-    box-shadow: 0 8px 18px -14px rgb(190 24 93 / 0.7);
-  }
-
-  .tag-token-design:hover {
-    border-color: rgb(249 168 212 / 0.95);
-    background: rgb(252 231 243 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(190 24 93 / 0.9);
+    --tag-border: var(--tag-design-border);
+    --tag-bg: var(--tag-design-bg);
+    --tag-text: var(--tag-design-text);
+    --tag-shadow: var(--tag-design-shadow);
+    --tag-border-hover: var(--tag-design-border-hover);
+    --tag-bg-hover: var(--tag-design-bg-hover);
+    --tag-shadow-hover: var(--tag-design-shadow-hover);
   }
 
   .tag-token-frontend {
-    border-color: rgb(167 243 208 / 0.9);
-    background: rgb(236 253 245 / 0.9);
-    color: rgb(6 95 70 / 1);
-    box-shadow: 0 8px 18px -14px rgb(5 150 105 / 0.8);
-  }
-
-  .tag-token-frontend:hover {
-    border-color: rgb(110 231 183 / 0.95);
-    background: rgb(220 252 231 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(5 150 105 / 0.95);
+    --tag-border: var(--tag-frontend-border);
+    --tag-bg: var(--tag-frontend-bg);
+    --tag-text: var(--tag-frontend-text);
+    --tag-shadow: var(--tag-frontend-shadow);
+    --tag-border-hover: var(--tag-frontend-border-hover);
+    --tag-bg-hover: var(--tag-frontend-bg-hover);
+    --tag-shadow-hover: var(--tag-frontend-shadow-hover);
   }
 
   .tag-token-backend {
-    border-color: rgb(191 219 254 / 0.9);
-    background: rgb(239 246 255 / 0.9);
-    color: rgb(30 64 175 / 1);
-    box-shadow: 0 8px 18px -14px rgb(37 99 235 / 0.75);
-  }
-
-  .tag-token-backend:hover {
-    border-color: rgb(147 197 253 / 0.95);
-    background: rgb(219 234 254 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(37 99 235 / 0.9);
+    --tag-border: var(--tag-backend-border);
+    --tag-bg: var(--tag-backend-bg);
+    --tag-text: var(--tag-backend-text);
+    --tag-shadow: var(--tag-backend-shadow);
+    --tag-border-hover: var(--tag-backend-border-hover);
+    --tag-bg-hover: var(--tag-backend-bg-hover);
+    --tag-shadow-hover: var(--tag-backend-shadow-hover);
   }
 
   .tag-token-algorithm {
-    border-color: rgb(254 215 170 / 0.9);
-    background: rgb(255 247 237 / 0.9);
-    color: rgb(154 52 18 / 1);
-    box-shadow: 0 8px 18px -14px rgb(194 65 12 / 0.75);
-  }
-
-  .tag-token-algorithm:hover {
-    border-color: rgb(253 186 116 / 0.95);
-    background: rgb(255 237 213 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(194 65 12 / 0.9);
+    --tag-border: var(--tag-algorithm-border);
+    --tag-bg: var(--tag-algorithm-bg);
+    --tag-text: var(--tag-algorithm-text);
+    --tag-shadow: var(--tag-algorithm-shadow);
+    --tag-border-hover: var(--tag-algorithm-border-hover);
+    --tag-bg-hover: var(--tag-algorithm-bg-hover);
+    --tag-shadow-hover: var(--tag-algorithm-shadow-hover);
   }
 
   .tag-token-system {
-    border-color: rgb(209 213 219 / 0.9);
-    background: rgb(249 250 251 / 0.9);
-    color: rgb(55 65 81 / 1);
-    box-shadow: 0 8px 18px -14px rgb(75 85 99 / 0.7);
-  }
-
-  .tag-token-system:hover {
-    border-color: rgb(156 163 175 / 0.9);
-    background: rgb(243 244 246 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(75 85 99 / 0.85);
+    --tag-border: var(--tag-system-border);
+    --tag-bg: var(--tag-system-bg);
+    --tag-text: var(--tag-system-text);
+    --tag-shadow: var(--tag-system-shadow);
+    --tag-border-hover: var(--tag-system-border-hover);
+    --tag-bg-hover: var(--tag-system-bg-hover);
+    --tag-shadow-hover: var(--tag-system-shadow-hover);
   }
 
   .tag-token-study {
-    border-color: rgb(196 181 253 / 0.85);
-    background: rgb(245 243 255 / 0.92);
-    color: rgb(91 33 182 / 1);
-    box-shadow: 0 8px 18px -14px rgb(109 40 217 / 0.75);
-  }
-
-  .tag-token-study:hover {
-    border-color: rgb(167 139 250 / 0.9);
-    background: rgb(237 233 254 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(109 40 217 / 0.9);
+    --tag-border: var(--tag-study-border);
+    --tag-bg: var(--tag-study-bg);
+    --tag-text: var(--tag-study-text);
+    --tag-shadow: var(--tag-study-shadow);
+    --tag-border-hover: var(--tag-study-border-hover);
+    --tag-bg-hover: var(--tag-study-bg-hover);
+    --tag-shadow-hover: var(--tag-study-shadow-hover);
   }
 
   .tag-token-database {
-    border-color: rgb(250 204 21 / 0.65);
-    background: rgb(254 252 232 / 0.9);
-    color: rgb(113 63 18 / 1);
-    box-shadow: 0 8px 18px -14px rgb(202 138 4 / 0.75);
-  }
-
-  .tag-token-database:hover {
-    border-color: rgb(245 158 11 / 0.85);
-    background: rgb(254 249 195 / 0.95);
-    box-shadow: 0 12px 24px -16px rgb(202 138 4 / 0.95);
-  }
-
-  :global(.dark) .tag-token-default {
-    border-color: rgb(100 116 139 / 0.55);
-    background: rgb(15 23 42 / 0.55);
-    color: rgb(226 232 240 / 0.95);
-  }
-
-  :global(.dark) .tag-token-interaction {
-    border-color: rgb(14 165 233 / 0.4);
-    background: rgb(12 74 110 / 0.35);
-    color: rgb(186 230 253 / 0.95);
-  }
-
-  :global(.dark) .tag-token-design {
-    border-color: rgb(190 24 93 / 0.45);
-    background: rgb(131 24 67 / 0.32);
-    color: rgb(251 207 232 / 0.96);
-  }
-
-  :global(.dark) .tag-token-frontend {
-    border-color: rgb(16 185 129 / 0.42);
-    background: rgb(6 78 59 / 0.34);
-    color: rgb(167 243 208 / 0.95);
-  }
-
-  :global(.dark) .tag-token-backend {
-    border-color: rgb(59 130 246 / 0.45);
-    background: rgb(30 58 138 / 0.34);
-    color: rgb(191 219 254 / 0.95);
-  }
-
-  :global(.dark) .tag-token-algorithm {
-    border-color: rgb(249 115 22 / 0.45);
-    background: rgb(124 45 18 / 0.34);
-    color: rgb(254 215 170 / 0.95);
-  }
-
-  :global(.dark) .tag-token-system {
-    border-color: rgb(148 163 184 / 0.45);
-    background: rgb(30 41 59 / 0.5);
-    color: rgb(226 232 240 / 0.95);
-  }
-
-  :global(.dark) .tag-token-study {
-    border-color: rgb(139 92 246 / 0.45);
-    background: rgb(76 29 149 / 0.35);
-    color: rgb(221 214 254 / 0.95);
-  }
-
-  :global(.dark) .tag-token-database {
-    border-color: rgb(234 179 8 / 0.45);
-    background: rgb(113 63 18 / 0.35);
-    color: rgb(254 240 138 / 0.95);
+    --tag-border: var(--tag-database-border);
+    --tag-bg: var(--tag-database-bg);
+    --tag-text: var(--tag-database-text);
+    --tag-shadow: var(--tag-database-shadow);
+    --tag-border-hover: var(--tag-database-border-hover);
+    --tag-bg-hover: var(--tag-database-bg-hover);
+    --tag-shadow-hover: var(--tag-database-shadow-hover);
   }
 
   /* --- 右侧目录：自定义滚动条样式 --- */
@@ -427,40 +385,23 @@ const categoryMeta = TECH_CATEGORY_META_LIST.find(
   }
 
   .toc-scroll::-webkit-scrollbar-thumb {
-    background: rgb(163 163 163 / 0.4); /* 淡墨色（ink-300） */
+    background: var(--toc-scroll-thumb); /* 淡墨色滚动条 */
     border-radius: 4px;
     transition: background 0.3s ease;
   }
 
   .toc-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgb(163 163 163 / 0.6); /* 悬停时加深 */
+    background: var(--toc-scroll-thumb-hover); /* 悬停时加深 */
   }
 
   /* Firefox 滚动条样式 */
   .toc-scroll {
-    scrollbar-color: rgb(163 163 163 / 0.4) transparent;
+    scrollbar-color: var(--toc-scroll-thumb) transparent;
     scrollbar-width: thin;
   }
 
   .toc-scroll:hover {
-    scrollbar-color: rgb(163 163 163 / 0.6) transparent;
-  }
-
-  /* 暗色模式下的滚动条 */
-  :global(.dark) .toc-scroll::-webkit-scrollbar-thumb {
-    background: rgb(113 113 122 / 0.4); /* 暗色模式的 zinc-700 */
-  }
-
-  :global(.dark) .toc-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgb(113 113 122 / 0.6);
-  }
-
-  :global(.dark) .toc-scroll {
-    scrollbar-color: rgb(113 113 122 / 0.4) transparent;
-  }
-
-  :global(.dark) .toc-scroll:hover {
-    scrollbar-color: rgb(113 113 122 / 0.6) transparent;
+    scrollbar-color: var(--toc-scroll-thumb-hover) transparent;
   }
 
   /* --- 代码块功能：macOS 风格的按钮样式 --- */
@@ -543,6 +484,84 @@ const categoryMeta = TECH_CATEGORY_META_LIST.find(
     user-select: text;
   }
 </style>
+
+<script>
+  function updateSideScrollFade(element: HTMLElement) {
+    const maxScrollTop = element.scrollHeight - element.clientHeight;
+    const threshold = 2;
+
+    element.classList.toggle("has-top-fade", element.scrollTop > threshold);
+    element.classList.toggle(
+      "has-bottom-fade",
+      maxScrollTop - element.scrollTop > threshold,
+    );
+  }
+
+  function initSideScrollFades() {
+    document.querySelectorAll(".side-scroll-fade").forEach((element) => {
+      if (!(element instanceof HTMLElement)) return;
+      updateSideScrollFade(element);
+
+      if (element.dataset.scrollFadeInitialized === "true") return;
+      element.dataset.scrollFadeInitialized = "true";
+      element.addEventListener(
+        "scroll",
+        () => updateSideScrollFade(element),
+        { passive: true },
+      );
+    });
+  }
+
+  function initMobileReadingNav() {
+    document.querySelectorAll("[data-mobile-reading-nav]").forEach((nav) => {
+      if (!(nav instanceof HTMLElement)) return;
+      if (nav.dataset.initialized === "true") return;
+      nav.dataset.initialized = "true";
+
+      const triggers = Array.from(
+        nav.querySelectorAll("[data-mobile-panel-trigger]"),
+      ).filter((trigger): trigger is HTMLButtonElement => {
+        return trigger instanceof HTMLButtonElement;
+      });
+      const panels = Array.from(
+        nav.querySelectorAll("[data-mobile-panel]"),
+      ).filter((panel): panel is HTMLElement => panel instanceof HTMLElement);
+
+      const setActivePanel = (nextPanel: string | null) => {
+        nav.dataset.activePanel = nextPanel ?? "";
+
+        triggers.forEach((trigger) => {
+          const isActive = trigger.dataset.mobilePanelTrigger === nextPanel;
+          trigger.setAttribute("aria-expanded", String(isActive));
+        });
+
+        panels.forEach((panel) => {
+          const isActive = panel.dataset.mobilePanel === nextPanel;
+          panel.classList.toggle("is-active", isActive);
+          updateSideScrollFade(panel);
+        });
+      };
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          const targetPanel = trigger.dataset.mobilePanelTrigger;
+          if (!targetPanel) return;
+
+          const nextPanel =
+            nav.dataset.activePanel === targetPanel ? null : targetPanel;
+          setActivePanel(nextPanel);
+        });
+      });
+
+      setActivePanel(null);
+    });
+  }
+
+  document.addEventListener("astro:page-load", initSideScrollFades);
+  document.addEventListener("DOMContentLoaded", initSideScrollFades);
+  document.addEventListener("astro:page-load", initMobileReadingNav);
+  document.addEventListener("DOMContentLoaded", initMobileReadingNav);
+</script>
 
 {/* --- 代码块交互脚本 --- */}
 <script>

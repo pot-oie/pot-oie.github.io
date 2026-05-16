@@ -1,0 +1,194 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import type { SeriesNavData } from "./SeriesNavigation.astro";
+
+type Props = {
+  headings: MarkdownHeading[];
+  series?: SeriesNavData;
+};
+
+const { headings, series } = Astro.props;
+const tocItems = headings.filter(
+  (heading) => heading.depth > 1 && heading.depth <= 3,
+);
+const seriesItems = series?.items ?? [];
+const hasSeries = seriesItems.length > 1;
+const hasToc = tocItems.length > 0;
+const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
+---
+
+{
+  (hasSeries || hasToc) && (
+    <section
+      class="mobile-reading-nav xl:hidden mb-6 overflow-hidden rounded-sm border border-ink-200/70 bg-stone-50/80 font-sans backdrop-blur-[2px] dark:border-zinc-700/70 dark:bg-zinc-800/50"
+      data-mobile-reading-nav
+      data-pagefind-ignore
+    >
+      <div
+        class:list={[
+          "grid border-b border-ink-200/60 dark:border-zinc-700/70",
+          triggerGridClass,
+        ]}
+      >
+        {hasSeries && (
+          <button
+            type="button"
+            id="mobile-series-trigger"
+            class="mobile-reading-trigger flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-ink-700 transition-colors duration-200 dark:text-zinc-300"
+            data-mobile-panel-trigger="series"
+            aria-controls="mobile-series-panel"
+            aria-expanded="false"
+          >
+            <Icon name="mingcute:route-line" class="h-5 w-5 text-vermilion" />
+            <span>导览</span>
+          </button>
+        )}
+
+        {hasToc && (
+          <button
+            type="button"
+            id="mobile-toc-trigger"
+            class:list={[
+              "mobile-reading-trigger flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-ink-700 transition-colors duration-200 dark:text-zinc-300",
+              hasSeries && "border-l border-ink-200/60 dark:border-zinc-700/70",
+            ]}
+            data-mobile-panel-trigger="toc"
+            aria-controls="mobile-toc-panel"
+            aria-expanded="false"
+          >
+            <Icon name="mingcute:list-check-line" class="h-5 w-5 text-vermilion" />
+            <span>目录</span>
+          </button>
+        )}
+      </div>
+
+      {hasSeries && series && (
+        <div
+          id="mobile-series-panel"
+          class="mobile-reading-panel toc-scroll side-scroll-fade max-h-[60vh] overflow-y-auto overflow-x-hidden px-3 py-3"
+          data-mobile-panel="series"
+          data-lenis-prevent
+          aria-labelledby="mobile-series-trigger"
+        >
+          <ol class="flex flex-col gap-0.5">
+            {seriesItems.map((item) => {
+              const subtitle = item.subtitle?.trim() ?? "";
+              const accessibleTitle = subtitle || item.title;
+
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={item.current ? "page" : undefined}
+                    aria-label={`${item.order}. ${accessibleTitle}`}
+                    title={accessibleTitle}
+                    class:list={[
+                      "mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2.5 py-2 text-sm leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
+                      item.current
+                        ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
+                        : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
+                    ]}
+                  >
+                    <span
+                      class:list={[
+                        "mobile-reading-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
+                        item.current
+                          ? "rounded-full bg-vermilion text-white"
+                          : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
+                      ]}
+                    >
+                      {item.order}
+                    </span>
+                    <span class="min-w-0 truncate">{accessibleTitle}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
+
+      {hasToc && (
+        <div
+          id="mobile-toc-panel"
+          class="mobile-reading-panel toc-scroll side-scroll-fade max-h-[60vh] overflow-y-auto overflow-x-hidden px-3 py-3"
+          data-mobile-panel="toc"
+          data-lenis-prevent
+          aria-labelledby="mobile-toc-trigger"
+        >
+          <ol class="flex flex-col gap-0.5">
+            {tocItems.map((heading) => (
+              <li style={`padding-left: ${(heading.depth - 2) * 0.75}rem`}>
+                <a
+                  href={`#${heading.slug}`}
+                  data-slug={heading.slug}
+                  title={heading.text}
+                  class="toc-link mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2.5 py-2 text-sm leading-tight text-ink-500 transition-colors duration-200 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion"
+                >
+                  <span class="mobile-reading-marker flex h-5 w-5 items-center justify-center text-xs font-semibold text-ink-300 transition-colors duration-200 group-hover:text-vermilion dark:text-zinc-600 dark:group-hover:text-vermilion">
+                    {heading.depth === 2 ? "•" : "·"}
+                  </span>
+                  <span class="min-w-0 truncate">{heading.text}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .mobile-reading-panel {
+    display: none;
+  }
+
+  .mobile-reading-panel.is-active {
+    display: block;
+  }
+
+  .mobile-reading-nav[data-active-panel="series"]
+    [data-mobile-panel-trigger="series"],
+  .mobile-reading-nav[data-active-panel="toc"]
+    [data-mobile-panel-trigger="toc"] {
+    background: var(--reading-nav-trigger-active-bg);
+    color: var(--reading-nav-trigger-active-text);
+  }
+
+  .mobile-reading-link.is-current {
+    background: var(--reading-nav-current-bg);
+  }
+
+  .mobile-reading-link:global(.scale-105) {
+    transform: none;
+  }
+
+  .side-scroll-fade {
+    --side-scroll-top-fade: var(--mask-visible-stop);
+    --side-scroll-bottom-fade: var(--mask-visible-stop);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) 1.25rem,
+      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--side-scroll-bottom-fade)
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) 1.25rem,
+      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--side-scroll-bottom-fade)
+    );
+  }
+
+  .side-scroll-fade.has-top-fade {
+    --side-scroll-top-fade: transparent;
+  }
+
+  .side-scroll-fade.has-bottom-fade {
+    --side-scroll-bottom-fade: transparent;
+  }
+</style>

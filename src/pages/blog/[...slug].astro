@@ -4,6 +4,7 @@ import { type CollectionEntry, getCollection, render } from "astro:content";
 import LifePost from "../../layouts/LifePost.astro";
 import TechPost from "../../layouts/TechPost.astro";
 import AlbumPost from "../../layouts/AlbumPost.astro";
+import type { SeriesNavData } from "../../components/SeriesNavigation.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => {
@@ -19,6 +20,31 @@ type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
+const publishedPosts = await getCollection("blog", ({ data }) => {
+  return data.draft !== true;
+});
+const series: SeriesNavData | undefined = post.data.series
+  ? {
+      title: post.data.series.title,
+      items: publishedPosts
+        .filter((item) => item.data.series?.key === post.data.series?.key)
+        .sort((a, b) => {
+          const orderDiff =
+            (a.data.series?.order ?? Number.MAX_SAFE_INTEGER) -
+            (b.data.series?.order ?? Number.MAX_SAFE_INTEGER);
+
+          if (orderDiff !== 0) return orderDiff;
+          return a.data.pubDate.getTime() - b.data.pubDate.getTime();
+        })
+        .map((item) => ({
+          title: item.data.title,
+          subtitle: item.data.series?.subtitle,
+          href: `/blog/${item.id.replace(/\.mdx?$/, "")}/`,
+          order: item.data.series?.order ?? 0,
+          current: item.id === post.id,
+        })),
+    }
+  : undefined;
 ---
 
 {
@@ -33,7 +59,7 @@ const { Content, headings } = await render(post);
       </LifePost>
     )
   ) : (
-    <TechPost {...post.data} headings={headings}>
+    <TechPost {...post.data} headings={headings} series={series}>
       <Content />
     </TechPost>
   )

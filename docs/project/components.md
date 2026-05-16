@@ -27,7 +27,9 @@ Cards should receive data through props and avoid fetching collections directly 
 ### Article And Reading Helpers
 
 - `src/components/FormattedDate.astro`: date display helper.
-- `src/components/TableOfContents.astro`: article heading navigation.
+- `src/components/TableOfContents.astro`: article heading navigation, rendered as a right-side desktop helper.
+- `src/components/SeriesNavigation.astro`: technical-note series navigation for jumping between posts in the same set, visually distinct from the table of contents through block-style active states. Item labels come from each post's `series.subtitle`.
+- `src/components/MobileReadingNavigation.astro`: mobile-only reading navigation that renders both series guide entries and table-of-contents entries through one shared compact style and toggle surface.
 - `src/components/QRCodeTooltip.astro`: QR-code tooltip behavior.
 - `src/components/ScoreBox.astro`: rating presentation, currently used by movie-facing UI.
 
