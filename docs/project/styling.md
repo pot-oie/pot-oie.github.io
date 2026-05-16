@@ -61,8 +61,9 @@ Dark mode is enabled through:
 ## Article Navigation
 
 - Desktop technical posts use distinct side helpers: the series guide emphasizes
-  the current article with a soft filled state, while the table of contents keeps
-  a linear active indicator.
+  the current article with a soft filled state and can group long series under
+  borderless collapsible second-level section controls with count badges, while
+  the table of contents keeps a linear active indicator.
 - Mobile technical posts use `MobileReadingNavigation.astro`, a separate compact
   toggle surface that renders series entries and table-of-contents entries with
   one shared rhythm instead of reusing the two desktop components directly.

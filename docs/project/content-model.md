@@ -54,8 +54,10 @@ Technical learning-note series can use `series` to opt into article-to-article n
 
 - `series.key`: stable grouping key shared by every post in the same set.
 - `series.title`: display title for the set.
+- `series.section.title`: optional second-level group title shown inside the series navigation.
+- `series.section.order`: positive integer used for ordering second-level groups.
 - `series.subtitle`: optional per-post label shown in the series navigation.
-- `series.order`: positive integer used for ordering within the set.
+- `series.order`: positive integer used for ordering within its group.
 
 Draft posts may carry `series` metadata, but detail-page navigation only lists published posts.
 

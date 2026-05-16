@@ -13,6 +13,9 @@ const tocItems = headings.filter(
   (heading) => heading.depth > 1 && heading.depth <= 3,
 );
 const seriesItems = series?.items ?? [];
+const seriesSections = series?.sections?.length
+  ? series.sections
+  : [{ title: "未分组", order: Number.MAX_SAFE_INTEGER, items: seriesItems }];
 const hasSeries = seriesItems.length > 1;
 const hasToc = tocItems.length > 0;
 const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
@@ -71,41 +74,71 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
           data-lenis-prevent
           aria-labelledby="mobile-series-trigger"
         >
-          <ol class="flex flex-col gap-0.5">
-            {seriesItems.map((item) => {
-              const subtitle = item.subtitle?.trim() ?? "";
-              const accessibleTitle = subtitle || item.title;
-
-              return (
-                <li>
-                  <a
-                    href={item.href}
-                    aria-current={item.current ? "page" : undefined}
-                    aria-label={`${item.order}. ${accessibleTitle}`}
-                    title={accessibleTitle}
-                    class:list={[
-                      "mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2.5 py-2 text-sm leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
-                      item.current
-                        ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
-                        : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
-                    ]}
-                  >
+          <div class="flex flex-col gap-1.5">
+            {seriesSections.map((section) => (
+              <details class="mobile-series-section" open>
+                <summary class="mobile-series-section-summary flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm bg-white/25 px-2.5 py-2 text-[0.68rem] font-semibold tracking-widest text-ink-500 transition-colors duration-200 hover:bg-white/60 hover:text-vermilion dark:bg-zinc-900/25 dark:text-zinc-400 dark:hover:bg-zinc-800/45 dark:hover:text-vermilion">
+                  <span class="flex min-w-0 items-center gap-1.5">
                     <span
-                      class:list={[
-                        "mobile-reading-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
-                        item.current
-                          ? "rounded-full bg-vermilion text-white"
-                          : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
-                      ]}
+                      class="mobile-series-section-icon inline-flex h-4 w-4 shrink-0 items-center justify-center text-ink-400 transition-colors duration-200 dark:text-zinc-500"
+                      aria-hidden="true"
                     >
-                      {item.order}
+                      <Icon
+                        name="mingcute:down-fill"
+                        class="mobile-series-section-icon-open h-3.5 w-3.5"
+                      />
+                      <Icon
+                        name="mingcute:up-fill"
+                        class="mobile-series-section-icon-closed hidden h-3.5 w-3.5"
+                      />
                     </span>
-                    <span class="min-w-0 truncate">{accessibleTitle}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ol>
+                    <span class="min-w-0 truncate">{section.title}</span>
+                  </span>
+                  <span
+                    class="mobile-series-section-count shrink-0 rounded-full bg-ink-100/55 px-1.5 py-0.5 text-[0.58rem] font-semibold leading-none tracking-normal text-ink-400 dark:bg-zinc-800/55 dark:text-zinc-500"
+                    aria-label={`${section.items.length} 篇文章`}
+                  >
+                    {section.items.length}
+                  </span>
+                </summary>
+                <ol class="mobile-series-section-items flex flex-col gap-0.5 pt-1.5">
+                  {section.items.map((item) => {
+                    const subtitle = item.subtitle?.trim() ?? "";
+                    const accessibleTitle = subtitle || item.title;
+
+                    return (
+                      <li>
+                        <a
+                          href={item.href}
+                          aria-current={item.current ? "page" : undefined}
+                          aria-label={`${section.title} ${item.order}. ${accessibleTitle}`}
+                          title={accessibleTitle}
+                          class:list={[
+                            "mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2.5 py-2 text-sm leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
+                            item.current
+                              ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
+                              : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
+                          ]}
+                        >
+                          <span
+                            class:list={[
+                              "mobile-reading-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
+                              item.current
+                                ? "rounded-full bg-vermilion text-white"
+                                : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
+                            ]}
+                          >
+                            {item.order}
+                          </span>
+                          <span class="min-w-0 truncate">{accessibleTitle}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </details>
+            ))}
+          </div>
         </div>
       )}
 
@@ -159,6 +192,40 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
 
   .mobile-reading-link.is-current {
     background: var(--reading-nav-current-bg);
+  }
+
+  .mobile-series-section > summary {
+    list-style: none;
+  }
+
+  .mobile-series-section > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-series-section:not([open]) .mobile-series-section-icon-open {
+    display: none;
+  }
+
+  .mobile-series-section:not([open]) .mobile-series-section-icon-closed {
+    display: block;
+  }
+
+  .mobile-series-section[open] > .mobile-series-section-summary {
+    background: var(--reading-nav-current-bg);
+    color: var(--reading-nav-trigger-active-text);
+  }
+
+  .mobile-series-section[open] .mobile-series-section-icon {
+    color: rgb(var(--color-rgb-vermilion-note) / 0.82);
+  }
+
+  .mobile-series-section[open] .mobile-series-section-count {
+    background: rgb(var(--color-rgb-vermilion-note) / 0.1);
+    color: rgb(var(--color-rgb-vermilion-note) / 0.82);
+  }
+
+  .mobile-series-section[open] {
+    padding-bottom: 0.375rem;
   }
 
   .mobile-reading-link:global(.scale-105) {

@@ -55,6 +55,12 @@ const blog = defineCollection({
           .object({
             key: z.string().min(1),
             title: z.string().min(1),
+            section: z
+              .object({
+                title: z.string().min(1),
+                order: z.number().int().positive(),
+              })
+              .optional(),
             subtitle: z.string().optional(),
             order: z.number().int().positive(),
           })

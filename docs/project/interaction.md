@@ -128,7 +128,7 @@ This behavior is page-local and should not move into shared components unless it
 
 ### Technical Post Detail
 
-`src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time.
+`src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time. Series section collapse uses native `details` / `summary` behavior in both desktop and mobile navigation.
 
 ### Dashboard
 
