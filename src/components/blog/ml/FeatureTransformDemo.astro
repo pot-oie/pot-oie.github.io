@@ -106,7 +106,7 @@
       camera.position.copy(defaultCamera);
       camera.lookAt(cameraTarget);
 
-      let renderer: THREE.WebGLRenderer;
+      let renderer: Three.WebGLRenderer;
       try {
         renderer = new THREE.WebGLRenderer({
           canvas,
@@ -205,7 +205,7 @@
       const points: DemoPoint[] = [];
       const random = seededRandom(914);
 
-      const addPoint = (radius: number, angle: number, material: THREE.MeshStandardMaterial) => {
+      const addPoint = (radius: number, angle: number, material: Three.MeshStandardMaterial) => {
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
         const z = x * x + y * y;

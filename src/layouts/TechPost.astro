@@ -14,7 +14,7 @@ import {
   DEFAULT_TAG_META,
 } from "../consts";
 
-type Props = CollectionEntry<"blog">["data"] & {
+type Props = Omit<CollectionEntry<"blog">["data"], "series"> & {
   headings?: MarkdownHeading[];
   series?: SeriesNavData;
 };
