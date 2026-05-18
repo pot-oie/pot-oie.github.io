@@ -21,7 +21,7 @@ Accent:
 
 - `--color-vermilion`: vermilion red for hover, selected, seal-like emphasis, and important interaction states.
 
-Transparent and component-specific colors are centralized in `src/styles/global.css` as commented CSS variables. Use the `--color-rgb-*` channel assets for opacity-based colors, and prefer semantic tokens such as `--lightbox-*`, `--math-*`, `--reading-nav-*`, `--toc-scroll-*`, and `--tag-*` before introducing raw `rgb(...)` or `rgba(...)` values in components.
+Transparent and component-specific colors are centralized in `src/styles/global.css` as commented CSS variables. Use the `--color-rgb-*` channel assets for opacity-based colors, and prefer semantic tokens such as `--lightbox-*`, `--math-*`, `--reading-nav-*`, `--toc-scroll-*`, and `--tag-*` before introducing raw `rgb(...)` or `rgba(...)` values in components. Technical article tags include a dedicated `ai` token for AI, machine learning, deep learning, and model-concept labels.
 
 Dark mode is enabled through:
 
@@ -38,7 +38,8 @@ Dark mode is enabled through:
 - Article `h2` headings use a faint generated chapter watermark. Article `h3`
   and `h4` headings use restrained paper-highlight backgrounds, with separate
   dark-mode decoration tokens so the effects stay visible without competing with
-  the text.
+  the text. Article heading spacing steps down by depth: `h2` keeps the largest
+  context gap, `h3` is tighter, and `h4` is the compact fixed baseline.
 - Article quote blocks use a full-height left accent line and shared quote
   background across desktop and mobile. Mobile quote blocks use compact spacing
   with quote-local paragraph margins so inherited prose spacing does not pull the
@@ -93,7 +94,9 @@ Most article-specific code rendering styles live in `src/styles/markdown.css`.
 MDX math is rendered through KaTeX. Article math keeps large, non-wrapping
 formula text for readability, while overflowing block formulas hide the native
 horizontal scrollbar and use a subtle right-edge fade to indicate additional
-content.
+content. Block formulas use compact vertical spacing, and the optional
+`滑动查看` overflow hint sits close to the formula instead of opening a separate
+visual gap.
 
 ## Maintenance Rules
 

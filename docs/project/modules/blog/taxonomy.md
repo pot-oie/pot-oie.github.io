@@ -43,6 +43,7 @@ Source of truth:
 
 - `interaction`: interaction and behavior design
 - `design`: UI and UX aesthetics
+- `ai`: AI, machine learning, deep learning, and model concepts
 - `frontend`: browser and framework engineering
 - `backend`: protocol and server-side topics
 - `algorithm`: data structure and algorithm topics

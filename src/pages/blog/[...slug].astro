@@ -72,6 +72,7 @@ const seriesSections = seriesItems.reduce<SeriesNavData["sections"]>(
 );
 const series: SeriesNavData | undefined = post.data.series
   ? {
+      key: post.data.series.key,
       title: post.data.series.title,
       items: seriesItems,
       sections: seriesSections,

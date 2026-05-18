@@ -37,8 +37,8 @@
 .prose-ink > h2 {
   counter-increment: prose-section;
   font-size: 2em;
-  margin-top: 2.65em;
-  margin-bottom: 1em;
+  margin-top: 2.45em;
+  margin-bottom: 1.9em;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.38em;
 }
@@ -61,7 +61,7 @@
   padding: 0 0.1em;
   font-size: 1.55em;
   margin-top: 2.15em;
-  margin-bottom: 0.9em;
+  margin-bottom: 1.75em;
   background: linear-gradient(
     transparent 64%,
     var(--prose-heading-highlight) 64%,
@@ -690,13 +690,13 @@ html.dark .code-block-wrapper pre.astro-code span {
 
   /* 标题上下留白 */
   .prose.prose-ink > h2 {
-    margin-top: 1.65em !important;
-    margin-bottom: 0.65em !important;
+    margin-top: 1.8em !important;
+    margin-bottom: 1.2em !important;
     font-size: 1.55em !important;
   }
   .prose.prose-ink > h3 {
-    margin-top: 1.35em !important;
-    margin-bottom: 0.65em !important;
+    margin-top: 1.68em !important;
+    margin-bottom: 1.1em !important;
     font-size: 1.28em !important;
   }
   .prose.prose-ink > h4 {
@@ -821,8 +821,8 @@ html.dark .code-block-wrapper pre.astro-code span {
 .prose-ink .katex-display {
   display: block;
   position: relative;
-  margin: 1.5em 0; /* 呼吸空间 */
-  padding: 1em 0;
+  margin: 1em 0; /* 呼吸空间 */
+  padding: 0.55em 0;
   text-align: center;
 
   /* 开启横向滚动 */
@@ -859,6 +859,7 @@ html.dark .code-block-wrapper pre.astro-code span {
 
 .prose-ink .katex-display.math-scrollable {
   cursor: grab;
+  margin-bottom: 0.2rem;
 }
 
 .prose-ink .katex-display.math-scrollable.math-dragging {
@@ -869,7 +870,7 @@ html.dark .code-block-wrapper pre.astro-code span {
 /* 内部排版 */
 .prose-ink .katex-display .katex-html {
   font-size: 1.2em;
-  padding-bottom: 0.5em; /* 底部余量，防字母截断 */
+  padding-bottom: 0.25em; /* 底部余量，防字母截断 */
 }
 
 /* 交互：悬停朱红 */
@@ -893,8 +894,8 @@ html.dark .code-block-wrapper pre.astro-code span {
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
-  margin-top: -0.25rem;
-  margin-bottom: 0.75rem;
+  margin-top: 0;
+  margin-bottom: 0.9rem;
   padding-right: 0.5rem;
 
   /* 主体文字淡墨色、斜体 */

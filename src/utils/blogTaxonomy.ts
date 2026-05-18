@@ -70,6 +70,7 @@ export const TECH_CATEGORY_META_LIST: TechCategoryMeta[] = [
 ];
 
 export type TagStyleToken =
+  | "ai"
   | "interaction"
   | "design"
   | "frontend"
@@ -93,6 +94,131 @@ export const DEFAULT_TAG_META: BlogTagMeta = {
 };
 
 export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
+  AI: {
+    label: "AI",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  机器学习: {
+    label: "机器学习",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  深度学习: {
+    label: "深度学习",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  监督学习: {
+    label: "监督学习",
+    icon: "mingcute:book-2-line",
+    styleToken: "study",
+  },
+  线性回归: {
+    label: "线性回归",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  梯度下降: {
+    label: "梯度下降",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  泛化: {
+    label: "泛化",
+    icon: "mingcute:check-2-line",
+    styleToken: "study",
+  },
+  分类: {
+    label: "分类",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  概率模型: {
+    label: "概率模型",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  生成模型: {
+    label: "生成模型",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  判别模型: {
+    label: "判别模型",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  Sigmoid: {
+    label: "Sigmoid",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  神经网络: {
+    label: "神经网络",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  MLP: {
+    label: "MLP",
+    icon: "mingcute:ai-line",
+    styleToken: "ai",
+  },
+  特征复用: {
+    label: "特征复用",
+    icon: "mingcute:process-line",
+    styleToken: "ai",
+  },
+  AI史: {
+    label: "AI史",
+    icon: "mingcute:book-2-line",
+    styleToken: "study",
+  },
+  反向传播: {
+    label: "反向传播",
+    icon: "mingcute:process-line",
+    styleToken: "algorithm",
+  },
+  数学: {
+    label: "数学",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  梯度消失: {
+    label: "梯度消失",
+    icon: "mingcute:process-line",
+    styleToken: "algorithm",
+  },
+  激活函数: {
+    label: "激活函数",
+    icon: "mingcute:braces-line",
+    styleToken: "algorithm",
+  },
+  优化器: {
+    label: "优化器",
+    icon: "mingcute:process-line",
+    styleToken: "algorithm",
+  },
+  Adam: {
+    label: "Adam",
+    icon: "mingcute:process-line",
+    styleToken: "algorithm",
+  },
+  正则化: {
+    label: "正则化",
+    icon: "mingcute:check-2-line",
+    styleToken: "study",
+  },
+  训练技巧: {
+    label: "训练技巧",
+    icon: "mingcute:check-2-line",
+    styleToken: "study",
+  },
+  网络结构: {
+    label: "网络结构",
+    icon: "mingcute:process-line",
+    styleToken: "ai",
+  },
   交互: {
     label: "交互",
     icon: "mingcute:cursor-2-line",
@@ -206,6 +332,16 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
 };
 
 export const TAG_ALIASES: Record<string, string> = {
+  ai: "AI",
+  ml: "机器学习",
+  "machine learning": "机器学习",
+  dl: "深度学习",
+  "deep learning": "深度学习",
+  sigmoid: "Sigmoid",
+  mlp: "MLP",
+  adam: "Adam",
+  adamw: "Adam",
+  backprop: "反向传播",
   javascript: "JavaScript",
   js: "JavaScript",
   css3: "CSS",

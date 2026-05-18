@@ -22,6 +22,7 @@
     "@iconify-json/tabler": "^1.2.23",
     "@lucide/astro": "^0.553.0",
     "@tailwindcss/vite": "^4.1.17",
+    "@types/three": "^0.184.1",
     "astro": "^5.15.6",
     "astro-icon": "^1.1.5",
     "is-unicode-supported": "^2.1.0",
@@ -33,6 +34,7 @@
     "remark-math": "^6.0.0",
     "sharp": "^0.34.3",
     "tailwindcss": "^4.1.17",
+    "three": "^0.184.0",
     "tone": "^15.1.22",
     "typescript": "^5.9.3"
   },

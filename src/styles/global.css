@@ -93,6 +93,13 @@
   --tag-default-border-hover: rgb(148 163 184 / 0.85); /* 默认标签悬停边框 */
   --tag-default-bg-hover: rgb(241 245 249 / 0.88); /* 默认标签悬停底色 */
   --tag-default-shadow-hover: 0 10px 20px -16px rgb(15 23 42 / 0.65); /* 默认标签悬停阴影 */
+  --tag-ai-border: rgb(165 180 252 / 0.9); /* AI 标签边框 */
+  --tag-ai-bg: rgb(238 242 255 / 0.92); /* AI 标签底色 */
+  --tag-ai-text: rgb(67 56 202 / 1); /* AI 标签文字 */
+  --tag-ai-shadow: 0 8px 18px -14px rgb(79 70 229 / 0.75); /* AI 标签阴影 */
+  --tag-ai-border-hover: rgb(129 140 248 / 0.95); /* AI 标签悬停边框 */
+  --tag-ai-bg-hover: rgb(224 231 255 / 0.95); /* AI 标签悬停底色 */
+  --tag-ai-shadow-hover: 0 12px 24px -16px rgb(79 70 229 / 0.9); /* AI 标签悬停阴影 */
   --tag-interaction-border: rgb(186 230 253 / 0.9); /* 交互标签边框 */
   --tag-interaction-bg: rgb(240 249 255 / 0.9); /* 交互标签底色 */
   --tag-interaction-text: rgb(3 105 161 / 1); /* 交互标签文字 */
@@ -202,6 +209,9 @@
   --tag-default-border: rgb(100 116 139 / 0.55); /* 暗色默认标签边框 */
   --tag-default-bg: rgb(15 23 42 / 0.55); /* 暗色默认标签底色 */
   --tag-default-text: rgb(226 232 240 / 0.95); /* 暗色默认标签文字 */
+  --tag-ai-border: rgb(99 102 241 / 0.48); /* 暗色 AI 标签边框 */
+  --tag-ai-bg: rgb(49 46 129 / 0.34); /* 暗色 AI 标签底色 */
+  --tag-ai-text: rgb(199 210 254 / 0.96); /* 暗色 AI 标签文字 */
   --tag-interaction-border: rgb(14 165 233 / 0.4); /* 暗色交互标签边框 */
   --tag-interaction-bg: rgb(12 74 110 / 0.35); /* 暗色交互标签底色 */
   --tag-interaction-text: rgb(186 230 253 / 0.95); /* 暗色交互标签文字 */

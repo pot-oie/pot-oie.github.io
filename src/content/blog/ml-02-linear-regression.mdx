@@ -1,16 +1,24 @@
 ---
-title: "再学机器学习 02"
-description: "线性回归这条直线到底在干什么？"
-pubDate: "05 01 2026"
+title: "机器学习 02"
+description: "学明白线性回归这条线。"
+pubDate: "04 22 2026"
 draft: false
 category: "learn"
 techCategory: "ai"
-tags: ["AI", "机器学习"]
+tags: ["机器学习", "线性回归"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "机器学习基础"
+    order: 1
+  subtitle: "线性回归"
+  order: 2
 ---
 
-> 机器学习是在找一个函数
+> 机器学习是在找一个函数。
 >
-> 那么最简单的函数长什么样？大概就是线性回归里的这条线了
+> 那么最简单的函数长什么样？大概就是线性回归里的这条线了。
 
 ## 从一条线开始
 
@@ -55,7 +63,7 @@ $$
 
 如果只有一个输入特征，它是一条线；如果有多个输入特征，它就是高维空间里的一个平面或者超平面。
 
-![01](../../assets/blog/content/ml-to-llm/02-1.png)
+![01](../../assets/blog/content/ml-to-llm/ml/02-1.webp)
 
 但不管具体形式怎么变换，核心都是：用一组参数 $w, b$，把输入变成输出。
 
@@ -116,9 +124,9 @@ $$
 
 所以训练模型并不是“算一下就完事”，而是在试探一个合适的更新节奏。
 
-![02](../../assets/blog/content/ml-to-llm/02-2.png)
+![02](../../assets/blog/content/ml-to-llm/ml/02-2.webp)
 
-后面会有更详细的学习。
+后面会有更详细的[学习](/blog/ml-03-gradient-descent/#学习率)。
 
 ## 总结
 

@@ -65,6 +65,7 @@ The home page also owns a local grid/scroll toggle for recent movies in `src/pag
 
 - `src/components/blog/amazon/*`: interactive menu/safe-triangle demos for the Amazon menu article.
 - `src/components/blog/leetcode/*`: algorithm and data-structure visualizers for LeetCode/classroom articles.
+- `src/components/blog/ml/*`: machine-learning article visualizations, starting with the feature transformation demo for ML note 09.
 
 Article demo components are allowed to be article-specific. Keep them isolated under `src/components/blog/<topic>` rather than promoting them to shared components too early.
 

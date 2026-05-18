@@ -1,0 +1,680 @@
+---
+// src/components/blog/ml/FeatureTransformDemo.astro
+// Interactive 2D-to-3D feature transformation demo for ml-09.
+---
+
+<section class="feature-transform-demo not-prose" aria-label="特征变换 3D 可视化演示">
+  <header class="ft-header">
+    <h3>特征变换</h3>
+    <code>z = x² + y²</code>
+  </header>
+
+  <div class="ft-canvas-shell">
+    <canvas data-ft-canvas aria-label="同心圆数据的 3D 特征映射画布"></canvas>
+    <div class="ft-canvas-fallback" data-ft-fallback>
+      当前浏览器无法初始化 3D 画布。
+    </div>
+  </div>
+
+  <div class="ft-controls" aria-label="特征变换控制面板">
+    <label class="ft-range-control">
+      <span>空间变换 <b>2D ↔ 3D</b></span>
+      <input
+        data-ft-transform
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="1"
+        aria-label="空间变换程度"
+      />
+      <output data-ft-transform-output>3D</output>
+    </label>
+
+    <label class="ft-switch">
+      <input data-ft-plane-toggle type="checkbox" checked />
+      <span></span>
+      显示决策边界
+    </label>
+
+    <button class="ft-reset" type="button" data-ft-reset>重置视图</button>
+  </div>
+
+  <footer class="ft-legend">
+    <span><i class="ft-dot ft-dot-inner"></i>内圈样本</span>
+    <span><i class="ft-dot ft-dot-outer"></i>外圈样本</span>
+    <span><i class="ft-plane-mark"></i>线性决策平面</span>
+  </footer>
+</section>
+
+<script>
+  import type * as Three from "three";
+
+  type DemoPoint = {
+    mesh: Three.Mesh<Three.SphereGeometry, Three.MeshStandardMaterial>;
+    x: number;
+    y: number;
+    z: number;
+  };
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, value));
+
+  const seededRandom = (seed: number) => {
+    let state = seed;
+    return () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+  };
+
+  const POINT_SIZE = 0.115;
+  const HEIGHT_SCALE = 0.48;
+  const DECISION_HEIGHT = 0.56;
+  const DECISION_RADIUS = Math.sqrt(DECISION_HEIGHT / HEIGHT_SCALE);
+
+  async function initFeatureTransformDemo() {
+    const THREE = await import("three");
+
+    document.querySelectorAll<HTMLElement>(".feature-transform-demo").forEach((root) => {
+      if (root.dataset.initialized === "true") return;
+      root.dataset.initialized = "true";
+
+      const canvas = root.querySelector<HTMLCanvasElement>("[data-ft-canvas]");
+      const fallback = root.querySelector<HTMLElement>("[data-ft-fallback]");
+      const transformInput = root.querySelector<HTMLInputElement>("[data-ft-transform]");
+      const transformOutput = root.querySelector<HTMLOutputElement>("[data-ft-transform-output]");
+      const planeToggle = root.querySelector<HTMLInputElement>("[data-ft-plane-toggle]");
+      const resetButton = root.querySelector<HTMLButtonElement>("[data-ft-reset]");
+
+      if (
+        !canvas ||
+        !transformInput ||
+        !transformOutput ||
+        !planeToggle ||
+        !resetButton
+      ) {
+        return;
+      }
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x0a0f18, 7, 14);
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      const defaultCamera = new THREE.Vector3(3.8, 3.05, 5.25);
+      const cameraTarget = new THREE.Vector3(0, 0.62, 0);
+      camera.position.copy(defaultCamera);
+      camera.lookAt(cameraTarget);
+
+      let renderer: THREE.WebGLRenderer;
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        });
+      } catch {
+        fallback?.classList.add("is-visible");
+        return;
+      }
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setClearColor(0x0a0f18, 1);
+
+      const world = new THREE.Group();
+      scene.add(world);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 1.25);
+      scene.add(ambient);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      keyLight.position.set(3.2, 5.2, 3.4);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffd6d6, 0.85);
+      rimLight.position.set(-4, 2, -3);
+      scene.add(rimLight);
+
+      const grid = new THREE.GridHelper(4.8, 12, 0x465569, 0x233044);
+      grid.position.y = -0.02;
+      grid.material.transparent = true;
+      grid.material.opacity = 0.46;
+      world.add(grid);
+
+      const surfaceGeometry = new THREE.PlaneGeometry(4.4, 4.4, 32, 32);
+      const surfacePositions = surfaceGeometry.attributes.position;
+      for (let i = 0; i < surfacePositions.count; i += 1) {
+        const x = surfacePositions.getX(i);
+        const z = surfacePositions.getY(i);
+        surfacePositions.setXYZ(i, x, (x * x + z * z) * HEIGHT_SCALE, z);
+      }
+      surfaceGeometry.computeVertexNormals();
+      const surfaceMaterial = new THREE.MeshBasicMaterial({
+        color: 0x7aa7c7,
+        transparent: true,
+        opacity: 0,
+        wireframe: true,
+        depthWrite: false,
+      });
+      const mappingSurface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+      world.add(mappingSurface);
+
+      const planeGeometry = new THREE.PlaneGeometry(4.25, 4.25);
+      const planeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xd8e8f2,
+        transparent: true,
+        opacity: 0.26,
+        roughness: 0.9,
+        metalness: 0,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const decisionPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+      decisionPlane.rotation.x = -Math.PI / 2;
+      decisionPlane.position.y = DECISION_HEIGHT;
+      world.add(decisionPlane);
+
+      const boundaryRing = new THREE.Mesh(
+        new THREE.TorusGeometry(DECISION_RADIUS, 0.01, 8, 120),
+        new THREE.MeshBasicMaterial({
+          color: 0xb91c1c,
+          transparent: true,
+          opacity: 0.64,
+        }),
+      );
+      boundaryRing.rotation.x = Math.PI / 2;
+      boundaryRing.position.y = DECISION_HEIGHT;
+      world.add(boundaryRing);
+
+      const innerMaterial = new THREE.MeshStandardMaterial({
+        color: 0x8bd8f4,
+        emissive: 0x17435a,
+        emissiveIntensity: 0.18,
+        roughness: 0.36,
+        metalness: 0.04,
+      });
+      const outerMaterial = new THREE.MeshStandardMaterial({
+        color: 0xff6874,
+        emissive: 0x5c1017,
+        emissiveIntensity: 0.14,
+        roughness: 0.38,
+        metalness: 0.03,
+      });
+      const pointGeometry = new THREE.SphereGeometry(1, 16, 12);
+      const points: DemoPoint[] = [];
+      const random = seededRandom(914);
+
+      const addPoint = (radius: number, angle: number, material: THREE.MeshStandardMaterial) => {
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const z = x * x + y * y;
+        const mesh = new THREE.Mesh(pointGeometry, material.clone());
+        mesh.position.set(x, 0, y);
+        mesh.scale.setScalar(POINT_SIZE);
+        world.add(mesh);
+        points.push({ mesh, x, y, z });
+      };
+
+      for (let i = 0; i < 54; i += 1) {
+        addPoint(0.28 + random() * 0.45, random() * Math.PI * 2, innerMaterial);
+      }
+
+      for (let i = 0; i < 86; i += 1) {
+        addPoint(1.22 + random() * 0.72, random() * Math.PI * 2, outerMaterial);
+      }
+
+      let transformProgress = Number(transformInput.value);
+      let targetTransform = transformProgress;
+      let yaw = -0.58;
+      let pitch = 0.4;
+      let distance = 7.3;
+      let isDragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      let frameId = 0;
+      let resizeObserver: ResizeObserver | null = null;
+
+      const updateCamera = () => {
+        pitch = clamp(pitch, 0.18, 1.18);
+        distance = clamp(distance, 5.4, 10);
+        const x = Math.sin(yaw) * Math.cos(pitch) * distance;
+        const y = Math.sin(pitch) * distance;
+        const z = Math.cos(yaw) * Math.cos(pitch) * distance;
+        camera.position.set(x, y, z);
+        camera.lookAt(cameraTarget);
+      };
+
+      const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width));
+        const height = Math.max(1, Math.floor(rect.height));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      };
+
+      const syncLabels = () => {
+        if (targetTransform <= 0.04) {
+          transformOutput.value = "2D";
+        } else if (targetTransform >= 0.96) {
+          transformOutput.value = "3D";
+        } else {
+          transformOutput.value = `${Math.round(targetTransform * 100)}%`;
+        }
+      };
+
+      const render = () => {
+        frameId = window.requestAnimationFrame(render);
+        transformProgress += (targetTransform - transformProgress) * 0.09;
+
+        const lift = transformProgress;
+        for (const point of points) {
+          point.mesh.position.y = point.z * HEIGHT_SCALE * lift;
+        }
+
+        const planeVisible = planeToggle.checked && lift > 0.12;
+        decisionPlane.visible = planeVisible;
+        boundaryRing.visible = planeVisible;
+        mappingSurface.visible = lift > 0.08;
+        surfaceMaterial.opacity = lift * 0.11;
+        planeMaterial.opacity = 0.05 + lift * 0.2;
+        boundaryRing.material.opacity = 0.18 + lift * 0.46;
+        decisionPlane.position.y = DECISION_HEIGHT * lift;
+        boundaryRing.position.y = DECISION_HEIGHT * lift;
+        mappingSurface.scale.y = lift;
+
+        world.rotation.y += 0.0015;
+        renderer.render(scene, camera);
+      };
+
+      transformInput.addEventListener("input", () => {
+        targetTransform = Number(transformInput.value);
+        syncLabels();
+      });
+
+      planeToggle.addEventListener("change", () => {
+        syncLabels();
+      });
+
+      resetButton.addEventListener("click", () => {
+        yaw = -0.58;
+        pitch = 0.4;
+        distance = 7.3;
+        world.rotation.y = 0;
+        camera.position.copy(defaultCamera);
+        updateCamera();
+      });
+
+      canvas.addEventListener("pointerdown", (event) => {
+        isDragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        canvas.setPointerCapture(event.pointerId);
+      });
+
+      canvas.addEventListener("pointermove", (event) => {
+        if (!isDragging) return;
+        const dx = event.clientX - lastX;
+        const dy = event.clientY - lastY;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        yaw -= dx * 0.008;
+        pitch += dy * 0.006;
+        updateCamera();
+      });
+
+      canvas.addEventListener("pointerup", (event) => {
+        isDragging = false;
+        canvas.releasePointerCapture(event.pointerId);
+      });
+
+      canvas.addEventListener(
+        "wheel",
+        (event) => {
+          event.preventDefault();
+          distance += event.deltaY * 0.006;
+          updateCamera();
+        },
+        { passive: false },
+      );
+
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(canvas);
+
+      document.addEventListener("astro:before-swap", () => {
+        window.cancelAnimationFrame(frameId);
+        resizeObserver?.disconnect();
+        renderer.dispose();
+        pointGeometry.dispose();
+        planeGeometry.dispose();
+        planeMaterial.dispose();
+        surfaceGeometry.dispose();
+        surfaceMaterial.dispose();
+        boundaryRing.geometry.dispose();
+        boundaryRing.material.dispose();
+        grid.geometry.dispose();
+      }, { once: true });
+
+      updateCamera();
+      resize();
+      syncLabels();
+      render();
+    });
+  }
+
+  document.addEventListener("astro:page-load", initFeatureTransformDemo);
+  document.addEventListener("DOMContentLoaded", initFeatureTransformDemo);
+</script>
+
+<style>
+  .feature-transform-demo {
+    --ft-paper: rgb(var(--color-rgb-paper, 255 255 255) / 0.94);
+    --ft-panel: rgb(var(--color-rgb-shadow, 0 0 0) / 0.035);
+    --ft-ink: var(--color-ink-900, #0f0f0f);
+    --ft-muted: var(--color-ink-500, #555555);
+    --ft-line: rgb(var(--color-rgb-ink-300, 163 163 163) / 0.38);
+    --ft-accent: var(--color-vermilion, #b91c1c);
+    --ft-blue: #155e75;
+    --ft-radius: 8px;
+
+    width: min(100%, 820px);
+    margin: 2rem auto;
+    padding: 0.95rem;
+    border: 1px solid var(--ft-line);
+    border-radius: var(--ft-radius);
+    background:
+      linear-gradient(145deg, var(--ft-paper), rgb(245 245 245 / 0.78)),
+      var(--ft-paper);
+    box-shadow: 0 18px 46px -34px rgb(15 15 15 / 0.42);
+    color: var(--ft-ink);
+    font-family: var(--font-sans, system-ui, sans-serif);
+  }
+
+  :global(.dark) .feature-transform-demo {
+    --ft-paper: rgb(24 24 27 / 0.94);
+    --ft-panel: rgb(255 255 255 / 0.045);
+    --ft-ink: #f4f4f5;
+    --ft-muted: #a1a1aa;
+    --ft-line: rgb(113 113 122 / 0.34);
+    --ft-blue: #67e8f9;
+    background:
+      linear-gradient(145deg, rgb(24 24 27 / 0.96), rgb(39 39 42 / 0.78)),
+      #18181b;
+  }
+
+  .ft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.1rem 0.15rem 0.8rem;
+  }
+
+  .ft-header h3 {
+    margin: 0;
+    color: var(--ft-ink);
+    font-family: var(--font-serif, serif);
+    font-size: clamp(1.15rem, 2vw, 1.55rem) !important;
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  .ft-header code {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid var(--ft-line);
+    border-radius: 999px;
+    background: var(--ft-panel);
+    color: var(--ft-muted);
+    font-size: 0.74rem;
+  }
+
+  .ft-canvas-shell {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 10px;
+    background:
+      radial-gradient(circle at 52% 42%, rgb(30 45 62 / 0.75), transparent 58%),
+      linear-gradient(145deg, #0d131d 0%, #070b12 100%);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.04),
+      inset 0 -36px 70px rgb(0 0 0 / 0.24);
+  }
+
+  .ft-canvas-shell::after {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 44%, transparent 0 52%, rgb(0 0 0 / 0.22) 100%),
+      linear-gradient(180deg, rgb(255 255 255 / 0.045), transparent 22%);
+    content: "";
+  }
+
+  .ft-canvas-shell canvas {
+    display: block;
+    width: 100%;
+    height: min(54vh, 25rem);
+    min-height: 19rem;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .ft-canvas-shell canvas:active {
+    cursor: grabbing;
+  }
+
+  .ft-canvas-fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    padding: 1rem;
+    color: rgb(255 255 255 / 0.76);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .ft-canvas-fallback.is-visible {
+    display: grid;
+  }
+
+  .ft-controls {
+    display: grid;
+    grid-template-columns: minmax(15rem, 1fr) auto minmax(8.5rem, 0.46fr);
+    gap: 0.75rem 0.9rem;
+    align-items: center;
+    padding: 0.85rem 0.15rem 0.25rem;
+  }
+
+  .ft-range-control {
+    display: grid;
+    grid-template-columns: auto minmax(6rem, 1fr) 3.2rem;
+    gap: 0.65rem;
+    align-items: center;
+    color: var(--ft-muted);
+    font-size: 0.82rem;
+  }
+
+  .ft-range-control span {
+    color: var(--ft-ink);
+    white-space: nowrap;
+  }
+
+  .ft-range-control b {
+    color: var(--ft-muted);
+    font-weight: 700;
+  }
+
+  .ft-range-control output {
+    display: inline-grid;
+    min-height: 2rem;
+    place-items: center;
+    border: 1px solid var(--ft-line);
+    border-radius: 8px;
+    color: var(--ft-ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 800;
+  }
+
+  .ft-range-control input[type="range"] {
+    width: 100%;
+    accent-color: #9fc5ff;
+    cursor: pointer;
+  }
+
+  .ft-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ft-ink);
+    font-size: 0.82rem;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .ft-switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+  }
+
+  .ft-switch span {
+    position: relative;
+    width: 2.8rem;
+    height: 1.45rem;
+    border-radius: 999px;
+    background: rgb(var(--color-rgb-ink-300, 163 163 163) / 0.55);
+    transition: background-color 0.2s ease;
+  }
+
+  .ft-switch span::after {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 999px;
+    background: var(--ft-paper);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.22);
+    content: "";
+    transition: transform 0.2s ease;
+  }
+
+  .ft-switch input:checked + span {
+    background: #9fc5ff;
+  }
+
+  .ft-switch input:checked + span::after {
+    transform: translateX(1.35rem);
+    background: #103f83;
+  }
+
+  .ft-reset {
+    min-height: 2.35rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--ft-ink);
+    color: var(--ft-paper);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .ft-reset:hover {
+    background: var(--ft-accent);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .ft-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.5rem 0.15rem 0.05rem;
+    border-top: 1px solid var(--ft-line);
+    color: var(--ft-muted);
+    font-size: 0.74rem;
+  }
+
+  .ft-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .ft-dot,
+  .ft-plane-mark {
+    display: inline-block;
+    flex: 0 0 auto;
+  }
+
+  .ft-dot {
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 999px;
+  }
+
+  .ft-dot-inner {
+    background: #8ed8ff;
+  }
+
+  .ft-dot-outer {
+    background: #ff747f;
+  }
+
+  .ft-plane-mark {
+    width: 1.4rem;
+    height: 0.7rem;
+    border: 1px solid rgb(159 197 255 / 0.75);
+    background: rgb(159 197 255 / 0.18);
+    transform: skewX(-18deg);
+  }
+
+  @media (max-width: 760px) {
+    .feature-transform-demo {
+      padding: 0.85rem;
+    }
+
+    .ft-header,
+    .ft-controls {
+      grid-template-columns: 1fr;
+    }
+
+    .ft-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .ft-canvas-shell canvas {
+      height: 18.5rem;
+      min-height: 18.5rem;
+    }
+
+    .ft-range-control {
+      grid-template-columns: 1fr 4.4rem;
+      gap: 0.45rem 0.7rem;
+    }
+
+    .ft-range-control input {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .ft-range-control output {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+</style>
