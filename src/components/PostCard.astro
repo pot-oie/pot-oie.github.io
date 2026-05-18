@@ -98,11 +98,11 @@ const displayDate = post.data.updatedDate ?? post.data.pubDate;
     {post.data.description}
   </p>
 
-  {/* 装饰性箭头 */}
+  {/* 桌面端悬停提示；移动端整张卡片已经可点击，避免常驻 CTA 挤占列表空间。 */}
   <div
-    class="relative z-10 mt-4
-          opacity-100 translate-x-0
-          md:opacity-0 md:-translate-x-2
+    aria-hidden="true"
+    class="relative z-10 mt-4 hidden
+          md:block md:opacity-0 md:-translate-x-2
           md:group-hover:opacity-100 md:group-hover:translate-x-0
           md:group-active:opacity-100 md:group-active:translate-x-0 md:group-active:duration-200
           md:group-[.is-active]:opacity-100 md:group-[.is-active]:translate-x-0 md:group-[.is-active]:duration-200

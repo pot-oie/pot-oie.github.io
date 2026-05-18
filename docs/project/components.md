@@ -15,7 +15,9 @@ These components are part of the site shell and should stay broadly content-agno
 
 ### Content Cards And Lists
 
-- `src/components/PostCard.astro`: blog archive/list card.
+- `src/components/PostCard.astro`: blog archive/list card. The whole card is
+  clickable on mobile; the `READ MORE` affordance is desktop-only and appears
+  through hover/active states.
 - `src/components/PostCardForIndex.astro`: compact recent-post card for the home page.
 - `src/components/BlogRowCard.astro`: row-style blog card for category/list contexts.
 - `src/components/MovieCard.astro`: movie list card.
