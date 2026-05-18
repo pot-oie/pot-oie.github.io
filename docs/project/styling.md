@@ -63,7 +63,13 @@ Dark mode is enabled through:
 - Desktop technical posts use distinct side helpers: the series guide emphasizes
   the current article with a soft filled state and can group long series under
   borderless collapsible second-level section controls with count badges, while
-  the table of contents keeps a linear active indicator.
+  the table of contents keeps a linear active indicator. The desktop series
+  guide is intentionally capped near the viewport middle instead of spanning the
+  full page height. Its outer card remains fixed while the internal item list
+  scrolls with a taller local edge fade. Series item subtitles use compact text
+  with tightened row spacing to keep long labels scannable. Long reading
+  navigation panels hide native scrollbars, relying on the edge fade as the
+  overflow cue.
 - Mobile technical posts use `MobileReadingNavigation.astro`, a separate compact
   toggle surface that renders series entries and table-of-contents entries with
   one shared rhythm instead of reusing the two desktop components directly.

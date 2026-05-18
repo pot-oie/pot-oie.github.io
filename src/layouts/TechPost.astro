@@ -43,7 +43,7 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
     {
       hasSeriesNav && series && (
         <aside
-          class="toc-scroll side-scroll-fade hidden xl:block fixed top-32 right-[calc(50%+28rem)] 2xl:right-[calc(50%+29rem)] w-44 2xl:w-56 h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden overscroll-contain z-10 opacity-90 hover:opacity-100 transition-opacity duration-300"
+          class="hidden xl:block fixed top-32 right-[calc(50%+28rem)] 2xl:right-[calc(50%+29rem)] w-44 2xl:w-56 h-[calc(52vh-8rem)] overflow-hidden z-10 opacity-90 hover:opacity-100 transition-opacity duration-300"
           data-lenis-prevent
         >
           <SeriesNavigation series={series} />
@@ -260,18 +260,19 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
   .side-scroll-fade {
     --side-scroll-top-fade: var(--mask-visible-stop);
     --side-scroll-bottom-fade: var(--mask-visible-stop);
+    --side-scroll-fade-size: 1.75rem;
     -webkit-mask-image: linear-gradient(
       to bottom,
       var(--side-scroll-top-fade),
-      var(--mask-visible-stop) 1.25rem,
-      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
       var(--side-scroll-bottom-fade)
     );
     mask-image: linear-gradient(
       to bottom,
       var(--side-scroll-top-fade),
-      var(--mask-visible-stop) 1.25rem,
-      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
       var(--side-scroll-bottom-fade)
     );
   }
@@ -374,34 +375,16 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
     --tag-shadow-hover: var(--tag-database-shadow-hover);
   }
 
-  /* --- 右侧目录：自定义滚动条样式 --- */
-  /* 美化 WebKit 浏览器的滚动条（Chrome, Safari, Edge） */
+  /* --- 阅读导航：保留滚动能力，但隐藏原生滚动条 --- */
   .toc-scroll::-webkit-scrollbar {
-    width: 8px; /* 滚动条宽度 */
+    display: none;
+    width: 0;
+    height: 0;
   }
 
-  .toc-scroll::-webkit-scrollbar-track {
-    background: transparent; /* 滚动条轨道背景 */
-  }
-
-  .toc-scroll::-webkit-scrollbar-thumb {
-    background: var(--toc-scroll-thumb); /* 淡墨色滚动条 */
-    border-radius: 4px;
-    transition: background 0.3s ease;
-  }
-
-  .toc-scroll::-webkit-scrollbar-thumb:hover {
-    background: var(--toc-scroll-thumb-hover); /* 悬停时加深 */
-  }
-
-  /* Firefox 滚动条样式 */
   .toc-scroll {
-    scrollbar-color: var(--toc-scroll-thumb) transparent;
-    scrollbar-width: thin;
-  }
-
-  .toc-scroll:hover {
-    scrollbar-color: var(--toc-scroll-thumb-hover) transparent;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   /* --- 代码块功能：macOS 风格的按钮样式 --- */
@@ -486,6 +469,9 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
 </style>
 
 <script>
+  const SERIES_NAV_STATE_PREFIX = "pot-series-nav-sections-v1";
+  const SERIES_NAV_SCROLL_STATE_PREFIX = "pot-series-nav-scroll-v1";
+
   function updateSideScrollFade(element: HTMLElement) {
     const maxScrollTop = element.scrollHeight - element.clientHeight;
     const threshold = 2;
@@ -510,6 +496,178 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
         { passive: true },
       );
     });
+  }
+
+  function getSeriesSectionStorageKey(seriesKey: string) {
+    return `${SERIES_NAV_STATE_PREFIX}:${seriesKey}`;
+  }
+
+  function getSeriesScrollStorageKey(seriesKey: string, surfaceKey: string) {
+    return `${SERIES_NAV_SCROLL_STATE_PREFIX}:${seriesKey}:${surfaceKey}`;
+  }
+
+  function readSeriesSectionState(seriesKey: string): Record<string, boolean> {
+    try {
+      const storedValue = localStorage.getItem(
+        getSeriesSectionStorageKey(seriesKey),
+      );
+      if (!storedValue) return {};
+
+      const parsedValue: unknown = JSON.parse(storedValue);
+      if (!parsedValue || typeof parsedValue !== "object") return {};
+
+      return Object.entries(parsedValue).reduce<Record<string, boolean>>(
+        (state, [key, value]) => {
+          if (typeof value === "boolean") state[key] = value;
+          return state;
+        },
+        {},
+      );
+    } catch {
+      return {};
+    }
+  }
+
+  function writeSeriesSectionState(
+    seriesKey: string,
+    state: Record<string, boolean>,
+  ) {
+    try {
+      localStorage.setItem(
+        getSeriesSectionStorageKey(seriesKey),
+        JSON.stringify(state),
+      );
+    } catch {
+      // Storage can be unavailable in restricted browser modes; keep native details behavior.
+    }
+  }
+
+  function readSeriesScrollPosition(seriesKey: string, surfaceKey: string) {
+    try {
+      const storedValue = localStorage.getItem(
+        getSeriesScrollStorageKey(seriesKey, surfaceKey),
+      );
+      const scrollTop = Number(storedValue);
+      return Number.isFinite(scrollTop) && scrollTop > 0 ? scrollTop : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function writeSeriesScrollPosition(
+    seriesKey: string,
+    surfaceKey: string,
+    scrollTop: number,
+  ) {
+    try {
+      localStorage.setItem(
+        getSeriesScrollStorageKey(seriesKey, surfaceKey),
+        String(Math.max(0, Math.round(scrollTop))),
+      );
+    } catch {
+      // Storage can be unavailable in restricted browser modes; keep native scroll behavior.
+    }
+  }
+
+  function restoreSeriesScrollPosition(element: HTMLElement) {
+    const seriesKey = element.dataset.seriesKey;
+    const surfaceKey = element.dataset.seriesScrollSurface;
+    if (!seriesKey || !surfaceKey) return;
+
+    const storedScrollTop = readSeriesScrollPosition(seriesKey, surfaceKey);
+    if (storedScrollTop <= 0) return;
+
+    requestAnimationFrame(() => {
+      element.scrollTop = storedScrollTop;
+      updateSideScrollFade(element);
+    });
+  }
+
+  function syncSeriesSectionOpenState(
+    seriesKey: string,
+    sectionKey: string,
+    isOpen: boolean,
+  ) {
+    document
+      .querySelectorAll(
+        `[data-series-section][data-series-key="${CSS.escape(seriesKey)}"][data-series-section-key="${CSS.escape(sectionKey)}"]`,
+      )
+      .forEach((element) => {
+        if (!(element instanceof HTMLDetailsElement)) return;
+        if (element.open !== isOpen) element.open = isOpen;
+      });
+  }
+
+  function initSeriesSectionState() {
+    document.querySelectorAll("[data-series-section]").forEach((element) => {
+      if (!(element instanceof HTMLDetailsElement)) return;
+
+      const seriesKey = element.dataset.seriesKey;
+      const sectionKey = element.dataset.seriesSectionKey;
+      if (!seriesKey || !sectionKey) return;
+
+      const state = readSeriesSectionState(seriesKey);
+      if (sectionKey in state) {
+        element.open = state[sectionKey];
+      }
+
+      if (element.dataset.seriesStateInitialized === "true") return;
+      element.dataset.seriesStateInitialized = "true";
+
+      element.addEventListener("toggle", () => {
+        const latestSeriesKey = element.dataset.seriesKey;
+        const latestSectionKey = element.dataset.seriesSectionKey;
+        if (!latestSeriesKey || !latestSectionKey) return;
+
+        const nextState = readSeriesSectionState(latestSeriesKey);
+        nextState[latestSectionKey] = element.open;
+        writeSeriesSectionState(latestSeriesKey, nextState);
+        syncSeriesSectionOpenState(
+          latestSeriesKey,
+          latestSectionKey,
+          element.open,
+        );
+      });
+    });
+  }
+
+  function initSeriesScrollState() {
+    document
+      .querySelectorAll("[data-series-scroll-surface]")
+      .forEach((element) => {
+        if (!(element instanceof HTMLElement)) return;
+
+        const seriesKey = element.dataset.seriesKey;
+        const surfaceKey = element.dataset.seriesScrollSurface;
+        if (!seriesKey || !surfaceKey) return;
+
+        restoreSeriesScrollPosition(element);
+
+        if (element.dataset.seriesScrollInitialized === "true") return;
+        element.dataset.seriesScrollInitialized = "true";
+
+        let pendingFrame = 0;
+        element.addEventListener(
+          "scroll",
+          () => {
+            if (pendingFrame) return;
+
+            pendingFrame = window.requestAnimationFrame(() => {
+              pendingFrame = 0;
+              const latestSeriesKey = element.dataset.seriesKey;
+              const latestSurfaceKey = element.dataset.seriesScrollSurface;
+              if (!latestSeriesKey || !latestSurfaceKey) return;
+
+              writeSeriesScrollPosition(
+                latestSeriesKey,
+                latestSurfaceKey,
+                element.scrollTop,
+              );
+            });
+          },
+          { passive: true },
+        );
+      });
   }
 
   function initMobileReadingNav() {
@@ -538,6 +696,7 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
         panels.forEach((panel) => {
           const isActive = panel.dataset.mobilePanel === nextPanel;
           panel.classList.toggle("is-active", isActive);
+          if (isActive) restoreSeriesScrollPosition(panel);
           updateSideScrollFade(panel);
         });
       };
@@ -559,6 +718,10 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
 
   document.addEventListener("astro:page-load", initSideScrollFades);
   document.addEventListener("DOMContentLoaded", initSideScrollFades);
+  document.addEventListener("astro:page-load", initSeriesSectionState);
+  document.addEventListener("DOMContentLoaded", initSeriesSectionState);
+  document.addEventListener("astro:page-load", initSeriesScrollState);
+  document.addEventListener("DOMContentLoaded", initSeriesScrollState);
   document.addEventListener("astro:page-load", initMobileReadingNav);
   document.addEventListener("DOMContentLoaded", initMobileReadingNav);
 </script>

@@ -26,6 +26,7 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
     <section
       class="mobile-reading-nav xl:hidden mb-6 overflow-hidden rounded-sm border border-ink-200/70 bg-stone-50/80 font-sans backdrop-blur-[2px] dark:border-zinc-700/70 dark:bg-zinc-800/50"
       data-mobile-reading-nav
+      data-series-key={series?.key}
       data-pagefind-ignore
     >
       <div
@@ -69,14 +70,22 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
       {hasSeries && series && (
         <div
           id="mobile-series-panel"
-          class="mobile-reading-panel toc-scroll side-scroll-fade max-h-[60vh] overflow-y-auto overflow-x-hidden px-3 py-3"
+          class="mobile-reading-panel toc-scroll side-scroll-fade max-h-[60vh] overflow-y-auto overflow-x-hidden px-3 py-2.5"
           data-mobile-panel="series"
           data-lenis-prevent
+          data-series-key={series.key}
+          data-series-scroll-surface="mobile"
           aria-labelledby="mobile-series-trigger"
         >
-          <div class="flex flex-col gap-1.5">
+          <div class="flex flex-col gap-1">
             {seriesSections.map((section) => (
-              <details class="mobile-series-section" open>
+              <details
+                class="mobile-series-section"
+                open
+                data-series-section
+                data-series-key={series.key}
+                data-series-section-key={`${section.order}:${section.title}`}
+              >
                 <summary class="mobile-series-section-summary flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm bg-white/25 px-2.5 py-2 text-[0.68rem] font-semibold tracking-widest text-ink-500 transition-colors duration-200 hover:bg-white/60 hover:text-vermilion dark:bg-zinc-900/25 dark:text-zinc-400 dark:hover:bg-zinc-800/45 dark:hover:text-vermilion">
                   <span class="flex min-w-0 items-center gap-1.5">
                     <span
@@ -101,7 +110,7 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
                     {section.items.length}
                   </span>
                 </summary>
-                <ol class="mobile-series-section-items flex flex-col gap-0.5 pt-1.5">
+                <ol class="mobile-series-section-items flex flex-col gap-px pt-1">
                   {section.items.map((item) => {
                     const subtitle = item.subtitle?.trim() ?? "";
                     const accessibleTitle = subtitle || item.title;
@@ -114,7 +123,7 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
                           aria-label={`${section.title} ${item.order}. ${accessibleTitle}`}
                           title={accessibleTitle}
                           class:list={[
-                            "mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2.5 py-2 text-sm leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
+                            "mobile-reading-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-2 rounded-sm px-2 py-1.5 text-sm leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
                             item.current
                               ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
                               : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
@@ -130,7 +139,9 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
                           >
                             {item.order}
                           </span>
-                          <span class="min-w-0 truncate">{accessibleTitle}</span>
+                          <span class="min-w-0 truncate text-xs">
+                            {accessibleTitle}
+                          </span>
                         </a>
                       </li>
                     );
@@ -235,18 +246,19 @@ const triggerGridClass = hasSeries && hasToc ? "grid-cols-2" : "grid-cols-1";
   .side-scroll-fade {
     --side-scroll-top-fade: var(--mask-visible-stop);
     --side-scroll-bottom-fade: var(--mask-visible-stop);
+    --side-scroll-fade-size: 1.75rem;
     -webkit-mask-image: linear-gradient(
       to bottom,
       var(--side-scroll-top-fade),
-      var(--mask-visible-stop) 1.25rem,
-      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
       var(--side-scroll-bottom-fade)
     );
     mask-image: linear-gradient(
       to bottom,
       var(--side-scroll-top-fade),
-      var(--mask-visible-stop) 1.25rem,
-      var(--mask-visible-stop) calc(100% - 1.25rem),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
       var(--side-scroll-bottom-fade)
     );
   }

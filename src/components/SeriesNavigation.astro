@@ -18,6 +18,7 @@ export type SeriesNavSection = {
 };
 
 export type SeriesNavData = {
+  key: string;
   title: string;
   items: SeriesNavItem[];
   sections: SeriesNavSection[];
@@ -36,11 +37,13 @@ const sections = series.sections.length
 {
   series.items.length > 1 && (
     <nav
-      class="series-nav rounded-sm border border-ink-200/50 bg-stone-50/55 p-2.5 text-sm font-sans backdrop-blur-[2px] dark:border-zinc-800/65 dark:bg-zinc-900/45"
+      class="series-nav flex h-full flex-col overflow-hidden rounded-sm border border-ink-200/50 bg-stone-50/55 p-2.5 text-sm font-sans backdrop-blur-[2px] dark:border-zinc-800/65 dark:bg-zinc-900/45"
       aria-label={`${series.title} 系列导航`}
+      data-series-nav
+      data-series-key={series.key}
       data-pagefind-ignore
     >
-      <div class="mb-2 border-b border-ink-200/50 pb-1.5 dark:border-zinc-800/80">
+      <div class="shrink-0 mb-2 border-b border-ink-200/50 pb-1.5 dark:border-zinc-800/80">
         <p class="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-vermilion/85">
           Series
         </p>
@@ -49,76 +52,128 @@ const sections = series.sections.length
         </h2>
       </div>
 
-      <div class="flex flex-col gap-1.5">
-        {sections.map((section) => (
-          <details class="series-section" open>
-            <summary class="series-section-summary flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm bg-white/25 px-2 py-1.5 text-[0.68rem] font-semibold tracking-widest text-ink-500 transition-colors duration-200 hover:bg-white/60 hover:text-vermilion dark:bg-zinc-900/25 dark:text-zinc-400 dark:hover:bg-zinc-800/45 dark:hover:text-vermilion">
-              <span class="flex min-w-0 items-center gap-1.5">
-                <span
-                  class="series-section-icon inline-flex h-4 w-4 shrink-0 items-center justify-center text-ink-400 transition-colors duration-200 dark:text-zinc-500"
-                  aria-hidden="true"
-                >
-                  <Icon
-                    name="mingcute:down-fill"
-                    class="series-section-icon-open h-3.5 w-3.5"
-                  />
-                  <Icon
-                    name="mingcute:up-fill"
-                    class="series-section-icon-closed hidden h-3.5 w-3.5"
-                  />
+      <div
+        class="toc-scroll side-scroll-fade min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain pr-0.5"
+        data-lenis-prevent
+        data-series-key={series.key}
+        data-series-scroll-surface="desktop"
+      >
+        <div class="flex flex-col gap-1">
+          {sections.map((section) => (
+            <details
+              class="series-section"
+              open
+              data-series-section
+              data-series-key={series.key}
+              data-series-section-key={`${section.order}:${section.title}`}
+            >
+              <summary class="series-section-summary flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm bg-white/25 px-2 py-1.5 text-[0.68rem] font-semibold tracking-widest text-ink-500 transition-colors duration-200 hover:bg-white/60 hover:text-vermilion dark:bg-zinc-900/25 dark:text-zinc-400 dark:hover:bg-zinc-800/45 dark:hover:text-vermilion">
+                <span class="flex min-w-0 items-center gap-1.5">
+                  <span
+                    class="series-section-icon inline-flex h-4 w-4 shrink-0 items-center justify-center text-ink-400 transition-colors duration-200 dark:text-zinc-500"
+                    aria-hidden="true"
+                  >
+                    <Icon
+                      name="mingcute:down-fill"
+                      class="series-section-icon-open h-3.5 w-3.5"
+                    />
+                    <Icon
+                      name="mingcute:up-fill"
+                      class="series-section-icon-closed hidden h-3.5 w-3.5"
+                    />
+                  </span>
+                  <span class="min-w-0 truncate">{section.title}</span>
                 </span>
-                <span class="min-w-0 truncate">{section.title}</span>
-              </span>
-              <span
-                class="series-section-count shrink-0 rounded-full bg-ink-100/55 px-1.5 py-0.5 text-[0.58rem] font-semibold leading-none tracking-normal text-ink-400 dark:bg-zinc-800/55 dark:text-zinc-500"
-                aria-label={`${section.items.length} 篇文章`}
-              >
-                {section.items.length}
-              </span>
-            </summary>
-            <ol class="series-section-items flex flex-col gap-0.5 pt-1.5">
-              {section.items.map((item) => {
-                const subtitle = item.subtitle?.trim() ?? "";
-                const accessibleTitle = subtitle || item.title;
+                <span
+                  class="series-section-count shrink-0 rounded-full bg-ink-100/55 px-1.5 py-0.5 text-[0.58rem] font-semibold leading-none tracking-normal text-ink-400 dark:bg-zinc-800/55 dark:text-zinc-500"
+                  aria-label={`${section.items.length} 篇文章`}
+                >
+                  {section.items.length}
+                </span>
+              </summary>
+              <ol class="series-section-items flex flex-col gap-px pt-1">
+                {section.items.map((item) => {
+                  const subtitle = item.subtitle?.trim() ?? "";
+                  const accessibleTitle = subtitle || item.title;
 
-                return (
-                  <li>
-                    <a
-                      href={item.href}
-                      aria-current={item.current ? "page" : undefined}
-                      aria-label={`${section.title} ${item.order}. ${accessibleTitle}`}
-                      title={accessibleTitle}
-                      class:list={[
-                        "series-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-3 rounded-sm px-2 py-1.5 leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
-                        item.current
-                          ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
-                          : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
-                      ]}
-                    >
-                      <span
+                  return (
+                    <li>
+                      <a
+                        href={item.href}
+                        aria-current={item.current ? "page" : undefined}
+                        aria-label={`${section.title} ${item.order}. ${accessibleTitle}`}
+                        title={accessibleTitle}
                         class:list={[
-                          "series-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
+                          "series-link group grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-2 rounded-sm px-1.5 py-1 leading-tight text-balance wrap-break-word whitespace-normal transition-colors duration-200",
                           item.current
-                            ? "rounded-full bg-vermilion text-white"
-                            : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
+                            ? "is-current font-semibold text-ink-900 dark:text-zinc-100"
+                            : "text-ink-500 hover:text-vermilion dark:text-zinc-500 dark:hover:text-vermilion",
                         ]}
                       >
-                        {item.order}
-                      </span>
-                      <span class="min-w-0 truncate">{subtitle}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ol>
-          </details>
-        ))}
+                        <span
+                          class:list={[
+                            "series-number flex h-5 w-5 items-center justify-center text-xs font-semibold tabular-nums transition-colors duration-200",
+                            item.current
+                              ? "rounded-full bg-vermilion text-white"
+                              : "text-ink-400 group-hover:text-vermilion dark:text-zinc-500 dark:group-hover:text-vermilion",
+                          ]}
+                        >
+                          {item.order}
+                        </span>
+                        <span class="min-w-0 truncate text-xs">{subtitle}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ol>
+            </details>
+          ))}
+        </div>
       </div>
     </nav>
   )
 }
 
 <style>
+  .toc-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .toc-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .side-scroll-fade {
+    --side-scroll-top-fade: var(--mask-visible-stop);
+    --side-scroll-bottom-fade: var(--mask-visible-stop);
+    --side-scroll-fade-size: 1.75rem;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
+      var(--side-scroll-bottom-fade)
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      var(--side-scroll-top-fade),
+      var(--mask-visible-stop) var(--side-scroll-fade-size),
+      var(--mask-visible-stop) calc(100% - var(--side-scroll-fade-size)),
+      var(--side-scroll-bottom-fade)
+    );
+  }
+
+  .side-scroll-fade.has-top-fade {
+    --side-scroll-top-fade: transparent;
+  }
+
+  .side-scroll-fade.has-bottom-fade {
+    --side-scroll-bottom-fade: transparent;
+  }
+
   .series-link.is-current {
     background: var(--reading-nav-current-bg);
   }

@@ -130,6 +130,10 @@ This behavior is page-local and should not move into shared components unless it
 
 `src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time. Series section collapse uses native `details` / `summary` behavior in both desktop and mobile navigation.
 
+Desktop and mobile series sections share persisted open/closed state through `localStorage` keys shaped as `pot-series-nav-sections-v1:<seriesKey>`. The initializer in `TechPost.astro` restores `[data-series-section]` details after `astro:page-load`, writes changes on `toggle`, and mirrors the state between desktop and mobile copies of the same section.
+
+Series navigation scroll surfaces also persist their local `scrollTop` across article route changes through `localStorage` keys shaped as `pot-series-nav-scroll-v1:<seriesKey>:<surfaceKey>`. Desktop and mobile surfaces use separate `surfaceKey` values so their positions do not overwrite each other.
+
 ### Dashboard
 
 `src/pages/dashboard.astro` reads and clears `pot-search-metrics-v1`.
@@ -141,7 +145,7 @@ Components with their own scroll surface should use `data-lenis-prevent` to avoi
 Current examples:
 
 - Search modal scroll container.
-- Desktop series/table-of-contents sidebars in `TechPost.astro`.
+- Desktop series internal item list and table-of-contents sidebar in `TechPost.astro`.
 - Mobile technical-post reading toggle panels in `MobileReadingNavigation.astro`.
 
 ## Maintenance Checklist
