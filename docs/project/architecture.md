@@ -10,7 +10,7 @@ This project is a personal content site built with Astro 5. It combines a blog a
 - MDX through `@astrojs/mdx`.
 - Sitemap through `@astrojs/sitemap`.
 - RSS through `src/pages/rss.xml.js`.
-- Pagefind for static full-site search after production build.
+- Pagefind for static full-site search after production build. Indexing is scoped to the shared `main[data-pagefind-body]` region so global chrome and search modal copy do not pollute excerpts.
 - `astro-icon` with Iconify icon sets.
 - Lenis and Astro View Transitions for page interaction polish.
 

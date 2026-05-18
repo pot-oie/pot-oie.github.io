@@ -39,7 +39,7 @@ These components are shared reading helpers. Keep styling aligned with `docs/pro
 
 ### Search
 
-- `src/components/Search.astro`: global search modal, Pagefind loading, result classification, keyboard shortcut, and search metric emission.
+- `src/components/Search.astro`: global search modal, Pagefind loading, result classification, text-target result hashes, keyboard shortcut, and search metric emission.
 
 Search is mounted through the header/site shell. Runtime behavior is documented in `docs/project/interaction.md`.
 

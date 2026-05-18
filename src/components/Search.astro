@@ -154,6 +154,7 @@ import { Icon } from "astro-icon/components";
     kind: ResultKind;
     kindLabel: "正文" | "概括页";
     normalizedUrl: string;
+    targetUrl: string;
   }
 
   function emitSearchMetric(event: string, payload: Record<string, unknown>) {
@@ -177,6 +178,72 @@ import { Icon } from "astro-icon/components";
       return path;
     } catch {
       return rawUrl;
+    }
+  }
+
+  function stripSearchMarkup(html: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    return (template.content.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function extractMarkedText(html: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    return Array.from(template.content.querySelectorAll("mark"))
+      .map((node) => node.textContent || "")
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function encodeSearchTarget(payload: Record<string, string>) {
+    const bytes = new TextEncoder().encode(JSON.stringify(payload));
+    let binary = "";
+    bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return btoa(binary)
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+  }
+
+  function buildSearchTargetUrl(rawUrl: string, excerpt: string) {
+    const plainText = stripSearchMarkup(excerpt);
+    if (!plainText) return rawUrl;
+
+    const markedText = extractMarkedText(excerpt);
+    const normalizedPlainText = plainText.replace(/\s+/g, " ").trim();
+    const normalizedMarkedText = markedText.replace(/\s+/g, " ").trim();
+    const markedIndex = normalizedMarkedText
+      ? normalizedPlainText
+          .toLowerCase()
+          .indexOf(normalizedMarkedText.toLowerCase())
+      : -1;
+    const snippetStart = markedIndex >= 0 ? Math.max(0, markedIndex - 24) : 0;
+    const snippetEnd =
+      markedIndex >= 0
+        ? Math.min(
+            normalizedPlainText.length,
+            markedIndex + normalizedMarkedText.length + 24,
+          )
+        : Math.min(normalizedPlainText.length, 80);
+    const snippet = normalizedPlainText.slice(snippetStart, snippetEnd).trim();
+
+    if (!snippet) return rawUrl;
+
+    const hashPayload = {
+      text: snippet,
+      fallback: normalizedMarkedText,
+    };
+
+    try {
+      const url = new URL(rawUrl, window.location.origin);
+      url.hash = `pf-text-${encodeSearchTarget(hashPayload)}`;
+      return url.pathname + url.search + url.hash;
+    } catch {
+      return `${rawUrl.split("#")[0]}#pf-text-${encodeSearchTarget(hashPayload)}`;
     }
   }
 
@@ -209,6 +276,8 @@ import { Icon } from "astro-icon/components";
       kind,
       kindLabel: kind === "detail" ? "正文" : "概括页",
       normalizedUrl,
+      targetUrl:
+        kind === "detail" ? buildSearchTargetUrl(item.url, item.excerpt) : item.url,
     };
   }
 
@@ -361,7 +430,7 @@ import { Icon } from "astro-icon/components";
       const li = document.createElement("li");
       li.className = "group";
       li.innerHTML = `
-        <a href="${item.url}" class="block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200">
+        <a href="${item.targetUrl}" class="block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200">
           <div class="mb-2 flex items-center gap-2">
             <span class="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase ${badgeClass}">${item.kindLabel}</span>
             <h3 class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 group-hover:text-vermilion transition-colors">

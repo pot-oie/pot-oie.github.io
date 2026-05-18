@@ -107,6 +107,8 @@ The global audio element has `transition:persist`, so playback state can survive
 - `Escape`: close search modal.
 - `Ctrl+K` or `Meta+K`: open search modal.
 
+Pagefind result links for detail pages include `#pf-text-*` hashes derived from the rendered excerpt. `BaseLayout.astro` decodes these hashes after Astro page load, finds the matching text range in `.prose-ink`, and uses the global Lenis instance to scroll to the hit with the same offset as normal anchor links.
+
 When adding a new global shortcut, check for conflicts here first.
 
 ## Page-Specific Interactions
