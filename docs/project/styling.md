@@ -62,7 +62,8 @@ Dark mode is enabled through:
 ## Article Navigation
 
 - Desktop technical posts use distinct side helpers: the series guide emphasizes
-  the current article with a soft filled state and can group long series under
+  the current article through vermilion number color, stronger text weight, and
+  deep ink title color instead of row or number fills. It can group long series under
   borderless collapsible second-level section controls with count badges, while
   the table of contents keeps a linear active indicator. The desktop series
   guide is intentionally capped near the viewport middle instead of spanning the
