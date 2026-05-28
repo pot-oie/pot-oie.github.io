@@ -171,7 +171,11 @@ const { title, description } = Astro.props;
 
       function initLenis() {
         // 防止重复初始化
-        if ((window as any).lenis) return;
+        if ((window as any).lenis) {
+          (window as any).lenis.resize?.();
+          (window as any).lenis.start?.();
+          return;
+        }
 
         // 创建 Lenis 实例
         const lenis = new Lenis({
@@ -199,6 +203,7 @@ const { title, description } = Astro.props;
       type SearchTextHashPayload = {
         text: string;
         fallback?: string;
+        candidates?: string[];
       };
 
       function decodeBase64Url(value: string) {
@@ -231,12 +236,21 @@ const { title, description } = Astro.props;
           const fallback = String(parsed.fallback || "")
             .replace(/\s+/g, " ")
             .trim();
+          const candidates =
+            Array.isArray(parsed.candidates)
+              ? parsed.candidates
+              : typeof parsed.candidates === "string"
+                ? parsed.candidates.split("\u001f")
+                : [];
 
           if (!text) return null;
 
           return {
             text,
             fallback,
+            candidates: candidates
+              .map((item) => String(item).replace(/\s+/g, " ").trim())
+              .filter(Boolean),
           };
         } catch {
           try {
@@ -297,11 +311,7 @@ const { title, description } = Astro.props;
         };
       }
 
-      function findSearchTextRange(targetText: string) {
-        const root =
-          document.querySelector(".prose-ink") ||
-          document.querySelector("main") ||
-          document.body;
+      function findSearchTextRange(targetText: string, root: ParentNode) {
         const normalizedTarget = targetText
           .replace(/\s+/g, " ")
           .trim()
@@ -326,13 +336,64 @@ const { title, description } = Astro.props;
         return range;
       }
 
+      function getSearchTextRoots(): ParentNode[] {
+        const roots = Array.from(document.querySelectorAll(".prose-ink"));
+        const main = document.querySelector("main");
+
+        if (main) roots.push(main);
+        roots.push(document.body);
+
+        return [...new Set(roots)];
+      }
+
+      function findSearchTextRangeInPage(targets: string[]) {
+        const normalizedTargets = [
+          ...new Set(
+            targets
+              .map((item) => item.replace(/\s+/g, " ").trim())
+              .filter(Boolean),
+          ),
+        ];
+
+        for (const root of getSearchTextRoots()) {
+          for (const target of normalizedTargets) {
+            const range = findSearchTextRange(target, root);
+            if (range) return range;
+          }
+        }
+
+        return null;
+      }
+
+      function scrollToPageY(top: number) {
+        const lenis = (window as any).lenis;
+
+        if (lenis) {
+          lenis.start?.();
+          lenis.resize?.();
+          lenis.scrollTo(top, {
+            offset: -90,
+            immediate: true,
+            force: true,
+          });
+          return;
+        }
+
+        window.scrollTo({
+          top: Math.max(0, top - 90),
+          behavior: "auto",
+        });
+      }
+
       function scrollToSearchTextHash(hashValue: string) {
         const target = decodeSearchTextHash(hashValue);
         if (!target) return false;
 
-        const range =
-          findSearchTextRange(target.text) ||
-          (target.fallback ? findSearchTextRange(target.fallback) : null);
+        const range = findSearchTextRangeInPage([
+          target.text,
+          target.fallback || "",
+          ...(target.candidates || []),
+        ]);
         if (!range) return false;
 
         const rect = Array.from(range.getClientRects()).find(
@@ -341,12 +402,29 @@ const { title, description } = Astro.props;
 
         if (!rect) return false;
 
-        (window as any).lenis.scrollTo(window.scrollY + rect.top, {
-          offset: -90,
-          immediate: true,
-        });
+        scrollToPageY(window.scrollY + rect.top);
 
         return true;
+      }
+
+      function scrollToLocationHash() {
+        if (!location.hash) return;
+
+        const id = decodeURIComponent(location.hash.slice(1));
+        const attempts = [0, 80, 240, 520, 900];
+
+        attempts.forEach((delay) => {
+          window.setTimeout(() => {
+            if (!location.hash) return;
+            if (decodeURIComponent(location.hash.slice(1)) !== id) return;
+            if (scrollToSearchTextHash(id)) return;
+
+            const target = document.getElementById(id);
+            if (target) {
+              scrollToPageY(window.scrollY + target.getBoundingClientRect().top);
+            }
+          }, delay);
+        });
       }
 
       // 全局音频播放器，支持淡入淡出和系统媒体控制
@@ -1181,21 +1259,8 @@ const { title, description } = Astro.props;
         initMathScrollHints();
         initArticleImageLightbox();
 
-        // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转
-        if (location.hash && (window as any).lenis) {
-          const id = decodeURIComponent(location.hash.slice(1));
-          requestAnimationFrame(() => {
-            if (scrollToSearchTextHash(id)) return;
-
-            const target = document.getElementById(id);
-            if (target) {
-              (window as any).lenis.scrollTo(target, {
-                offset: -90,
-                immediate: true,
-              });
-            }
-          });
-        }
+        // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转并做延迟重试。
+        requestAnimationFrame(scrollToLocationHash);
       });
     </script>
   </body>

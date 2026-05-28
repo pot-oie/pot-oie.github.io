@@ -197,6 +197,16 @@ import { Icon } from "astro-icon/components";
       .trim();
   }
 
+  function extractMarkedTerms(html: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    const terms = Array.from(template.content.querySelectorAll("mark"))
+      .map((node) => (node.textContent || "").replace(/\s+/g, " ").trim())
+      .filter((value) => value.length > 0);
+
+    return [...new Set(terms)].sort((a, b) => b.length - a.length);
+  }
+
   function encodeSearchTarget(payload: Record<string, string>) {
     const bytes = new TextEncoder().encode(JSON.stringify(payload));
     let binary = "";
@@ -236,6 +246,7 @@ import { Icon } from "astro-icon/components";
     const hashPayload = {
       text: snippet,
       fallback: normalizedMarkedText,
+      candidates: extractMarkedTerms(excerpt).join("\u001f"),
     };
 
     try {
@@ -409,6 +420,31 @@ import { Icon } from "astro-icon/components";
     }
   }
 
+  function appendSanitizedExcerpt(target: HTMLElement, html: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+
+    const appendNodeText = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        target.append(document.createTextNode(node.textContent || ""));
+        return;
+      }
+
+      if (!(node instanceof HTMLElement)) return;
+
+      if (node.tagName.toLowerCase() === "mark") {
+        const mark = document.createElement("mark");
+        mark.textContent = node.textContent || "";
+        target.append(mark);
+        return;
+      }
+
+      node.childNodes.forEach(appendNodeText);
+    };
+
+    template.content.childNodes.forEach(appendNodeText);
+  }
+
   // 为 results 参数添加类型
   function renderResults(results: ClassifiedSearchResult[]) {
     const els = getElements();
@@ -429,20 +465,36 @@ import { Icon } from "astro-icon/components";
 
       const li = document.createElement("li");
       li.className = "group";
-      li.innerHTML = `
-        <a href="${item.targetUrl}" class="block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200">
-          <div class="mb-2 flex items-center gap-2">
-            <span class="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase ${badgeClass}">${item.kindLabel}</span>
-            <h3 class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 group-hover:text-vermilion transition-colors">
-              ${item.meta.title || "Untitled"}
-            </h3>
-          </div>
-          <p class="text-sm text-ink-500 dark:text-zinc-400 font-sans leading-relaxed line-clamp-2">
-            ${item.excerpt}
-          </p>
-        </a>
-      `;
-      els.resultsList?.appendChild(li);
+
+      const link = document.createElement("a");
+      link.href = item.targetUrl;
+      link.className =
+        "block p-6 hover:bg-white dark:hover:bg-zinc-800 transition-colors duration-200";
+
+      const header = document.createElement("div");
+      header.className = "mb-2 flex items-center gap-2";
+
+      const badge = document.createElement("span");
+      badge.className = `inline-flex items-center rounded px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase ${badgeClass}`;
+      badge.textContent = item.kindLabel;
+
+      const title = document.createElement("h3");
+      title.className =
+        "text-lg font-serif font-bold text-ink-900 dark:text-zinc-100 group-hover:text-vermilion transition-colors";
+      title.textContent =
+        typeof item.meta.title === "string" && item.meta.title.trim()
+          ? item.meta.title
+          : "Untitled";
+
+      const excerpt = document.createElement("p");
+      excerpt.className =
+        "text-sm text-ink-500 dark:text-zinc-400 font-sans leading-relaxed line-clamp-2";
+      appendSanitizedExcerpt(excerpt, item.excerpt);
+
+      header.append(badge, title);
+      link.append(header, excerpt);
+      li.append(link);
+      els.resultsList.appendChild(li);
     });
   }
 
