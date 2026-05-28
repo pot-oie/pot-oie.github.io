@@ -76,7 +76,8 @@ const track = await getEntry("music", trackId);
 
   declare global {
     interface Window {
-      hasInitTrackControls?: boolean;
+      __potTrackControlsInstalled?: boolean;
+      __potTrackControlLastState?: AudioStateDetail;
     }
     interface WindowEventMap {
       "pot:audio-state": CustomEvent<AudioStateDetail>;
@@ -84,15 +85,54 @@ const track = await getEntry("music", trackId);
     }
   }
 
+  function updateTrackControlIcons(detail: AudioStateDetail): void {
+    document.querySelectorAll<HTMLElement>(".track-control").forEach((ctrl) => {
+      const btn = ctrl.querySelector<HTMLButtonElement>(".play-btn");
+      if (!btn) return;
+
+      const ctrlId = ctrl.dataset.id;
+      const playIcon = btn.querySelector<HTMLElement>(".icon-play");
+      const hoverIcon = btn.querySelector<HTMLElement>(".icon-play-hover");
+      const pauseIcon = btn.querySelector<HTMLElement>(".icon-pause");
+      if (!playIcon || !hoverIcon || !pauseIcon) return;
+
+      if (ctrlId === detail.id && detail.state === "playing") {
+        playIcon.classList.add("hidden");
+        hoverIcon.classList.remove("group-hover:block");
+        pauseIcon.classList.remove("hidden");
+        btn.classList.add("text-vermilion");
+      } else {
+        playIcon.classList.remove("hidden");
+        hoverIcon.classList.add("group-hover:block");
+        pauseIcon.classList.add("hidden");
+        btn.classList.remove("text-vermilion");
+      }
+    });
+  }
+
+  function installTrackControlAudioListener(): void {
+    if (window.__potTrackControlsInstalled) return;
+    window.__potTrackControlsInstalled = true;
+
+    window.addEventListener(
+      "pot:audio-state",
+      (e: CustomEvent<AudioStateDetail>) => {
+        window.__potTrackControlLastState = e.detail;
+        updateTrackControlIcons(e.detail);
+      },
+    );
+  }
+
   function initTrackControls(): void {
     const selector = ".track-control";
     const controls = document.querySelectorAll<HTMLElement>(selector);
 
-    // 如果已经初始化过（判断自定义属性），则跳过
-    if (window.hasInitTrackControls) return;
-    window.hasInitTrackControls = true;
+    installTrackControlAudioListener();
 
     controls.forEach((ctrl) => {
+      if (ctrl.dataset.trackControlBound === "true") return;
+      ctrl.dataset.trackControlBound = "true";
+
       const btn = ctrl.querySelector<HTMLButtonElement>(".play-btn");
       if (!btn) return;
 
@@ -111,42 +151,9 @@ const track = await getEntry("music", trackId);
       });
     });
 
-    window.addEventListener(
-      "pot:audio-state",
-      (e: CustomEvent<AudioStateDetail>) => {
-        const { id, state } = e.detail;
-
-        // 改为遍历所有控件，而不是只查找指定的 id
-        // 这样当 A 播放时，B 发现 id 不匹配，就会自动复位到播放图标
-        const allCtrls =
-          document.querySelectorAll<HTMLElement>(".track-control");
-
-        allCtrls.forEach((ctrl) => {
-          const btn = ctrl.querySelector<HTMLButtonElement>(".play-btn");
-          if (!btn) return;
-
-          const ctrlId = ctrl.dataset.id;
-          const playIcon = btn.querySelector<HTMLElement>(".icon-play");
-          const hoverIcon = btn.querySelector<HTMLElement>(".icon-play-hover");
-          const pauseIcon = btn.querySelector<HTMLElement>(".icon-pause");
-          if (!playIcon || !hoverIcon || !pauseIcon) return;
-
-          // 逻辑：只有当 ID 匹配且状态是 playing 时，才显示暂停图标
-          if (ctrlId === id && state === "playing") {
-            playIcon.classList.add("hidden");
-            hoverIcon.classList.remove("group-hover:block");
-            pauseIcon.classList.remove("hidden");
-            btn.classList.add("text-vermilion");
-          } else {
-            // 其他所有情况（ID不匹配，或者状态是 paused/ended），都显示播放图标
-            playIcon.classList.remove("hidden");
-            hoverIcon.classList.add("group-hover:block");
-            pauseIcon.classList.add("hidden");
-            btn.classList.remove("text-vermilion");
-          }
-        });
-      },
-    );
+    if (window.__potTrackControlLastState) {
+      updateTrackControlIcons(window.__potTrackControlLastState);
+    }
   }
 
   document.addEventListener("astro:page-load", initTrackControls);

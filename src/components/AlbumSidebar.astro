@@ -116,7 +116,20 @@ const { coverImage, albumTitle, albumArtist } = Astro.props;
 </style>
 
 <script>
-  function initAlbumSidebar() {
+  type AlbumSidebarAudioStateDetail = {
+    state: "playing" | "paused" | "ended";
+  };
+
+  declare global {
+    interface Window {
+      __potAlbumSidebarAudioStateHandler?: (
+        event: CustomEvent<AlbumSidebarAudioStateDetail>,
+      ) => void;
+      __potAlbumSidebarLastState?: AlbumSidebarAudioStateDetail;
+    }
+  }
+
+  function syncAlbumSidebarState(state: AlbumSidebarAudioStateDetail["state"]) {
     const cover = document.getElementById(
       "sidebar-cover",
     ) as HTMLImageElement | null;
@@ -126,30 +139,43 @@ const { coverImage, albumTitle, albumArtist } = Astro.props;
 
     if (!cover) return;
 
-    // 监听全局状态
-    const handleAudioState = (e: any) => {
-      const { state } = e.detail;
-      // 这里可以按需加入 id 校验，比如判断播放的 id 是否属于这个 Album
-      // 如果没有特定的判断逻辑，只要系统在播放，侧边栏就跟着动
+    if (state === "playing") {
+      cover.classList.remove("is-bw");
+      cover.classList.add("shadow-2xl", "shadow-vermilion/20");
+      if (titleEl) titleEl.classList.add("text-vermilion");
+      if (status) status.classList.remove("opacity-0");
+      if (disc) disc.style.animationPlayState = "running";
+    } else {
+      cover.classList.add("is-bw");
+      cover.classList.remove("shadow-vermilion/20");
+      if (titleEl) titleEl.classList.remove("text-vermilion");
+      if (status) status.classList.add("opacity-0");
+      if (disc) disc.style.animationPlayState = "paused";
+    }
+  }
 
-      if (state === "playing") {
-        cover.classList.remove("is-bw");
-        cover.classList.add("shadow-2xl", "shadow-vermilion/20");
-        if (titleEl) titleEl.classList.add("text-vermilion");
-        if (status) status.classList.remove("opacity-0");
-        if (disc) disc.style.animationPlayState = "running";
-      } else {
-        cover.classList.add("is-bw");
-        cover.classList.remove("shadow-vermilion/20");
-        if (titleEl) titleEl.classList.remove("text-vermilion");
-        if (status) status.classList.add("opacity-0");
-        if (disc) disc.style.animationPlayState = "paused";
-      }
+  function installAlbumSidebarAudioListener() {
+    if (window.__potAlbumSidebarAudioStateHandler) return;
+
+    window.__potAlbumSidebarAudioStateHandler = (
+      event: CustomEvent<AlbumSidebarAudioStateDetail>,
+    ) => {
+      window.__potAlbumSidebarLastState = event.detail;
+      syncAlbumSidebarState(event.detail.state);
     };
 
-    // 每次进入页面，先解绑上一次可能残留的监听，再重新绑定
-    window.removeEventListener("pot:audio-state", handleAudioState);
-    window.addEventListener("pot:audio-state", handleAudioState);
+    window.addEventListener(
+      "pot:audio-state",
+      window.__potAlbumSidebarAudioStateHandler as EventListener,
+    );
+  }
+
+  function initAlbumSidebar() {
+    installAlbumSidebarAudioListener();
+
+    if (window.__potAlbumSidebarLastState) {
+      syncAlbumSidebarState(window.__potAlbumSidebarLastState.state);
+    }
   }
 
   document.addEventListener("astro:page-load", initAlbumSidebar);

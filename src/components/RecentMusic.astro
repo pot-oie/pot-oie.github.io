@@ -191,7 +191,81 @@ const sortedMusic = singleMusic.sort(
 <script>
   import QRCode from "qrcode";
 
+  type AudioStateDetail = {
+    id: string | null;
+    state: "playing" | "paused" | "ended";
+  };
+
+  type AudioProgressDetail = {
+    id: string | null;
+    currentTime: number;
+    duration: number;
+  };
+
+  declare global {
+    interface Window {
+      __potRecentMusicAudioStateHandler?: (
+        event: CustomEvent<AudioStateDetail>,
+      ) => void;
+      __potRecentMusicAudioProgressHandler?: (
+        event: CustomEvent<AudioProgressDetail>,
+      ) => void;
+    }
+  }
+
+  function installRecentMusicAudioListeners() {
+    if (!window.__potRecentMusicAudioStateHandler) {
+      window.__potRecentMusicAudioStateHandler = (
+        event: CustomEvent<AudioStateDetail>,
+      ) => {
+        document
+          .querySelectorAll<HTMLElement>("[data-music-item]")
+          .forEach((article) => {
+            if (article.dataset.id === event.detail.id) {
+              if (event.detail.state === "playing")
+                article.classList.add("is-playing");
+              else article.classList.remove("is-playing");
+            } else {
+              article.classList.remove("is-playing");
+            }
+          });
+      };
+
+      window.addEventListener(
+        "pot:audio-state",
+        window.__potRecentMusicAudioStateHandler as EventListener,
+      );
+    }
+
+    if (!window.__potRecentMusicAudioProgressHandler) {
+      window.__potRecentMusicAudioProgressHandler = (
+        event: CustomEvent<AudioProgressDetail>,
+      ) => {
+        if (!event.detail.id || !Number.isFinite(event.detail.duration)) return;
+
+        const activeArticle = document.querySelector<HTMLElement>(
+          `[data-music-item][data-id="${event.detail.id}"]`,
+        );
+        if (!activeArticle) return;
+
+        const fill = activeArticle.querySelector<HTMLElement>(
+          "[data-progress-fill]",
+        );
+        if (fill) {
+          fill.style.width = `${(event.detail.currentTime / event.detail.duration) * 100}%`;
+        }
+      };
+
+      window.addEventListener(
+        "pot:audio-progress",
+        window.__potRecentMusicAudioProgressHandler as EventListener,
+      );
+    }
+  }
+
   function initRecentMusic() {
+    installRecentMusicAudioListeners();
+
     const articles = document.querySelectorAll<HTMLElement>(
       "[data-music-item]:not([data-initialized])",
     );
@@ -258,41 +332,6 @@ const sortedMusic = singleMusic.sort(
         if (volumeFill) volumeFill.style.width = `${pos * 100}%`;
       });
     });
-
-    // --- 监听全局广播，更新本组件 UI ---
-    const handleAudioState = (e: any) => {
-      document
-        .querySelectorAll<HTMLElement>("[data-music-item]")
-        .forEach((article) => {
-          if (article.dataset.id === e.detail.id) {
-            if (e.detail.state === "playing")
-              article.classList.add("is-playing");
-            else article.classList.remove("is-playing");
-          } else {
-            article.classList.remove("is-playing");
-          }
-        });
-    };
-
-    const handleAudioProgress = (e: any) => {
-      const activeArticle = document.querySelector<HTMLElement>(
-        `[data-music-item][data-id="${e.detail.id}"]`,
-      );
-      if (activeArticle) {
-        const fill = activeArticle.querySelector<HTMLElement>(
-          "[data-progress-fill]",
-        );
-        if (fill)
-          fill.style.width = `${(e.detail.currentTime / e.detail.duration) * 100}%`;
-      }
-    };
-
-    // 确保解绑再绑定，防止 SPA 路由残留
-    window.removeEventListener("pot:audio-state", handleAudioState);
-    window.addEventListener("pot:audio-state", handleAudioState);
-
-    window.removeEventListener("pot:audio-progress", handleAudioProgress);
-    window.addEventListener("pot:audio-progress", handleAudioProgress);
 
     // 二维码初始化保留
     document
