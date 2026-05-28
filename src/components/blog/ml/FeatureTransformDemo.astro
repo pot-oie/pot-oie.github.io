@@ -73,10 +73,9 @@
   const DECISION_HEIGHT = 0.56;
   const DECISION_RADIUS = Math.sqrt(DECISION_HEIGHT / HEIGHT_SCALE);
 
-  async function initFeatureTransformDemo() {
+  async function initFeatureTransformDemoRoot(root: HTMLElement) {
     const THREE = await import("three");
 
-    document.querySelectorAll<HTMLElement>(".feature-transform-demo").forEach((root) => {
       if (root.dataset.initialized === "true") return;
       root.dataset.initialized = "true";
 
@@ -360,6 +359,36 @@
       resize();
       syncLabels();
       render();
+  }
+
+  function initFeatureTransformDemo() {
+    document.querySelectorAll<HTMLElement>(".feature-transform-demo").forEach((root) => {
+      if (
+        root.dataset.initialized === "true" ||
+        root.dataset.lazyObserverInstalled === "true"
+      ) {
+        return;
+      }
+
+      const startDemo = () => {
+        void initFeatureTransformDemoRoot(root);
+      };
+
+      if (!("IntersectionObserver" in window)) {
+        startDemo();
+        return;
+      }
+
+      root.dataset.lazyObserverInstalled = "true";
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          startDemo();
+        },
+        { rootMargin: "480px 0px" },
+      );
+      observer.observe(root);
     });
   }
 

@@ -330,7 +330,7 @@ async function handleMusic() {
     s.stop(color.dim('Cover saved'));
 
     const searchKey = `${selectedTrack.trackName} ${selectedTrack.artistName}`;
-    const spotifyLink = `https://open.spotify.com/search/$${encodeURIComponent(searchKey)}`;
+    const spotifyLink = `https://open.spotify.com/search/${encodeURIComponent(searchKey)}`;
     const neteaseLink = `https://music.163.com/#/search/m/?s=${encodeURIComponent(searchKey)}`;
     const qqLink = `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(searchKey)}`;
 
