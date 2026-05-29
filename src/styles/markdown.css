@@ -219,6 +219,65 @@ html.dark .prose.prose-ink blockquote::before {
   cursor: zoom-in;
 }
 
+.prose-ink .sensitive-image {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 2.5em auto;
+  border-radius: 4px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-ink);
+  cursor: zoom-in;
+}
+
+.prose-ink .sensitive-image > img {
+  margin: 0 auto;
+  box-shadow: none;
+  filter: blur(24px) saturate(0.45) contrast(0.72);
+  opacity: 0.18;
+  transform: scale(1.04);
+}
+
+.prose-ink .sensitive-image:hover > img,
+.prose-ink .sensitive-image > img:hover {
+  transform: scale(1.04);
+}
+
+.prose-ink .sensitive-image::before,
+.prose-ink .sensitive-image::after {
+  position: absolute;
+  pointer-events: none;
+}
+
+.prose-ink .sensitive-image::before {
+  content: "";
+  inset: 0;
+  background: rgb(var(--color-rgb-paper) / 0.9);
+}
+
+.prose-ink .sensitive-image::after {
+  content: "点击查看大图";
+  left: 50%;
+  top: 50%;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--prose-link-border);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--prose-heading);
+  font-size: 0.875rem;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 10px 30px rgb(var(--color-rgb-shadow) / 0.12);
+}
+
+.prose-ink .sensitive-image[data-sensitive-label]::after {
+  content: attr(data-sensitive-label);
+}
+
+html.dark .prose-ink .sensitive-image::before {
+  background: rgb(var(--color-rgb-ink-900) / 0.82);
+}
+
 .prose-ink :not(pre) > code {
   font-family: "Menlo", "Monaco", "Courier New", monospace;
   background-color: var(--prose-code-bg);

@@ -38,6 +38,7 @@ Source of truth:
 3. Add aliases for likely variants, such as `js -> JavaScript`.
 4. Unknown tags should not block publishing. They use fallback rendering first and can be registered later.
 5. Reuse an existing `styleToken` before adding a new one.
+6. AI architecture abbreviations such as `CNN` and `GNN` can stay in English, while article-specific mechanisms should prefer concise Chinese tags such as `卷积`, `消息传递`, or `聚合函数`.
 
 ## Current Style Tokens
 

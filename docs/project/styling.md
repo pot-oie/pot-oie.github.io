@@ -57,7 +57,11 @@ Dark mode is enabled through:
   overlay uses a dark ink backdrop, restrained motion, and the vermilion accent
   for the close affordance. Lightbox images support zoom, drag gestures,
   previous/next navigation, a compact zoom toolbar, a loading state, and an
-  original-image link while keeping the controls visually minimal.
+  original-image link while keeping the controls visually minimal. Individual
+  article images can opt into `.sensitive-image` when the inline view should be
+  visually shielded while still opening normally in the lightbox. The default
+  shield label is `点击查看大图`, and individual figures can override it with
+  `data-sensitive-label`.
 
 ## Article Navigation
 

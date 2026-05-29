@@ -219,6 +219,46 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:process-line",
     styleToken: "ai",
   },
+  CNN: {
+    label: "CNN",
+    icon: "mingcute:grid-line",
+    styleToken: "ai",
+  },
+  GNN: {
+    label: "GNN",
+    icon: "mingcute:share-2-line",
+    styleToken: "ai",
+  },
+  卷积: {
+    label: "卷积",
+    icon: "mingcute:grid-line",
+    styleToken: "algorithm",
+  },
+  特征可视化: {
+    label: "特征可视化",
+    icon: "mingcute:eye-2-line",
+    styleToken: "ai",
+  },
+  风格迁移: {
+    label: "风格迁移",
+    icon: "mingcute:palette-line",
+    styleToken: "ai",
+  },
+  跨模态: {
+    label: "跨模态",
+    icon: "mingcute:transfer-3-line",
+    styleToken: "ai",
+  },
+  消息传递: {
+    label: "消息传递",
+    icon: "mingcute:share-forward-line",
+    styleToken: "ai",
+  },
+  聚合函数: {
+    label: "聚合函数",
+    icon: "mingcute:merge-line",
+    styleToken: "algorithm",
+  },
   交互: {
     label: "交互",
     icon: "mingcute:cursor-2-line",
@@ -337,6 +377,8 @@ export const TAG_ALIASES: Record<string, string> = {
   "machine learning": "机器学习",
   dl: "深度学习",
   "deep learning": "深度学习",
+  cnn: "CNN",
+  gnn: "GNN",
   sigmoid: "Sigmoid",
   mlp: "MLP",
   adam: "Adam",
