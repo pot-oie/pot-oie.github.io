@@ -1,0 +1,147 @@
+---
+title: "RNN 03"
+description: "RNN 的典型任务形态。"
+pubDate: "06 16 2026"
+draft: false
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "RNN", "序列模型"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "RNN 基础"
+    order: 5
+  subtitle: "序列任务"
+  order: 3
+---
+
+> 序列任务不止槽位填充这一种。
+
+## Many to One
+
+这是最容易理解的形式，多 token 的文本输入，我们最后只需要单个输出。
+
+比如情感分析：
+
+$$
+\text{这部电影 真的 很 好看} \to \text{positive}
+$$
+
+这类任务真正关心的是整段序列的整体含义。
+
+RNN 一路读取 token，不断更新隐藏状态：
+
+$$
+h_1, h_2, ..., h_T
+$$
+
+最后只取最后一个状态 $h_T$ 做分类。
+
+$$
+y = \text{Classifier}(h_T)
+$$
+
+这样的处理是想当然的，既然有时序的继承关系，那最后一个隐藏状态就应该压缩了前面所有信息。
+
+但这个想法实际上有问题。
+
+句子一旦拉长，早期信息在传递时就很容易丢失。这个问题在基础 RNN 上尤其严重，LSTM/GRU 会好一些。
+
+Many to One 的典型任务包括：
+
+- 情感分析。
+- 文档分类。
+- 序列级异常检测。
+- 用一段时间序列预测一个标签。
+
+## Many to Many
+
+槽位填充也属于 Many to Many。
+
+输入有多少个 token，输出也有多少个标签。
+
+$$
+\mathbf{input} = \begin{bmatrix}
+\texttt{Arrive} \\ \texttt{Taipei} \\ \texttt{on} \\ \texttt{November} \\ \texttt{2nd}
+\end{bmatrix},\quad
+\mathbf{label} = \begin{bmatrix}
+\texttt{O} \\ \texttt{DEST} \\ \texttt{O} \\ \texttt{TIME} \\ \texttt{TIME}
+\end{bmatrix}
+$$
+
+每个时间步都输出一个类别概率分布，再取对应标签。
+
+$$
+y_t = \text{Classifier}(h_t)
+$$
+
+这类任务的特点是输入输出基本对齐，第 $t$ 个输出对应第 $t$ 个输入。
+
+*词性标注、命名实体识别、槽位填充*都属于这个类型。
+
+## Long to Short
+
+语音识别里经常会出现更复杂的情况。
+
+输入是一段密集音频特征，比如每 10ms 一帧；输出却是简洁的一段文字。
+
+不难想象，说话的时候是有拖延音节的，直接简单粗暴的每帧取值肯定有问题，例如：
+
+> 好棒
+
+如果每一帧都强行输出一个字，就会得到很多重复：
+
+> 好 好 好 棒 棒 棒
+
+如果把连续重复字删掉呢？那又会误伤本来就重复的词了，比如真实输入：
+
+> 好棒棒
+
+结果会错误变成：
+
+> 好棒
+
+### CTC
+
+CTC，全称 Connectionist Temporal Classification。
+
+这个方案允许模型输出一个特殊 blank 符号。可以记作 `-` 或 `NULL`。
+
+解码时做两步：
+
+1. 合并连续重复字符。
+2. 删除 blank。
+
+$$
+\text{好 - - 棒 棒} \to \text{好棒}
+$$
+
+如果模型想表达真正的重复，就可以在重复字符之间插入 blank：
+
+$$
+\text{好 - - 棒 - 棒} \to \text{好棒棒}
+$$
+
+这就是 blank 的意义。它给模型一个缓冲，让连续帧和离散文字之间可以对齐。
+
+## Seq2Seq
+
+当输入和输出长度都不固定时，比如机器翻译，RNN 通常会使用 Encoder-Decoder 架构。
+
+Encoder 负责把输入序列读完，压缩成一个 context vector。Decoder 再拿着这个 context vector，一步一步生成输出序列，直到生成 `<EOS>` 结束符。
+
+把一个 RNN 拆成两个各司其职的 RNN，好处有二：
+
+1. 解决「输入输出长度不相等」的刚需
+2. 信息处理分工明确，训练效果更好
+
+这部分机制 Jay Alammar 的 [Visualizing A Neural Machine Translation Model](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/) 讲得非常清楚，我这里就不再重复造轮子。
+
+## Attention
+
+普通 Seq2Seq 的问题是，Encoder 必须把整句信息都塞进最后一个固定长度向量。句子一长，这个 context vector 就会变成瓶颈。
+
+Attention 的做法是让 Decoder 在每一步生成时，都可以回看 Encoder 的各个 hidden states，而不是只依赖最后一个向量。
+
+这部分也可以直接看 Jay Alammar 的 [Visualizing A Neural Machine Translation Model](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/)。这是 attention 的初次登场，后面在 Transformer 中 attention 有更惊人、广泛的应用。
