@@ -61,6 +61,8 @@ Technical learning-note series can use `series` to opt into article-to-article n
 
 Draft posts may carry `series` metadata, but detail-page navigation only lists published posts.
 
+Large animated images such as GIF or animated WebP demos should live under `public/blog/gif` and be referenced with site-root paths, for example `/blog/gif/demo-name.webp`. This keeps Astro's image optimization pipeline from trying to transform every animation frame during build.
+
 ## Movie Collection
 
 Source directory: `src/content/movie`

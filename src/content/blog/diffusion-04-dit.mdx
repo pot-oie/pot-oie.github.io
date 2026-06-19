@@ -1,8 +1,8 @@
 ---
 title: "扩散模型 04"
-description: "DiT：用 Transformer 替换 U-Net 的扩散模型。"
-pubDate: "07 08 2026"
-draft: true
+description: "DiT：用 Transformer 替换 U-Net。"
+pubDate: "07 13 2026"
+draft: false
 category: "learn"
 techCategory: "ai"
 tags: ["深度学习", "生成模型", "Diffusion", "DiT", "Transformer"]
@@ -16,13 +16,7 @@ series:
   order: 4
 ---
 
-> 如果说 Stable Diffusion 是把扩散过程搬到潜空间，那么 DiT 更进一步：把去噪器本身从 U-Net 换成 Transformer。
-
-[前面](/blog/diffusion-03-latent-diffusion/)讲到，Latent Diffusion 的核心是先用 VAE 把像素图压缩成 latent，再让 U-Net 在 latent space 里完成去噪。
-
-这套方案很成功，但它仍然保留了一个 CNN 时代的核心假设：图像生成的主干网络最好是 U-Net。
-
-DiT（Diffusion Transformer）要问的问题正好相反：
+DiT（Diffusion Transformer）提问：
 
 > 既然 Transformer 已经统一了文本、视觉和多模态任务，扩散模型里的 denoiser 能不能也直接换成 Transformer？
 
@@ -30,128 +24,107 @@ DiT（Diffusion Transformer）要问的问题正好相反：
 
 U-Net 很适合图像去噪，因为它天然保留二维空间结构：
 
-- 下采样负责获得大范围语义。
-- 上采样负责恢复空间细节。
-- Skip Connection 负责把浅层纹理接回去。
+- **下采样（Downsampling）**：负责提取全局的大范围语义。
+- **上采样（Upsampling）**：负责逐步恢复空间分辨率与细节。
+- **跳跃连接（Skip Connection）**：负责将浅层未破坏的局部纹理直接传递给深层，防止细节丢失。
 
-但 U-Net 也有一个问题：它的结构强依赖 CNN 归纳偏置。局部卷积、金字塔式分辨率变化、跨层拼接，这些设计都很适合图像，但也让模型扩展时更像在堆一套视觉专用工程。
+但 U-Net 也面临扩展性问题。它的网络架构强依赖于 CNN 的归纳偏置（Inductive Bias）。局部感受野、金字塔式的分辨率变化、跨层特征拼接，这些设计固然契合图像特性，但也导致模型在扩大规模（Scaling up）时缺乏统一的标准，往往需要大量针对视觉的定制化工程调优。
 
-Transformer 的优势则是另一种：
+Transformer 的优势恰好在另一面：
 
-- 所有 token 之间可以直接建模全局关系。
-- 深度、宽度、token 数量都可以用比较统一的方式扩展。
-- 语言模型已经证明了 Transformer scaling 的威力。
+- 通过全局的自注意力机制（Self-Attention），所有 Token 之间可以直接建模远距离依赖，无需堆叠多层卷积来扩大感受野。
+- 网络深度的增加、宽度的拓展、Token 数量的放缩，都可以遵循一套高度统一的规则。
+- 最重要的是，大语言模型（LLM）已经充分验证了 Transformer 架构在应对海量数据和参数规模时的 Scaling Law。
 
-所以 DiT 的核心不是改扩散过程，而是改 denoiser：
+因此，DiT 的核心创新并不在于修改扩散的加噪/去噪数学过程，而是直接在算子层面进行替换：
 
-$$
-\epsilon_\theta(z_t, t) : \text{U-Net} \to \text{Transformer}
-$$
+$$\epsilon_\theta(z_t, t) : \text{U-Net} \to \text{Transformer}$$
 
-## Patchify Latent
+## 潜空间切片（Patchify Latent）
 
-DiT 并不是直接把原始像素扔进 Transformer。
+DiT 并不会将原始像素直接输入 Transformer（计算复杂度会呈平方级爆炸）。它的标准做法是接在 Latent Diffusion 的前端之后：先利用预训练的 VAE Encoder 将高分辨率图像压缩到潜空间，随后将该 Latent Feature Map 切分成一个个连续的 Patch。
 
-它通常接在 Latent Diffusion 后面：先用 VAE Encoder 把图像压缩成 latent，再把 latent 切成一块块 patch。
+假设经过 VAE 压缩后的潜变量尺寸为 $H \times W \times C$，我们设定切片大小为 $P \times P$。那么，这个三维张量会被展平并映射为一串长度为 $N$ 的 Token 序列：
 
-例如一个 $32 \times 32 \times C$ 的 latent feature map，可以按 $2 \times 2$ 的 patch 切开，变成一串 token：
+$$z_t \in \mathbb{R}^{H \times W \times C} \to \text{tokens} \in \mathbb{R}^{N \times D}$$
 
-$$
-z_t \in \mathbb{R}^{H \times W \times C}
-\to
-\text{tokens} \in \mathbb{R}^{N \times D}
-$$
+其中：
 
-其中 $N$ 是 patch token 数量，$D$ 是每个 token 的 hidden dimension。
+- $N = \frac{H \times W}{P^2}$：表示切分后的 Patch 总数，也就是序列的 Token 长度。
+- $D$：表示每个 Token 经过线性投影（Linear Projection）后的隐藏层维度。
 
-这一步和 ViT 很像：图像不再被看成二维网格，而是被看成 token sequence。
+这一步在数学形式和工程实现上与 ViT（Vision Transformer）完全一致。图像不再被视为具有绝对 $X-Y$ 坐标的二维像素网格，而是被抽象为一组离散的 Token Sequence。
 
-{/* TODO: 配图：latent feature map 被切成 patch tokens，再输入 Transformer blocks。 */}
+> **配图建议**：推荐引用 DiT 论文 [Scalable Diffusion Models with Transformers] 中的 **Figure 2 (左侧 Patchify 流程)**。该图直观展示了从带噪潜变量到生成 Token 序列再添加 Positional Encoding 的完整数据流。
 
-## 时间与条件怎么注入
+## 条件注入与 adaLN-Zero
 
-扩散模型的 denoiser 不能只看 $z_t$，还必须知道两个信息：
+在标准的无条件生成之外，扩散模型的去噪网络必须实时接收两种核心引导信息：
 
-1. 当前处于第几步去噪：时间步 $t$。
-2. 生成条件是什么：类别标签、文本 prompt 或其他条件。
+1. **时间步 $t$**：指示当前处于去噪过程的哪个阶段（噪声水平）。
+2. **生成条件 $c$**：如类别标签（Class Label）或文本提示（Text Prompt）。
 
-在 U-Net 里，时间通常通过 Time Embedding 注入到 ResBlock，文本通过 Cross-Attention 注入。
+在 U-Net 架构中，时间信息通常通过 Time Embedding 加到 ResNet 块中，文本条件则通过 Cross-Attention 交叉映射。而在 DiT 中，这些额外信息的注入方式更加“Transformer 化”——通过自适应层归一化（Adaptive Layer Normalization, adaLN）来实现对网络块的动态调制。
 
-DiT 的做法更 Transformer 化：把时间和条件编码成 conditioning vector，再用它去调制 Transformer block。
+DiT 论文提出了一种名为 **adaLN-Zero** 的特殊设计。我们将时间和条件向量映射为每一层需要的缩放（Scale, $\gamma$）、平移（Shift, $\beta$）和门控（Gate, $\alpha$）参数：
 
-原论文里一个重要设计是 **adaLN-Zero**。可以粗略理解为：
+$$\text{adaLN}(x, c, t) = \gamma(c, t) \cdot \text{LayerNorm}(x) + \beta(c, t)$$
 
-- 先对 Transformer block 做 LayerNorm。
-- 再根据时间和条件生成一组缩放、平移和门控参数。
-- 用这些参数调节 block 的输出强度。
+更关键的是“Zero”的含义：在模型初始化时，控制多层感知机（MLP）和多头注意力（MSA）残差分支输出的门控参数 $\alpha$ 会被严格初始化为 0。这意味着在训练的第一步，每个 DiT Block 的行为等价于恒等映射（Identity Function）。这种策略极大地稳定了深层 Transformer 的早期训练梯度。
 
-这样模型不是简单“把条件拼进去”，而是在每一层里动态改变特征流动方式。
+> **配图建议**：推荐引用 DiT 论文中的 **Figure 2 (右侧 DiT Block 内部结构)**。此图清晰对比了 In-Context Conditioning、Cross-Attention Block 和 adaLN Block 的实现差异。
 
-{/* TODO: 配图：time/class condition -> adaLN-Zero -> 调制 Transformer block。 */}
+## DiT Block 结构
 
-## DiT Block
+剥离掉条件注入模块后，一个 DiT Block 的核心几乎就是最标准的 Transformer Block：
 
-一个 DiT block 可以粗略理解为标准 Transformer block 的扩散版本：
+1. **多头自注意力（Multi-Head Self-Attention）**：负责让所有 Latent Patch 之间相互通信，进行全局的特征重组。
+2. **前馈网络（MLP）**：对每个 Token 的特征维度进行独立的非线性升维与降维。
+3. **条件调制（Conditioning）**：利用前文提到的 adaLN-Zero 机制，根据时间步和类别/文本条件来缩放特征流动。
 
-1. Multi-Head Self-Attention：让所有 latent patch 彼此通信。
-2. MLP：对每个 token 做非线性变换。
-3. Conditioning：用时间步和类别/文本条件调制 block。
+如果拿它和传统的 U-Net 做本质区别的对比：
 
-如果和 U-Net 对比：
+- U-Net 依赖**卷积核的物理滑动**和**多尺度上下采样**来强行传播二维图像的局部语义。
+- DiT 则依赖**自注意力矩阵的点积运算**，直接建立不同 Patch 之间的全局关联权重。
 
-- U-Net 依赖卷积和多尺度结构来传播图像信息。
-- DiT 依赖 Self-Attention 直接建模 patch 之间的全局关系。
+DiT 并不是“在扩散模型里加了一点注意力层”，而是彻底移除了卷积，证明了 **Self-Attention 完全可以作为扩散去噪过程的通用 Token Mixer**。无论是处理一段自然语言文本，还是处理被 VAE 压缩过的一组图像潜变量特征，注意力机制只关心一件事：当前 Token 应该从序列的其他 Token 中读取多少信息。它彻底统一了不同模态在底层特征交互时的数学形式。
 
-这也是 DiT 最值得放在 Transformer 之后学的原因：它不是“扩散模型里多加了注意力”，而是整个 denoiser 都换成了 Transformer。
+## 规模效应（Scaling Law）
 
-换句话说，DiT 的成立依赖于前面 Transformer 已经证明过的一件事：**Self-Attention 可以作为通用的 Token Mixer**。
+DiT 论文最重要的结论，不是论证了 Transformer 能做扩散，而是证明了 **扩散模型同样遵循可预测的 Scaling Law**。
 
-在语言模型里，Token 是文本片段；在 ViT 里，Token 是图像 Patch；到了 DiT 这里，Token 则变成了被 VAE 压缩后的 Latent Patch。Attention 机制本身不关心这些 Token 原本来自文字、像素还是潜空间，它只关心一件事：
+通过引入计算复杂度指标 Gflops（每秒十亿次浮点运算），论文揭示了决定模型生成质量（如 FID 分数）的三个核心变量：
 
-> 当前 Token 应该从其他 Token 中读取哪些信息？
+1. **增加 Transformer 深度**（层数）。
+2. **增加隐藏层维度 $D$**（网络宽度）。
+3. **减小 Patch Size $P$**（直接导致 Token 数量 $N$ 呈平方级增加）。
 
-所以 DiT 并不是凭空把 NLP 架构硬塞进图像生成，而是沿着同一条抽象路线继续走：先把输入变成 Token Sequence，再用 Self-Attention 做全局信息混合，最后把结果还原回原来的空间结构。
+实验表明，计算量（Gflops）的增加与生成质量的提升呈现出高度稳定的正相关。这与大语言模型的发展轨迹如出一辙：当基础架构足够纯粹且统一时，人工干预的“Trick”就不再重要，模型能力的上限将直接由算力、数据和参数规模来决定。
 
-## 为什么 DiT 重要
+{/* TODO: 交互组件：输入 latent 尺寸、patch size 和 hidden dimension，动态展示 token 数量与 self-attention 计算量如何随 patch size 变化。 */}
 
-DiT 论文的重点不只是“Transformer 也能做扩散”，而是它展示了一个更重要的趋势：**扩散模型同样可以吃 scaling law。**
+## 与 Stable Diffusion 演进的关系
 
-论文用 Gflops 衡量前向计算量，并发现：
+要理清这几代核心模型的定位，可以将生成范式拆解为不同的模块组合。
 
-- 增加 Transformer 深度。
-- 增加 hidden dimension。
-- 减小 patch size，增加 token 数量。
+Stable Diffusion 的主线公式为：
 
-这些都会提升计算量，而更大的 DiT 通常能得到更好的生成质量。
+$$\text{VAE Latent} + \textbf{U-Net Denoiser} + \text{Text Conditioning}$$
 
-这和语言模型里的经验很像：当模型结构足够统一，性能提升就越来越依赖规模、数据和算力。
+而 DiT 的主线公式为：
 
-## 和 Stable Diffusion 的关系
+$$\text{VAE Latent} + \textbf{Transformer Denoiser} + \text{Conditioning}$$
 
-Stable Diffusion 的主线可以概括为：
+DiT 并不是对 Latent Diffusion（潜在扩散）框架的否定，而是对其内部计算引擎的升级。纵观整个技术路线图：
 
-$$
-\text{VAE latent} + \text{U-Net denoiser} + \text{Text conditioning}
-$$
+- **DDPM** 确立了底层数学基础：解决了“扩散过程如何定义与训练”。
+- **DDIM / DPM-Solver** 优化了解码过程：解决了“如何用更少的步数完成采样”。
+- **Latent Diffusion** 优化了空间维度：解决了“如何在低维空间高效生成高分辨率图像”。
+- **DiT** 优化了网络架构：解决了“去噪器如何突破 CNN 瓶颈，像大语言模型一样无限吃进算力并兑现为能力”。
 
-DiT 则可以概括为：
+> **配图建议**：此处非常适合你自己绘制一张从 DDPM 指向 DDIM，再汇聚到 LDM，最后分支到 U-Net / DiT 架构的树状发展路线图。
 
-$$
-\text{VAE latent} + \text{Transformer denoiser} + \text{Conditioning}
-$$
-
-所以 DiT 不是推翻 Latent Diffusion，而是在 Latent Diffusion 的框架里替换主干网络。
-
-更准确地说：
-
-- DDPM 解决了“扩散模型怎么训练”。
-- DDIM / DPM-Solver 解决了“怎么更快采样”。
-- Latent Diffusion 解决了“怎么在更便宜的空间里生成”。
-- DiT 解决了“denoiser 能不能更像现代大模型一样扩展”。
-
-## 参考内容
-
-后续正式写时准备参考：
+## 参考资料
 
 - DiT 论文：[Scalable Diffusion Models with Transformers](https://arxiv.org/abs/2212.09748)
 - ViT 论文：[An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale](https://arxiv.org/abs/2010.11929)

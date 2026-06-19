@@ -1,0 +1,147 @@
+---
+title: "生成模型 05"
+description: "从贪心搜索、Beam Search 到 Temperature、Top-k 与 Top-p。"
+pubDate: "06 30 2026"
+draft: true
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "生成模型", "解码策略"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "生成模型基础"
+    order: 6
+  subtitle: "解码策略"
+  order: 5
+---
+
+> 训练阶段解决的是“模型怎么学会给下一个 token 分配概率”。
+>
+> 解码阶段解决的是另一个问题：**拿到这堆概率之后，我到底应该怎么选？**
+
+## 为什么要单独讲解码
+
+前一篇已经讲过 [Greedy Search 和 Beam Search](/blog/gen-04-decoding-training-tricks/#greedy-vs-beam-search)。它们的共同点是：希望从概率分布里找出“最像标准答案”的路径。
+
+但现在的 LLM 使用场景不完全一样。
+
+如果每次都选概率最高的 token，模型会稳定、可控，但也很容易无聊、重复、没有探索性。写代码时这可能是优点，写故事时就可能变成灾难。
+
+所以这篇要把视角从“找最优路径”切到“如何从分布中采样”。
+
+{/* TODO: 配图：同一个 next-token 概率分布，左侧是 argmax 直接选最高柱子，右侧是按概率抽样，低概率但合理的 token 也有机会被选中。 */}
+
+## 从 Logits 到概率分布
+
+模型最后一层输出的不是直接可读的概率，而是一组 **logits**。
+
+可以先把它理解成一张未归一化的打分表：
+
+$$
+z = (z_1, z_2, ..., z_V)
+$$
+
+其中 $V$ 是词表大小。要把这些分数变成概率，需要经过 Softmax：
+
+$$
+P(x_i) = \frac{e^{z_i}}{\sum_{j=1}^{V} e^{z_j}}
+$$
+
+后面所有解码策略，本质上都在围绕这张概率分布做手脚。
+
+## Greedy Search
+
+Greedy Search 的规则最简单：
+
+$$
+x_t = \arg\max_i P(x_i | x_{<t})
+$$
+
+每一步只选当前概率最高的 token。
+
+这一节可以简短承接 gen04，不重复展开 Beam Search，只强调：
+
+- Greedy 很稳定，但容易局部最优。
+- Beam Search 会保留多条候选路径，但仍然偏向高概率、低风险表达。
+- 对开放式生成来说，Beam Search 不一定更“聪明”，有时只是更用力地变无聊。
+
+## Temperature
+
+Temperature 不是直接删 token，而是改变概率分布的尖锐程度。
+
+带温度系数的 Softmax 可以写成：
+
+$$
+P(x_i) = \frac{e^{z_i / T}}{\sum_{j=1}^{V} e^{z_j / T}}
+$$
+
+这里的 $T$ 就是 Temperature。
+
+- $T < 1$：分布变尖，高概率 token 更容易被选中，输出更保守。
+- $T = 1$：保持原始分布。
+- $T > 1$：分布变平，低概率 token 有更多机会，输出更随机。
+
+这一节可以重点讲一个直觉：Temperature 控制的不是“知识水平”，而是**冒险程度**。
+
+{/* TODO: 配图：同一组 logits 在 T=0.5、T=1、T=1.5 下经过 Softmax 后的柱状图变化。 */}
+
+## Top-k Sampling
+
+Temperature 只是调节分布形状，但它不会阻止模型从长尾里抽到一个离谱 token。
+
+Top-k 的思路更粗暴：
+
+1. 只保留概率最高的 $k$ 个 token。
+2. 把其他 token 的概率全部置零。
+3. 在剩下的 $k$ 个 token 里重新归一化并采样。
+
+如果 $k=1$，它就退化成 Greedy Search。
+
+这一节可以用“只让前 k 名进入决赛圈”的比喻写。
+
+## Top-p Sampling
+
+Top-k 的问题是 $k$ 是固定的。
+
+有些时候模型非常确定，前 3 个 token 就覆盖了绝大多数概率；有些时候模型确实面对很多合理选择，前 50 个 token 也许都不离谱。
+
+Top-p，也叫 **Nucleus Sampling（核心采样）**，解决的是这个问题：
+
+1. 按概率从高到低排序 token。
+2. 从高到低累加概率。
+3. 直到累计概率超过 $p$。
+4. 只在这个动态集合里采样。
+
+也就是说，Top-p 不固定候选 token 数量，而是固定候选集合的累计概率质量。
+
+{/* TODO: 配图：Top-k 是固定截取前 k 根柱子，Top-p 是截取累计面积达到 p 的那一段柱子。 */}
+
+## 参数如何配合
+
+这一节可以落到实际使用经验：
+
+- 需要稳定、准确：低 Temperature，小 Top-p，甚至 Greedy。
+- 需要开放创作：适当提高 Temperature，配合 Top-p。
+- 不建议无脑同时拉满 Temperature、Top-k、Top-p。
+- 代码、数学、事实问答和文学创作的解码偏好并不一样。
+
+可以顺手解释为什么很多 API 会同时暴露 `temperature`、`top_p`，但文档常建议不要同时大幅调整两者。
+
+## 重复惩罚
+
+最后可以补一小节现代 LLM 常见的额外控制项：
+
+- Repetition Penalty
+- Frequency Penalty
+- Presence Penalty
+
+它们不改变模型学到的知识，只是在推理阶段临时调整已经出现过的 token 或主题的概率，避免模型陷入复读。
+
+这一节不需要太长，主要作为工程参数扫盲。
+
+## 小结
+
+可以收在这一句：
+
+> 模型给出的是概率分布，而解码策略决定了我们如何从这个分布里取样。所谓“创造力”，很多时候不是模型突然变聪明了，而是我们允许它在合理范围内冒险。

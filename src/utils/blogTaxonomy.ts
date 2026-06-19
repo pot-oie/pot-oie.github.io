@@ -214,6 +214,11 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:check-2-line",
     styleToken: "study",
   },
+  解码策略: {
+    label: "解码策略",
+    icon: "mingcute:shuffle-2-line",
+    styleToken: "algorithm",
+  },
   网络结构: {
     label: "网络结构",
     icon: "mingcute:process-line",
@@ -462,6 +467,8 @@ export const TAG_ALIASES: Record<string, string> = {
   lora: "LoRA",
   diffusion: "Diffusion",
   dit: "DiT",
+  decoding: "解码策略",
+  sampling: "解码策略",
   sequence: "序列模型",
   "sequence model": "序列模型",
   "sequence models": "序列模型",
