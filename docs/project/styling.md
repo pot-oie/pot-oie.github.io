@@ -79,6 +79,11 @@ Dark mode is enabled through:
 - Mobile technical posts use `MobileReadingNavigation.astro`, a separate compact
   toggle surface that renders series entries and table-of-contents entries with
   one shared rhythm instead of reusing the two desktop components directly.
+- Technical posts with series metadata also show a restrained bottom previous/next
+  pager after the article body, using the same ink border treatment and vermilion
+  hover accent as other reading helpers.
+- Blog detail pages include a compact fixed return-to-top button after a scroll
+  threshold; it stays visually secondary until hover/focus.
 
 ## Movie Cards
 

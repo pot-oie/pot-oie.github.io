@@ -32,6 +32,8 @@ Cards should receive data through props and avoid fetching collections directly 
 - `src/components/TableOfContents.astro`: article heading navigation, rendered as a right-side desktop helper.
 - `src/components/SeriesNavigation.astro`: technical-note series navigation for jumping between posts in the same set, visually distinct from the table of contents through block-style active states. It supports collapsible second-level `series.section` groups, item labels come from each post's `series.subtitle`, persisted section state, persisted item-list scroll position, and the desktop item list owns its internal scroll fade while the outer card remains fixed.
 - `src/components/MobileReadingNavigation.astro`: mobile-only reading navigation that renders both series guide entries and table-of-contents entries through one shared compact style and toggle surface. Series sections use the same collapsible grouping as the desktop guide.
+- `src/components/SeriesPostPager.astro`: bottom previous/next navigation for technical posts that belong to a series, using the same ordered `series.items` data as the side guide.
+- `src/components/BackToTop.astro`: article-page floating return-to-top control that appears after the reader scrolls down and uses Lenis when available.
 - `src/components/QRCodeTooltip.astro`: QR-code tooltip behavior.
 - `src/components/ScoreBox.astro`: rating presentation, currently used by movie-facing UI.
 

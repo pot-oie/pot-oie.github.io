@@ -1,0 +1,102 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button
+  type="button"
+  class="back-to-top fixed bottom-5 right-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-sm border border-ink-300/60 bg-stone-50/85 text-ink-700 opacity-0 shadow-ink backdrop-blur-sm transition-all duration-200 ease-out pointer-events-none translate-y-2 hover:border-vermilion/70 hover:text-vermilion active:scale-95 dark:border-zinc-700/80 dark:bg-zinc-900/80 dark:text-zinc-300 md:bottom-8 md:right-8"
+  aria-label="返回顶部"
+  aria-hidden="true"
+  tabindex="-1"
+  data-back-to-top
+  data-pagefind-ignore
+>
+  <Icon name="mingcute:arrow-up-line" class="h-5 w-5" aria-hidden="true" />
+</button>
+
+<style>
+  .back-to-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  const BACK_TO_TOP_THRESHOLD = 560;
+
+  type BackToTopWindow = Window & {
+    __potBackToTopInstalled?: boolean;
+    __potBackToTopRaf?: number | null;
+  };
+
+  function getScrollTop() {
+    return window.scrollY || document.documentElement.scrollTop || 0;
+  }
+
+  function syncBackToTopButtons() {
+    const isVisible = getScrollTop() >= BACK_TO_TOP_THRESHOLD;
+
+    document.querySelectorAll("[data-back-to-top]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+
+      element.classList.toggle("is-visible", isVisible);
+      element.setAttribute("aria-hidden", isVisible ? "false" : "true");
+      element.tabIndex = isVisible ? 0 : -1;
+    });
+  }
+
+  function requestBackToTopSync() {
+    const backToTopWindow = window as BackToTopWindow;
+    if (backToTopWindow.__potBackToTopRaf) return;
+
+    backToTopWindow.__potBackToTopRaf = window.requestAnimationFrame(() => {
+      backToTopWindow.__potBackToTopRaf = null;
+      syncBackToTopButtons();
+    });
+  }
+
+  function scrollPageToTop() {
+    const lenis = (window as any).lenis;
+
+    if (lenis) {
+      lenis.start?.();
+      lenis.resize?.();
+      lenis.scrollTo(0, {
+        immediate: false,
+        force: true,
+      });
+      return;
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  function initBackToTop() {
+    const backToTopWindow = window as BackToTopWindow;
+
+    document.querySelectorAll("[data-back-to-top]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      if (element.dataset.backToTopInitialized === "true") return;
+
+      element.dataset.backToTopInitialized = "true";
+      element.addEventListener("click", scrollPageToTop);
+    });
+
+    if (!backToTopWindow.__potBackToTopInstalled) {
+      backToTopWindow.__potBackToTopInstalled = true;
+      window.addEventListener("scroll", requestBackToTopSync, {
+        passive: true,
+      });
+      window.addEventListener("resize", requestBackToTopSync);
+    }
+
+    requestBackToTopSync();
+  }
+
+  document.addEventListener("astro:page-load", initBackToTop);
+  document.addEventListener("DOMContentLoaded", initBackToTop);
+</script>

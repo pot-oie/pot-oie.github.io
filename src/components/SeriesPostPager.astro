@@ -1,0 +1,78 @@
+---
+import { Icon } from "astro-icon/components";
+import type { SeriesNavData, SeriesNavItem } from "./SeriesNavigation.astro";
+
+type Props = {
+  series?: SeriesNavData;
+};
+
+const { series } = Astro.props;
+const items = series?.items ?? [];
+const currentIndex = items.findIndex((item) => item.current);
+const previousItem = currentIndex > 0 ? items[currentIndex - 1] : undefined;
+const nextItem =
+  currentIndex >= 0 && currentIndex < items.length - 1
+    ? items[currentIndex + 1]
+    : undefined;
+
+function getItemLabel(item: SeriesNavItem) {
+  const subtitle = item.subtitle?.trim();
+  return subtitle ? `${item.title}：${subtitle}` : item.title;
+}
+---
+
+{
+  series && items.length > 1 && (previousItem || nextItem) && (
+    <nav
+      class="series-post-pager mt-12 border-t border-ink-200/70 pt-6 font-sans dark:border-zinc-800/80 md:mt-16 md:pt-8"
+      aria-label={`${series.title} 上一篇和下一篇`}
+      data-pagefind-ignore
+    >
+      <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-vermilion/85">
+        Series
+      </p>
+
+      <div class="grid gap-3 md:grid-cols-2">
+        {previousItem ? (
+          <a
+            href={previousItem.href}
+            class="group flex min-h-24 flex-col justify-between rounded-sm border border-ink-200/70 bg-stone-50/55 p-4 text-left transition-all duration-200 hover:border-vermilion/60 hover:bg-stone-50/90 hover:text-vermilion dark:border-zinc-800/75 dark:bg-zinc-900/35 dark:hover:border-vermilion/60 dark:hover:bg-zinc-900/60"
+          >
+            <span class="mb-3 inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-ink-500 transition-colors group-hover:text-vermilion dark:text-zinc-500">
+              <Icon
+                name="mingcute:arrow-left-line"
+                class="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5"
+                aria-hidden="true"
+              />
+              上一篇
+            </span>
+            <span class="text-base font-semibold leading-snug text-ink-900 transition-colors group-hover:text-vermilion dark:text-zinc-100">
+              {getItemLabel(previousItem)}
+            </span>
+          </a>
+        ) : (
+          <span class="hidden md:block" aria-hidden="true" />
+        )}
+
+        {nextItem && (
+          <a
+            href={nextItem.href}
+            class="group flex min-h-24 flex-col justify-between rounded-sm border border-ink-200/70 bg-stone-50/55 p-4 text-left transition-all duration-200 hover:border-vermilion/60 hover:bg-stone-50/90 hover:text-vermilion dark:border-zinc-800/75 dark:bg-zinc-900/35 dark:hover:border-vermilion/60 dark:hover:bg-zinc-900/60 md:text-right"
+          >
+            <span class="mb-3 inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-ink-500 transition-colors group-hover:text-vermilion dark:text-zinc-500 md:justify-end">
+              下一篇
+              <Icon
+                name="mingcute:arrow-right-line"
+                class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </span>
+            <span class="text-base font-semibold leading-snug text-ink-900 transition-colors group-hover:text-vermilion dark:text-zinc-100">
+              {getItemLabel(nextItem)}
+            </span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )
+}

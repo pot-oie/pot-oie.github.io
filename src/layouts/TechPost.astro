@@ -6,6 +6,8 @@ import FormattedDate from "../components/FormattedDate.astro";
 import TableOfContents from "../components/TableOfContents.astro";
 import SeriesNavigation from "../components/SeriesNavigation.astro";
 import MobileReadingNavigation from "../components/MobileReadingNavigation.astro";
+import SeriesPostPager from "../components/SeriesPostPager.astro";
+import BackToTop from "../components/BackToTop.astro";
 import type { SeriesNavData } from "../components/SeriesNavigation.astro";
 import { Icon } from "astro-icon/components";
 import {
@@ -145,8 +147,12 @@ const hasToc = headings.some((heading) => heading.depth > 1 && heading.depth <= 
       <div class="prose prose-sm md:prose-base prose-ink max-w-none">
         <slot />
       </div>
+
+      <SeriesPostPager series={series} />
     </article>
   </div>
+
+  <BackToTop />
 
   {/* --- 代码块功能：图标库模板 --- */}
   <template id="code-icon-template">

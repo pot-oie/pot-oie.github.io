@@ -28,9 +28,11 @@ Technical posts use `TechPost.astro`, which includes:
 - optional hero image
 - optional left-side series navigation for published posts sharing the same `series.key`; entries can be grouped by `series.section`, and item labels use each post's `series.subtitle`
 - table of contents; on mobile, series navigation and the table of contents share one two-sided toggle panel when both are available
+- bottom previous/next links for posts that belong to a multi-post series
 - code block interaction templates
 
 Life posts use `LifePost.astro`, which has a quieter centered article layout.
+Blog detail layouts mount a floating return-to-top control once the reader has scrolled down the page.
 
 ## Related Documents
 

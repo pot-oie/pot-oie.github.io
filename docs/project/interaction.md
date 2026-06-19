@@ -36,6 +36,9 @@ When adding a script, make it idempotent. View transitions can re-run setup on t
   dismissal, and `Escape`. Keyboard controls inside the open lightbox include
   `ArrowLeft`/`ArrowRight` for image navigation, `+`/`-` for zoom, and `0` for
   zoom reset.
+- Article return-to-top controls mounted by post layouts. `BackToTop.astro`
+  installs idempotent global scroll/resize listeners, appears after a fixed
+  scroll threshold, and scrolls through Lenis when the global instance exists.
 - Hash scrolling after View Transitions.
 
 Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.
@@ -131,6 +134,8 @@ This behavior is page-local and should not move into shared components unless it
 ### Technical Post Detail
 
 `src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time. Series section collapse uses native `details` / `summary` behavior in both desktop and mobile navigation.
+
+`src/components/SeriesPostPager.astro` renders static previous/next links at the bottom of technical posts when the current entry belongs to a multi-post series.
 
 Desktop and mobile series sections share persisted open/closed state through `localStorage` keys shaped as `pot-series-nav-sections-v1:<seriesKey>`. The initializer in `TechPost.astro` restores `[data-series-section]` details after `astro:page-load`, writes changes on `toggle`, and mirrors the state between desktop and mobile copies of the same section.
 

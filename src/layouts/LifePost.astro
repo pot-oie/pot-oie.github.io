@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import BackToTop from "../components/BackToTop.astro";
 import { Icon } from "astro-icon/components";
 
 type Props = CollectionEntry<"blog">["data"];
@@ -69,4 +70,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
       <slot />
     </div>
   </article>
+
+  <BackToTop />
 </BaseLayout>
