@@ -1,0 +1,47 @@
+---
+title: "LLM 04"
+description: "LoRA 先占位：大模型参数高效微调的低秩更新。"
+pubDate: "06 18 2026"
+draft: true
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "Transformer", "LoRA"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "LLM 基础"
+    order: 8
+  subtitle: "LoRA"
+  order: 4
+---
+
+> 这篇先占位。
+>
+> LoRA 不适合放在 Transformer 基础里。它依赖 Transformer，但真正的问题是：大模型太大了，怎么低成本微调？
+
+## 准备讲什么
+
+LoRA 的主线应该是：
+
+1. 全量微调为什么昂贵：参数、显存、存储和部署都贵。
+2. 预训练权重先冻结，只训练额外的低秩矩阵。
+3. 把权重更新写成：
+
+$$
+\Delta W = BA
+$$
+
+其中 $A$ 和 $B$ 的秩很小，训练参数量远少于完整 $W$。
+
+4. 为什么常插在 attention 的投影矩阵上，比如 $W^Q$、$W^V$。
+5. 推理时可以把 LoRA 权重合并回原权重，减少额外开销。
+
+## 参考内容
+
+后续正式写时准备参考：
+
+- LoRA 论文：[LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
+- Hugging Face PEFT 文档可以作为工程实现参考。
+
+{/* TODO: 配图：冻结的原始权重 W 旁边，加一条低秩分支 A -> B，最后与原输出相加。 */}

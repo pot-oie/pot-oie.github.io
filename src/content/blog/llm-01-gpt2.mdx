@@ -1,0 +1,42 @@
+---
+title: "LLM 01"
+description: "GPT-2 先占位：Decoder-only Transformer 如何变成语言模型。"
+pubDate: "06 18 2026"
+draft: true
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "Transformer", "GPT"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "LLM 基础"
+    order: 8
+  subtitle: "GPT-2"
+  order: 1
+---
+
+> 这篇先占位。
+>
+> GPT-2 适合接在 Transformer 后面，因为它本质上是 Decoder-only Transformer 的代表案例。
+
+## 准备讲什么
+
+GPT-2 的主线应该是：
+
+1. 为什么只保留 Transformer Decoder。
+2. Causal mask 如何保证自回归语言建模。
+3. 预训练任务为什么可以简单到“预测下一个 token”。
+4. 模型规模和数据规模为什么开始变成核心变量。
+5. zero-shot / prompt 现象怎么从语言模型里冒出来。
+
+## 参考内容
+
+后续正式写时准备配合：
+
+- Jay Alammar 的 [The Illustrated GPT-2](https://jalammar.github.io/illustrated-gpt2/)
+- OpenAI 的 GPT-2 论文：[Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
+
+这篇和 Transformer 文章的分工要明确：Transformer 讲结构，GPT-2 讲“只拿 Decoder 做大规模自回归预训练”。
+
+{/* TODO: 配图：完整 Transformer 被裁成 Decoder-only stack，再接语言模型 head。 */}

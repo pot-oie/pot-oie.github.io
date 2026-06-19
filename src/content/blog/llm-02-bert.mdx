@@ -1,0 +1,44 @@
+---
+title: "LLM 02"
+description: "BERT 先占位：Encoder-only Transformer 如何服务语言理解。"
+pubDate: "06 18 2026"
+draft: true
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "Transformer", "BERT"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "LLM 基础"
+    order: 8
+  subtitle: "BERT"
+  order: 2
+---
+
+> 这篇先占位。
+>
+> BERT 和 GPT 的区别，最好不要只背 Encoder-only / Decoder-only，而是要从训练目标看。
+
+## 准备讲什么
+
+BERT 的主线应该是：
+
+1. 为什么只保留 Transformer Encoder。
+2. 双向上下文为什么适合理解任务。
+3. Masked Language Model 解决了什么问题，又引入了什么预训练/微调差异。
+4. Next Sentence Prediction 是否真的必要，可以作为后续补充。
+5. fine-tuning 范式：在同一个预训练模型上接不同任务头。
+
+## 参考内容
+
+后续正式写时准备配合：
+
+- Jay Alammar 的 [The Illustrated BERT, ELMo, and co.](https://jalammar.github.io/illustrated-bert/)
+- BERT 论文：[BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
+
+这篇要和 GPT-2 形成对照：
+
+> GPT 站在生成侧，BERT 站在理解侧。
+
+{/* TODO: 配图：Encoder-only stack，输入中部分 token 被 mask，输出回填被遮住的 token。 */}

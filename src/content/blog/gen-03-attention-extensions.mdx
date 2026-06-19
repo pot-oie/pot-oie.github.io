@@ -32,11 +32,13 @@ series:
 
 > $\alpha_{t,i}$ 就像是在原文上滑动的**手电筒光束**，数值越高代表解码当前词时越聚焦对应输入位置。
 
+需要注意，这里的 Attention 发生在一个序列（Decoder）去跨界观察另一个序列（Encoder）的隐状态上。这与后来 Transformer 赖以成名的 **Self-Attention** 有着本质的区别——Self-Attention 是让同一个序列内部的 Token 之间互相审视和读取。
+
+无论如何，这套机制让**模型学会了按需读取记忆。**
+
 ![Attention 动态上下文](../../assets/blog/content/ml-to-llm/gen/03-1.webp)
 
 Attention 的视觉流程：[Visualizing A Neural Machine Translation Model](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/) 。
-
-**Attention 让模型学会了按需读取记忆。**
 
 ## Memory Network
 

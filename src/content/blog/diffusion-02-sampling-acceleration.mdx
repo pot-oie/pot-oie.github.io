@@ -1,0 +1,186 @@
+---
+title: "扩散模型 02"
+description: "扩散模型采样加速。"
+pubDate: "07 05 2026"
+draft: false
+category: "learn"
+techCategory: "ai"
+tags: ["深度学习", "生成模型", "Diffusion"]
+series:
+  key: "machine-learning"
+  title: "机器学习"
+  section:
+    title: "扩散模型基础"
+    order: 9
+  subtitle: "采样加速"
+  order: 2
+---
+
+> 我们从 DDPM 继续往前：模型已经有基础能力了，但采样步数太多，怎样优化？
+
+我们推导了 DDPM 的核心数学框架，并得出终极训练目标：
+
+$$
+L_{simple} = \mathbb{E}_{t, x_0, \epsilon} [\| \epsilon - \epsilon_\theta(x_t, t) \|^2]
+$$
+
+在这个框架下，神经网络（U-Net）像是一个“噪声预测器”。只要给定任意时间步 $t$ 的带噪图像 $x_t$，它就能估算出当前图像中包含的噪声 $\epsilon_\theta$。
+
+到这里，模型的训练已经闭环。但真正试图用它生图时，工程瓶颈出现：**它太慢了**。
+
+## 为什么这么慢？
+
+前向过程是可以跨步的：只要知道 $x_0$，借助高斯分布性质和重参数化技巧，我们可以写出通用的解析解，直接跳到任意步数 $t$ 算出带噪图像 $x_t$。
+
+为什么逆向去噪过程不能直接从 $x_{1000}$ 跨步跳回 $x_0$ 呢？
+
+其根本原因在于：**逆向转移分布 $p_\theta(x_{t-1}|x_t)$ 的均值，强依赖于那个用神经网络拟合出来的 $\epsilon_\theta(x_t, t)$。**
+
+$$
+x_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon_\theta(x_t, t)} \right) + \sigma_t z
+$$
+
+神经网络是一个**非线性黑盒**，没有任何全局的、通用的代数解析表达式可以进行多步推导；加之模型只在极小的高斯噪声扰动范围内才准确，我们无法实现跨步计算。
+
+这就很便秘了：必须先算出 $x_t$，喂给 U-Net 预测出当前步的噪声，计算出 $x_{t-1}$，然后再把 $x_{t-1}$ 喂给 U-Net 去算下一步……
+
+1000 步的马尔可夫链，意味着我们需要让一个庞大的 CNN 跑 1000 次完整的串行前向推理，仅仅只是为了生成一张图片。在现代深度学习中，这种算力成本和延迟是极不优雅且难以落地的。我们需要找到绕开黑盒、跨步计算的方法。
+
+## DDIM
+
+2020 年底提出的 **DDIM**（Denoising Diffusion Implicit Models）给出了第一个实用方案：**只要保证 $x_t$ 的边缘分布和 DDPM 一致，谁规定中间过程必须是马尔可夫链？**
+
+### 重新定义逆向路径
+
+DDIM 的作者通过构造一个非马尔可夫的前向过程，重新推导了生成公式。在不改变已经训练好的 DDPM 模型权重（即依然使用同一个 $\epsilon_\theta$）的前提下，给出了一个新的采样公式：
+
+$$
+x_{t-1} = \sqrt{\bar{\alpha}_{t-1}} \underbrace{\left( \frac{x_t - \sqrt{1 - \bar{\alpha}_t} \epsilon_\theta(x_t, t)}{\sqrt{\bar{\alpha}_t}} \right)}_{\text{预测的 } x_0} + \underbrace{\sqrt{1 - \bar{\alpha}_{t-1} - \sigma_t^2} \cdot \epsilon_\theta(x_t, t)}_{\text{指向 } x_{t-1} \text{ 的方向}} + \underbrace{\sigma_t \epsilon}_{\text{随机噪声}}
+$$
+
+这个公式把逆向的一步拆成了三个动作：
+
+1. **预测终点**
+
+   $$
+   \text{预测的 } x_0 = \frac{x_t - \sqrt{1 - \bar{\alpha}_t} \epsilon_\theta(x_t, t)}{\sqrt{\bar{\alpha}_t}}
+   $$
+
+   现在的输入是 $x_t$（半噪图）。U-Net 算出了一个 $\epsilon_\theta$，即它认为当前图里包含的所有噪点。我们直接把这些噪点从当前图里剥离出去，拿到一张期望中的原图。
+
+   > 这一步 DDPM 也能做到，但是 DDPM 的这套推导，只有在极小步长时，分布才近似高斯分布。
+
+2. **指向节点**
+
+   $$
+   \text{指向 } x_{t-1} = \sqrt{1 - \bar{\alpha}_{t-1} - \sigma_t^2} \cdot \epsilon_\theta(x_t, t)
+   $$
+
+   在 $t$ 较大的时候，U-Net 猜的原图非常模糊且不准。只能先往那个方向走一步，也就是走到 $x_{t-1}$。
+
+3. **注入随机性**
+
+   $$
+   \text{随机噪声} = \sigma_t \epsilon
+   $$
+
+   加上方差为 $\sigma_t^2$ 的随机噪声 $\epsilon$，控制采样的“确定性”。
+
+### 确定性采样与跨步跳跃
+
+这是 DDIM 最伟大的魔术：
+
+- 如果令
+  $$
+  \sigma_t = \sqrt{\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}} \sqrt{1-\frac{\bar{\alpha}_t}{\bar{\alpha}_{t-1}}}
+  $$
+  这个公式就**完全等价于 DDPM**。
+- **但如果令 $\sigma_t = 0$ 呢？**
+
+  当 $\sigma_t = 0$ 时，采样过程中所有的随机性都被抹除。给定的初始纯噪声 $x_T$ 唯一确定了最终生成的图像 $x_0$。这个极具确定性的过程被称为**隐式（Implicit）模型**。
+
+由于过程变成了确定性的指向，我们**不再需要严格相邻的 $t$ 和 $t-1$**。可以把原本 1000 步的轨迹切分成 50 步、甚至 20 步的子序列 $\tau$，直接从 $\tau_i$ 跨越到 $\tau_{i-1}$。
+
+这就是为什么在使用 Stable Diffusion 时，DDIM 采样器只需要 20-50 步就能出图的原因。
+
+> 后面几节的数学推导太硬核了，标记一下，以后再精学。
+
+## 预测噪声到底在预测什么？
+
+DDIM 能够强行把随机过程变成确定性过程，隐隐暗示了扩散模型背后藏着更深层的数学结构。为了看清全貌，我们需要引入宋飏（Yang Song）提出的 **SGM（Score-based Generative Modeling）** 视角。
+
+### 什么是 Score？
+
+在统计学中，我们把概率密度函数 $p(x)$ 取对数后的梯度称为 **Score（得分）**：
+
+$$
+\text{Score} = \nabla_x \log p(x)
+$$
+
+Score 的物理意义非常直观：**作为向量场，它永远指向数据概率密度增大的方向。** 如果把数据分布想象成连绵起伏的山脉，真实图片大多集中在山顶（概率密度高），而纯噪声都在谷底。Score 就是指向山顶的路标。
+
+### 噪声与 Score 的完美等价
+
+根据 Tweedie 公式和高斯分布的性质，在扩散模型中，注入的噪声 $\epsilon$ 和带噪数据的 Score 存在直接的线性关系：
+
+$$
+\nabla_{x_t} \log p(x_t) = -\frac{1}{\sqrt{1 - \bar{\alpha}_t}} \epsilon
+$$
+
+由于 U-Net 正是在拟合真实噪声，即 $\epsilon_\theta \approx \epsilon$。把这个关系代入上面的式子，惊讶发现：**U-Net 预测出的 $-\epsilon_\theta$，本质上就是在拟合当前时间步 $t$ 下数据分布的 Score！**
+
+这意味着，扩散模型不仅是一个去噪器，其本质上是在学习高维空间中指向真实数据流形的方向向量。
+
+## SDE 与 ODE
+
+一旦确立了 Score 的视角，我们就可以把 DDPM 中离散的 $t=1, 2, \dots, 1000$ 推向极致的连续时间 $t \in [0, 1]$。
+
+此时，离散的马尔可夫链就演变成了一个连续的**随机微分方程（SDE, Stochastic Differential Equation）**：
+
+$$
+dx = f(x, t)dt + g(t)dw
+$$
+
+（其中 $dw$ 是标准布朗运动，代表随机噪声的注入。）
+
+既然前向过程是 SDE，逆向过程同样存在一个逆向 SDE。而且，数学家给出过一个极其优美的结论：**对于任何一个 SDE，都存在一个对应的常微分方程（ODE, Ordinary Differential Equation），称为概率流常微分方程（Probability Flow ODE）。**
+
+这个 ODE 共享了与 SDE 完全相同的边缘概率密度分布，但它的演化路径是**完全确定**的（没有布朗运动 $dw$）：
+
+$$
+dx = \left[ f(x, t) - \frac{1}{2}g(t)^2 \nabla_x \log p(x) \right] dt
+$$
+
+公式里的 $\nabla_x \log p(x)$ 就是 Score！我们可以直接用 U-Net 预测的 $\epsilon_\theta$ 把它替换掉。
+
+**这就是大一统的真相：DDIM 中 $\sigma_t=0$ 的确定性采样，本质上就是对这个 Probability Flow ODE 最简单的一阶欧拉（Euler）离散化求解！**
+
+## DPM-Solver
+
+一旦把扩散模型的采样过程抽象为**求解常微分方程（ODE）**，这就成了数值分析领域最拿手的好戏。数学家们研究如何快速、精确地求解 ODE 已经有几百年的历史了。
+
+初期的做法是直接把现成的黑盒求解器（比如 Runge-Kutta）拿过来套，但效果并不理想。因为扩散模型的 ODE 有其特殊性：它的解在极大程度上受神经网络 $\epsilon_\theta$ 的非线性变化影响，直接用黑盒工具容易产生极大的截断误差，步子迈得太大依然会崩。
+
+**DPM-Solver** 的惊艳之处在于，它没有生搬硬套，而是“解构”了这个特定的 ODE。
+
+作者发现，扩散模型的 ODE 实际上是一个半线性（Semi-linear）结构：它可以拆成一个精确已知的线性部分（对应于图像的缩放），和一个非线性的神经网络部分。
+
+DPM-Solver 利用**指数积分器（Exponential Integrator）**，通过解析的方式把线性部分严丝合缝地求出来了。这意味着：**采样器在大部分时候不需要用微小的步长去摸索线性变化，它可以把所有的算力（U-Net 调用）集中在估算那小部分非线性的、神经网络引入的变化上。**
+
+再配合高阶的多步求解策略，DPM-Solver 实现了难以置信的加速：
+**它能够在仅需 10 到 20 步的前向推理下，生成与 1000 步 DDPM 几乎完全一致的高质量图像。**
+
+如今的各种 DPM-Solver++ 更是进一步引入了对 Classifier-Free Guidance (CFG) 采样的专门优化，统治了现代开源生图模型的默认采样器列表。
+
+## 结语
+
+现在，我们有了能用的模型，也有了能快速采样的算法。但是还不够，如果把它应用在 $1024 \times 1024$ 的高清图像像素上，显存依然会瞬间爆炸。
+
+为了让普通的消费级显卡也能跑得起这种庞然大物，我们需要把它压缩到一个更小的隐空间里。
+
+## 参考内容
+
+- DDIM 论文：[Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502)
+- Score SDE 论文：[Score-Based Generative Modeling through Stochastic Differential Equations](https://arxiv.org/abs/2011.13456)
+- DPM-Solver 论文：[DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps](https://arxiv.org/abs/2206.00927)
+- DPM-Solver++ 论文：[DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models](https://arxiv.org/abs/2211.01095)

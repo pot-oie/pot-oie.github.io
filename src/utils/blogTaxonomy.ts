@@ -229,6 +229,11 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:grid-line",
     styleToken: "ai",
   },
+  "U-Net": {
+    label: "U-Net",
+    icon: "mingcute:grid-line",
+    styleToken: "ai",
+  },
   GNN: {
     label: "GNN",
     icon: "mingcute:share-2-line",
@@ -281,6 +286,11 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
   },
   Diffusion: {
     label: "Diffusion",
+    icon: "mingcute:process-line",
+    styleToken: "ai",
+  },
+  DiT: {
+    label: "DiT",
     icon: "mingcute:process-line",
     styleToken: "ai",
   },
@@ -439,6 +449,8 @@ export const TAG_ALIASES: Record<string, string> = {
   "deep learning": "深度学习",
   cnn: "CNN",
   resnet: "ResNet",
+  unet: "U-Net",
+  "u-net": "U-Net",
   gnn: "GNN",
   rnn: "RNN",
   lstm: "LSTM",
@@ -449,6 +461,7 @@ export const TAG_ALIASES: Record<string, string> = {
   bert: "BERT",
   lora: "LoRA",
   diffusion: "Diffusion",
+  dit: "DiT",
   sequence: "序列模型",
   "sequence model": "序列模型",
   "sequence models": "序列模型",
