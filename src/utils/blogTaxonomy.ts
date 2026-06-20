@@ -274,6 +274,11 @@ export const TAG_REGISTRY: Record<string, BlogTagMeta> = {
     icon: "mingcute:process-line",
     styleToken: "ai",
   },
+  ViT: {
+    label: "ViT",
+    icon: "mingcute:grid-line",
+    styleToken: "ai",
+  },
   GPT: {
     label: "GPT",
     icon: "mingcute:ai-line",
@@ -462,6 +467,8 @@ export const TAG_ALIASES: Record<string, string> = {
   gru: "GRU",
   attention: "Attention",
   transformer: "Transformer",
+  vit: "ViT",
+  "vision transformer": "ViT",
   gpt: "GPT",
   bert: "BERT",
   lora: "LoRA",
