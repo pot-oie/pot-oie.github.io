@@ -127,6 +127,19 @@ content. Block formulas use compact vertical spacing, and the optional
 `滑动查看` overflow hint sits close to the formula instead of opening a separate
 visual gap.
 
+## Private Dashboard
+
+The protected analytics Dashboard uses an editorial report treatment within the
+same ink-and-paper system. Its masthead is a raised paper panel with a restrained
+`匿` watermark, while numbered section dividers make Overview, Content, Search,
+and Quality easy to scan. KPI cards use faint folio numbers and a short
+vermilion rule instead of saturated backgrounds.
+
+Charts remain dependency-free: the daily trend is native SVG, ranked lists use
+compact bars, and reading completion uses a CSS conic ring. Panels retain strong
+contrast in dark mode, motion respects `prefers-reduced-motion`, and the mobile
+layout reduces type and card density without hiding any metric.
+
 ## Maintenance Rules
 
 - Keep new UI aligned with the ink grayscale and vermilion accent system.

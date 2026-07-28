@@ -11,49 +11,58 @@ const pageDescription = "匿名访问与内容质量统计";
   </Fragment>
 
   <section
-    class="py-8 md:py-14"
+    class="dashboard-shell py-8 md:py-14"
     data-dashboard-root
     data-pagefind-ignore
   >
-    <header
-      class="mb-8 flex flex-col gap-5 border-b border-ink-900 pb-6 dark:border-zinc-700 md:flex-row md:items-end md:justify-between"
-    >
-      <div>
-        <p
-          class="text-xs uppercase tracking-[0.18em] text-ink-400 dark:text-zinc-500"
-        >
+    <header class="dashboard-hero mb-10">
+      <div class="dashboard-hero-copy">
+        <p class="dashboard-eyebrow">
+          <span class="dashboard-status-dot" aria-hidden="true"></span>
           Private · Aggregated
         </p>
-        <h1
-          class="mt-2 font-serif text-4xl font-bold text-ink-900 dark:text-zinc-100 md:text-5xl"
-        >
+        <h1 class="dashboard-title">
           访问统计
         </h1>
-        <p class="mt-3 max-w-2xl text-sm text-ink-500 dark:text-zinc-400">
+        <p class="dashboard-description">
           汇总所有访客的匿名事件。会话只在单个标签页存续，不使用 Cookie、IP
           或设备指纹。
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="dashboard-meta">
         <p
           id="metrics-generated-at"
-          class="text-xs text-ink-400 dark:text-zinc-500"
+          class="dashboard-updated-at"
         >
           等待数据
         </p>
         <button
           id="metrics-refresh"
           type="button"
-          class="border border-ink-300 px-3 py-2 text-xs uppercase tracking-[0.14em] text-ink-600 transition-colors hover:border-vermilion hover:text-vermilion dark:border-zinc-600 dark:text-zinc-300"
+          class="dashboard-refresh"
         >
-          刷新
+          <svg
+            class="dashboard-refresh-icon"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M20 11a8 8 0 1 0-2.34 5.66M20 11V5m0 6h-6"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          <span>刷新</span>
         </button>
       </div>
     </header>
 
     <div
       id="metrics-status"
-      class="rounded border border-dashed border-ink-300 px-4 py-5 text-sm text-ink-500 dark:border-zinc-700 dark:text-zinc-400"
+      class="dashboard-message"
       role="status"
       aria-live="polite"
     >
@@ -68,18 +77,17 @@ const pageDescription = "匿名访问与内容质量统计";
       汇总数据已超过 2 小时未更新，请检查 cron 和原始日志。
     </div>
 
-    <div id="metrics-content" class="hidden space-y-12">
-      <section aria-labelledby="overview-heading">
-        <div class="mb-5 flex items-baseline justify-between gap-4">
+    <div id="metrics-content" class="hidden space-y-16">
+      <section class="dashboard-section" aria-labelledby="overview-heading">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">01</span>
           <div>
-            <p
-              class="text-xs uppercase tracking-[0.16em] text-vermilion"
-            >
+            <p class="section-kicker">
               Overview
             </p>
             <h2
               id="overview-heading"
-              class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
+              class="section-title"
             >
               访问概览
             </h2>
@@ -92,27 +100,31 @@ const pageDescription = "匿名访问与内容质量统计";
           </p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <article class="metric-card">
+        <div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <article class="metric-card" data-card-number="01">
             <p class="metric-label">页面访问</p>
             <p id="kpi-page-views" class="metric-value">0</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="02">
             <p class="metric-label">访问会话</p>
             <p id="kpi-sessions" class="metric-value">0</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="03">
             <p class="metric-label">每会话页面</p>
             <p id="kpi-pages-per-session" class="metric-value">0</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="04">
             <p class="metric-label">搜索次数</p>
             <p id="kpi-searches" class="metric-value">0</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[1.45fr_0.8fr]">
-          <article class="metric-panel">
+          <article class="metric-panel metric-panel-chart">
             <div class="mb-4 flex items-center justify-between gap-4">
               <h3 class="metric-title">每日趋势</h3>
               <div
@@ -133,95 +145,112 @@ const pageDescription = "匿名访问与内容质量统计";
             </div>
           </article>
 
-          <article class="metric-panel">
-            <h3 class="metric-title">热门页面</h3>
+          <article class="metric-panel metric-panel-ranked">
+            <div class="panel-heading">
+              <h3 class="metric-title">热门页面</h3>
+              <span class="panel-note">Top 10</span>
+            </div>
             <ol id="top-pages" class="mt-4 space-y-3"></ol>
           </article>
         </div>
       </section>
 
-      <section aria-labelledby="content-heading">
-        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
-          Content
-        </p>
-        <h2
-          id="content-heading"
-          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
-        >
-          阅读深度
-        </h2>
+      <section class="dashboard-section" aria-labelledby="content-heading">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">02</span>
+          <div>
+            <p class="section-kicker">Content</p>
+            <h2 id="content-heading" class="section-title">阅读深度</h2>
+          </div>
+        </div>
 
-        <div class="mt-5 grid gap-6 md:grid-cols-[0.7fr_1.3fr]">
-          <article class="metric-panel flex flex-col justify-between">
-            <div>
+        <div class="mt-6 grid gap-6 md:grid-cols-[0.8fr_1.2fr]">
+          <article class="metric-panel completion-panel">
+            <div class="completion-ring" id="completion-ring">
+              <div class="completion-ring-core">
+                <p id="kpi-completion-rate" class="completion-value">0%</p>
+                <span class="completion-caption">读完</span>
+              </div>
+            </div>
+            <div class="completion-copy">
               <p class="metric-label">文章读完率</p>
-              <p id="kpi-completion-rate" class="metric-value mt-3">0%</p>
               <p
                 id="completion-detail"
-                class="mt-2 text-sm text-ink-500 dark:text-zinc-400"
+                class="mt-2 text-sm text-ink-600 dark:text-zinc-300"
               >
                 0 次读完 / 0 次文章访问
               </p>
+              <p class="completion-note">
+                “读完”表示页面可见范围到达 100%，不代表完整理解或持续停留。
+              </p>
             </div>
-            <p class="mt-8 text-xs leading-relaxed text-ink-400 dark:text-zinc-500">
-              “读完”表示页面可见范围到达 100%，不代表完整理解或持续停留。
-            </p>
           </article>
 
           <article class="metric-panel">
-            <h3 class="metric-title">到达各阅读位置</h3>
+            <div class="panel-heading">
+              <h3 class="metric-title">到达各阅读位置</h3>
+              <span class="panel-note">Reach</span>
+            </div>
             <div id="reading-depth" class="mt-5 space-y-5"></div>
           </article>
         </div>
       </section>
 
-      <section aria-labelledby="search-heading">
-        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
-          Search
-        </p>
-        <h2
-          id="search-heading"
-          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
-        >
-          搜索闭环
-        </h2>
+      <section class="dashboard-section" aria-labelledby="search-heading">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">03</span>
+          <div>
+            <p class="section-kicker">Search</p>
+            <h2 id="search-heading" class="section-title">搜索闭环</h2>
+          </div>
+        </div>
 
-        <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <article class="metric-card">
+        <div class="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <article class="metric-card" data-card-number="S1">
             <p class="metric-label">成功率</p>
             <p id="kpi-search-success" class="metric-value">0%</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="S2">
             <p class="metric-label">无结果率</p>
             <p id="kpi-no-result" class="metric-value">0%</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="S3">
             <p class="metric-label">搜索错误</p>
             <p id="kpi-search-errors" class="metric-value">0</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
-          <article class="metric-card">
+          <article class="metric-card" data-card-number="S4">
             <p class="metric-label">平均耗时</p>
             <p id="kpi-search-duration" class="metric-value">0 ms</p>
+            <span class="metric-rule" aria-hidden="true"></span>
           </article>
         </div>
 
         <div class="mt-6 grid gap-6 md:grid-cols-2">
-          <article class="metric-panel">
-            <h3 class="metric-title">热门无结果词</h3>
+          <article class="metric-panel metric-panel-ranked">
+            <div class="panel-heading">
+              <h3 class="metric-title">热门无结果词</h3>
+              <span class="panel-note">Missed</span>
+            </div>
             <ol id="no-result-queries" class="mt-4 space-y-3"></ol>
           </article>
           <article class="metric-panel">
-            <h3 class="metric-title">搜索耗时分布</h3>
-            <dl class="mt-5 grid grid-cols-3 gap-3 text-center">
-              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+            <div class="panel-heading">
+              <h3 class="metric-title">搜索耗时分布</h3>
+              <span class="panel-note">Latency</span>
+            </div>
+            <dl class="mt-5 grid grid-cols-3 gap-2 text-center sm:gap-3">
+              <div class="duration-tile">
                 <dt class="metric-label">平均</dt>
                 <dd id="duration-average" class="mt-2 font-serif text-xl font-bold">0</dd>
               </div>
-              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+              <div class="duration-tile">
                 <dt class="metric-label">P50</dt>
                 <dd id="duration-p50" class="mt-2 font-serif text-xl font-bold">0</dd>
               </div>
-              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+              <div class="duration-tile">
                 <dt class="metric-label">P95</dt>
                 <dd id="duration-p95" class="mt-2 font-serif text-xl font-bold">0</dd>
               </div>
@@ -230,34 +259,40 @@ const pageDescription = "匿名访问与内容质量统计";
         </div>
       </section>
 
-      <section aria-labelledby="quality-heading">
-        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
-          Quality
-        </p>
-        <h2
-          id="quality-heading"
-          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
-        >
-          站点质量
-        </h2>
+      <section class="dashboard-section" aria-labelledby="quality-heading">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">04</span>
+          <div>
+            <p class="section-kicker">Quality</p>
+            <h2 id="quality-heading" class="section-title">站点质量</h2>
+          </div>
+        </div>
 
-        <div class="mt-5 grid gap-6 md:grid-cols-2">
-          <article class="metric-panel">
-            <div class="flex items-baseline justify-between">
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <article class="metric-panel quality-panel">
+            <div class="panel-heading">
               <h3 class="metric-title">404 路径</h3>
-              <p id="quality-not-found-total" class="font-serif text-2xl font-bold">0</p>
+              <p id="quality-not-found-total" class="quality-count">0</p>
             </div>
             <ol id="not-found-paths" class="mt-4 space-y-3"></ol>
           </article>
-          <article class="metric-panel">
-            <div class="flex items-baseline justify-between">
+          <article class="metric-panel quality-panel">
+            <div class="panel-heading">
               <h3 class="metric-title">客户端错误</h3>
-              <p id="quality-client-error-total" class="font-serif text-2xl font-bold">0</p>
+              <p id="quality-client-error-total" class="quality-count">0</p>
             </div>
             <ol id="client-errors" class="mt-4 space-y-3"></ol>
           </article>
         </div>
       </section>
+
+      <footer class="dashboard-footnote">
+        <span class="dashboard-footnote-mark" aria-hidden="true">匿</span>
+        <p>
+          数据为最近周期内的匿名聚合结果。“访问会话”仅代表单个标签页生命周期，
+          不等同于精确访客人数。
+        </p>
+      </footer>
     </div>
   </section>
 </BaseLayout>
@@ -418,8 +453,15 @@ const pageDescription = "匿名访问与内容质量统计";
     }
 
     const maximum = Math.max(...rows.map((row) => row.count), 1);
-    rows.slice(0, 10).forEach((row) => {
+    rows.slice(0, 10).forEach((row, index) => {
       const item = document.createElement("li");
+      item.className = "flex items-start gap-3";
+      const rank = document.createElement("span");
+      rank.className =
+        "w-6 shrink-0 pt-0.5 font-serif text-xs text-vermilion/70";
+      rank.textContent = String(index + 1).padStart(2, "0");
+      const content = document.createElement("div");
+      content.className = "min-w-0 flex-1";
       const line = document.createElement("div");
       line.className =
         "mb-1 flex items-baseline justify-between gap-4 text-sm text-ink-700 dark:text-zinc-300";
@@ -435,10 +477,12 @@ const pageDescription = "匿名访问与内容质量统计";
       const track = document.createElement("div");
       track.className = "h-1 overflow-hidden bg-ink-100 dark:bg-zinc-800";
       const fill = document.createElement("div");
-      fill.className = "h-full bg-vermilion/70";
+      fill.className =
+        "h-full origin-left bg-vermilion/70 transition-[width] duration-500";
       fill.style.width = `${Math.max(3, (row.count / maximum) * 100)}%`;
       track.append(fill);
-      item.append(line, track);
+      content.append(line, track);
+      item.append(rank, content);
       list.append(item);
     });
   }
@@ -558,6 +602,27 @@ const pageDescription = "匿名访问与内容质量统计";
         "stroke-linejoin": "round",
       }),
     );
+
+    sessionPoints.forEach((point, index) => {
+      if (
+        index !== 0 &&
+        index !== sessionPoints.length - 1 &&
+        index % 7 !== 0
+      ) {
+        return;
+      }
+      const [cx, cy] = point.split(",");
+      chart.append(
+        createSvgElement("circle", {
+          cx,
+          cy,
+          r: "2.5",
+          class:
+            "fill-ink-900 stroke-white dark:fill-zinc-200 dark:stroke-zinc-950",
+          "stroke-width": "1.5",
+        }),
+      );
+    });
   }
 
   function renderReadingDepth(metrics: MetricsPayload) {
@@ -567,6 +632,7 @@ const pageDescription = "匿名访问与内容质量统计";
 
     for (const row of metrics.readingDepth.byDepth) {
       const wrapper = document.createElement("div");
+      wrapper.className = "group";
       const heading = document.createElement("div");
       heading.className =
         "mb-2 flex items-baseline justify-between text-sm text-ink-600 dark:text-zinc-300";
@@ -578,9 +644,11 @@ const pageDescription = "匿名访问与内容质量统计";
       heading.append(label, value);
 
       const track = document.createElement("div");
-      track.className = "h-2 overflow-hidden bg-ink-100 dark:bg-zinc-800";
+      track.className =
+        "h-2 overflow-hidden rounded-full bg-ink-100 dark:bg-zinc-800";
       const fill = document.createElement("div");
-      fill.className = "h-full bg-vermilion";
+      fill.className =
+        "h-full rounded-full bg-vermilion transition-[width] duration-500";
       fill.style.width = `${Math.min(100, finiteNumber(row.rate))}%`;
       track.append(fill);
       wrapper.append(heading, track);
@@ -602,6 +670,10 @@ const pageDescription = "匿名访问与内容质量统计";
     setText(
       "kpi-completion-rate",
       formatPercent(metrics.readingDepth.completionRate),
+    );
+    element("completion-ring")?.style.setProperty(
+      "--progress",
+      String(Math.min(100, metrics.readingDepth.completionRate)),
     );
     setText(
       "completion-detail",
@@ -723,20 +795,308 @@ const pageDescription = "匿名访问与内容质量统计";
 </script>
 
 <style>
+  .dashboard-shell {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dashboard-shell::before {
+    position: absolute;
+    z-index: -1;
+    top: -4rem;
+    right: 0;
+    width: min(38rem, 72vw);
+    height: 24rem;
+    border-radius: 999px;
+    background:
+      radial-gradient(
+        circle at 38% 52%,
+        rgb(var(--color-rgb-vermilion) / 0.07),
+        transparent 52%
+      ),
+      radial-gradient(
+        circle at 68% 30%,
+        rgb(var(--color-rgb-ink-900) / 0.055),
+        transparent 58%
+      );
+    content: "";
+    filter: blur(2px);
+    pointer-events: none;
+  }
+
+  .dashboard-hero {
+    position: relative;
+    display: grid;
+    gap: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-top: 3px solid var(--text-main);
+    background:
+      linear-gradient(
+        120deg,
+        color-mix(in srgb, var(--bg-card) 96%, transparent),
+        color-mix(in srgb, var(--bg-card) 76%, transparent)
+      );
+    box-shadow:
+      0 22px 60px -42px rgb(var(--color-rgb-shadow) / 0.48),
+      inset 0 1px rgb(var(--color-rgb-paper) / 0.45);
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+  }
+
+  .dashboard-hero::after {
+    position: absolute;
+    right: clamp(1rem, 5vw, 4rem);
+    bottom: -0.42em;
+    color: rgb(var(--color-rgb-vermilion) / 0.045);
+    content: "匿";
+    font-family: var(--font-serif);
+    font-size: clamp(9rem, 22vw, 18rem);
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .dashboard-hero-copy,
+  .dashboard-meta {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-ink-400);
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .dashboard-status-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: var(--color-vermilion);
+    box-shadow: 0 0 0 4px rgb(var(--color-rgb-vermilion) / 0.1);
+  }
+
+  .dashboard-title {
+    margin-top: 0.7rem;
+    color: var(--text-main);
+    font-family: var(--font-serif);
+    font-size: clamp(3.2rem, 8vw, 5.25rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 0.98;
+  }
+
+  .dashboard-description {
+    max-width: 42rem;
+    margin-top: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .dashboard-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .dashboard-updated-at {
+    color: var(--color-ink-400);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dashboard-refresh {
+    display: inline-flex;
+    min-height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--text-main) 38%, transparent);
+    background: color-mix(in srgb, var(--bg-card) 72%, transparent);
+    color: var(--text-main);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    transition:
+      border-color 180ms ease,
+      color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .dashboard-refresh:hover {
+    border-color: var(--color-vermilion);
+    background: rgb(var(--color-rgb-vermilion) / 0.045);
+    color: var(--color-vermilion);
+    transform: translateY(-1px);
+  }
+
+  .dashboard-refresh:focus-visible {
+    outline: 2px solid var(--color-vermilion);
+    outline-offset: 3px;
+  }
+
+  .dashboard-refresh-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .dashboard-message {
+    position: relative;
+    overflow: hidden;
+    border: 1px dashed color-mix(in srgb, var(--text-main) 34%, transparent);
+    background: color-mix(in srgb, var(--bg-card) 68%, transparent);
+    color: var(--text-muted);
+    padding: 1.4rem 1.5rem 1.4rem 1.8rem;
+    font-size: 0.88rem;
+  }
+
+  .dashboard-message::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--color-vermilion);
+    content: "";
+  }
+
+  .dashboard-section {
+    scroll-margin-top: 6rem;
+  }
+
+  .section-heading {
+    display: flex;
+    min-height: 4.4rem;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--text-main) 24%, transparent);
+    padding-bottom: 1rem;
+  }
+
+  #metrics-period {
+    margin-left: auto;
+  }
+
+  .section-number {
+    min-width: 2.8rem;
+    color: rgb(var(--color-rgb-vermilion) / 0.7);
+    font-family: var(--font-serif);
+    font-size: 2.35rem;
+    font-weight: 700;
+    letter-spacing: -0.08em;
+    line-height: 1;
+  }
+
+  .section-kicker {
+    color: var(--color-vermilion);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    margin-top: 0.15rem;
+    color: var(--text-main);
+    font-family: var(--font-serif);
+    font-size: clamp(1.45rem, 3vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
   .metric-card,
   .metric-panel {
     border: 1px solid var(--border-color);
-    background: color-mix(in srgb, var(--bg-card) 72%, transparent);
+    background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+    box-shadow: 0 18px 42px -40px rgb(var(--color-rgb-shadow) / 0.72);
   }
 
   .metric-card {
+    position: relative;
     min-width: 0;
-    padding: 1rem;
+    min-height: 8.6rem;
+    overflow: hidden;
+    padding: 1.15rem;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .metric-card::after {
+    position: absolute;
+    right: 0.6rem;
+    bottom: -0.25rem;
+    color: rgb(var(--color-rgb-ink-900) / 0.035);
+    content: attr(data-card-number);
+    font-family: var(--font-serif);
+    font-size: 3.2rem;
+    font-weight: 700;
+    letter-spacing: -0.08em;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .metric-card:hover {
+    border-color: rgb(var(--color-rgb-vermilion) / 0.38);
+    box-shadow: 0 24px 46px -38px rgb(var(--color-rgb-shadow) / 0.62);
+    transform: translateY(-2px);
+  }
+
+  .metric-rule {
+    position: absolute;
+    bottom: 1.05rem;
+    left: 1.15rem;
+    width: 1.4rem;
+    height: 2px;
+    background: var(--color-vermilion);
   }
 
   .metric-panel {
-    border-radius: 0.25rem;
-    padding: 1rem;
+    min-width: 0;
+    border-radius: 0.35rem;
+    padding: clamp(1.15rem, 2.8vw, 1.55rem);
+  }
+
+  .metric-panel-chart {
+    background:
+      linear-gradient(
+        rgb(var(--color-rgb-ink-900) / 0.025) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgb(var(--color-rgb-ink-900) / 0.018) 1px,
+        transparent 1px
+      ),
+      color-mix(in srgb, var(--bg-card) 86%, transparent);
+    background-size: 24px 24px;
+  }
+
+  .metric-panel-ranked,
+  .quality-panel {
+    position: relative;
+  }
+
+  .panel-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--text-main) 9%, transparent);
+    padding-bottom: 0.75rem;
+  }
+
+  .panel-note {
+    color: var(--color-ink-400);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 
   .metric-label {
@@ -751,22 +1111,269 @@ const pageDescription = "匿名访问与内容质量统计";
   }
 
   .metric-value {
-    margin-top: 0.5rem;
+    position: relative;
+    z-index: 1;
+    margin-top: 0.65rem;
     color: var(--text-main);
     font-family: var(--font-serif);
-    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-size: clamp(1.65rem, 4vw, 2.3rem);
     font-weight: 700;
+    letter-spacing: -0.04em;
     line-height: 1;
   }
 
   .metric-title {
     color: var(--text-main);
-    font-size: 0.95rem;
+    font-family: var(--font-serif);
+    font-size: 1rem;
     font-weight: 700;
+  }
+
+  .completion-panel {
+    display: grid;
+    align-items: center;
+    gap: 1.4rem;
+    background:
+      radial-gradient(
+        circle at 18% 50%,
+        rgb(var(--color-rgb-vermilion) / 0.055),
+        transparent 42%
+      ),
+      color-mix(in srgb, var(--bg-card) 82%, transparent);
+  }
+
+  .completion-ring {
+    --progress: 0;
+
+    position: relative;
+    display: grid;
+    width: 8.75rem;
+    height: 8.75rem;
+    flex: none;
+    place-items: center;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--color-vermilion) calc(var(--progress) * 1%),
+      color-mix(in srgb, var(--text-main) 8%, transparent) 0
+    );
+    box-shadow:
+      0 16px 32px -22px rgb(var(--color-rgb-shadow) / 0.55),
+      0 0 0 1px rgb(var(--color-rgb-vermilion) / 0.1);
+  }
+
+  .completion-ring-core {
+    display: grid;
+    width: 6.85rem;
+    height: 6.85rem;
+    place-content: center;
+    border-radius: 50%;
+    background: var(--bg-card);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--text-main) 7%, transparent);
+    text-align: center;
+  }
+
+  .completion-value {
+    color: var(--text-main);
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .completion-caption {
+    margin-top: 0.45rem;
+    color: var(--color-vermilion);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+  }
+
+  .completion-copy {
+    min-width: 0;
+  }
+
+  .completion-note {
+    margin-top: 1.15rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--text-main) 8%, transparent);
+    color: var(--color-ink-400);
+    padding-top: 0.85rem;
+    font-size: 0.7rem;
+    line-height: 1.75;
+  }
+
+  .duration-tile {
+    min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--text-main) 7%, transparent);
+    background: color-mix(in srgb, var(--bg-body) 60%, transparent);
+    padding: 0.9rem 0.35rem;
+  }
+
+  .quality-count {
+    display: grid;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    place-items: center;
+    border: 1px solid rgb(var(--color-rgb-vermilion) / 0.44);
+    color: var(--color-vermilion);
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    transform: rotate(1.5deg);
+  }
+
+  .dashboard-footnote {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    border-top: 1px solid
+      color-mix(in srgb, var(--text-main) 18%, transparent);
+    color: var(--color-ink-400);
+    padding-top: 1.25rem;
+    font-size: 0.72rem;
+    line-height: 1.7;
+  }
+
+  .dashboard-footnote-mark {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    place-items: center;
+    border: 1px solid rgb(var(--color-rgb-vermilion) / 0.58);
+    color: var(--color-vermilion);
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+    transform: rotate(-2deg);
+  }
+
+  :global(.dark) .dashboard-shell::before {
+    opacity: 0.72;
+  }
+
+  :global(.dark) .dashboard-hero {
+    box-shadow:
+      0 24px 68px -44px rgb(var(--color-rgb-shadow) / 0.9),
+      inset 0 1px rgb(var(--color-rgb-paper) / 0.035);
+  }
+
+  :global(.dark) .dashboard-eyebrow,
+  :global(.dark) .dashboard-updated-at,
+  :global(.dark) .panel-note,
+  :global(.dark) .completion-note,
+  :global(.dark) .dashboard-footnote {
+    color: var(--color-zinc-500);
+  }
+
+  :global(.dark) .metric-card::after {
+    color: rgb(var(--color-rgb-paper) / 0.025);
   }
 
   #metrics-refresh:disabled {
     cursor: wait;
     opacity: 0.5;
+    transform: none;
+  }
+
+  #metrics-refresh:disabled .dashboard-refresh-icon {
+    animation: dashboard-spin 900ms linear infinite;
+  }
+
+  @keyframes dashboard-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .dashboard-hero {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .dashboard-meta {
+      flex-direction: column;
+      align-items: flex-end;
+      border-left: 1px solid
+        color-mix(in srgb, var(--text-main) 12%, transparent);
+      padding-left: 1.8rem;
+    }
+
+    .completion-panel {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .dashboard-hero {
+      gap: 1.4rem;
+    }
+
+    .dashboard-meta {
+      justify-content: space-between;
+      border-top: 1px solid
+        color-mix(in srgb, var(--text-main) 10%, transparent);
+      padding-top: 1rem;
+    }
+
+    .dashboard-title {
+      font-size: 3rem;
+    }
+
+    .dashboard-description {
+      font-size: 0.82rem;
+    }
+
+    .section-heading {
+      gap: 0.7rem;
+    }
+
+    .section-number {
+      min-width: 2.25rem;
+      font-size: 1.9rem;
+    }
+
+    .metric-card {
+      min-height: 7.7rem;
+      padding: 0.95rem;
+    }
+
+    .metric-card::after {
+      font-size: 2.65rem;
+    }
+
+    .metric-rule {
+      bottom: 0.85rem;
+      left: 0.95rem;
+    }
+
+    .metric-value {
+      font-size: clamp(1.45rem, 8vw, 1.9rem);
+    }
+
+    .completion-panel {
+      justify-items: center;
+      text-align: center;
+    }
+
+    .completion-note {
+      text-align: left;
+    }
+
+    .dashboard-footnote {
+      align-items: flex-start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dashboard-refresh,
+    .metric-card {
+      transition: none;
+    }
+
+    #metrics-refresh:disabled .dashboard-refresh-icon {
+      animation: none;
+    }
   }
 </style>
