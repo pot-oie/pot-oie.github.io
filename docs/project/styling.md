@@ -103,7 +103,10 @@ breadcrumbs, a bilingual serif title, one concise English description, the
 current entry count, and route-backed filters. Filters use compact outlined
 labels with small category icons, restrained ink borders, and a vermilion
 border/text active state. They sit inside the archive header rather than
-forming a separate full-width control band.
+forming a separate full-width control band. Blog archive pagination continues
+that compact outlined treatment: numbered and previous/next links use ink
+borders, the active page uses a solid vermilion state, and unavailable edge
+controls remain visible but subdued.
 
 ## Code Blocks
 

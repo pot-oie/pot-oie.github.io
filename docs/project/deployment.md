@@ -32,7 +32,16 @@ The repository also keeps a separate build-check workflow:
 
 - `.github/workflows/ci.yml`
 
-It runs on push, pull request, and manual dispatch. This workflow validates the build but does not deploy.
+It runs on push, pull request, and manual dispatch. The workflow runs
+`npm test`, then `npm run build`. The build command includes the deterministic
+blog content integrity check before Astro generation and Pagefind indexing.
+This workflow validates tests, content, and the production build but does not
+deploy.
+
+The deployment workflow also uses `npm run build`, so invalid published blog
+metadata, series conflicts, broken published-blog links, or missing referenced
+assets stop deployment. These checks use only repository files and do not
+require network access.
 
 ## Environment Variables
 
@@ -54,7 +63,13 @@ site: "https://passpot.cn"
 
 This value is used by sitemap and RSS-related output.
 
+Canonical links, Open Graph/Twitter URLs, article share-image URLs, and JSON-LD
+URLs are also resolved against `Astro.site`. The shared fallback social card is
+served from `/og.png`; build-time article images resolve to their generated
+absolute `/_astro/...` URLs.
+
 ## Maintenance Notes
 
-- Run `npm run build` locally before changing deployment-sensitive behavior when possible.
+- Run `npm test` and `npm run build` locally before changing
+  deployment-sensitive behavior when possible.
 - If deployment target, Node version, build command, workflow behavior, or server process changes, update this document.

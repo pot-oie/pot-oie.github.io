@@ -26,7 +26,14 @@ This project is a personal content site built with Astro 5. It combines a blog a
 
 `src/styles` is the global style layer. `global.css` defines the theme tokens and site-wide behavior. `markdown.css` handles rendered article content.
 
-`src/utils` is the domain utility layer. Current examples include calendar helpers and blog taxonomy helpers.
+`src/scripts/runtime` is the browser-runtime layer. Focused modules own Lenis,
+search-result hash scrolling, search metrics, persistent audio, math overflow,
+and the article image lightbox; small Astro runtime components compose them at
+page boundaries.
+
+`src/utils` is the domain utility layer. Current examples include calendar
+helpers, blog taxonomy metadata, the typed blog domain/query layer, and shared
+SEO URL/image/structured-data helpers.
 
 `src/assets` stores imported build-time assets for blog, watch, and music content. `public` stores files served as-is.
 
@@ -36,26 +43,54 @@ This project is a personal content site built with Astro 5. It combines a blog a
 
 Content starts in `src/content`. Collection schemas in `src/content.config.ts` validate fields and normalize some data at build time.
 
-Pages call `getCollection(...)` to load content, sort or filter entries, and pass entries to layouts or components.
+Pages call `getCollection(...)` at route or build boundaries. Blog routes pass
+the loaded entries to pure functions in `src/utils/blog.ts`, which own published
+post filtering, archive ordering and counts, post URLs, and series assembly.
+`src/utils/blogRoutes.ts` owns archive route shapes, canonical pagination links,
+and exact route sets derived from the published corpus; page generation, search
+classification, and content-reference validation share that policy.
+Other modules keep their transformations in their nearest domain utilities.
 
-Layouts provide page-level structure and shared behavior. Components render cards, lists, controls, search UI, and module-specific interactions.
+Blog entry relationships are enforced by the collection schema and shared pure
+rules in `src/utils/blogIntegrity.ts`. Before Astro builds, a filesystem adapter
+checks cross-entry series metadata, tag diagnostics, and reliable local
+references without network access.
+
+Layouts provide page-level structure and select the runtime composition needed
+by each page. `BaseLayout.astro` keeps the shared document skeleton and composes
+global runtime components, while article-capable layouts opt into the separate
+article runtime. Components render cards, lists, controls, search UI, and
+module-specific interactions.
 
 Global CSS and Tailwind utility classes define the visual system. Production build emits the static site into `dist`, then Pagefind indexes `dist`.
 
 ## Important Cross-Cutting Behavior
 
-- `BaseLayout.astro` installs global page chrome, Lenis scrolling, search metrics storage, and the global audio element.
+- `BaseLayout.astro` owns global page chrome and composes
+  `GlobalRuntime.astro`, `GlobalAudioRuntime.astro`, and, when requested,
+  `ArticleRuntime.astro`.
+- `BaseHead.astro` owns canonical, Open Graph, Twitter, and JSON-LD output.
+  Article layouts supply typed article context through `BaseLayout.astro`;
+  `src/utils/seo.ts` resolves absolute assets and builds the single
+  `BlogPosting`/`BreadcrumbList` graph.
+- Focused modules under `src/scripts/runtime` own the browser implementations;
+  all initializers are safe to call again after `astro:page-load`.
 - Search metrics are stored in browser `localStorage` under `pot-search-metrics-v1`.
 - `astro.config.mjs` filters `/dashboard` from sitemap generation.
-- `npm run build` runs `astro build` first, then `pagefind --site dist`.
+- `npm run build` validates blog content, runs `astro build`, then runs
+  `pagefind --site dist`.
 
 ## Source References
 
 - `astro.config.mjs`
 - `package.json`
 - `src/content.config.ts`
+- `src/utils/blog.ts`
+- `src/utils/blogRoutes.ts`
+- `src/utils/blogIntegrity.ts`
 - `src/pages`
 - `src/layouts`
 - `src/components`
+- `src/scripts/runtime`
 - `src/styles`
 - `src/utils`
