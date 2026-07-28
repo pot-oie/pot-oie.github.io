@@ -48,7 +48,7 @@ Inspect:
 
 - `src/components/Search.astro`
 - `src/scripts/runtime/hashScroll.ts`
-- `src/scripts/runtime/searchMetrics.ts`
+- `src/scripts/runtime/analytics.ts`
 - `src/utils/blogRoutes.ts`
 - `package.json`
 - `astro.config.mjs`

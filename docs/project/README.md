@@ -13,8 +13,10 @@ This directory is the maintained knowledge base for the blog repository. It is o
 7. `interaction.md`: understand global events, storage keys, and page-transition behavior.
 8. `scripts.md`: understand local automation and content creation scripts.
 9. `deployment.md`: understand the build and deployment path.
-10. `modules/*/overview.md`: understand each content module in more detail.
-11. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
+10. `analytics.md`: understand anonymous event collection, aggregation,
+    privacy, and Dashboard operations.
+11. `modules/*/overview.md`: understand each content module in more detail.
+12. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
 
 Current parked plans:
 
@@ -32,6 +34,8 @@ Current parked plans:
 
 - Root entry: `AGENTS.md` keeps short collaboration notes for AI-assisted maintenance.
 - Project layer: files directly under `docs/project` describe cross-cutting architecture, routes, content, styling, components, interactions, scripts, and deployment.
+- Analytics layer: `docs/project/analytics.md` defines the shared browser,
+  Nginx, aggregation, privacy, and private Dashboard data contract.
 - Writing layer: `docs/project/writing-style.md` captures article voice and expansion preferences for future blog edits.
 - Module layer: `docs/project/modules/*` describes blog, watch, music, search, or other feature areas.
 - Plan layer: `docs/project/plans/*` records active or parked future work,

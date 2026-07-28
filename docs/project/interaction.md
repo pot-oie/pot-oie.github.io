@@ -21,7 +21,7 @@ When adding a script, make it idempotent. View transitions can re-run setup on t
 `src/layouts/BaseLayout.astro` owns the page skeleton and composes these focused
 runtime entries:
 
-- `GlobalRuntime.astro` initializes Lenis, installs search metric collection,
+- `GlobalRuntime.astro` initializes Lenis, installs anonymous analytics,
   and retries normal or `#pf-text-*` hash scrolling after page loads.
 - `GlobalAudioRuntime.astro` renders the persistent global audio element and
   installs the audio and MediaSession controller.
@@ -60,36 +60,30 @@ lifecycle entry point.
 ## Storage Keys
 
 - `theme`: selected color mode, managed by `BaseHead.astro` and `Header.astro`.
-- `pot-search-metrics-v1`: search metrics store, written by
-  `src/scripts/runtime/searchMetrics.ts` in response to search metric events.
-- `pot-search-debug`: optional debug flag. When set to `1`, search metrics are logged in the console.
+- `pot-analytics-session-v1`: random tab-scoped `sessionStorage` identifier.
+  Closing the tab ends the访问会话.
+- `pot-search-debug`: optional localStorage debug flag. When set to `1`, final
+  sanitized analytics events are logged in the console. It stores no metrics.
+
+The removed `pot-search-metrics-v1` localStorage aggregate must not be restored.
+
+## Anonymous Analytics
+
+`src/scripts/runtime/analytics.ts` owns the event whitelist, normalization,
+client-side rate limit, transport, page-view lifecycle, article-depth
+thresholds, 404 events, and bounded client-error events. It prefers
+`navigator.sendBeacon()` and falls back to a keepalive empty POST.
+
+Search calls the same typed tracker directly:
+
+- positive visible result count: `search_success`;
+- zero visible results: `search_no_results`;
+- Pagefind initialization/query failure: `search_error`.
+
+Only the no-result event contains the normalized, 64-character query. See
+`docs/project/analytics.md` for the complete event and privacy contract.
 
 ## Custom Events
-
-### Search
-
-`Search.astro` dispatches:
-
-- `pot:search-metric`
-
-Payload shape:
-
-```ts
-{
-  event: string;
-  payload: Record<string, unknown>;
-  timestamp: number;
-}
-```
-
-Known event names:
-
-- `search_success`
-- `search_no_results`
-- `search_error`
-
-`src/scripts/runtime/searchMetrics.ts` listens for these events and writes
-aggregate data to `localStorage`.
 
 ### Audio
 
@@ -187,7 +181,9 @@ switching across View Transitions.
 
 ### Dashboard
 
-`src/pages/dashboard.astro` reads and clears `pot-search-metrics-v1`.
+`src/pages/dashboard.astro` performs a same-origin, no-store fetch of
+`/dashboard/metrics.json`. A root `WeakSet` makes setup idempotent after
+`astro:page-load`. The Dashboard emits no analytics events.
 
 ## Scroll Boundaries
 

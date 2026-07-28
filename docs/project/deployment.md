@@ -26,6 +26,9 @@ Deployment target:
 - Source directory: `dist/`
 - Remote target: `/var/www/passpot`
 
+The analytics aggregate is deliberately outside this target at
+`/var/lib/passpot/metrics.json`; otherwise `rsync --delete` would remove it.
+
 ## Build Check
 
 The repository also keeps a separate build-check workflow:
@@ -73,3 +76,24 @@ absolute `/_astro/...` URLs.
 - Run `npm test` and `npm run build` locally before changing
   deployment-sensitive behavior when possible.
 - If deployment target, Node version, build command, workflow behavior, or server process changes, update this document.
+
+## Anonymous Analytics Operations
+
+Analytics does not change the static deployment workflow. Nginx accepts a
+write-only empty POST and writes JSONL; root cron runs the standard-library
+Python aggregator every ten minutes. No Codex CLI, database, Node service,
+Umami, or PostgreSQL is installed on the server.
+
+Manual server files and exact commands live in `ops/passpot-metrics/`. The
+server operator must:
+
+1. install `scripts/analytics/aggregate_metrics.py` outside the deployment
+   target;
+2. create `/var/lib/passpot` as `root:www-data` mode `0750`;
+3. install the cron file and generate the first aggregate;
+4. add the exact Basic Auth-protected `/dashboard/metrics.json` Nginx location;
+5. retain the metrics log for 30 daily rotations without defining duplicate
+   logrotate stanzas;
+6. run `nginx -t`, reload Nginx, and verify authenticated JSON access.
+
+See `docs/project/analytics.md` for the data contract and privacy boundaries.

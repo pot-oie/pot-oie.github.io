@@ -10,7 +10,7 @@ Project scripts are defined in `package.json`. Content automation scripts live i
 - `npm run check:content`: validate blog entry relationships, cross-entry series
   metadata, tags, internal blog links, and reliable local asset references.
 - `npm test`: run the Node test suite through the lightweight `tsx` TypeScript
-  loader.
+  loader, then run the Python analytics fixture tests.
 - `npm run preview`: preview the built site.
 - `npm run astro`: run Astro CLI.
 - `npm run new`: run `scripts/new.mjs`.
@@ -45,6 +45,18 @@ Warnings do not block builds. Its filesystem adapter is
 exact published article and archive route set; archive paths and page counts
 come from `src/utils/blogRoutes.ts`, so nonexistent categories and out-of-range
 pages fail validation.
+
+## Analytics Script
+
+`scripts/analytics/aggregate_metrics.py` uses only the Python standard library.
+It reads the current and rotated
+`/var/log/nginx/passpot-metrics.log*` JSONL files, validates the anonymous event
+contract, keeps a 30-calendar-day window, and atomically writes
+`/var/lib/passpot/metrics.json`. It supports `.gz` rotations, repeatable
+`--log-glob`, `--period-days`, `--timezone`, and an optional output `--group`.
+
+The production cron and manual installation instructions live under
+`ops/passpot-metrics/`. Tests use only isolated fixtures and temporary output.
 
 ## Maintenance Notes
 

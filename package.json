@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "npm run check:content && astro build && pagefind --site dist",
     "check:content": "node --import tsx scripts/check-blog-content.ts",
-    "test": "node --import tsx --test tests/*.test.ts",
+    "test": "node --import tsx --test tests/*.test.ts && python3 -B -m unittest discover -s tests -p 'test_*.py'",
     "preview": "astro preview",
     "astro": "astro",
     "new": "node scripts/new.mjs",

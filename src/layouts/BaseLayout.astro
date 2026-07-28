@@ -15,6 +15,7 @@ export interface Props {
   image?: SeoImage;
   article?: ArticleSeo;
   articleRuntime?: boolean;
+  analyticsPageKind?: "default" | "not-found";
 }
 const {
   title,
@@ -22,7 +23,9 @@ const {
   image,
   article,
   articleRuntime = false,
+  analyticsPageKind = "default",
 } = Astro.props;
+const resolvedAnalyticsPageKind = article ? "article" : analyticsPageKind;
 ---
 
 <!doctype html>
@@ -43,7 +46,11 @@ const {
   >
     <Header />
 
-    <main class="grow w-full max-w-4xl mx-auto px-6 md:px-8" data-pagefind-body>
+    <main
+      class="grow w-full max-w-4xl mx-auto px-6 md:px-8"
+      data-pagefind-body
+      data-analytics-page-kind={resolvedAnalyticsPageKind}
+    >
       <slot />
     </main>
 

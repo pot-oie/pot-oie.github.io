@@ -2,7 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const pageTitle = "Dashboard";
-const pageDescription = "Search metrics dashboard";
+const pageDescription = "匿名访问与内容质量统计";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -10,327 +10,763 @@ const pageDescription = "Search metrics dashboard";
     <meta name="robots" content="noindex,nofollow,noarchive" />
   </Fragment>
 
-  <section class="py-8 md:py-14">
-    <header class="mb-8 border-b border-ink-900 dark:border-zinc-700 pb-6">
-      <p
-        class="text-xs uppercase tracking-[0.18em] text-ink-400 dark:text-zinc-500"
-      >
-        Private view
-      </p>
-      <h1
-        class="mt-2 text-4xl md:text-5xl font-serif font-bold text-ink-900 dark:text-zinc-100"
-      >
-        Search Dashboard
-      </h1>
-      <p class="mt-3 text-sm text-ink-500 dark:text-zinc-400">
-        Data source: localStorage key <code>pot-search-metrics-v1</code>
-      </p>
+  <section
+    class="py-8 md:py-14"
+    data-dashboard-root
+    data-pagefind-ignore
+  >
+    <header
+      class="mb-8 flex flex-col gap-5 border-b border-ink-900 pb-6 dark:border-zinc-700 md:flex-row md:items-end md:justify-between"
+    >
+      <div>
+        <p
+          class="text-xs uppercase tracking-[0.18em] text-ink-400 dark:text-zinc-500"
+        >
+          Private · Aggregated
+        </p>
+        <h1
+          class="mt-2 font-serif text-4xl font-bold text-ink-900 dark:text-zinc-100 md:text-5xl"
+        >
+          访问统计
+        </h1>
+        <p class="mt-3 max-w-2xl text-sm text-ink-500 dark:text-zinc-400">
+          汇总所有访客的匿名事件。会话只在单个标签页存续，不使用 Cookie、IP
+          或设备指纹。
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <p
+          id="metrics-generated-at"
+          class="text-xs text-ink-400 dark:text-zinc-500"
+        >
+          等待数据
+        </p>
+        <button
+          id="metrics-refresh"
+          type="button"
+          class="border border-ink-300 px-3 py-2 text-xs uppercase tracking-[0.14em] text-ink-600 transition-colors hover:border-vermilion hover:text-vermilion dark:border-zinc-600 dark:text-zinc-300"
+        >
+          刷新
+        </button>
+      </div>
     </header>
 
     <div
-      id="metrics-empty"
-      class="hidden border border-dashed border-ink-300 dark:border-zinc-700 rounded px-4 py-5 text-sm text-ink-500 dark:text-zinc-400"
+      id="metrics-status"
+      class="rounded border border-dashed border-ink-300 px-4 py-5 text-sm text-ink-500 dark:border-zinc-700 dark:text-zinc-400"
+      role="status"
+      aria-live="polite"
     >
-      暂无统计数据。先在站内触发几次搜索再刷新此页。
+      正在读取汇总数据……
     </div>
 
-    <div id="metrics-content" class="hidden space-y-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <article
-          class="rounded border border-ink-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/40 p-4"
-        >
-          <p
-            class="text-xs uppercase tracking-[0.14em] text-ink-400 dark:text-zinc-500"
-          >
-            Total events
-          </p>
-          <p
-            id="kpi-total"
-            class="mt-2 text-2xl font-serif font-bold text-ink-900 dark:text-zinc-100"
-          >
-            0
-          </p>
-        </article>
-        <article
-          class="rounded border border-ink-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/40 p-4"
-        >
-          <p
-            class="text-xs uppercase tracking-[0.14em] text-ink-400 dark:text-zinc-500"
-          >
-            No-result rate
-          </p>
-          <p
-            id="kpi-no-result-rate"
-            class="mt-2 text-2xl font-serif font-bold text-ink-900 dark:text-zinc-100"
-          >
-            0%
-          </p>
-        </article>
-        <article
-          class="rounded border border-ink-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/40 p-4"
-        >
-          <p
-            class="text-xs uppercase tracking-[0.14em] text-ink-400 dark:text-zinc-500"
-          >
-            Avg. duration
-          </p>
-          <p
-            id="kpi-duration"
-            class="mt-2 text-2xl font-serif font-bold text-ink-900 dark:text-zinc-100"
-          >
-            0 ms
-          </p>
-        </article>
-        <article
-          class="rounded border border-ink-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/40 p-4"
-        >
-          <p
-            class="text-xs uppercase tracking-[0.14em] text-ink-400 dark:text-zinc-500"
-          >
-            Summary trimmed
-          </p>
-          <p
-            id="kpi-trimmed"
-            class="mt-2 text-2xl font-serif font-bold text-ink-900 dark:text-zinc-100"
-          >
-            0
-          </p>
-        </article>
-      </div>
+    <div
+      id="metrics-stale"
+      class="mb-6 hidden border-l-2 border-amber-500 bg-amber-50/70 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+      role="status"
+    >
+      汇总数据已超过 2 小时未更新，请检查 cron 和原始日志。
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section class="rounded border border-ink-200 dark:border-zinc-700 p-4">
-          <h2 class="text-base font-bold text-ink-900 dark:text-zinc-100">
-            Event breakdown
-          </h2>
-          <ul
-            id="event-breakdown"
-            class="mt-4 space-y-2 text-sm text-ink-600 dark:text-zinc-300"
+    <div id="metrics-content" class="hidden space-y-12">
+      <section aria-labelledby="overview-heading">
+        <div class="mb-5 flex items-baseline justify-between gap-4">
+          <div>
+            <p
+              class="text-xs uppercase tracking-[0.16em] text-vermilion"
+            >
+              Overview
+            </p>
+            <h2
+              id="overview-heading"
+              class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
+            >
+              访问概览
+            </h2>
+          </div>
+          <p
+            id="metrics-period"
+            class="text-xs text-ink-400 dark:text-zinc-500"
           >
-          </ul>
-        </section>
+            最近 30 天
+          </p>
+        </div>
 
-        <section class="rounded border border-ink-200 dark:border-zinc-700 p-4">
-          <h2 class="text-base font-bold text-ink-900 dark:text-zinc-100">
-            Top no-result queries
-          </h2>
-          <ul
-            id="no-result-list"
-            class="mt-4 space-y-2 text-sm text-ink-600 dark:text-zinc-300"
-          >
-          </ul>
-        </section>
-      </div>
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <article class="metric-card">
+            <p class="metric-label">页面访问</p>
+            <p id="kpi-page-views" class="metric-value">0</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">访问会话</p>
+            <p id="kpi-sessions" class="metric-value">0</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">每会话页面</p>
+            <p id="kpi-pages-per-session" class="metric-value">0</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">搜索次数</p>
+            <p id="kpi-searches" class="metric-value">0</p>
+          </article>
+        </div>
 
-      <section class="rounded border border-ink-200 dark:border-zinc-700 p-4">
-        <h2 class="text-base font-bold text-ink-900 dark:text-zinc-100">
-          Recent events
-        </h2>
-        <div class="mt-4 overflow-auto">
-          <table class="min-w-full text-sm text-left">
-            <thead>
-              <tr
-                class="border-b border-ink-200 dark:border-zinc-700 text-ink-500 dark:text-zinc-400"
+        <div class="mt-6 grid gap-6 lg:grid-cols-[1.45fr_0.8fr]">
+          <article class="metric-panel">
+            <div class="mb-4 flex items-center justify-between gap-4">
+              <h3 class="metric-title">每日趋势</h3>
+              <div
+                class="flex gap-3 text-[11px] text-ink-400 dark:text-zinc-500"
               >
-                <th class="py-2 pr-4">Time</th>
-                <th class="py-2 pr-4">Event</th>
-                <th class="py-2 pr-4">Query</th>
-                <th class="py-2 pr-4">Duration</th>
-                <th class="py-2 pr-4">Shown</th>
-              </tr>
-            </thead>
-            <tbody id="recent-events" class="text-ink-700 dark:text-zinc-200"
-            ></tbody>
-          </table>
+                <span><i class="mr-1 inline-block h-2 w-2 bg-vermilion"></i>访问</span>
+                <span><i class="mr-1 inline-block h-0.5 w-3 bg-ink-900 dark:bg-zinc-200"></i>会话</span>
+              </div>
+            </div>
+            <div class="overflow-x-auto" data-lenis-prevent>
+              <svg
+                id="daily-chart"
+                class="h-56 min-w-[660px] w-full"
+                role="img"
+                aria-label="最近每日访问量与访问会话趋势"
+                viewBox="0 0 720 224"
+              ></svg>
+            </div>
+          </article>
+
+          <article class="metric-panel">
+            <h3 class="metric-title">热门页面</h3>
+            <ol id="top-pages" class="mt-4 space-y-3"></ol>
+          </article>
         </div>
       </section>
 
-      <div class="flex items-center gap-3">
-        <button
-          id="refresh-btn"
-          class="px-4 py-2 text-xs uppercase tracking-[0.14em] border border-ink-300 dark:border-zinc-600 text-ink-600 dark:text-zinc-300 hover:text-vermilion hover:border-vermilion transition-colors"
+      <section aria-labelledby="content-heading">
+        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
+          Content
+        </p>
+        <h2
+          id="content-heading"
+          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
         >
-          Refresh
-        </button>
-        <button
-          id="clear-btn"
-          class="px-4 py-2 text-xs uppercase tracking-[0.14em] border border-ink-300 dark:border-zinc-600 text-ink-600 dark:text-zinc-300 hover:text-vermilion hover:border-vermilion transition-colors"
+          阅读深度
+        </h2>
+
+        <div class="mt-5 grid gap-6 md:grid-cols-[0.7fr_1.3fr]">
+          <article class="metric-panel flex flex-col justify-between">
+            <div>
+              <p class="metric-label">文章读完率</p>
+              <p id="kpi-completion-rate" class="metric-value mt-3">0%</p>
+              <p
+                id="completion-detail"
+                class="mt-2 text-sm text-ink-500 dark:text-zinc-400"
+              >
+                0 次读完 / 0 次文章访问
+              </p>
+            </div>
+            <p class="mt-8 text-xs leading-relaxed text-ink-400 dark:text-zinc-500">
+              “读完”表示页面可见范围到达 100%，不代表完整理解或持续停留。
+            </p>
+          </article>
+
+          <article class="metric-panel">
+            <h3 class="metric-title">到达各阅读位置</h3>
+            <div id="reading-depth" class="mt-5 space-y-5"></div>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="search-heading">
+        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
+          Search
+        </p>
+        <h2
+          id="search-heading"
+          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
         >
-          Clear
-        </button>
-        <p id="updated-at" class="text-xs text-ink-400 dark:text-zinc-500"></p>
-      </div>
+          搜索闭环
+        </h2>
+
+        <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <article class="metric-card">
+            <p class="metric-label">成功率</p>
+            <p id="kpi-search-success" class="metric-value">0%</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">无结果率</p>
+            <p id="kpi-no-result" class="metric-value">0%</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">搜索错误</p>
+            <p id="kpi-search-errors" class="metric-value">0</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">平均耗时</p>
+            <p id="kpi-search-duration" class="metric-value">0 ms</p>
+          </article>
+        </div>
+
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <article class="metric-panel">
+            <h3 class="metric-title">热门无结果词</h3>
+            <ol id="no-result-queries" class="mt-4 space-y-3"></ol>
+          </article>
+          <article class="metric-panel">
+            <h3 class="metric-title">搜索耗时分布</h3>
+            <dl class="mt-5 grid grid-cols-3 gap-3 text-center">
+              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+                <dt class="metric-label">平均</dt>
+                <dd id="duration-average" class="mt-2 font-serif text-xl font-bold">0</dd>
+              </div>
+              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+                <dt class="metric-label">P50</dt>
+                <dd id="duration-p50" class="mt-2 font-serif text-xl font-bold">0</dd>
+              </div>
+              <div class="rounded bg-ink-100/80 p-3 dark:bg-zinc-800/60">
+                <dt class="metric-label">P95</dt>
+                <dd id="duration-p95" class="mt-2 font-serif text-xl font-bold">0</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="quality-heading">
+        <p class="text-xs uppercase tracking-[0.16em] text-vermilion">
+          Quality
+        </p>
+        <h2
+          id="quality-heading"
+          class="mt-1 font-serif text-2xl font-bold text-ink-900 dark:text-zinc-100"
+        >
+          站点质量
+        </h2>
+
+        <div class="mt-5 grid gap-6 md:grid-cols-2">
+          <article class="metric-panel">
+            <div class="flex items-baseline justify-between">
+              <h3 class="metric-title">404 路径</h3>
+              <p id="quality-not-found-total" class="font-serif text-2xl font-bold">0</p>
+            </div>
+            <ol id="not-found-paths" class="mt-4 space-y-3"></ol>
+          </article>
+          <article class="metric-panel">
+            <div class="flex items-baseline justify-between">
+              <h3 class="metric-title">客户端错误</h3>
+              <p id="quality-client-error-total" class="font-serif text-2xl font-bold">0</p>
+            </div>
+            <ol id="client-errors" class="mt-4 space-y-3"></ol>
+          </article>
+        </div>
+      </section>
     </div>
   </section>
 </BaseLayout>
 
 <script>
-  // @ts-nocheck
-  function getStore() {
-    const api = window.__potSearchMetrics;
-    if (api && typeof api.read === "function") return api.read();
+  interface CountRow {
+    count: number;
+    path?: string;
+    query?: string;
+    value?: string;
+  }
 
-    const raw = window.localStorage.getItem("pot-search-metrics-v1");
-    if (!raw) return null;
+  interface DailyRow {
+    date: string;
+    pageViews: number;
+    sessions: number;
+    searches: number;
+    noResultSearches: number;
+  }
 
-    try {
-      return JSON.parse(raw);
-    } catch {
+  interface MetricsPayload {
+    generatedAt: string;
+    periodDays: number;
+    pageViews: number;
+    sessions: number;
+    searches: number;
+    searchSuccesses: number;
+    noResultSearches: number;
+    searchErrors: number;
+    searchSuccessRate: number;
+    noResultRate: number;
+    topPages: CountRow[];
+    topNoResultQueries: CountRow[];
+    dailyTrend: DailyRow[];
+    readingDepth: {
+      articlePageViews: number;
+      completedReads: number;
+      completionRate: number;
+      byDepth: Array<{ depth: number; count: number; rate: number }>;
+    };
+    searchDurationMs: {
+      average: number;
+      p50: number;
+      p95: number;
+    };
+    notFound: { total: number; topPaths: CountRow[] };
+    clientErrors: { total: number; topValues: CountRow[] };
+  }
+
+  const initializedRoots = new WeakSet<Element>();
+  const numberFormat = new Intl.NumberFormat("zh-CN");
+  const svgNamespace = "http://www.w3.org/2000/svg";
+
+  function element<T extends HTMLElement>(id: string): T | null {
+    return document.getElementById(id) as T | null;
+  }
+
+  function finiteNumber(value: unknown): number {
+    return typeof value === "number" && Number.isFinite(value) && value >= 0
+      ? value
+      : 0;
+  }
+
+  function countRows(value: unknown): CountRow[] {
+    return Array.isArray(value)
+      ? value.filter(
+          (row): row is CountRow =>
+            typeof row === "object" &&
+            row !== null &&
+            finiteNumber((row as CountRow).count) > 0,
+        )
+      : [];
+  }
+
+  function parseMetrics(value: unknown): MetricsPayload | null {
+    if (typeof value !== "object" || value === null) return null;
+    const raw = value as Partial<MetricsPayload>;
+    if (
+      typeof raw.generatedAt !== "string" ||
+      !Number.isFinite(Date.parse(raw.generatedAt))
+    ) {
       return null;
     }
+
+    const reading = raw.readingDepth || ({} as MetricsPayload["readingDepth"]);
+    const duration =
+      raw.searchDurationMs || ({} as MetricsPayload["searchDurationMs"]);
+    const notFound = raw.notFound || ({} as MetricsPayload["notFound"]);
+    const clientErrors =
+      raw.clientErrors || ({} as MetricsPayload["clientErrors"]);
+
+    return {
+      generatedAt: raw.generatedAt,
+      periodDays: finiteNumber(raw.periodDays) || 30,
+      pageViews: finiteNumber(raw.pageViews),
+      sessions: finiteNumber(raw.sessions),
+      searches: finiteNumber(raw.searches),
+      searchSuccesses: finiteNumber(raw.searchSuccesses),
+      noResultSearches: finiteNumber(raw.noResultSearches),
+      searchErrors: finiteNumber(raw.searchErrors),
+      searchSuccessRate: finiteNumber(raw.searchSuccessRate),
+      noResultRate: finiteNumber(raw.noResultRate),
+      topPages: countRows(raw.topPages),
+      topNoResultQueries: countRows(raw.topNoResultQueries),
+      dailyTrend: Array.isArray(raw.dailyTrend)
+        ? (raw.dailyTrend as DailyRow[])
+        : [],
+      readingDepth: {
+        articlePageViews: finiteNumber(reading.articlePageViews),
+        completedReads: finiteNumber(reading.completedReads),
+        completionRate: finiteNumber(reading.completionRate),
+        byDepth: Array.isArray(reading.byDepth) ? reading.byDepth : [],
+      },
+      searchDurationMs: {
+        average: finiteNumber(duration.average),
+        p50: finiteNumber(duration.p50),
+        p95: finiteNumber(duration.p95),
+      },
+      notFound: {
+        total: finiteNumber(notFound.total),
+        topPaths: countRows(notFound.topPaths),
+      },
+      clientErrors: {
+        total: finiteNumber(clientErrors.total),
+        topValues: countRows(clientErrors.topValues),
+      },
+    };
   }
 
-  function getEl(id) {
-    return document.getElementById(id);
+  function setText(id: string, value: string | number) {
+    const target = element(id);
+    if (target) target.textContent = String(value);
   }
 
-  function toArrayEntries(record) {
-    if (!record || typeof record !== "object") return [];
-    return Object.entries(record).sort((a, b) => Number(b[1]) - Number(a[1]));
+  function formatCount(value: number): string {
+    return numberFormat.format(Math.round(value));
   }
 
-  function formatTime(timestamp) {
-    if (!timestamp) return "-";
-    const d = new Date(timestamp);
-    if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleString("zh-CN", { hour12: false });
+  function formatPercent(value: number): string {
+    return `${value.toFixed(value % 1 === 0 ? 0 : 1)}%`;
   }
 
-  function renderDashboard() {
-    const store = getStore();
+  function renderRankedList(
+    id: string,
+    rows: CountRow[],
+    getLabel: (row: CountRow) => string,
+  ) {
+    const list = element<HTMLOListElement>(id);
+    if (!list) return;
+    list.replaceChildren();
 
-    const empty = getEl("metrics-empty");
-    const content = getEl("metrics-content");
-    if (!empty || !content) return;
-
-    if (!store || !store.total) {
-      empty.classList.remove("hidden");
-      content.classList.add("hidden");
+    if (rows.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "text-sm text-ink-400 dark:text-zinc-500";
+      empty.textContent = "暂无记录";
+      list.append(empty);
       return;
     }
 
-    empty.classList.add("hidden");
-    content.classList.remove("hidden");
+    const maximum = Math.max(...rows.map((row) => row.count), 1);
+    rows.slice(0, 10).forEach((row) => {
+      const item = document.createElement("li");
+      const line = document.createElement("div");
+      line.className =
+        "mb-1 flex items-baseline justify-between gap-4 text-sm text-ink-700 dark:text-zinc-300";
+      const label = document.createElement("span");
+      label.className = "min-w-0 truncate";
+      label.title = getLabel(row);
+      label.textContent = getLabel(row);
+      const count = document.createElement("span");
+      count.className = "shrink-0 font-mono text-xs text-ink-400 dark:text-zinc-500";
+      count.textContent = formatCount(row.count);
+      line.append(label, count);
 
-    const successCount = Number(store.byEvent?.search_success || 0);
-    const noResultCount = Number(store.byEvent?.search_no_results || 0);
-    const noResultRate =
-      successCount > 0
-        ? ((noResultCount / successCount) * 100).toFixed(1)
-        : "0.0";
-
-    const recent = Array.isArray(store.recent) ? store.recent : [];
-    const recentSuccess = recent.filter(
-      (item) => item?.event === "search_success",
-    );
-
-    const durationList = recentSuccess
-      .map((item) => Number(item?.payload?.durationMs || 0))
-      .filter((n) => Number.isFinite(n) && n > 0);
-
-    const avgDuration =
-      durationList.length > 0
-        ? Math.round(
-            durationList.reduce((a, b) => a + b, 0) / durationList.length,
-          )
-        : 0;
-
-    const summaryTrimmed = recentSuccess.reduce((sum, item) => {
-      const value = Number(item?.payload?.summaryTrimmed || 0);
-      return sum + (Number.isFinite(value) ? value : 0);
-    }, 0);
-
-    const totalEl = getEl("kpi-total");
-    const noResultRateEl = getEl("kpi-no-result-rate");
-    const durationEl = getEl("kpi-duration");
-    const trimmedEl = getEl("kpi-trimmed");
-    if (!totalEl || !noResultRateEl || !durationEl || !trimmedEl) return;
-
-    totalEl.textContent = String(store.total || 0);
-    noResultRateEl.textContent = `${noResultRate}%`;
-    durationEl.textContent = `${avgDuration} ms`;
-    trimmedEl.textContent = String(summaryTrimmed);
-
-    const eventsList = getEl("event-breakdown");
-    if (!eventsList) return;
-    eventsList.innerHTML = "";
-    toArrayEntries(store.byEvent || {}).forEach(([name, count]) => {
-      const li = document.createElement("li");
-      li.textContent = `${name}: ${count}`;
-      eventsList.appendChild(li);
+      const track = document.createElement("div");
+      track.className = "h-1 overflow-hidden bg-ink-100 dark:bg-zinc-800";
+      const fill = document.createElement("div");
+      fill.className = "h-full bg-vermilion/70";
+      fill.style.width = `${Math.max(3, (row.count / maximum) * 100)}%`;
+      track.append(fill);
+      item.append(line, track);
+      list.append(item);
     });
+  }
 
-    const noResultList = getEl("no-result-list");
-    if (!noResultList) return;
-    noResultList.innerHTML = "";
-    const noResultQueries = Array.isArray(store.noResultQueries)
-      ? store.noResultQueries
-      : [];
+  function createSvgElement<K extends keyof SVGElementTagNameMap>(
+    name: K,
+    attributes: Record<string, string>,
+  ): SVGElementTagNameMap[K] {
+    const node = document.createElementNS(svgNamespace, name);
+    Object.entries(attributes).forEach(([key, value]) =>
+      node.setAttribute(key, value),
+    );
+    return node;
+  }
 
-    if (noResultQueries.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "(暂无)";
-      noResultList.appendChild(li);
-    } else {
-      noResultQueries.slice(0, 10).forEach((query) => {
-        const li = document.createElement("li");
-        li.textContent = query;
-        noResultList.appendChild(li);
+  function renderDailyChart(rows: DailyRow[]) {
+    const chart = document.getElementById("daily-chart") as SVGSVGElement | null;
+    if (!chart) return;
+    chart.replaceChildren();
+
+    const normalizedRows = rows.filter(
+      (row) =>
+        row &&
+        typeof row.date === "string" &&
+        Number.isFinite(row.pageViews) &&
+        Number.isFinite(row.sessions),
+    );
+    if (normalizedRows.length === 0) {
+      const message = createSvgElement("text", {
+        x: "360",
+        y: "112",
+        "text-anchor": "middle",
+        class: "fill-ink-400 dark:fill-zinc-500 text-sm",
       });
+      message.textContent = "暂无趋势数据";
+      chart.append(message);
+      return;
     }
 
-    const recentBody = getEl("recent-events");
-    if (!recentBody) return;
-    recentBody.innerHTML = "";
+    const left = 34;
+    const right = 12;
+    const top = 12;
+    const baseline = 190;
+    const plotWidth = 720 - left - right;
+    const plotHeight = baseline - top;
+    const maximum = Math.max(
+      1,
+      ...normalizedRows.flatMap((row) => [row.pageViews, row.sessions]),
+    );
+    const slot = plotWidth / normalizedRows.length;
+    const barWidth = Math.max(3, Math.min(13, slot * 0.56));
 
-    recent.slice(0, 25).forEach((row) => {
-      const tr = document.createElement("tr");
-      tr.className = "border-b border-ink-100 dark:border-zinc-800";
-
-      const query =
-        typeof row?.payload?.query === "string"
-          ? String(row.payload.query)
-          : "-";
-      const duration =
-        row?.event === "search_success" && row?.payload?.durationMs != null
-          ? `${row.payload.durationMs} ms`
-          : "-";
-      const shown =
-        row?.event === "search_success" && row?.payload?.shown != null
-          ? String(row.payload.shown)
-          : "-";
-
-      tr.innerHTML = `
-        <td class="py-2 pr-4 whitespace-nowrap">${formatTime(row?.timestamp || 0)}</td>
-        <td class="py-2 pr-4">${row?.event || "-"}</td>
-        <td class="py-2 pr-4">${query}</td>
-        <td class="py-2 pr-4 whitespace-nowrap">${duration}</td>
-        <td class="py-2 pr-4">${shown}</td>
-      `;
-      recentBody.appendChild(tr);
+    [0, 0.5, 1].forEach((fraction) => {
+      const y = baseline - plotHeight * fraction;
+      chart.append(
+        createSvgElement("line", {
+          x1: String(left),
+          x2: String(720 - right),
+          y1: String(y),
+          y2: String(y),
+          class: "stroke-ink-200 dark:stroke-zinc-800",
+          "stroke-width": "1",
+        }),
+      );
+      const label = createSvgElement("text", {
+        x: String(left - 6),
+        y: String(y + 4),
+        "text-anchor": "end",
+        class: "fill-ink-400 dark:fill-zinc-500 text-[10px]",
+      });
+      label.textContent = formatCount(maximum * fraction);
+      chart.append(label);
     });
 
-    const updated = getEl("updated-at");
-    if (updated)
-      updated.textContent = `Updated: ${formatTime(store.updatedAt)}`;
+    const sessionPoints: string[] = [];
+    normalizedRows.forEach((row, index) => {
+      const center = left + slot * index + slot / 2;
+      const barHeight = (Math.max(0, row.pageViews) / maximum) * plotHeight;
+      chart.append(
+        createSvgElement("rect", {
+          x: String(center - barWidth / 2),
+          y: String(baseline - barHeight),
+          width: String(barWidth),
+          height: String(barHeight),
+          rx: "1",
+          class: "fill-vermilion/65",
+        }),
+      );
+
+      const sessionY =
+        baseline - (Math.max(0, row.sessions) / maximum) * plotHeight;
+      sessionPoints.push(`${center},${sessionY}`);
+
+      if (
+        index === 0 ||
+        index === normalizedRows.length - 1 ||
+        index % 7 === 0
+      ) {
+        const label = createSvgElement("text", {
+          x: String(center),
+          y: "211",
+          "text-anchor": "middle",
+          class: "fill-ink-400 dark:fill-zinc-500 text-[10px]",
+        });
+        label.textContent = row.date.slice(5);
+        chart.append(label);
+      }
+    });
+
+    chart.append(
+      createSvgElement("polyline", {
+        points: sessionPoints.join(" "),
+        fill: "none",
+        class: "stroke-ink-900 dark:stroke-zinc-200",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      }),
+    );
+  }
+
+  function renderReadingDepth(metrics: MetricsPayload) {
+    const container = element("reading-depth");
+    if (!container) return;
+    container.replaceChildren();
+
+    for (const row of metrics.readingDepth.byDepth) {
+      const wrapper = document.createElement("div");
+      const heading = document.createElement("div");
+      heading.className =
+        "mb-2 flex items-baseline justify-between text-sm text-ink-600 dark:text-zinc-300";
+      const label = document.createElement("span");
+      label.textContent = `${finiteNumber(row.depth)}%`;
+      const value = document.createElement("span");
+      value.className = "font-mono text-xs text-ink-400 dark:text-zinc-500";
+      value.textContent = `${formatCount(finiteNumber(row.count))} · ${formatPercent(finiteNumber(row.rate))}`;
+      heading.append(label, value);
+
+      const track = document.createElement("div");
+      track.className = "h-2 overflow-hidden bg-ink-100 dark:bg-zinc-800";
+      const fill = document.createElement("div");
+      fill.className = "h-full bg-vermilion";
+      fill.style.width = `${Math.min(100, finiteNumber(row.rate))}%`;
+      track.append(fill);
+      wrapper.append(heading, track);
+      container.append(wrapper);
+    }
+  }
+
+  function renderMetrics(metrics: MetricsPayload) {
+    setText("metrics-period", `最近 ${metrics.periodDays} 天`);
+    setText("kpi-page-views", formatCount(metrics.pageViews));
+    setText("kpi-sessions", formatCount(metrics.sessions));
+    setText(
+      "kpi-pages-per-session",
+      metrics.sessions > 0
+        ? (metrics.pageViews / metrics.sessions).toFixed(1)
+        : "0",
+    );
+    setText("kpi-searches", formatCount(metrics.searches));
+    setText(
+      "kpi-completion-rate",
+      formatPercent(metrics.readingDepth.completionRate),
+    );
+    setText(
+      "completion-detail",
+      `${formatCount(metrics.readingDepth.completedReads)} 次读完 / ${formatCount(metrics.readingDepth.articlePageViews)} 次文章访问`,
+    );
+    setText("kpi-search-success", formatPercent(metrics.searchSuccessRate));
+    setText("kpi-no-result", formatPercent(metrics.noResultRate));
+    setText("kpi-search-errors", formatCount(metrics.searchErrors));
+    setText(
+      "kpi-search-duration",
+      `${formatCount(metrics.searchDurationMs.average)} ms`,
+    );
+    setText("duration-average", `${formatCount(metrics.searchDurationMs.average)} ms`);
+    setText("duration-p50", `${formatCount(metrics.searchDurationMs.p50)} ms`);
+    setText("duration-p95", `${formatCount(metrics.searchDurationMs.p95)} ms`);
+    setText("quality-not-found-total", formatCount(metrics.notFound.total));
+    setText(
+      "quality-client-error-total",
+      formatCount(metrics.clientErrors.total),
+    );
+
+    renderDailyChart(metrics.dailyTrend);
+    renderReadingDepth(metrics);
+    renderRankedList("top-pages", metrics.topPages, (row) => row.path || "未知");
+    renderRankedList(
+      "no-result-queries",
+      metrics.topNoResultQueries,
+      (row) => row.query || "未知",
+    );
+    renderRankedList(
+      "not-found-paths",
+      metrics.notFound.topPaths,
+      (row) => row.path || "未知",
+    );
+    renderRankedList(
+      "client-errors",
+      metrics.clientErrors.topValues,
+      (row) => row.value || "unknown",
+    );
+  }
+
+  function showStatus(message: string) {
+    const status = element("metrics-status");
+    const content = element("metrics-content");
+    status?.classList.remove("hidden");
+    if (status) status.textContent = message;
+    content?.classList.add("hidden");
+  }
+
+  async function loadMetrics() {
+    const refresh = element<HTMLButtonElement>("metrics-refresh");
+    const stale = element("metrics-stale");
+    refresh?.setAttribute("disabled", "");
+    stale?.classList.add("hidden");
+    showStatus("正在读取汇总数据……");
+
+    try {
+      const response = await fetch("/dashboard/metrics.json", {
+        cache: "no-store",
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) {
+        throw new Error(
+          response.status === 401 || response.status === 403
+            ? "Dashboard 认证已失效，请重新登录。"
+            : `读取失败（HTTP ${response.status}）。`,
+        );
+      }
+
+      const metrics = parseMetrics(await response.json());
+      if (!metrics) throw new Error("汇总文件格式无效。");
+
+      const generatedAt = new Date(metrics.generatedAt);
+      setText(
+        "metrics-generated-at",
+        `更新于 ${generatedAt.toLocaleString("zh-CN", { hour12: false })}`,
+      );
+
+      const isEmpty =
+        metrics.pageViews === 0 &&
+        metrics.searches === 0 &&
+        metrics.notFound.total === 0 &&
+        metrics.clientErrors.total === 0;
+      if (isEmpty) {
+        showStatus(`最近 ${metrics.periodDays} 天暂无可展示的匿名事件。`);
+        return;
+      }
+
+      renderMetrics(metrics);
+      element("metrics-status")?.classList.add("hidden");
+      element("metrics-content")?.classList.remove("hidden");
+      if (Date.now() - generatedAt.getTime() > 2 * 60 * 60 * 1000) {
+        stale?.classList.remove("hidden");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "未知错误";
+      showStatus(`无法加载统计数据：${message}`);
+      setText("metrics-generated-at", "数据不可用");
+    } finally {
+      refresh?.removeAttribute("disabled");
+    }
   }
 
   function initDashboard() {
-    renderDashboard();
-
-    getEl("refresh-btn")?.addEventListener("click", () => {
-      renderDashboard();
-    });
-
-    getEl("clear-btn")?.addEventListener("click", () => {
-      if (window.__potSearchMetrics?.clear) {
-        window.__potSearchMetrics.clear();
-      } else {
-        window.localStorage.removeItem("pot-search-metrics-v1");
-      }
-      renderDashboard();
-    });
+    const root = document.querySelector("[data-dashboard-root]");
+    if (!root || initializedRoots.has(root)) return;
+    initializedRoots.add(root);
+    element("metrics-refresh")?.addEventListener("click", loadMetrics);
+    void loadMetrics();
   }
 
   document.addEventListener("astro:page-load", initDashboard);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDashboard, { once: true });
+  } else {
+    initDashboard();
+  }
 </script>
+
+<style>
+  .metric-card,
+  .metric-panel {
+    border: 1px solid var(--border-color);
+    background: color-mix(in srgb, var(--bg-card) 72%, transparent);
+  }
+
+  .metric-card {
+    min-width: 0;
+    padding: 1rem;
+  }
+
+  .metric-panel {
+    border-radius: 0.25rem;
+    padding: 1rem;
+  }
+
+  .metric-label {
+    color: var(--color-ink-400);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  :global(.dark) .metric-label {
+    color: var(--color-zinc-500);
+  }
+
+  .metric-value {
+    margin-top: 0.5rem;
+    color: var(--text-main);
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .metric-title {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  #metrics-refresh:disabled {
+    cursor: wait;
+    opacity: 0.5;
+  }
+</style>

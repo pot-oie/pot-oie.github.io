@@ -6,9 +6,22 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 
 - `/`: `src/pages/index.astro`
 - `/about`: `src/pages/about.astro`
-- `/dashboard`: `src/pages/dashboard.astro`
+- `/dashboard`: `src/pages/dashboard.astro`; private static analytics UI,
+  excluded from sitemap and Pagefind content.
 - `/404`: `src/pages/404.astro`
 - `/rss.xml`: `src/pages/rss.xml.js`
+
+## Nginx-Only Endpoints
+
+These paths are not Astro routes and are installed manually on the server:
+
+- `POST /__metrics`: write-only anonymous event collector; returns `204`.
+- `GET /dashboard/metrics.json`: exact alias for
+  `/var/lib/passpot/metrics.json`, protected by Dashboard Basic Auth and
+  `Cache-Control: no-store`.
+
+The aggregate path deliberately lives outside `/var/www/passpot`, which is
+replaced with `rsync --delete` during deployment.
 
 ## Blog Routes
 

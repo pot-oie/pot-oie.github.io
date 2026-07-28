@@ -132,6 +132,10 @@ import { Icon } from "astro-icon/components";
 <script>
   // @ts-ignore
   import type * as Pagefind from "/pagefind/pagefind.js";
+  import {
+    getSearchOutcomeEvent,
+    trackAnalyticsEvent,
+  } from "../scripts/runtime/analytics";
   import { isBlogArchiveRoutePath } from "../utils/blogRoutes";
 
   let pagefind: typeof Pagefind | null = null;
@@ -154,20 +158,6 @@ import { Icon } from "astro-icon/components";
     kindLabel: "正文" | "概括页";
     normalizedUrl: string;
     targetUrl: string;
-  }
-
-  function emitSearchMetric(event: string, payload: Record<string, unknown>) {
-    const detail = {
-      event,
-      payload,
-      timestamp: Date.now(),
-    };
-
-    window.dispatchEvent(new CustomEvent("pot:search-metric", { detail }));
-
-    if (window.localStorage.getItem("pot-search-debug") === "1") {
-      console.info("[search-metric]", detail);
-    }
   }
 
   function normalizeUrlPath(rawUrl: string) {
@@ -371,10 +361,9 @@ import { Icon } from "astro-icon/components";
       els.loadingState?.classList.add("hidden");
       // 仅在真正需要搜索时才显示错误（比如开发模式下）
       els.errorState?.classList.remove("hidden");
-      emitSearchMetric("search_error", {
-        query,
-        stage: "init",
-        reason: "pagefind_unavailable",
+      trackAnalyticsEvent({
+        event: "search_error",
+        value: "pagefind_unavailable",
       });
       return;
     }
@@ -386,34 +375,25 @@ import { Icon } from "astro-icon/components";
       const rawCandidates = search.results.slice(0, RAW_CANDIDATE_LIMIT);
       const data = await Promise.all(rawCandidates.map((r: any) => r.data()));
       const classified = data.map(classifyResult);
-      const { visible, stats } = pickVisibleResults(classified);
+      const { visible } = pickVisibleResults(classified);
 
       els.loadingState?.classList.add("hidden");
       renderResults(visible);
 
       const durationMs = Math.round(performance.now() - startedAt);
-      emitSearchMetric("search_success", {
-        query,
-        rawTotal: search.results.length,
-        fetched: rawCandidates.length,
-        shown: visible.length,
+      const outcome = getSearchOutcomeEvent(visible.length);
+      trackAnalyticsEvent({
+        event: outcome,
+        query: outcome === "search_no_results" ? query : undefined,
+        resultCount: visible.length,
         durationMs,
-        ...stats,
       });
-
-      if (visible.length === 0) {
-        emitSearchMetric("search_no_results", {
-          query,
-          durationMs,
-        });
-      }
-    } catch (error) {
+    } catch {
       els.loadingState?.classList.add("hidden");
       els.errorState?.classList.remove("hidden");
-      emitSearchMetric("search_error", {
-        query,
-        stage: "query",
-        reason: error instanceof Error ? error.message : "unknown_error",
+      trackAnalyticsEvent({
+        event: "search_error",
+        value: "query_failed",
       });
     }
   }

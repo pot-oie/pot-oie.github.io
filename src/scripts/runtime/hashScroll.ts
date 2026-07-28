@@ -30,12 +30,16 @@ function decodeSearchTextHash(
 
   try {
     const decoded = decodeBase64Url(encoded);
-    const parsed = JSON.parse(decoded) as Partial<SearchTextHashPayload>;
+    const parsed = JSON.parse(decoded) as {
+      text?: unknown;
+      fallback?: unknown;
+      candidates?: unknown;
+    };
     const text = String(parsed.text || "").replace(/\s+/g, " ").trim();
     const fallback = String(parsed.fallback || "")
       .replace(/\s+/g, " ")
       .trim();
-    const candidates =
+    const candidates: unknown[] =
       Array.isArray(parsed.candidates)
         ? parsed.candidates
         : typeof parsed.candidates === "string"
@@ -48,7 +52,7 @@ function decodeSearchTextHash(
       text,
       fallback,
       candidates: candidates
-        .map((item) => String(item).replace(/\s+/g, " ").trim())
+        .map((item: unknown) => String(item).replace(/\s+/g, " ").trim())
         .filter(Boolean),
     };
   } catch {

@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+*/10 * * * * root /usr/bin/python3 /usr/local/lib/passpot/aggregate_metrics.py --log-glob '/var/log/nginx/passpot-metrics.log*' --output /var/lib/passpot/metrics.json --period-days 30 --timezone Asia/Shanghai --group www-data

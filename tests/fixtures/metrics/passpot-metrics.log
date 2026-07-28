@@ -1,0 +1,14 @@
+{"time":"2026-07-28T10:00:00+08:00","event":"page_view","path":"%2Fblog%2Fexample","session":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","query":"","durationMs":"","resultCount":"","depth":"","value":"article"}
+{"time":"2026-07-28T10:00:02+08:00","event":"article_read","path":"%2Fblog%2Fexample","session":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","query":"","durationMs":"","resultCount":"","depth":"25","value":""}
+{"time":"2026-07-28T10:03:00+08:00","event":"article_read","path":"%2Fblog%2Fexample","session":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","query":"","durationMs":"","resultCount":"","depth":"100","value":""}
+{"time":"2026-07-28T10:04:00+08:00","event":"search_success","path":"%2Fblog%2Fexample","session":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","query":"","durationMs":"100","resultCount":"3","depth":"","value":""}
+{"time":"2026-07-28T10:05:00+08:00","event":"search_no_results","path":"%2Fblog%2Fexample","session":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","query":"graph+neural+network","durationMs":"300","resultCount":"0","depth":"","value":""}
+{"time":"2026-07-28T10:06:00+08:00","event":"page_view","path":"%2Fblog%2Fsecond","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":"article"}
+{"time":"2026-07-28T10:07:00+08:00","event":"page_view","path":"%2F","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":""}
+{"time":"2026-07-28T10:08:00+08:00","event":"search_error","path":"%2F","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":"pagefind_unavailable"}
+{"time":"2026-07-28T10:09:00+08:00","event":"not_found","path":"%2Fmissing","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":""}
+{"time":"2026-07-28T10:10:00+08:00","event":"client_error","path":"%2F","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":"TypeError"}
+{"time":"2026-07-28T10:11:00+08:00","event":"unknown_event","path":"%2F","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"","value":""}
+{"time":"2026-07-28T10:12:00+08:00","event":"article_read","path":"not-a-path","session":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","query":"","durationMs":"","resultCount":"","depth":"33","value":""}
+{"time":"2026-06-20T10:00:00+08:00","event":"page_view","path":"%2Fold","session":"cccccccc-cccc-4ccc-8ccc-cccccccccccc","query":"","durationMs":"","resultCount":"","depth":"","value":""}
+not-json

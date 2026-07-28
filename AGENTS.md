@@ -41,6 +41,7 @@ This repository is Pot's personal Astro content site. Read this file first, then
 - Styling system: `docs/project/styling.md`
 - Components: `docs/project/components.md`
 - Interaction behavior: `docs/project/interaction.md`
+- Anonymous analytics: `docs/project/analytics.md`
 - Scripts: `docs/project/scripts.md`
 - Deployment: `docs/project/deployment.md`
 - Blog module: `docs/project/modules/blog/overview.md`

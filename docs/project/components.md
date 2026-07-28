@@ -21,7 +21,7 @@ learn/life split inside its archive.
 ### Runtime Composition
 
 - `src/components/runtime/GlobalRuntime.astro`: lifecycle entry point for
-  Lenis, search metrics, and normal/search-result hash scrolling.
+  Lenis, anonymous analytics, and normal/search-result hash scrolling.
 - `src/components/runtime/GlobalAudioRuntime.astro`: owns the
   `transition:persist` audio element and installs the audio/MediaSession
   controller.
@@ -86,9 +86,22 @@ These components are shared reading helpers. Keep styling aligned with `docs/pro
 
 ### Search
 
-- `src/components/Search.astro`: global search modal, Pagefind loading, result classification, text-target result hashes, keyboard shortcut, and search metric emission. Blog archive results are classified through the shared route policy in `src/utils/blogRoutes.ts`, including paginated root and category archives.
+- `src/components/Search.astro`: global search modal, Pagefind loading, result
+  classification, text-target result hashes, keyboard shortcut, and exactly one
+  sanitized final metric per search. Blog archive results are classified
+  through the shared route policy in `src/utils/blogRoutes.ts`, including
+  paginated root and category archives.
 
 Search is mounted through the header/site shell. Runtime behavior is documented in `docs/project/interaction.md`.
+
+### Dashboard
+
+- `src/pages/dashboard.astro`: private static analytics presentation. It fetches
+  `/dashboard/metrics.json`, validates the response shape, and renders Overview,
+  Content, Search, and Quality sections with native DOM, CSS, and SVG.
+
+The Dashboard has explicit loading, empty, failed, and stale states. It neither
+reads nor clears localStorage and must not introduce a client chart dependency.
 
 ### Music
 

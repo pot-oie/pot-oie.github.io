@@ -4,7 +4,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 ---
 
-<BaseLayout title="404 Spilled Ink" description="The page is covered by ink.">
+<BaseLayout
+  title="404 Spilled Ink"
+  description="The page is covered by ink."
+  analyticsPageKind="not-found"
+>
   <div
     class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 relative py-16 md:py-32"
   >

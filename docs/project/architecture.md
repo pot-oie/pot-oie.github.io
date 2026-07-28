@@ -27,7 +27,7 @@ This project is a personal content site built with Astro 5. It combines a blog a
 `src/styles` is the global style layer. `global.css` defines the theme tokens and site-wide behavior. `markdown.css` handles rendered article content.
 
 `src/scripts/runtime` is the browser-runtime layer. Focused modules own Lenis,
-search-result hash scrolling, search metrics, persistent audio, math overflow,
+search-result hash scrolling, anonymous analytics, persistent audio, math overflow,
 and the article image lightbox; small Astro runtime components compose them at
 page boundaries.
 
@@ -37,7 +37,12 @@ SEO URL/image/structured-data helpers.
 
 `src/assets` stores imported build-time assets for blog, watch, and music content. `public` stores files served as-is.
 
-`scripts` contains content production automation.
+`scripts` contains content production automation and the standard-library
+analytics aggregator.
+
+`ops/passpot-metrics` contains copyable, manually installed server
+configuration for the anonymous metrics pipeline. These files are not copied
+into `dist`.
 
 ## Data Flow
 
@@ -64,6 +69,12 @@ module-specific interactions.
 
 Global CSS and Tailwind utility classes define the visual system. Production build emits the static site into `dist`, then Pagefind indexes `dist`.
 
+Anonymous metrics follow a separate static-compatible data path: browser events
+are accepted and logged by Nginx, a scheduled Python script atomically generates
+`/var/lib/passpot/metrics.json`, and the static Dashboard fetches that file
+through an exact Basic Auth-protected Nginx alias. See
+`docs/project/analytics.md`.
+
 ## Important Cross-Cutting Behavior
 
 - `BaseLayout.astro` owns global page chrome and composes
@@ -75,7 +86,8 @@ Global CSS and Tailwind utility classes define the visual system. Production bui
   `BlogPosting`/`BreadcrumbList` graph.
 - Focused modules under `src/scripts/runtime` own the browser implementations;
   all initializers are safe to call again after `astro:page-load`.
-- Search metrics are stored in browser `localStorage` under `pot-search-metrics-v1`.
+- Anonymous analytics use a tab-scoped `sessionStorage` ID and never persist
+  metric data in the browser.
 - `astro.config.mjs` filters `/dashboard` from sitemap generation.
 - `npm run build` validates blog content, runs `astro build`, then runs
   `pagefind --site dist`.

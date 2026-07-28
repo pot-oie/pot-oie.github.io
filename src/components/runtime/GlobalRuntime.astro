@@ -1,7 +1,7 @@
 <script>
+  import { installAnalytics } from "../../scripts/runtime/analytics";
   import { scrollToLocationHash } from "../../scripts/runtime/hashScroll";
   import { initLenis } from "../../scripts/runtime/lenis";
-  import { installSearchMetrics } from "../../scripts/runtime/searchMetrics";
 
   const initializedRoots = new WeakSet<Element>();
 
@@ -11,7 +11,7 @@
     initializedRoots.add(root);
 
     initLenis();
-    installSearchMetrics();
+    installAnalytics();
 
     // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转并做延迟重试。
     requestAnimationFrame(scrollToLocationHash);
