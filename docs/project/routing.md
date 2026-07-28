@@ -1,6 +1,6 @@
 # Routing
 
-Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are used for blog categories, individual posts, movie pagination, and music month pages.
+Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are used for blog categories, individual posts, watch details, and music month pages.
 
 ## Top-Level Routes
 
@@ -20,11 +20,17 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 
 Blog routes read from the `blog` content collection and exclude entries with `draft: true` in list views.
 
-## Movie Routes
+## Watch Routes
 
-- `/movie`: `src/pages/movie/[...page].astro`
+- `/watch`: `src/pages/watch/index.astro`
+- `/watch/movie`: `src/pages/watch/[mediaType].astro`
+- `/watch/series`: `src/pages/watch/[mediaType].astro`
+- `/watch/series/[slug]`: `src/pages/watch/series/[...slug].astro`
 
-Movie routes read from the `movie` content collection and primarily sort by `viewingDate`.
+Watch routes read from the `watch` content collection. The archive filter uses
+real static routes for all records, movies, and series. Only series generate
+detail pages for per-season ratings; movies keep their list-card short-review
+interaction.
 
 ## Music Routes
 

@@ -9,6 +9,7 @@ The blog module handles technical notes, life writing, album review posts, and m
 - Layouts: `src/layouts/TechPost.astro`, `src/layouts/LifePost.astro`, `src/layouts/AlbumPost.astro`
 - Cards: `src/components/PostCard.astro`, `src/components/PostCardForIndex.astro`, `src/components/BlogRowCard.astro`
 - Taxonomy: `src/utils/blogTaxonomy.ts`
+- Archive helpers: `src/utils/blogArchive.ts`
 
 ## Content Rules
 
@@ -33,6 +34,18 @@ Technical posts use `TechPost.astro`, which includes:
 
 Life posts use `LifePost.astro`, which has a quieter centered article layout.
 Blog detail layouts mount a floating return-to-top control once the reader has scrolled down the page.
+
+## Archives
+
+`/blog` is the root archive for all published writing and links to the `learn`
+and `life` archives through route-backed filters. The learn and life archive
+pages expose their own second-level filters, including an `all` option and
+counts for every category. All archive levels share `ArchiveHeader.astro` for
+breadcrumbs, bilingual titles, descriptions, current counts, and filter
+placement.
+
+The primary site navigation links to `/blog`; learn and life are selected
+inside the archive rather than occupying separate global navigation items.
 
 ## Related Documents
 

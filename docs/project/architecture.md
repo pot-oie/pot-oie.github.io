@@ -1,6 +1,6 @@
 # Architecture
 
-This project is a personal content site built with Astro 5. It combines a blog archive, movie records, and music records into one static site.
+This project is a personal content site built with Astro 5. It combines a blog archive, watch records, and music records into one static site.
 
 ## Core Stack
 
@@ -22,13 +22,13 @@ This project is a personal content site built with Astro 5. It combines a blog a
 
 `src/components` is the reusable UI and interaction layer. It includes site chrome, cards, search, music controls, table of contents, and article-specific demos.
 
-`src/content` is the content source layer. Blog entries are MDX. Movie and music entries are YAML loaded through glob loaders.
+`src/content` is the content source layer. Blog entries are MDX. Watch and music entries are YAML loaded through glob loaders.
 
 `src/styles` is the global style layer. `global.css` defines the theme tokens and site-wide behavior. `markdown.css` handles rendered article content.
 
 `src/utils` is the domain utility layer. Current examples include calendar helpers and blog taxonomy helpers.
 
-`src/assets` stores imported build-time assets for blog, movie, and music content. `public` stores files served as-is.
+`src/assets` stores imported build-time assets for blog, watch, and music content. `public` stores files served as-is.
 
 `scripts` contains content production automation.
 

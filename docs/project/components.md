@@ -12,6 +12,8 @@ This document maps the component layer and records ownership boundaries. Use it 
 - `src/components/Footer.astro`: site footer.
 
 These components are part of the site shell and should stay broadly content-agnostic.
+The primary content navigation is Blog, Watch, Music, and About; Blog owns the
+learn/life split inside its archive.
 
 ### Content Cards And Lists
 
@@ -20,9 +22,13 @@ These components are part of the site shell and should stay broadly content-agno
   through hover/active states.
 - `src/components/PostCardForIndex.astro`: compact recent-post card for the home page.
 - `src/components/BlogRowCard.astro`: row-style blog card for category/list contexts.
-- `src/components/MovieCard.astro`: movie list card.
+- `src/components/WatchCard.astro`: movie and series list card.
 - `src/components/MusicCard.astro`: music item card.
 - `src/components/DownloadCard.astro`: document/download presentation card.
+- `src/components/ArchiveHeader.astro`: shared archive breadcrumbs, bilingual
+  title, description, current entry count, and filter placement.
+- `src/components/ArchiveFilter.astro`: compact route-backed archive links with
+  category counts and current-page state.
 
 Cards should receive data through props and avoid fetching collections directly unless there is a strong local reason.
 
@@ -35,7 +41,7 @@ Cards should receive data through props and avoid fetching collections directly 
 - `src/components/SeriesPostPager.astro`: bottom previous/next navigation for technical posts that belong to a series, using the same ordered `series.items` data as the side guide.
 - `src/components/BackToTop.astro`: article-page floating return-to-top control that appears after the reader scrolls down and uses Lenis when available.
 - `src/components/QRCodeTooltip.astro`: QR-code tooltip behavior.
-- `src/components/ScoreBox.astro`: rating presentation, currently used by movie-facing UI.
+- `src/components/ScoreBox.astro`: legacy rating presentation.
 
 These components are shared reading helpers. Keep styling aligned with `docs/project/styling.md`.
 
@@ -55,13 +61,17 @@ Search is mounted through the header/site shell. Runtime behavior is documented 
 
 Music components coordinate through global audio events handled in `BaseLayout.astro`.
 
-### Movie
+### Watch
 
-- `src/components/MovieScroll.astro`: horizontal/scrolling movie presentation.
-- `src/components/MovieCard.astro`: reusable movie card.
-- `src/components/ScoreBox.astro`: score/rating display.
+- `src/components/WatchScroll.astro`: horizontal movie and series presentation.
+- `src/components/WatchCard.astro`: reusable watch record card.
+- `src/layouts/WatchArchive.astro`: shared all/movie/series archive composition.
+- `src/layouts/WatchDetail.astro`: series detail composition.
 
-The home page also owns a local grid/scroll toggle for recent movies in `src/pages/index.astro`.
+The home page owns a local grid/scroll toggle for recent watch records in
+`src/pages/index.astro`. `WatchArchive.astro` owns the route-backed media-type
+navigation. Movie cards retain the hover/tap short-review overlay; series cards
+link to details.
 
 ### Article Demos
 

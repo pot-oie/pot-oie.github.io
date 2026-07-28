@@ -85,9 +85,25 @@ Dark mode is enabled through:
 - Blog detail pages include a compact fixed return-to-top button after a scroll
   threshold; it stays visually secondary until hover/focus.
 
-## Movie Cards
+## Watch Cards
 
-Movie posters are shown in color by default. Short reviews live in an image overlay that appears on hover and through the `.is-active` selected state used for touch interactions.
+Movie and series posters are shown in color by default. Cards retain the
+existing poster ratio, ink shadow, serif title, and vermilion hover treatment.
+The series badge and optional season marker stay visually secondary, while
+movie cards retain the earlier badge-free presentation. Movie short reviews
+appear in the hover/tap overlay. Series short reviews also appear on their
+detail pages.
+
+Series detail pages adapt the album article's two-column rhythm: a sticky poster
+on desktop and the record content on the right. They do not reuse
+music-specific grayscale, vinyl, or playback effects.
+
+Blog, learn, life, and watch archives share one header rhythm: hierarchical
+breadcrumbs, a bilingual serif title, one concise English description, the
+current entry count, and route-backed filters. Filters use compact outlined
+labels with small category icons, restrained ink borders, and a vermilion
+border/text active state. They sit inside the archive header rather than
+forming a separate full-width control band.
 
 ## Code Blocks
 

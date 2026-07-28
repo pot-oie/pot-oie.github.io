@@ -63,22 +63,47 @@ Draft posts may carry `series` metadata, but detail-page navigation only lists p
 
 Large animated images such as GIF or animated WebP demos should live under `public/blog/gif` and be referenced with site-root paths, for example `/blog/gif/demo-name.webp`. This keeps Astro's image optimization pipeline from trying to transform every animation frame during build.
 
-## Movie Collection
+## Watch Collection
 
-Source directory: `src/content/movie`
+Source directory: `src/content/watch`
 
 File type: YAML, YML, or JSON
 
-Fields:
+Shared fields:
 
 - `title`
+- `originalTitle`
+- `tmdbId`
+- `mediaType`: `movie` or `series`
 - `releaseDate`
-- `viewingDate`
-- `rating`
+- `finishedDate`
 - `coverImage`
 - `shortReview`
 
-`rating` must be between `0` and `5`. `coverImage` is required.
+Movie records require:
+
+- `rating`: between `0` and `5`
+- `finishedDate`
+
+Series records require:
+
+- `seasons`: a non-empty list of season records
+- `seasons[].number`: a unique non-negative season number
+- `seasons[].rating`: a number between `0` and `5`, or `to-watch`
+
+`to-watch` marks every season that has not been started. It may therefore appear
+on multiple seasons, but the values must form one trailing block: after the
+first `to-watch`, every higher recorded season must also be `to-watch`. Every
+series record must include at least one started season with a numeric rating. A
+series with any `to-watch` season cannot have `finishedDate`.
+
+`finishedDate` is optional for series and is only set after the final season is
+finished. Season 0 is allowed by the schema for manual special-episode records,
+but the creation script excludes it by default.
+
+`coverImage` is required. Automated TMDB creation requests English metadata for
+poster selection, allowing TMDB to fall back to the original-language poster
+instead of downloading a Chinese-localized poster.
 
 ## Music Collection
 

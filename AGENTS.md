@@ -9,7 +9,7 @@ This repository is Pot's personal Astro content site. Read this file first, then
 - Content system: Astro Content Collections in `src/content.config.ts`.
 - Main content collections:
   - `src/content/blog`: MDX blog posts.
-  - `src/content/movie`: MDX movie records.
+  - `src/content/watch`: YAML movie and series records.
   - `src/content/music`: YAML music records.
 - Site URL: `https://passpot.cn`, configured in `astro.config.mjs`.
 
@@ -18,7 +18,7 @@ This repository is Pot's personal Astro content site. Read this file first, then
 - `npm run dev`: start local development.
 - `npm run build`: build the site and generate the Pagefind index.
 - `npm run preview`: preview the production build.
-- `npm run new`: interactive content creation for movie/music records.
+- `npm run new`: interactive content creation for movie/series/music records.
 - `npm run update`: update music data.
 - `npm run album`: fetch album data.
 
@@ -44,5 +44,5 @@ This repository is Pot's personal Astro content site. Read this file first, then
 - Scripts: `docs/project/scripts.md`
 - Deployment: `docs/project/deployment.md`
 - Blog module: `docs/project/modules/blog/overview.md`
-- Movie module: `docs/project/modules/movie/overview.md`
+- Watch module: `docs/project/modules/watch/overview.md`
 - Music module: `docs/project/modules/music/overview.md`

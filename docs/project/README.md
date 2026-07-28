@@ -20,7 +20,7 @@ This directory is the maintained knowledge base for the blog repository. It is o
 - Root entry: `AGENTS.md` keeps short collaboration notes for AI-assisted maintenance.
 - Project layer: files directly under `docs/project` describe cross-cutting architecture, routes, content, styling, components, interactions, scripts, and deployment.
 - Writing layer: `docs/project/writing-style.md` captures article voice and expansion preferences for future blog edits.
-- Module layer: `docs/project/modules/*` describes blog, movie, music, search, or other feature areas.
+- Module layer: `docs/project/modules/*` describes blog, watch, music, search, or other feature areas.
 - Decision layer: future files under `docs/project/decisions` should record important design decisions and tradeoffs.
 
 ## Maintenance Rule

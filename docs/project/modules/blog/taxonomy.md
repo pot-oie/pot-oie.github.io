@@ -4,17 +4,21 @@ Blog taxonomy is defined in `src/utils/blogTaxonomy.ts` and enforced by `src/con
 
 ## Technical Categories
 
-- `frontend`: 前端学习
-- `backend`: 后端学习
-- `ai`: AI相关
-- `leetcode`: leetcode题解
-- `classroom`: 知识学习
+- `frontend`: Frontend / 前端
+- `backend`: Backend / 后端
+- `ai`: AI / 智能
+- `leetcode`: Algorithms / 题解
+- `classroom`: Knowledge / 课堂
 
 ## Life Categories
 
-- `daily`: 日常随笔
-- `album`: 专辑鉴赏
-- `movie`: 电影长评
+- `daily`: Daily / 日常
+- `album`: Albums / 专辑
+- `movie`: Cinema / 影评
+
+Archive-facing labels and descriptions live with the category metadata in
+`src/utils/blogTaxonomy.ts`. Keep them concise because the shared archive
+header displays them at every category level.
 
 ## Tag Registry
 

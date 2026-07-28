@@ -120,16 +120,19 @@ When adding a new global shortcut, check for conflicts here first.
 
 `src/pages/index.astro` owns:
 
-- movie grid/scroll view toggle
-- movie review overlay selection for recent movie cards
+- watch grid/scroll view toggle
 - active-state cleanup for BFCache restore
 - delayed navigation for selected links/cards
 
 This behavior is page-local and should not move into shared components unless it is reused elsewhere.
 
-### Movie List
+### Watch List
 
-`src/pages/movie/[...page].astro` owns movie review overlay selection for the paginated movie list. Movie cards show short reviews on hover-capable devices and toggle the overlay with a click/tap for touch devices.
+The `all`, `movie`, and `series` choices rendered by `ArchiveFilter.astro` are
+normal links to static archive routes, so they require no local filter state or
+query-parameter restoration. `WatchScroll.astro` owns idempotent wheel and drag
+handling for horizontal poster browsing. Movie cards toggle their short-review
+overlay on click/tap, while series cards navigate to their detail page.
 
 ### Technical Post Detail
 
