@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import { TECH_CATEGORY_META_LIST } from "../../../../../consts";
+import BlogArchive from "../../../../../layouts/BlogArchive.astro";
+import {
+  getBlogArchivePageNumbers,
+  getBlogTechCategoryArchive,
+  getPaginatedBlogArchive,
+  getPublishedBlogPosts,
+} from "../../../../../utils/blog";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog");
+  const publishedPosts = getPublishedBlogPosts(allPosts);
+
+  return TECH_CATEGORY_META_LIST.flatMap((meta) => {
+    const archive = getBlogTechCategoryArchive(publishedPosts, meta.key);
+
+    return getBlogArchivePageNumbers(archive.posts.length)
+      .slice(1)
+      .map((page) => ({
+        params: { techCategory: meta.slug, page: String(page) },
+        props: {
+          ...getPaginatedBlogArchive(
+            archive,
+            page,
+            `/blog/learn/${meta.slug}/`,
+          )!,
+          meta,
+        },
+      }));
+  });
+}
+
+const { posts, filters, pagination, meta } = Astro.props;
+const pageTitle = `${meta.englishLabel} / ${meta.label}`;
+---
+
+<BlogArchive
+  title={pageTitle}
+  description={meta.description}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog/" },
+    { label: "Learn", href: "/blog/learn/" },
+    { label: meta.slug },
+  ]}
+  posts={posts}
+  filters={filters}
+  pagination={pagination}
+  filterLabel="学习分类"
+  activeFilter={meta.key}
+  backHref="/blog/learn/"
+  backLabel="Back to Learn Archives"
+/>

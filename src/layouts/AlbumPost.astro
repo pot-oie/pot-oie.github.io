@@ -6,6 +6,8 @@ import FormattedDate from "../components/FormattedDate.astro";
 import AlbumSidebar from "../components/AlbumSidebar.astro";
 import BackToTop from "../components/BackToTop.astro";
 import { Icon } from "astro-icon/components";
+import { LIFE_CATEGORY_META_LIST } from "../consts";
+import type { ArticleSeo } from "../utils/seo";
 
 type Props = CollectionEntry<"blog">["data"];
 
@@ -16,14 +18,39 @@ const {
   updatedDate,
   heroImage,
   coverImage,
+  tags = [],
   albumTitle = "Unknown Album",
   albumArtist = "Unknown Artist",
 } = Astro.props;
 
 const displayCover = heroImage;
+const socialImage = heroImage ?? coverImage;
+const categoryMeta = LIFE_CATEGORY_META_LIST.find(
+  (item) => item.key === "album",
+);
+const articleSeo: ArticleSeo = {
+  publishedTime: pubDate,
+  modifiedTime: updatedDate,
+  section: categoryMeta?.label ?? "专辑",
+  tags,
+  breadcrumbs: [
+    { name: "博客", href: "/blog/" },
+    { name: "生活", href: "/blog/life/" },
+    {
+      name: categoryMeta?.label ?? "专辑",
+      href: `/blog/life/${categoryMeta?.slug ?? "album"}/`,
+    },
+  ],
+};
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={title}
+  description={description}
+  image={socialImage}
+  article={articleSeo}
+  articleRuntime
+>
   {/* 全项目统一 max-w-4xl 容器 */}
   <div class="max-w-4xl mx-auto py-8 md:py-16 px-4">
     {/* 面包屑导航 */}

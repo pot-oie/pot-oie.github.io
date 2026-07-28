@@ -1,6 +1,7 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 import { TECH_CATEGORIES, normalizeBlogTag } from "./utils/blogTaxonomy";
+import { validateBlogEntryRelations } from "./utils/blogIntegrity";
 
 // 博客内容分类枚举
 const BLOG_CATEGORIES = z.enum([
@@ -21,10 +22,10 @@ const blog = defineCollection({
   schema: ({ image }) =>
     z
       .object({
-        title: z.string(),
+        title: z.string().trim().min(1),
         // 为了优化主页展示，生活记录要加短标题
-        shortTitle: z.string().optional(),
-        description: z.string(),
+        shortTitle: z.string().trim().min(1).optional(),
+        description: z.string().trim().min(1),
         pubDate: z.coerce.date(),
         updatedDate: z.coerce.date().optional(),
         // 文章头图
@@ -40,11 +41,11 @@ const blog = defineCollection({
         // 技术文章的大类
         techCategory: TECH_CATEGORY_ENUM.optional(),
         // 专辑鉴赏文章
-        albumTitle: z.string().optional(),
-        albumArtist: z.string().optional(),
+        albumTitle: z.string().trim().min(1).optional(),
+        albumArtist: z.string().trim().min(1).optional(),
         // 二级标签（会按注册表做样式映射）
         tags: z
-          .array(z.string().min(1))
+          .array(z.string().trim().min(1))
           .optional()
           .transform((value) => {
             if (!value) return value;
@@ -53,35 +54,26 @@ const blog = defineCollection({
         // 成套学习笔记导航
         series: z
           .object({
-            key: z.string().min(1),
-            title: z.string().min(1),
+            key: z.string().trim().min(1),
+            title: z.string().trim().min(1),
             section: z
               .object({
-                title: z.string().min(1),
+                title: z.string().trim().min(1),
                 order: z.number().int().positive(),
               })
               .optional(),
-            subtitle: z.string().optional(),
+            subtitle: z.string().trim().min(1).optional(),
             order: z.number().int().positive(),
           })
           .optional(),
       })
       // 添加跨字段验证
       .superRefine((value, ctx) => {
-        // learn 校验
-        if (value.category === "learn" && !value.techCategory) {
+        for (const issue of validateBlogEntryRelations(value)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "learn 分类文章必须设置 techCategory",
-            path: ["techCategory"],
-          });
-        }
-        // life 校验
-        if (value.category === "life" && !value.lifeCategory) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "life 分类文章必须设置 lifeCategory",
-            path: ["lifeCategory"],
+            message: issue.message,
+            path: [issue.field],
           });
         }
       }),

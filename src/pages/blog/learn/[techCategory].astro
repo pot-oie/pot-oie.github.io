@@ -1,83 +1,52 @@
 ---
 import { getCollection } from "astro:content";
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import PostCard from "../../../components/PostCard.astro";
-import ArchiveHeader from "../../../components/ArchiveHeader.astro";
-import { Icon } from "astro-icon/components";
+import BlogArchive from "../../../layouts/BlogArchive.astro";
 import { TECH_CATEGORY_META_LIST } from "../../../consts";
 import {
-  getBlogCategoryFilters,
-  sortBlogPosts,
-} from "../../../utils/blogArchive";
+  getBlogTechCategoryArchive,
+  getPaginatedBlogArchive,
+  getPublishedBlogPosts,
+} from "../../../utils/blog";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection(
-    "blog",
-    ({ data }) => data.draft !== true,
-  );
+  const allPosts = await getCollection("blog");
+  const publishedPosts = getPublishedBlogPosts(allPosts);
 
   return TECH_CATEGORY_META_LIST.map((meta) => {
-    const posts = sortBlogPosts(
-      allPosts.filter(
-        (post) =>
-          post.data.category === "learn" && post.data.techCategory === meta.key,
-      ),
-    );
+    const archive = getPaginatedBlogArchive(
+      getBlogTechCategoryArchive(publishedPosts, meta.key),
+      1,
+      `/blog/learn/${meta.slug}/`,
+    )!;
 
     return {
       params: { techCategory: meta.slug },
       props: {
-        posts,
+        ...archive,
         meta,
-        filters: getBlogCategoryFilters(allPosts, "learn"),
       },
     };
   });
 }
 
-const { posts, meta, filters } = Astro.props;
+const { posts, meta, filters, pagination } = Astro.props;
 const pageTitle = `${meta.englishLabel} / ${meta.label}`;
 ---
 
-<BaseLayout title={pageTitle} description={meta.description}>
-  <section class="py-8 md:py-16">
-    <ArchiveHeader
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Blog", href: "/blog/" },
-        { label: "Learn", href: "/blog/learn/" },
-        { label: meta.slug },
-      ]}
-      title={pageTitle}
-      description={meta.description}
-      count={posts.length}
-      filters={filters}
-      filterLabel="学习分类"
-      activeFilter={meta.key}
-    />
-
-    {
-      posts.length > 0 ? (
-        <div class="flex flex-col max-w-4xl mx-auto">
-          {posts.map((post) => (
-            <PostCard post={post} />
-          ))}
-        </div>
-      ) : (
-        <div class="max-w-4xl mx-auto px-4 py-10 border border-dashed border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400">
-          该分类暂时还没有文章。
-        </div>
-      )
-    }
-
-    <div class="mt-20 text-center">
-      <a
-        href="/blog/learn/"
-        class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion transition-colors text-sm tracking-widest uppercase"
-      >
-        <Icon name="mingcute:arrow-left-line" />
-        <span>Back to Learn Archives</span>
-      </a>
-    </div>
-  </section>
-</BaseLayout>
+<BlogArchive
+  title={pageTitle}
+  description={meta.description}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog/" },
+    { label: "Learn", href: "/blog/learn/" },
+    { label: meta.slug },
+  ]}
+  posts={posts}
+  filters={filters}
+  pagination={pagination}
+  filterLabel="学习分类"
+  activeFilter={meta.key}
+  backHref="/blog/learn/"
+  backLabel="Back to Learn Archives"
+/>

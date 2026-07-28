@@ -1,31 +1,9 @@
 ---
 import { Icon } from "astro-icon/components";
-
-export type SeriesNavItem = {
-  title: string;
-  subtitle?: string;
-  href: string;
-  order: number;
-  sectionTitle?: string;
-  sectionOrder?: number;
-  current: boolean;
-};
-
-export type SeriesNavSection = {
-  title: string;
-  order: number;
-  items: SeriesNavItem[];
-};
-
-export type SeriesNavData = {
-  key: string;
-  title: string;
-  items: SeriesNavItem[];
-  sections: SeriesNavSection[];
-};
+import type { BlogSeries } from "../utils/blog";
 
 type Props = {
-  series: SeriesNavData;
+  series: BlogSeries;
 };
 
 const { series } = Astro.props;

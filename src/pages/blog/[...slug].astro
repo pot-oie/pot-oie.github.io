@@ -1,83 +1,35 @@
 ---
 // src/pages/blog/[...slug].astro
-import { type CollectionEntry, getCollection, render } from "astro:content";
+import { getCollection, render } from "astro:content";
 import LifePost from "../../layouts/LifePost.astro";
 import TechPost from "../../layouts/TechPost.astro";
 import AlbumPost from "../../layouts/AlbumPost.astro";
-import type { SeriesNavData } from "../../components/SeriesNavigation.astro";
+import {
+  getBlogSeriesForPost,
+  getPublishedBlogPosts,
+  type BlogPost,
+  type BlogSeries,
+} from "../../utils/blog";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog", ({ data }) => {
-    return data.draft !== true;
-  });
+  const allPosts = await getCollection("blog");
+  const posts = getPublishedBlogPosts(allPosts);
 
   return posts.map((post) => ({
     params: { slug: post.id.replace(/\.mdx?$/, "") },
-    props: post,
+    props: {
+      post,
+      series: getBlogSeriesForPost(posts, post),
+    },
   }));
 }
-type Props = CollectionEntry<"blog">;
+type Props = {
+  post: BlogPost;
+  series?: BlogSeries;
+};
 
-const post = Astro.props;
+const { post, series } = Astro.props;
 const { Content, headings } = await render(post);
-const publishedPosts = await getCollection("blog", ({ data }) => {
-  return data.draft !== true;
-});
-const seriesItems = post.data.series
-  ? publishedPosts
-      .filter((item) => item.data.series?.key === post.data.series?.key)
-      .sort((a, b) => {
-        const sectionOrderDiff =
-          (a.data.series?.section?.order ?? Number.MAX_SAFE_INTEGER) -
-          (b.data.series?.section?.order ?? Number.MAX_SAFE_INTEGER);
-
-        if (sectionOrderDiff !== 0) return sectionOrderDiff;
-
-        const orderDiff =
-          (a.data.series?.order ?? Number.MAX_SAFE_INTEGER) -
-          (b.data.series?.order ?? Number.MAX_SAFE_INTEGER);
-
-        if (orderDiff !== 0) return orderDiff;
-        return a.data.pubDate.getTime() - b.data.pubDate.getTime();
-      })
-      .map((item) => ({
-        title: item.data.title,
-        subtitle: item.data.series?.subtitle,
-        href: `/blog/${item.id.replace(/\.mdx?$/, "")}/`,
-        order: item.data.series?.order ?? 0,
-        sectionTitle: item.data.series?.section?.title,
-        sectionOrder: item.data.series?.section?.order,
-        current: item.id === post.id,
-      }))
-  : [];
-const seriesSections = seriesItems.reduce<SeriesNavData["sections"]>(
-  (sections, item) => {
-    const title = item.sectionTitle?.trim() || "未分组";
-    const existingSection = sections.find((section) => section.title === title);
-
-    if (existingSection) {
-      existingSection.items.push(item);
-      return sections;
-    }
-
-    sections.push({
-      title,
-      order: item.sectionOrder ?? Number.MAX_SAFE_INTEGER,
-      items: [item],
-    });
-
-    return sections;
-  },
-  [],
-);
-const series: SeriesNavData | undefined = post.data.series
-  ? {
-      key: post.data.series.key,
-      title: post.data.series.title,
-      items: seriesItems,
-      sections: seriesSections,
-    }
-  : undefined;
 ---
 
 {

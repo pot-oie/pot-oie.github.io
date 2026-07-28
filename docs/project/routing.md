@@ -17,8 +17,22 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 - `/blog/[category]`: `src/pages/blog/[category].astro`
 - `/blog/learn/[techCategory]`: `src/pages/blog/learn/[techCategory].astro`
 - `/blog/life/[lifeCategory]`: `src/pages/blog/life/[lifeCategory].astro`
+- `/blog/page/[page]`: `src/pages/blog/page/[page].astro`
+- `/blog/[category]/page/[page]`: `src/pages/blog/[category]/page/[page].astro`
+- `/blog/learn/[techCategory]/page/[page]`: `src/pages/blog/learn/[techCategory]/page/[page].astro`
+- `/blog/life/[lifeCategory]/page/[page]`: `src/pages/blog/life/[lifeCategory]/page/[page].astro`
 
-Blog routes read from the `blog` content collection and exclude entries with `draft: true` in list views.
+Blog routes read from the `blog` content collection and exclude entries with
+`draft: true` in list views. Every archive uses its existing route as the
+canonical first page and generates later pages under `/page/N/`; `/page/1/` is
+never generated. Pagination is static, uses 12 posts per page, and invalid page
+numbers fall through to the static 404 response.
+
+There are currently no standalone Series or Tags discovery routes. Existing
+series navigation and tag presentation remain inside article reading
+experiences. Future Series and Tags modules require independent information
+architecture, top-level entry, and route design; provisional `/blog/series/*`
+and `/blog/tags/*` paths are not reserved.
 
 ## Watch Routes
 

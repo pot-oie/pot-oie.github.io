@@ -6,7 +6,10 @@ This document maps the component layer and records ownership boundaries. Use it 
 
 ### Site Shell
 
-- `src/components/BaseHead.astro`: document metadata, favicon, theme bootstrap, and global head-level setup.
+- `src/components/BaseHead.astro`: document metadata, favicon, theme bootstrap,
+  and global head-level setup. It owns canonical, Open Graph, Twitter, article
+  date metadata, and the single article JSON-LD graph; layouts provide typed
+  data rather than emitting competing metadata blocks.
 - `src/components/Header.astro`: primary navigation, search trigger, theme toggle, and mobile navigation behavior.
 - `src/components/HeaderLink.astro`: reusable navigation link styling.
 - `src/components/Footer.astro`: site footer.
@@ -14,6 +17,28 @@ This document maps the component layer and records ownership boundaries. Use it 
 These components are part of the site shell and should stay broadly content-agnostic.
 The primary content navigation is Blog, Watch, Music, and About; Blog owns the
 learn/life split inside its archive.
+
+### Runtime Composition
+
+- `src/components/runtime/GlobalRuntime.astro`: lifecycle entry point for
+  Lenis, search metrics, and normal/search-result hash scrolling.
+- `src/components/runtime/GlobalAudioRuntime.astro`: owns the
+  `transition:persist` audio element and installs the audio/MediaSession
+  controller.
+- `src/components/runtime/ArticleRuntime.astro`: lifecycle entry point for
+  KaTeX overflow hints and the article image lightbox.
+- `src/components/runtime/TechnicalReadingRuntime.astro`: technical-post
+  lifecycle entry point for series state, reading-panel controls, scroll fades,
+  and table-of-contents highlighting and navigation.
+- `src/components/runtime/TechnicalCodeRuntime.astro`: owns technical-post code
+  action templates and initializes copy, collapse, scroll-lock, and visual-style
+  controls.
+
+The components in this group compose focused implementations from
+`src/scripts/runtime`. `BaseLayout.astro` always mounts the two global entries;
+article layouts and the About prose page opt into `ArticleRuntime.astro` through
+the `articleRuntime` prop. `TechPost.astro` additionally mounts the two
+technical-post runtime entries.
 
 ### Content Cards And Lists
 
@@ -26,18 +51,32 @@ learn/life split inside its archive.
 - `src/components/MusicCard.astro`: music item card.
 - `src/components/DownloadCard.astro`: document/download presentation card.
 - `src/components/ArchiveHeader.astro`: shared archive breadcrumbs, bilingual
-  title, description, current entry count, and filter placement.
+  title, description, full active-archive count, and filter placement.
 - `src/components/ArchiveFilter.astro`: compact route-backed archive links with
   category counts and current-page state.
+- `src/components/BlogPagination.astro`: static previous/next and numbered links
+  for paginated blog archives.
+- `src/layouts/BlogArchive.astro`: shared blog archive composition for the
+  header, post list, empty state, pagination, and return link.
 
 Cards should receive data through props and avoid fetching collections directly unless there is a strong local reason.
 
 ### Article And Reading Helpers
 
 - `src/components/FormattedDate.astro`: date display helper.
-- `src/components/TableOfContents.astro`: article heading navigation, rendered as a right-side desktop helper.
-- `src/components/SeriesNavigation.astro`: technical-note series navigation for jumping between posts in the same set, visually distinct from the table of contents through block-style active states. It supports collapsible second-level `series.section` groups, item labels come from each post's `series.subtitle`, persisted section state, persisted item-list scroll position, and the desktop item list owns its internal scroll fade while the outer card remains fixed.
-- `src/components/MobileReadingNavigation.astro`: mobile-only reading navigation that renders both series guide entries and table-of-contents entries through one shared compact style and toggle surface. Series sections use the same collapsible grouping as the desktop guide.
+- `src/components/TableOfContents.astro`: static article heading navigation,
+  rendered as a right-side desktop helper; its active-heading and smooth-scroll
+  behavior is owned by `TechnicalReadingRuntime.astro`.
+- `src/components/SeriesNavigation.astro`: technical-note series navigation for
+  jumping between posts in the same set, visually distinct from the table of
+  contents through block-style active states. It renders collapsible
+  second-level `series.section` groups, uses each post's `series.subtitle` as
+  the item label, and exposes the data hooks consumed by the technical reading
+  runtime.
+- `src/components/MobileReadingNavigation.astro`: mobile-only reading navigation
+  that renders both series guide entries and table-of-contents entries through
+  one shared compact style and toggle surface. Series sections use the same
+  collapsible grouping as the desktop guide and share runtime-managed state.
 - `src/components/SeriesPostPager.astro`: bottom previous/next navigation for technical posts that belong to a series, using the same ordered `series.items` data as the side guide.
 - `src/components/BackToTop.astro`: article-page floating return-to-top control that appears after the reader scrolls down and uses Lenis when available.
 - `src/components/QRCodeTooltip.astro`: QR-code tooltip behavior.
@@ -47,7 +86,7 @@ These components are shared reading helpers. Keep styling aligned with `docs/pro
 
 ### Search
 
-- `src/components/Search.astro`: global search modal, Pagefind loading, result classification, text-target result hashes, keyboard shortcut, and search metric emission.
+- `src/components/Search.astro`: global search modal, Pagefind loading, result classification, text-target result hashes, keyboard shortcut, and search metric emission. Blog archive results are classified through the shared route policy in `src/utils/blogRoutes.ts`, including paginated root and category archives.
 
 Search is mounted through the header/site shell. Runtime behavior is documented in `docs/project/interaction.md`.
 
@@ -59,7 +98,8 @@ Search is mounted through the header/site shell. Runtime behavior is documented 
 - `src/components/TrackControl.astro`: inline track play button for article content.
 - `src/components/AlbumSidebar.astro`: album-specific track/sidebar behavior.
 
-Music components coordinate through global audio events handled in `BaseLayout.astro`.
+Music components coordinate through global audio events handled by
+`GlobalAudioRuntime.astro` and `src/scripts/runtime/globalAudio.ts`.
 
 ### Watch
 
@@ -84,7 +124,10 @@ Article demo components are allowed to be article-specific. Keep them isolated u
 ## Ownership Rules
 
 - Put route-level data fetching in `src/pages` unless the component is inherently content-bound, such as `TrackControl.astro`.
-- Put page skeleton and global persistent behavior in `src/layouts`, especially `BaseLayout.astro`.
+- Put page skeleton and runtime composition in `src/layouts`; keep focused
+  browser implementations under `src/scripts/runtime`.
+- Use `src/components/runtime` for lifecycle entry points and persistent runtime
+  markup shared by layouts.
 - Put reusable display units in `src/components`.
 - Put one-off article visualizations under `src/components/blog`.
 - Avoid adding cross-page global event listeners in leaf components unless the interaction document is updated.

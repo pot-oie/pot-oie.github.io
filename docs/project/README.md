@@ -14,6 +14,19 @@ This directory is the maintained knowledge base for the blog repository. It is o
 8. `scripts.md`: understand local automation and content creation scripts.
 9. `deployment.md`: understand the build and deployment path.
 10. `modules/*/overview.md`: understand each content module in more detail.
+11. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
+
+Current parked plans:
+
+- `plans/series-and-tags-discovery.md`: future independent Series and Tags
+  discovery modules, their boundaries, and restart conditions.
+- `plans/blog-authoring-workflow.md`: a blog draft creation flow followed, only
+  if justified, by broader authoring automation.
+- `plans/search-module-documentation.md`: a maintained Search module overview.
+- `plans/quality-baselines.md`: separate testing, performance-budget, and
+  accessibility documentation workstreams.
+- `plans/architecture-decision-records.md`: a lightweight ADR structure and
+  adoption policy.
 
 ## Documentation Layers
 
@@ -21,6 +34,10 @@ This directory is the maintained knowledge base for the blog repository. It is o
 - Project layer: files directly under `docs/project` describe cross-cutting architecture, routes, content, styling, components, interactions, scripts, and deployment.
 - Writing layer: `docs/project/writing-style.md` captures article voice and expansion preferences for future blog edits.
 - Module layer: `docs/project/modules/*` describes blog, watch, music, search, or other feature areas.
+- Plan layer: `docs/project/plans/*` records active or parked future work,
+  dependencies, conversation boundaries, and restart conditions. Once a plan is
+  implemented and its lasting decisions are reflected in maintained project
+  documentation, the completed process document can be removed.
 - Decision layer: future files under `docs/project/decisions` should record important design decisions and tradeoffs.
 
 ## Maintenance Rule

@@ -132,13 +132,12 @@ import { Icon } from "astro-icon/components";
 <script>
   // @ts-ignore
   import type * as Pagefind from "/pagefind/pagefind.js";
+  import { isBlogArchiveRoutePath } from "../utils/blogRoutes";
 
   let pagefind: typeof Pagefind | null = null;
   const MAX_VISIBLE_RESULTS = 10;
   const MAX_SUMMARY_RESULTS = 1;
   const RAW_CANDIDATE_LIMIT = 30;
-  const BLOG_SUMMARY_SEGMENTS = new Set(["learn", "life"]);
-
   type ResultKind = "detail" | "summary";
 
   interface RawSearchResult {
@@ -261,13 +260,7 @@ import { Icon } from "astro-icon/components";
   function getResultKind(path: string): ResultKind {
     if (path === "/") return "summary";
 
-    if (path === "/blog") return "summary";
-    if (path.startsWith("/blog/learn")) return "summary";
-
-    if (/^\/blog\/[^/]+$/.test(path)) {
-      const segment = path.split("/")[2]?.toLowerCase() || "";
-      return BLOG_SUMMARY_SEGMENTS.has(segment) ? "summary" : "detail";
-    }
+    if (isBlogArchiveRoutePath(path)) return "summary";
 
     if (
       path === "/watch" ||

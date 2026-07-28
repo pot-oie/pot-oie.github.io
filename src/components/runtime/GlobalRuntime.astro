@@ -1,0 +1,28 @@
+<script>
+  import { scrollToLocationHash } from "../../scripts/runtime/hashScroll";
+  import { initLenis } from "../../scripts/runtime/lenis";
+  import { installSearchMetrics } from "../../scripts/runtime/searchMetrics";
+
+  const initializedRoots = new WeakSet<Element>();
+
+  function initGlobalRuntime() {
+    const root = document.querySelector("main");
+    if (!root || initializedRoots.has(root)) return;
+    initializedRoots.add(root);
+
+    initLenis();
+    installSearchMetrics();
+
+    // View Transitions 后如果 URL 带 hash，用 Lenis 精准跳转并做延迟重试。
+    requestAnimationFrame(scrollToLocationHash);
+  }
+
+  document.addEventListener("astro:page-load", initGlobalRuntime);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGlobalRuntime, {
+      once: true,
+    });
+  } else {
+    initGlobalRuntime();
+  }
+</script>

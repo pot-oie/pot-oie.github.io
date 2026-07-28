@@ -35,6 +35,11 @@ Source of truth:
 - Rendering usage: `src/layouts/TechPost.astro`
 - Content schema transform: `src/content.config.ts`
 
+Tags currently describe and decorate individual technical articles. They do not
+generate archive filters or standalone routes. A future Tags module is expected
+to be an independent topic map or knowledge index, but its entry point, URL
+policy, grouping model, and thin-topic policy remain intentionally undefined.
+
 ## Tag Rules
 
 1. Keep tags concise and stable.
@@ -43,6 +48,15 @@ Source of truth:
 4. Unknown tags should not block publishing. They use fallback rendering first and can be registered later.
 5. Reuse an existing `styleToken` before adding a new one.
 6. AI architecture abbreviations and model names such as `CNN`, `GNN`, `RNN`, `LSTM`, `GRU`, `ResNet`, `U-Net`, `Transformer`, `ViT`, `GPT`, `BERT`, `LoRA`, `Diffusion`, and `DiT` can stay in English, while article-specific mechanisms should prefer concise Chinese tags such as `卷积`, `消息传递`, `聚合函数`, or `解码策略`.
+
+`npm run check:content` reports three tag conditions:
+
+- aliases or surrounding whitespace that change during normalization: warning
+- unknown normalized tags: warning, with publishing still allowed
+- two raw tags that normalize to the same value in one entry: error
+
+This keeps fallback tags compatible while making silent normalization and
+deduplication visible to the author.
 
 ## Current Style Tokens
 
@@ -62,7 +76,8 @@ Source of truth:
 1. Add a registry item in `TAG_REGISTRY`.
 2. Add alias mappings in `TAG_ALIASES` if needed.
 3. Reuse an existing `styleToken` when possible.
-4. Check article rendering in light and dark mode if the style changes.
+4. Run `npm run check:content` and resolve or consciously retain its warning.
+5. Check article rendering in light and dark mode if the style changes.
 
 Example:
 

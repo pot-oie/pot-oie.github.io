@@ -16,37 +16,52 @@ document.addEventListener("astro:page-load", initFeature);
 
 When adding a script, make it idempotent. View transitions can re-run setup on the same browser session.
 
-## Global Layout Behavior
+## Global Runtime Composition
 
-`src/layouts/BaseLayout.astro` owns these global behaviors:
+`src/layouts/BaseLayout.astro` owns the page skeleton and composes these focused
+runtime entries:
 
-- Lenis smooth scrolling.
-- Search metrics storage and event collection.
-- Persistent global audio element.
-- MediaSession metadata for audio playback.
-- Math overflow scroll hints for KaTeX block formulas. The initializer runs
-  after layout and again after font loading so `.katex-display` width checks
-  are based on the rendered formula size. Overflowing formulas also support
-  mouse drag-to-scroll for devices without horizontal touchpad gestures.
-- Article image lightbox for `.prose-ink` images. The initializer skips linked
-  images and `.not-prose` component content, supports click, keyboard activation,
-  touch pinch zoom, trackpad/browser pinch zoom, drag panning when zoomed,
-  toolbar zoom controls, original-image opening, previous/next navigation,
-  loading/error feedback, focus restoration on close, overlay/close-button
-  dismissal, and `Escape`. Keyboard controls inside the open lightbox include
-  `ArrowLeft`/`ArrowRight` for image navigation, `+`/`-` for zoom, and `0` for
-  zoom reset.
+- `GlobalRuntime.astro` initializes Lenis, installs search metric collection,
+  and retries normal or `#pf-text-*` hash scrolling after page loads.
+- `GlobalAudioRuntime.astro` renders the persistent global audio element and
+  installs the audio and MediaSession controller.
+- `ArticleRuntime.astro` is opt-in through the `articleRuntime` layout prop. It
+  initializes KaTeX overflow hints and the article image lightbox only on pages
+  that can contain supported prose.
+
+The implementations live under `src/scripts/runtime`. Global listeners use
+window-level install guards, while page-bound elements use `data-*` installation
+markers. Each lifecycle component also covers the initial document load before
+continuing through `astro:page-load`.
+
+Article math overflow checks run after layout, after a short retry, and again
+after font loading so `.katex-display` width checks use the rendered formula
+size. Overflowing formulas also support mouse drag-to-scroll for devices without
+horizontal touchpad gestures.
+
+The article image lightbox skips linked images and `.not-prose` component
+content. It supports click, keyboard activation, touch pinch zoom,
+trackpad/browser pinch zoom, drag panning when zoomed, toolbar zoom controls,
+original-image opening, previous/next navigation, loading/error feedback, focus
+restoration on close, overlay/close-button dismissal, and `Escape`. Keyboard
+controls inside the open lightbox include `ArrowLeft`/`ArrowRight` for image
+navigation, `+`/`-` for zoom, and `0` for zoom reset.
+
+Other cross-page helpers retain their nearest component ownership:
+
 - Article return-to-top controls mounted by post layouts. `BackToTop.astro`
   installs idempotent global scroll/resize listeners, appears after a fixed
   scroll threshold, and scrolls through Lenis when the global instance exists.
-- Hash scrolling after View Transitions.
 
-Global layout behavior should remain narrowly scoped. If it grows, prefer extracting a focused script/component while keeping this document updated.
+Keep `BaseLayout.astro` limited to composition and genuinely global structure.
+New runtime behavior should receive a focused module and the narrowest practical
+lifecycle entry point.
 
 ## Storage Keys
 
 - `theme`: selected color mode, managed by `BaseHead.astro` and `Header.astro`.
-- `pot-search-metrics-v1`: search metrics store, written by `BaseLayout.astro` in response to search metric events.
+- `pot-search-metrics-v1`: search metrics store, written by
+  `src/scripts/runtime/searchMetrics.ts` in response to search metric events.
 - `pot-search-debug`: optional debug flag. When set to `1`, search metrics are logged in the console.
 
 ## Custom Events
@@ -73,11 +88,14 @@ Known event names:
 - `search_no_results`
 - `search_error`
 
-`BaseLayout.astro` listens for these events and writes aggregate data to `localStorage`.
+`src/scripts/runtime/searchMetrics.ts` listens for these events and writes
+aggregate data to `localStorage`.
 
 ### Audio
 
-Playback requests are emitted by music UI and consumed by `BaseLayout.astro`.
+Playback requests are emitted by music UI and consumed by
+`src/scripts/runtime/globalAudio.ts`, mounted through
+`GlobalAudioRuntime.astro`.
 
 Inbound events listened to by the global audio controller:
 
@@ -110,7 +128,13 @@ The global audio element has `transition:persist`, so playback state can survive
 - `Escape`: close search modal.
 - `Ctrl+K` or `Meta+K`: open search modal.
 
-Pagefind result links for detail pages include `#pf-text-*` hashes derived from the rendered excerpt. `BaseLayout.astro` decodes these hashes after Astro page load, retries briefly while View Transitions settle, prefers matches inside `.prose-ink`, falls back through the page body when needed, and uses the global Lenis instance with native scroll fallback to reach the hit with the same offset as normal anchor links.
+Pagefind result links for detail pages include `#pf-text-*` hashes derived from
+the rendered excerpt. `src/scripts/runtime/hashScroll.ts`, mounted through
+`GlobalRuntime.astro`, decodes these hashes after Astro page load, retries
+briefly while View Transitions settle, prefers matches inside `.prose-ink`,
+falls back through the page body when needed, and uses the global Lenis instance
+with native scroll fallback to reach the hit with the same offset as normal
+anchor links.
 
 When adding a new global shortcut, check for conflicts here first.
 
@@ -136,13 +160,30 @@ overlay on click/tap, while series cards navigate to their detail page.
 
 ### Technical Post Detail
 
-`src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI for series navigation and the table of contents. `src/layouts/TechPost.astro` provides the idempotent initializer scoped to `[data-mobile-reading-nav]`, so the toggle works across View Transitions and opens one active panel at a time. Series section collapse uses native `details` / `summary` behavior in both desktop and mobile navigation.
+`src/layouts/TechPost.astro` composes the technical-post presentation with
+`TechnicalReadingRuntime.astro` and `TechnicalCodeRuntime.astro`. Their focused
+implementations live in `src/scripts/runtime/technicalReadingNavigation.ts` and
+`src/scripts/runtime/technicalCodeBlocks.ts`. Each runtime tracks the current
+`main` element with a `WeakSet`, so repeated `astro:page-load` delivery is
+idempotent while a newly swapped View Transition page is initialized.
+
+`src/components/MobileReadingNavigation.astro` owns the mobile reading toggle UI
+for series navigation and the table of contents. The technical reading runtime
+initializes `[data-mobile-reading-nav]`, opens one active panel at a time, and
+coordinates the desktop and mobile navigation copies. Series section collapse
+uses native `details` / `summary` behavior in both surfaces.
 
 `src/components/SeriesPostPager.astro` renders static previous/next links at the bottom of technical posts when the current entry belongs to a multi-post series.
 
-Desktop and mobile series sections share persisted open/closed state through `localStorage` keys shaped as `pot-series-nav-sections-v1:<seriesKey>`. The initializer in `TechPost.astro` restores `[data-series-section]` details after `astro:page-load`, writes changes on `toggle`, and mirrors the state between desktop and mobile copies of the same section.
+Desktop and mobile series sections share persisted open/closed state through `localStorage` keys shaped as `pot-series-nav-sections-v1:<seriesKey>`. The technical reading runtime restores `[data-series-section]` details after `astro:page-load`, writes changes on `toggle`, and mirrors the state between desktop and mobile copies of the same section.
 
 Series navigation scroll surfaces also persist their local `scrollTop` across article route changes through `localStorage` keys shaped as `pot-series-nav-scroll-v1:<seriesKey>:<surfaceKey>`. Desktop and mobile surfaces use separate `surfaceKey` values so their positions do not overwrite each other.
+
+Table-of-contents observation and Lenis-aware anchor navigation are also
+installed by the technical reading runtime. The technical code runtime wraps
+each uninitialized `pre.astro-code` independently and preserves copy feedback,
+long-block collapse/expand, wheel containment, and macOS/water-ink style
+switching across View Transitions.
 
 ### Dashboard
 

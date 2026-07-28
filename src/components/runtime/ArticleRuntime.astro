@@ -1,0 +1,24 @@
+<script>
+  import { initArticleImageLightbox } from "../../scripts/runtime/articleImageLightbox";
+  import { initMathScrollHints } from "../../scripts/runtime/articleMath";
+
+  const initializedRoots = new WeakSet<Element>();
+
+  function initArticleRuntime() {
+    const root = document.querySelector("main");
+    if (!root || initializedRoots.has(root)) return;
+    initializedRoots.add(root);
+
+    initMathScrollHints();
+    initArticleImageLightbox();
+  }
+
+  document.addEventListener("astro:page-load", initArticleRuntime);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initArticleRuntime, {
+      once: true,
+    });
+  } else {
+    initArticleRuntime();
+  }
+</script>
