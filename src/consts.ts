@@ -3,6 +3,7 @@
 
 export const SITE_TITLE = "Pot's Blog";
 export const SITE_DESCRIPTION = "思想的流淌与记录";
+export const SITE_AUTHOR = "Pot";
 
 export {
   TECH_CATEGORIES,

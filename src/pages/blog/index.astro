@@ -1,53 +1,36 @@
 ---
 import { getCollection } from "astro:content";
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostCard from "../../components/PostCard.astro";
-import ArchiveHeader from "../../components/ArchiveHeader.astro";
-import { Icon } from "astro-icon/components";
+import BlogArchive from "../../layouts/BlogArchive.astro";
 import {
-  getBlogRootFilters,
-  sortBlogPosts,
-} from "../../utils/blogArchive";
+  getBlogRootArchive,
+  getPaginatedBlogArchive,
+  getPublishedBlogPosts,
+} from "../../utils/blog";
 
-const allPosts = await getCollection("blog", ({ data }) => {
-  return data.draft !== true;
-});
-const sortedPosts = sortBlogPosts(allPosts);
-const filters = getBlogRootFilters(allPosts);
+const allPosts = await getCollection("blog");
+const publishedPosts = getPublishedBlogPosts(allPosts);
+const archive = getPaginatedBlogArchive(
+  getBlogRootArchive(publishedPosts),
+  1,
+  "/blog/",
+)!;
 const pageTitle = "Blog / 文集";
 const pageDescription = "Notes and essays, collected.";
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
-  <section class="py-8 md:py-16">
-    <ArchiveHeader
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Blog" },
-      ]}
-      title={pageTitle}
-      description={pageDescription}
-      count={allPosts.length}
-      filters={filters}
-      filterLabel="博客分类"
-      activeFilter="all"
-    />
-
-    <div class="flex flex-col max-w-4xl mx-auto">
-      {sortedPosts.map((post) => <PostCard post={post} />)}
-    </div>
-
-    <div class="mt-20 text-center">
-      <a
-        href="/"
-        class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion dark:hover:text-vermilion transition-colors text-sm tracking-widest uppercase group"
-      >
-        <Icon
-          name="mingcute:home-4-line"
-          class="w-4 h-4 group-hover:-translate-x-1 transition-transform"
-        />
-        <span>Back to Home</span>
-      </a>
-    </div>
-  </section>
-</BaseLayout>
+<BlogArchive
+  title={pageTitle}
+  description={pageDescription}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Blog" },
+  ]}
+  posts={archive.posts}
+  filters={archive.filters}
+  pagination={archive.pagination}
+  filterLabel="博客分类"
+  activeFilter="all"
+  backHref="/"
+  backLabel="Back to Home"
+  backIcon="mingcute:home-4-line"
+/>

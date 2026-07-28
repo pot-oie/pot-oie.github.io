@@ -4,13 +4,52 @@ import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import BackToTop from "../components/BackToTop.astro";
 import { Icon } from "astro-icon/components";
+import { LIFE_CATEGORY_META_LIST } from "../consts";
+import type { ArticleSeo } from "../utils/seo";
 
 type Props = CollectionEntry<"blog">["data"];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  coverImage,
+  lifeCategory,
+  tags = [],
+} = Astro.props;
+const categoryMeta = LIFE_CATEGORY_META_LIST.find(
+  (item) => item.key === lifeCategory,
+);
+const socialImage = heroImage ?? coverImage;
+const articleSeo: ArticleSeo = {
+  publishedTime: pubDate,
+  modifiedTime: updatedDate,
+  section: categoryMeta?.label ?? "生活",
+  tags,
+  breadcrumbs: [
+    { name: "博客", href: "/blog/" },
+    { name: "生活", href: "/blog/life/" },
+    ...(categoryMeta
+      ? [
+          {
+            name: categoryMeta.label,
+            href: `/blog/life/${categoryMeta.slug}/`,
+          },
+        ]
+      : []),
+  ],
+};
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={title}
+  description={description}
+  image={socialImage}
+  article={articleSeo}
+  articleRuntime
+>
   <article class="py-8 md:py-16 w-full max-w-3xl mx-auto px-3 md:px-6">
     <header class="text-center mb-8 md:mb-12" data-pagefind-ignore>
       <a

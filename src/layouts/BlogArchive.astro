@@ -1,0 +1,114 @@
+---
+import { Icon } from "astro-icon/components";
+import ArchiveHeader from "../components/ArchiveHeader.astro";
+import BlogPagination from "../components/BlogPagination.astro";
+import PostCard from "../components/PostCard.astro";
+import BaseLayout from "./BaseLayout.astro";
+import type {
+  ArchiveBreadcrumbItem,
+  ArchiveFilterItem,
+} from "../utils/archive";
+import type {
+  BlogArchivePagination,
+  BlogPost,
+} from "../utils/blog";
+
+interface Props {
+  title: string;
+  description: string;
+  breadcrumbs: ArchiveBreadcrumbItem[];
+  posts: BlogPost[];
+  filters: ArchiveFilterItem[];
+  pagination: BlogArchivePagination;
+  filterLabel: string;
+  activeFilter: string;
+  backHref: string;
+  backLabel: string;
+  backIcon?: string;
+}
+
+const {
+  title,
+  description,
+  breadcrumbs,
+  posts,
+  filters,
+  pagination,
+  filterLabel,
+  activeFilter,
+  backHref,
+  backLabel,
+  backIcon = "mingcute:arrow-left-line",
+} = Astro.props;
+
+const isFirstPage = pagination.currentPage === 1;
+const pageTitle = isFirstPage
+  ? title
+  : `${title} — Page ${pagination.currentPage}`;
+const archiveBreadcrumbs = isFirstPage
+  ? breadcrumbs
+  : [
+      ...breadcrumbs.slice(0, -1),
+      {
+        ...breadcrumbs.at(-1),
+        href: pagination.pages[0]?.href,
+      },
+      { label: `Page ${pagination.currentPage}` },
+    ];
+---
+
+<BaseLayout title={pageTitle} description={description}>
+  <Fragment slot="head">
+    {
+      pagination.previousHref && (
+        <link rel="prev" href={pagination.previousHref} />
+      )
+    }
+    {
+      pagination.nextHref && (
+        <link rel="next" href={pagination.nextHref} />
+      )
+    }
+  </Fragment>
+
+  <section class="py-8 md:py-16">
+    <ArchiveHeader
+      breadcrumbs={archiveBreadcrumbs}
+      title={title}
+      description={description}
+      count={pagination.totalItems}
+      filters={filters}
+      filterLabel={filterLabel}
+      activeFilter={activeFilter}
+    />
+
+    {
+      posts.length > 0 ? (
+        <div class="flex flex-col max-w-4xl mx-auto">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      ) : (
+        <div class="max-w-4xl mx-auto px-4 py-10 border border-dashed border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400">
+          该分类暂时还没有文章。
+        </div>
+      )
+    }
+
+    <BlogPagination pagination={pagination} />
+
+    <div class="mt-20 text-center">
+      <a
+        href={backHref}
+        class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion dark:hover:text-vermilion transition-colors text-sm tracking-widest uppercase group"
+      >
+        <Icon
+          name={backIcon}
+          class="w-4 h-4 group-hover:-translate-x-1 transition-transform"
+        />
+        <span>{backLabel}</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -2,19 +2,16 @@
 // src/pages/blog/[category].astro
 
 import { getCollection } from "astro:content";
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostCard from "../../components/PostCard.astro";
-import ArchiveHeader from "../../components/ArchiveHeader.astro";
-import { Icon } from "astro-icon/components";
+import BlogArchive from "../../layouts/BlogArchive.astro";
 import {
-  getBlogCategoryFilters,
-  sortBlogPosts,
-} from "../../utils/blogArchive";
+  getBlogCategoryArchive,
+  getPaginatedBlogArchive,
+  getPublishedBlogPosts,
+} from "../../utils/blog";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("blog", ({ data }) => {
-    return data.draft !== true;
-  });
+  const allPosts = await getCollection("blog");
+  const publishedPosts = getPublishedBlogPosts(allPosts);
   const categoryMeta = {
     learn: {
       title: "Notes / 学习",
@@ -29,49 +26,37 @@ export async function getStaticPaths() {
   } as const;
 
   return (["learn", "life"] as const).map((category) => {
-    const posts = allPosts.filter((post) => post.data.category === category);
+    const archive = getPaginatedBlogArchive(
+      getBlogCategoryArchive(publishedPosts, category),
+      1,
+      `/blog/${category}/`,
+    )!;
     return {
       params: { category },
       props: {
-        posts: sortBlogPosts(posts),
-        filters: getBlogCategoryFilters(allPosts, category),
+        ...archive,
         pageMeta: categoryMeta[category],
       },
     };
   });
 }
 
-const { posts, filters, pageMeta } = Astro.props;
+const { posts, filters, pagination, pageMeta } = Astro.props;
 ---
 
-<BaseLayout title={pageMeta.title} description={pageMeta.description}>
-  <section class="py-8 md:py-16">
-    <ArchiveHeader
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Blog", href: "/blog/" },
-        { label: pageMeta.breadcrumb },
-      ]}
-      title={pageMeta.title}
-      description={pageMeta.description}
-      count={posts.length}
-      filters={filters}
-      filterLabel={`${pageMeta.breadcrumb}分类`}
-      activeFilter="all"
-    />
-
-    <div class="flex flex-col max-w-4xl mx-auto">
-      {posts.map((post) => <PostCard post={post} />)}
-    </div>
-
-    <div class="mt-20 text-center">
-      <a
-        href="/blog/"
-        class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion transition-colors text-sm tracking-widest uppercase"
-      >
-        <Icon name="mingcute:arrow-left-line" />
-        <span>Back to Blog</span>
-      </a>
-    </div>
-  </section>
-</BaseLayout>
+<BlogArchive
+  title={pageMeta.title}
+  description={pageMeta.description}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog/" },
+    { label: pageMeta.breadcrumb },
+  ]}
+  posts={posts}
+  filters={filters}
+  pagination={pagination}
+  filterLabel={`${pageMeta.breadcrumb}分类`}
+  activeFilter="all"
+  backHref="/blog/"
+  backLabel="Back to Blog"
+/>

@@ -1,9 +1,9 @@
 ---
 import { Icon } from "astro-icon/components";
-import type { SeriesNavData, SeriesNavItem } from "./SeriesNavigation.astro";
+import type { BlogSeries, BlogSeriesItem } from "../utils/blog";
 
 type Props = {
-  series?: SeriesNavData;
+  series?: BlogSeries;
 };
 
 const { series } = Astro.props;
@@ -15,7 +15,7 @@ const nextItem =
     ? items[currentIndex + 1]
     : undefined;
 
-function getItemLabel(item: SeriesNavItem) {
+function getItemLabel(item: BlogSeriesItem) {
   const subtitle = item.subtitle?.trim();
   return subtitle ? `${item.title}：${subtitle}` : item.title;
 }

@@ -1,0 +1,64 @@
+---
+import { getCollection } from "astro:content";
+import BlogArchive from "../../../../layouts/BlogArchive.astro";
+import {
+  getBlogArchivePageNumbers,
+  getBlogCategoryArchive,
+  getPaginatedBlogArchive,
+  getPublishedBlogPosts,
+} from "../../../../utils/blog";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog");
+  const publishedPosts = getPublishedBlogPosts(allPosts);
+  const categoryMeta = {
+    learn: {
+      title: "Notes / 学习",
+      description: "Ideas learned, tested, understood.",
+      breadcrumb: "Learn",
+    },
+    life: {
+      title: "Essays / 生活",
+      description: "Ordinary days, music, cinema, and thoughts in between.",
+      breadcrumb: "Life",
+    },
+  } as const;
+
+  return (["learn", "life"] as const).flatMap((category) => {
+    const archive = getBlogCategoryArchive(publishedPosts, category);
+
+    return getBlogArchivePageNumbers(archive.posts.length)
+      .slice(1)
+      .map((page) => ({
+        params: { category, page: String(page) },
+        props: {
+          ...getPaginatedBlogArchive(
+            archive,
+            page,
+            `/blog/${category}/`,
+          )!,
+          pageMeta: categoryMeta[category],
+        },
+      }));
+  });
+}
+
+const { posts, filters, pagination, pageMeta } = Astro.props;
+---
+
+<BlogArchive
+  title={pageMeta.title}
+  description={pageMeta.description}
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Blog", href: "/blog/" },
+    { label: pageMeta.breadcrumb },
+  ]}
+  posts={posts}
+  filters={filters}
+  pagination={pagination}
+  filterLabel={`${pageMeta.breadcrumb}分类`}
+  activeFilter="all"
+  backHref="/blog/"
+  backLabel="Back to Blog"
+/>

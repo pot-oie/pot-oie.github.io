@@ -7,16 +7,17 @@ import RecentMusic from "../components/RecentMusic.astro";
 import WatchCard from "../components/WatchCard.astro";
 import WatchScroll from "../components/WatchScroll.astro";
 import { Icon } from "astro-icon/components";
+import {
+  getBlogPostHref,
+  getPublishedBlogPosts,
+  sortBlogPostsByPublicationDate,
+} from "../utils/blog";
 import { getWatchSortTime, hasPendingSeason } from "../utils/watch";
 
 // 获取博客文章
-const allPosts = await getCollection("blog", ({ data }) => {
-  return data.draft !== true;
-});
-const sortedPosts = allPosts.sort(
-  (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
-);
+const blogEntries = await getCollection("blog");
+const allPosts = getPublishedBlogPosts(blogEntries);
+const sortedPosts = sortBlogPostsByPublicationDate(allPosts);
 const recentPosts = sortedPosts.slice(0, 5);
 
 // 随机文章逻辑
@@ -24,8 +25,7 @@ let randomPostUrl = "/blog";
 if (allPosts.length > 0) {
   const randomIndex = Math.floor(Math.random() * allPosts.length);
   const randomPost = allPosts[randomIndex];
-  const slug = randomPost.id.replace(/\.mdx?$/, "");
-  randomPostUrl = `/blog/${slug}/`;
+  randomPostUrl = getBlogPostHref(randomPost);
 }
 
 // 获取最近观影记录；仍有未开始季度的剧集优先展示

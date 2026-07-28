@@ -1,0 +1,103 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+{/* --- 代码块功能：图标库模板 --- */}
+<template id="code-icon-template">
+  {/* macOS 风格的图标 */}
+  <div data-icon="mac-copy"><Icon name="mingcute:copy-fill" /></div>
+  <div data-icon="mac-success"><Icon name="mingcute:check-fill" /></div>
+  <div data-icon="mac-expand"><Icon name="mingcute:down-fill" /></div>
+  <div data-icon="mac-collapse"><Icon name="mingcute:up-fill" /></div>
+  <div data-icon="mac-theme"><Icon name="mingcute:coathanger-fill" /></div>
+
+  {/* 水墨风的图标 */}
+  <div data-icon="ink-copy">
+    <Icon name="material-symbols:content-copy-outline-sharp" />
+  </div>
+  <div data-icon="ink-success"><Icon name="material-symbols:check" /></div>
+  <div data-icon="ink-expand">
+    <Icon name="material-symbols:expand-all" />
+  </div>
+  <div data-icon="ink-collapse">
+    <Icon name="material-symbols:collapse-all" />
+  </div>
+  <div data-icon="ink-theme">
+    <Icon name="material-symbols:palette-outline" />
+  </div>
+</template>
+
+{/* --- 代码块功能：水墨风操作栏模板 --- */}
+<template id="ink-action-template">
+  <div
+    class="ink-actions-container absolute -top-9 right-1 z-30 hidden flex-row-reverse items-center -gap-1 md:gap-2 group"
+  >
+    {/* 印章：作为悬浮操作栏的触发器 */}
+    <div
+      class="ink-seal-trigger relative w-8 h-8 shrink-0 cursor-pointer md:cursor-default"
+    >
+      <div
+        class="absolute inset-0 bg-ink-900 dark:bg-zinc-100 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] animate-[spin_8s_linear_infinite] transition-all duration-500 group-hover:scale-110 group-hover:bg-vermilion/60"
+      >
+      </div>
+      <div
+        class="absolute inset-1 bg-ink-700 dark:bg-zinc-300 rounded-[60%_40%_30%_70%/60%_30%_70%_40%] animate-[spin_12s_linear_infinite_reverse] transition-all duration-500 group-hover:bg-vermilion"
+      >
+      </div>
+      <div
+        class="absolute inset-0 flex items-center justify-center text-zinc-100 dark:text-zinc-800 transition-colors duration-300 group-hover:text-white z-10 font-serif text-xs font-bold select-none cursor-default"
+      >
+        P
+      </div>
+    </div>
+
+    {/* 操作栏：包含复制、主题切换、折叠等功能 */}
+    <div
+      class="ink-scroll-panel flex items-center gap-1 md:gap-4 overflow-hidden max-w-0 opacity-0 md:group-hover:max-w-[200px] md:group-hover:opacity-100 md:group-hover:px-4 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] bg-transparent"
+    >
+      {/* 主题切换按钮 */}
+      <button
+        class="ink-action-btn ink-theme-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+        title="切换回 macOS 风格"></button>
+
+      {/* 复制代码按钮 */}
+      <button
+        class="ink-action-btn ink-copy-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+        title="复制代码"></button>
+
+      {/* 复制成功状态指示 */}
+      <span
+        class="ink-copy-success w-7 h-7 text-vermilion hidden items-center justify-center drop-shadow-md scale-110 transform-gpu"
+      ></span>
+
+      {/* 折叠/展开按钮 */}
+      <button
+        class="ink-action-btn ink-toggle-btn text-ink-600 dark:text-zinc-400 opacity-70 hover:opacity-100 hover:scale-110 hover:-translate-y-0.5 hover:text-vermilion dark:hover:text-vermilion drop-shadow-sm hover:drop-shadow-md transition-all duration-300 transform-gpu will-change-transform"
+        title="折叠/展开"></button>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { initTechnicalCodeBlocks } from "../../scripts/runtime/technicalCodeBlocks";
+
+  const initializedRoots = new WeakSet<Element>();
+
+  function initTechnicalCodeRuntime() {
+    const root = document.querySelector("main");
+    if (!root || initializedRoots.has(root)) return;
+
+    initializedRoots.add(root);
+    initTechnicalCodeBlocks();
+  }
+
+  document.addEventListener("astro:page-load", initTechnicalCodeRuntime);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTechnicalCodeRuntime, {
+      once: true,
+    });
+  } else {
+    initTechnicalCodeRuntime();
+  }
+</script>

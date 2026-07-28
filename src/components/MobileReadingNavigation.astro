@@ -1,11 +1,11 @@
 ---
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
-import type { SeriesNavData } from "./SeriesNavigation.astro";
+import type { BlogSeries } from "../utils/blog";
 
 type Props = {
   headings: MarkdownHeading[];
-  series?: SeriesNavData;
+  series?: BlogSeries;
 };
 
 const { headings, series } = Astro.props;

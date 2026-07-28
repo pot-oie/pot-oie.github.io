@@ -1,0 +1,25 @@
+<script>
+  import { initTechnicalReadingNavigation } from "../../scripts/runtime/technicalReadingNavigation";
+
+  const initializedRoots = new WeakSet<Element>();
+
+  function initTechnicalReadingRuntime() {
+    const root = document.querySelector("main");
+    if (!root || initializedRoots.has(root)) return;
+
+    initializedRoots.add(root);
+    initTechnicalReadingNavigation();
+  }
+
+  document.addEventListener("astro:page-load", initTechnicalReadingRuntime);
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initTechnicalReadingRuntime,
+      { once: true },
+    );
+  } else {
+    initTechnicalReadingRuntime();
+  }
+</script>

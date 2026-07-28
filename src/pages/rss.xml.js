@@ -1,16 +1,26 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import {
+	getBlogPostHref,
+	getPublishedBlogPosts,
+	sortBlogPostsByPublicationDate,
+} from '../utils/blog';
 
 export async function GET(context) {
-	const blog = await getCollection('blog', ({ data }) => data.draft !== true);
+	const blogEntries = await getCollection('blog');
+	const blog = sortBlogPostsByPublicationDate(
+		getPublishedBlogPosts(blogEntries)
+	);
 	const watches = await getCollection('watch');
 	const music = await getCollection('music');
 
 	const items = [
 		...blog.map((post) => ({
-			...post.data,
-			link: `/blog/${post.id.replace(/\.mdx?$/, '')}/`,
+			title: post.data.title,
+			description: post.data.description,
+			pubDate: post.data.pubDate,
+			link: getBlogPostHref(post),
 			// 可以在这里添加自定义字段区分类型
 			customData: `<category>Blog</category>`
 		})),

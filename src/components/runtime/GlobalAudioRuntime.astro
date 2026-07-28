@@ -1,0 +1,15 @@
+<!-- 全局音频播放器通过 transition:persist 保留跨页播放状态。 -->
+<audio id="pot-global-audio" transition:persist preload="none"></audio>
+
+<script>
+  import { initGlobalAudio } from "../../scripts/runtime/globalAudio";
+
+  document.addEventListener("astro:page-load", initGlobalAudio);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGlobalAudio, {
+      once: true,
+    });
+  } else {
+    initGlobalAudio();
+  }
+</script>

@@ -1,0 +1,81 @@
+---
+import { Icon } from "astro-icon/components";
+import type { BlogArchivePagination } from "../utils/blog";
+
+interface Props {
+  pagination: BlogArchivePagination;
+}
+
+const { pagination } = Astro.props;
+const linkClass =
+  "inline-flex min-w-10 h-10 items-center justify-center border border-ink-300 dark:border-zinc-700 text-sm font-medium text-ink-500 dark:text-zinc-400 hover:border-vermilion hover:text-vermilion dark:hover:border-vermilion dark:hover:text-vermilion transition-colors";
+---
+
+{
+  pagination.totalPages > 1 && (
+    <nav
+      class="mt-12 flex flex-wrap items-center justify-center gap-2"
+      aria-label="博客归档分页"
+    >
+      {pagination.previousHref ? (
+        <a
+          href={pagination.previousHref}
+          rel="prev"
+          class={`${linkClass} px-3 gap-1`}
+          aria-label="上一页"
+        >
+          <Icon name="mingcute:arrow-left-line" class="w-4 h-4" />
+          <span class="sr-only sm:not-sr-only">Previous</span>
+        </a>
+      ) : (
+        <span
+          class={`${linkClass} px-3 gap-1 opacity-35`}
+          aria-hidden="true"
+        >
+          <Icon name="mingcute:arrow-left-line" class="w-4 h-4" />
+          <span class="sr-only sm:not-sr-only">Previous</span>
+        </span>
+      )}
+
+      {pagination.pages.map((page) =>
+        page.current ? (
+          <span
+            class="inline-flex min-w-10 h-10 items-center justify-center border border-vermilion bg-vermilion text-sm font-bold text-white"
+            aria-current="page"
+            aria-label={`第 ${page.number} 页`}
+          >
+            {page.number}
+          </span>
+        ) : (
+          <a
+            href={page.href}
+            class={linkClass}
+            aria-label={`前往第 ${page.number} 页`}
+          >
+            {page.number}
+          </a>
+        ),
+      )}
+
+      {pagination.nextHref ? (
+        <a
+          href={pagination.nextHref}
+          rel="next"
+          class={`${linkClass} px-3 gap-1`}
+          aria-label="下一页"
+        >
+          <span class="sr-only sm:not-sr-only">Next</span>
+          <Icon name="mingcute:arrow-right-line" class="w-4 h-4" />
+        </a>
+      ) : (
+        <span
+          class={`${linkClass} px-3 gap-1 opacity-35`}
+          aria-hidden="true"
+        >
+          <span class="sr-only sm:not-sr-only">Next</span>
+          <Icon name="mingcute:arrow-right-line" class="w-4 h-4" />
+        </span>
+      )}
+    </nav>
+  )
+}
