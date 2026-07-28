@@ -4,128 +4,73 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
+import ArchiveHeader from "../../components/ArchiveHeader.astro";
 import { Icon } from "astro-icon/components";
-import { TECH_CATEGORY_META_LIST, LIFE_CATEGORY_META_LIST } from "../../consts";
+import {
+  getBlogCategoryFilters,
+  sortBlogPosts,
+} from "../../utils/blogArchive";
 
 export async function getStaticPaths() {
   const allPosts = await getCollection("blog", ({ data }) => {
     return data.draft !== true;
   });
+  const categoryMeta = {
+    learn: {
+      title: "Notes / 学习",
+      description: "Ideas learned, tested, understood.",
+      breadcrumb: "Learn",
+    },
+    life: {
+      title: "Essays / 生活",
+      description: "Ordinary days, music, cinema, and thoughts in between.",
+      breadcrumb: "Life",
+    },
+  } as const;
 
-  const uniqueCategories = [
-    ...new Set(allPosts.map((post) => post.data.category)),
-  ];
-  return uniqueCategories.map((category) => {
-    const filteredPosts = allPosts.filter(
-      (post) => post.data.category.toLowerCase() === category,
-    );
+  return (["learn", "life"] as const).map((category) => {
+    const posts = allPosts.filter((post) => post.data.category === category);
     return {
-      params: { category: category },
+      params: { category },
       props: {
-        posts: filteredPosts,
+        posts: sortBlogPosts(posts),
+        filters: getBlogCategoryFilters(allPosts, category),
+        pageMeta: categoryMeta[category],
       },
     };
   });
 }
 
-const { category } = Astro.params;
-const { posts } = Astro.props;
-
-const sortedPosts = posts.sort(
-  (a, b) =>
-    new Date(b.data.updatedDate ?? b.data.pubDate).valueOf() -
-    new Date(a.data.updatedDate ?? a.data.pubDate).valueOf(),
-);
-
-const categoryNames: Record<string, string> = {
-  learn: "Notes / 学习",
-  life: "Essays / 浮生录",
-};
-
-// 页面标题逻辑
-const displayTitle = categoryNames[category] || category;
-const isLearnCategory = category === "learn";
-const isLifeCategory = category === "life";
+const { posts, filters, pageMeta } = Astro.props;
 ---
 
-<BaseLayout
-  title={`Category: ${category}`}
-  description={`Posts in ${category}`}
->
+<BaseLayout title={pageMeta.title} description={pageMeta.description}>
   <section class="py-8 md:py-16">
-    <div
-      class="mb-4 px-4 text-center md:text-left border-b border-ink-900 pb-8"
-    >
-      <div
-        class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase"
-      >
-        <a href="/" class="hover:text-vermilion transition-colors">Home</a>
-        <span>/</span>
-        <span class="text-ink-900 dark:text-zinc-100">Category</span>
-      </div>
+    <ArchiveHeader
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Blog", href: "/blog/" },
+        { label: pageMeta.breadcrumb },
+      ]}
+      title={pageMeta.title}
+      description={pageMeta.description}
+      count={posts.length}
+      filters={filters}
+      filterLabel={`${pageMeta.breadcrumb}分类`}
+      activeFilter="all"
+    />
 
-      <h1
-        class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-6 tracking-tight"
-      >
-        {displayTitle}
-      </h1>
-
-      <div
-        class="flex items-center justify-center md:justify-start gap-3 text-ink-500 dark:text-zinc-400"
-      >
-        <Icon name="mingcute:quill-pen-line" class="w-5 h-5" />
-        <p class="font-serif italic text-lg">
-          {posts.length}
-          {posts.length === 1 ? "entry" : "entries"} collected.
-        </p>
-      </div>
-
-      {
-        isLearnCategory && (
-          <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
-            {TECH_CATEGORY_META_LIST.map((meta) => (
-              <a
-                href={`/blog/learn/${meta.slug}/`}
-                class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
-              >
-                <Icon name={meta.icon} class="w-4 h-4" />
-                {meta.label}
-              </a>
-            ))}
-          </div>
-        )
-      }
-
-      {
-        isLifeCategory && (
-          <div class="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2">
-            {LIFE_CATEGORY_META_LIST.map((meta) => (
-              <a
-                href={`/blog/life/${meta.slug}/`}
-                class="inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors"
-              >
-                <Icon name={meta.icon} class="w-4 h-4" />
-                {meta.label}
-              </a>
-            ))}
-          </div>
-        )
-      }
-    </div>
-
-    {/* 列表区域：复用 PostCard */}
     <div class="flex flex-col max-w-4xl mx-auto">
-      {sortedPosts.map((post) => <PostCard post={post} />)}
+      {posts.map((post) => <PostCard post={post} />)}
     </div>
 
-    {/* 底部导航 */}
     <div class="mt-20 text-center">
       <a
-        href="/blog"
+        href="/blog/"
         class="inline-flex items-center gap-2 text-ink-500 dark:text-zinc-400 hover:text-vermilion transition-colors text-sm tracking-widest uppercase"
       >
         <Icon name="mingcute:arrow-left-line" />
-        <span>Back to All Archives</span>
+        <span>Back to Blog</span>
       </a>
     </div>
   </section>

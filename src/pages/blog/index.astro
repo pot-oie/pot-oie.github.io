@@ -1,71 +1,42 @@
 ---
-// src/pages/blog/index.astro
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
+import ArchiveHeader from "../../components/ArchiveHeader.astro";
 import { Icon } from "astro-icon/components";
+import {
+  getBlogRootFilters,
+  sortBlogPosts,
+} from "../../utils/blogArchive";
 
-// 1. 获取所有非草稿文章
 const allPosts = await getCollection("blog", ({ data }) => {
   return data.draft !== true;
 });
-
-// 2. 按时间倒序排序 (优先使用 updatedDate)
-const sortedPosts = allPosts.sort((a, b) => {
-  // 获取 A 的有效日期：如果有 updatedDate 则使用，否则使用 pubDate
-  const dateA = a.data.updatedDate ?? a.data.pubDate;
-
-  // 获取 B 的有效日期
-  const dateB = b.data.updatedDate ?? b.data.pubDate;
-
-  // 倒序：大（新）的在前
-  return dateB.valueOf() - dateA.valueOf();
-});
-
-const pageTitle = "All Archives";
-const pageDescription = "All writings collected.";
+const sortedPosts = sortBlogPosts(allPosts);
+const filters = getBlogRootFilters(allPosts);
+const pageTitle = "Blog / 文集";
+const pageDescription = "Notes and essays, collected.";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <section class="py-8 md:py-16">
-    {/* --- 头部区域 --- */}
-    <div
-      class="mb-4 px-4 text-center md:text-left border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
-    >
-      {/* 面包屑导航 */}
-      <div
-        class="flex items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase transition-colors"
-      >
-        <a href="/" class="hover:text-vermilion transition-colors">Home</a>
-        <span>/</span>
-        <span class="text-ink-900 dark:text-zinc-100">Blog</span>
-      </div>
+    <ArchiveHeader
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Blog" },
+      ]}
+      title={pageTitle}
+      description={pageDescription}
+      count={allPosts.length}
+      filters={filters}
+      filterLabel="博客分类"
+      activeFilter="all"
+    />
 
-      {/* 主标题 */}
-      <h1
-        class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-6 tracking-tight transition-colors"
-      >
-        Archives
-      </h1>
-
-      {/* 统计信息 */}
-      <div
-        class="flex items-center justify-center md:justify-start gap-3 text-ink-500 dark:text-zinc-400 transition-colors"
-      >
-        <Icon name="mingcute:quill-pen-line" class="w-5 h-5" />
-        <p class="font-serif italic text-lg">
-          Total {allPosts.length}
-          {allPosts.length === 1 ? "entry" : "entries"}.
-        </p>
-      </div>
-    </div>
-
-    {/* --- 文章列表 --- */}
     <div class="flex flex-col max-w-4xl mx-auto">
       {sortedPosts.map((post) => <PostCard post={post} />)}
     </div>
 
-    {/* 底部导航：返回首页 */}
     <div class="mt-20 text-center">
       <a
         href="/"
