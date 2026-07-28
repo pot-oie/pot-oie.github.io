@@ -1,0 +1,205 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import type { CollectionEntry } from "astro:content";
+import {
+  getLatestSeasonNumber,
+  getWatchScore,
+  getWatchSlug,
+  hasPendingSeason,
+} from "../utils/watch";
+
+export interface Props {
+  posts: CollectionEntry<"watch">[];
+}
+
+const { posts } = Astro.props;
+---
+
+<div class="relative w-full group/scroll">
+  <div
+    class="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-linear-to-r from-[#f2f2f2] dark:from-[#18181b] to-transparent z-20 pointer-events-none transition-colors duration-300"
+  >
+  </div>
+  <div
+    class="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-linear-to-l from-[#f2f2f2] dark:from-[#18181b] to-transparent z-20 pointer-events-none transition-colors duration-300"
+  >
+  </div>
+
+  <div
+    class="watch-scroll-container flex overflow-x-auto gap-4 md:gap-6 pb-8 pt-4 px-4 md:px-8 snap-x snap-mandatory scrollbar-hide items-center cursor-grab active:cursor-grabbing"
+    style="scrollbar-width: none; -ms-overflow-style: none;"
+    data-lenis-prevent
+  >
+    {
+      posts.map((post) => {
+        const slug = getWatchSlug(post);
+        const score = getWatchScore(post.data);
+        const pending = hasPendingSeason(post.data);
+        const latestSeason = getLatestSeasonNumber(post.data);
+        const isSeries = post.data.mediaType === "series";
+        const CardElement = isSeries ? "a" : "button";
+
+        return (
+          <CardElement
+            href={isSeries ? `/watch/series/${slug}/` : undefined}
+            type={!isSeries ? "button" : undefined}
+            data-scroll-movie={!isSeries ? "" : undefined}
+            class="scroll-card relative shrink-0 snap-center w-40 md:w-[200px] aspect-2/3 group/card transition-all duration-500 ease-out active:scale-95 md:hover:scale-105 md:hover:-translate-y-2 z-0 md:hover:z-10 select-none text-left"
+            draggable="false"
+            aria-label={
+              isSeries
+                ? `查看《${post.data.title}》的季度记录`
+                : `查看《${post.data.title}》的短评`
+            }
+          >
+            <div class="w-full h-full overflow-hidden rounded-sm shadow-ink relative">
+              <Image
+                src={post.data.coverImage}
+                alt={post.data.title}
+                width={600}
+                loading="eager"
+                class="w-full h-full object-cover transition-all duration-700 pointer-events-none"
+                draggable="false"
+              />
+
+              {
+                isSeries && (
+                  <div class="absolute left-2 top-2 bg-ink-100/90 dark:bg-zinc-900/85 backdrop-blur-sm px-2 py-0.5 rounded-sm shadow-sm">
+                    <span class="text-[9px] font-sans font-bold tracking-[0.16em] uppercase text-ink-700 dark:text-zinc-200">
+                      Series
+                    </span>
+                  </div>
+                )
+              }
+
+              <div class="absolute top-2 right-2 bg-ink-100/90 dark:bg-zinc-900/85 backdrop-blur-sm px-2 py-0.5 rounded-sm shadow-sm translate-y-2 transition-all duration-300 flex items-center gap-1 opacity-0 md:group-hover/card:opacity-100 md:group-hover/card:translate-y-0">
+                {
+                  pending ? (
+                    <span class="text-[9px] font-sans font-bold tracking-wider text-ink-500 dark:text-zinc-300">
+                      TO WATCH
+                    </span>
+                  ) : score !== null ? (
+                    <>
+                      <Icon
+                        name="mingcute:star-fill"
+                        class="w-3 h-3 text-vermilion"
+                      />
+                      <span class="text-xs font-serif font-bold text-ink-900 dark:text-zinc-100">
+                        {score.toFixed(1)}
+                      </span>
+                    </>
+                  ) : null
+                }
+              </div>
+
+              <div class="absolute inset-0 p-3 bg-linear-to-t from-ink-900/95 via-ink-900/55 to-transparent flex flex-col justify-end transition-opacity duration-300 opacity-0 md:group-hover/card:opacity-100 group-[.is-active]/card:opacity-100">
+                <h4 class="text-ink-100 font-serif text-sm font-bold leading-tight line-clamp-2 drop-shadow-md">
+                  {post.data.title}
+                  {
+                    latestSeason !== null && (
+                      <span class="ml-1 text-ink-100/65">
+                        · S{String(latestSeason).padStart(2, "0")}
+                      </span>
+                    )
+                  }
+                </h4>
+                <p class="mt-1 text-ink-100/90 text-xs leading-relaxed line-clamp-4 drop-shadow-md">
+                  {post.data.shortReview}
+                </p>
+              </div>
+            </div>
+          </CardElement>
+        );
+      })
+    }
+
+    <div class="shrink-0 w-4 md:w-8"></div>
+  </div>
+
+  <div
+    class="text-center mt-2 opacity-0 group-hover/scroll:opacity-60 transition-opacity duration-500"
+  >
+    <span
+      class="text-xs font-sans tracking-widest text-ink-300 dark:text-zinc-500 uppercase"
+      >Scroll Horizontally / 横向浏览</span
+    >
+  </div>
+</div>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initWatchScroll() {
+    document
+      .querySelectorAll<HTMLElement>(
+        ".watch-scroll-container:not([data-initialized])",
+      )
+      .forEach((scrollContainer) => {
+        scrollContainer.dataset.initialized = "true";
+
+        scrollContainer.addEventListener(
+          "wheel",
+          (event) => {
+            if (scrollContainer.scrollWidth <= scrollContainer.clientWidth) return;
+            if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+            event.preventDefault();
+            scrollContainer.scrollLeft += event.deltaY;
+          },
+          { passive: false },
+        );
+
+        let isDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+        let hasMoved = false;
+
+        scrollContainer.addEventListener("mousedown", (event) => {
+          isDown = true;
+          hasMoved = false;
+          startX = event.pageX - scrollContainer.offsetLeft;
+          scrollLeft = scrollContainer.scrollLeft;
+        });
+
+        const stopDragging = () => {
+          isDown = false;
+        };
+
+        scrollContainer.addEventListener("mouseleave", stopDragging);
+        scrollContainer.addEventListener("mouseup", stopDragging);
+        scrollContainer.addEventListener("mousemove", (event) => {
+          if (!isDown) return;
+          event.preventDefault();
+          const x = event.pageX - scrollContainer.offsetLeft;
+          const walk = (x - startX) * 1.5;
+          if (Math.abs(walk) > 5) hasMoved = true;
+          scrollContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        scrollContainer
+          .querySelectorAll<HTMLElement>(".scroll-card")
+          .forEach((card) => {
+            card.addEventListener("click", (event) => {
+              if (hasMoved) {
+                event.preventDefault();
+                return;
+              }
+
+              if (!card.hasAttribute("data-scroll-movie")) return;
+              const wasActive = card.classList.contains("is-active");
+              scrollContainer
+                .querySelectorAll(".scroll-card.is-active")
+                .forEach((item) => item.classList.remove("is-active"));
+              if (!wasActive) card.classList.add("is-active");
+            });
+          });
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", initWatchScroll);
+  document.addEventListener("astro:page-load", initWatchScroll);
+</script>

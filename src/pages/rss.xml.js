@@ -4,7 +4,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
 export async function GET(context) {
 	const blog = await getCollection('blog', ({ data }) => data.draft !== true);
-	const movies = await getCollection('movie');
+	const watches = await getCollection('watch');
 	const music = await getCollection('music');
 
 	const items = [
@@ -14,13 +14,15 @@ export async function GET(context) {
 			// 可以在这里添加自定义字段区分类型
 			customData: `<category>Blog</category>`
 		})),
-		...movies.map((post) => ({
-			title: `[观影] ${post.data.title} (${post.data.rating}★)`,
+		...watches.map((post) => ({
+			title: `[观影] ${post.data.title}`,
 			description: post.data.shortReview,
-			pubDate: post.data.viewingDate, // 使用观影日期作为发布日期
-			link: `/movie/`,
-			customData: `<category>Movie</category>`
-		})),
+			pubDate: post.data.finishedDate ?? post.data.releaseDate,
+			link: post.data.mediaType === 'series'
+				? `/watch/series/${post.id.replace(/\.(yaml|yml|json)$/i, '')}/`
+				: `/watch/movie/`,
+			customData: `<category>Watch</category>`
+		})).filter((post) => post.pubDate),
 		...music.map((post) => ({
 			title: `[听歌] ${post.data.title} - ${post.data.artist}`,
 			description: `本月听了：${post.data.title}`,

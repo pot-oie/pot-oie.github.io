@@ -1,0 +1,48 @@
+---
+import { Icon } from "astro-icon/components";
+import type { ArchiveFilterItem } from "../utils/archive";
+
+interface Props {
+  items: ArchiveFilterItem[];
+  ariaLabel: string;
+  activeValue?: string;
+  class?: string;
+}
+
+const {
+  items,
+  ariaLabel,
+  activeValue,
+  class: className = "",
+} = Astro.props;
+
+const itemClass =
+  "inline-flex items-center gap-1 text-xs tracking-widest uppercase px-2 py-1 rounded border border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400 hover:text-vermilion hover:border-vermilion transition-colors [&[data-active=true]]:text-vermilion [&[data-active=true]]:border-vermilion";
+---
+
+<nav
+  class:list={[
+    "mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2",
+    className,
+  ]}
+  aria-label={ariaLabel}
+>
+  {
+    items.map((item) => (
+      <a
+        href={item.href}
+        class={itemClass}
+        data-active={item.value === activeValue ? "true" : "false"}
+        aria-current={item.value === activeValue ? "page" : undefined}
+      >
+        <Icon name={item.icon} class="w-4 h-4" />
+        <span>{item.label}</span>
+        {item.count !== undefined && (
+          <span class="ml-0.5 text-[10px] opacity-55">
+            {String(item.count).padStart(2, "0")}
+          </span>
+        )}
+      </a>
+    ))
+  }
+</nav>

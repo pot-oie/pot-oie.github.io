@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { pinyin } from 'pinyin-pro';
 import { intro, outro, select, text, confirm, spinner, isCancel, cancel } from '@clack/prompts';
 import color from 'picocolors';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -21,8 +22,8 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, '..');
 
 const PATHS = {
-  movieContent: path.join(PROJECT_ROOT, 'src/content/movie'),
-  movieAssets: path.join(PROJECT_ROOT, 'src/assets/movie'),
+  watchContent: path.join(PROJECT_ROOT, 'src/content/watch'),
+  watchAssets: path.join(PROJECT_ROOT, 'src/assets/watch'),
   musicContent: path.join(PROJECT_ROOT, 'src/content/music'),
   musicAssets: path.join(PROJECT_ROOT, 'src/assets/music'),
 };
@@ -135,6 +136,7 @@ async function main() {
     message: 'Select content type:',
     options: [
       { value: 'movie', label: '● Movie', hint: 'TMDB Database' },
+      { value: 'series', label: '● Series', hint: 'TMDB TV Database' },
       { value: 'music', label: '● Music', hint: 'iTunes Database' },
     ],
   });
@@ -142,12 +144,53 @@ async function main() {
 
   if (type === 'movie') {
     await handleMovie();
+  } else if (type === 'series') {
+    await handleSeries();
   } else {
     await handleMusic();
   }
 
   // 结束语
   outro(color.cyan('Done.'));
+}
+
+function getTodayString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, { agent });
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}): ${url}`);
+  }
+  return response.json();
+}
+
+async function downloadPoster(posterPath, destination, spinnerInstance) {
+  if (!posterPath) {
+    throw new Error('No non-Chinese poster is available for this title.');
+  }
+
+  spinnerInstance.start(color.blue('› Downloading non-Chinese poster...'));
+  const posterUrl = `https://image.tmdb.org/t/p/w500${posterPath}`;
+  const response = await fetch(posterUrl, { agent });
+  if (!response.ok) {
+    throw new Error(`Poster download failed (${response.status})`);
+  }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await sharp(buffer).webp({ quality: 88 }).toFile(destination);
+  spinnerInstance.stop(color.dim('Poster saved'));
+}
+
+async function confirmOverwrite(filePath, fileName) {
+  if (!fs.existsSync(filePath)) return true;
+
+  const shouldOverwrite = await confirm({
+    message: `File ${color.yellow(fileName)} exists. Overwrite?`,
+  });
+  checkCancel(shouldOverwrite);
+  return shouldOverwrite;
 }
 
 // ================= handleMovie =================
@@ -174,8 +217,7 @@ async function handleMovie() {
   const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=zh-CN`;
   
   try {
-    const res = await fetch(searchUrl, { agent });
-    const data = await res.json();
+    const data = await fetchJson(searchUrl);
     s.stop(color.dim('Search complete'));
 
     if (!data.results || data.results.length === 0) {
@@ -199,53 +241,38 @@ async function handleMovie() {
     });
     checkCancel(movieZH);
 
-    // 2. 获取英文详情
+    // 英文详情优先返回英文海报；没有英文海报时由 TMDB 回退到原始语言海报。
     s.start(color.blue(`› Fetching details for "${movieZH.title}"...`));
     const detailUrl = `https://api.themoviedb.org/3/movie/${movieZH.id}?api_key=${apiKey}&language=en-US`;
-    const detailRes = await fetch(detailUrl, { agent });
-    const movieEN = await detailRes.json();
+    const movieEN = await fetchJson(detailUrl);
     s.stop(color.dim('Details fetched'));
 
-    const slugName = slugify(movieEN.title, { lower: true, strict: true });
+    const slugName =
+      slugify(movieEN.title || movieEN.original_title, {
+        lower: true,
+        strict: true,
+      }) || `movie-${movieZH.id}`;
     const posterFilename = `${slugName}.webp`;
-    const posterPath = path.join(PATHS.movieAssets, posterFilename);
-    const posterUrl = `https://image.tmdb.org/t/p/w500${movieEN.poster_path}`;
+    const posterPath = path.join(PATHS.watchAssets, posterFilename);
+    const fileName = `${slugName}.yaml`;
+    const filePath = path.join(PATHS.watchContent, fileName);
 
-    if (movieEN.poster_path) {
-      s.start(color.blue('› Downloading poster...'));
-      const imgRes = await fetch(posterUrl, { agent });
-      const buffer = await imgRes.arrayBuffer();
-      await fs.writeFile(posterPath, Buffer.from(buffer));
-      s.stop(color.dim('Poster saved'));
+    if (!(await confirmOverwrite(filePath, fileName))) {
+      cancel('Aborted.');
+      process.exit(0);
     }
 
-    let formattedReleaseDate = '01 01 1970';
-    if (movieEN.release_date) {
-      const [rYear, rMonth, rDay] = movieEN.release_date.split('-');
-      formattedReleaseDate = `${rMonth} ${rDay} ${rYear}`;
-    }
+    await downloadPoster(movieEN.poster_path, posterPath, s);
 
     const yamlContent = `title: ${JSON.stringify(movieZH.title)}
-releaseDate: ${JSON.stringify(formattedReleaseDate)}
-viewingDate: ${JSON.stringify(new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }).replace(/\//g, ' '))}
+originalTitle: ${JSON.stringify(movieEN.original_title || movieEN.title)}
+tmdbId: ${movieZH.id}
+mediaType: movie
+${movieEN.release_date ? `releaseDate: ${JSON.stringify(movieEN.release_date)}\n` : ''}finishedDate: ${JSON.stringify(getTodayString())}
 rating: 0
-coverImage: ${JSON.stringify(`../../assets/movie/${posterFilename}`)}
+coverImage: ${JSON.stringify(`../../assets/watch/${posterFilename}`)}
 shortReview: ""
 `;
-
-    const fileName = `${slugName}.yaml`;
-    const filePath = path.join(PATHS.movieContent, fileName);
-
-    if (fs.existsSync(filePath)) {
-      const shouldOverwrite = await confirm({
-        message: `File ${color.yellow(fileName)} exists. Overwrite?`,
-      });
-      checkCancel(shouldOverwrite);
-      if (!shouldOverwrite) {
-        cancel('Aborted.');
-        process.exit(0);
-      }
-    }
 
     await fs.writeFile(filePath, yamlContent);
     
@@ -256,6 +283,123 @@ shortReview: ""
       { label: 'Poster', value: color.dim(posterFilename) }
     ]);
 
+  } catch (error) {
+    s.stop(color.red('Error occurred'));
+    console.error(error);
+  }
+}
+
+// ================= handleSeries =================
+async function handleSeries() {
+  const query = await text({
+    message: 'Series Title:',
+    placeholder: 'e.g. Friends, 请回答1988, or 孤独的美食家',
+    validate(value) {
+      if (value.length === 0) return 'Title is required';
+    },
+  });
+  checkCancel(query);
+
+  const apiKey = process.env.TMDB_API_KEY;
+  if (!apiKey) {
+    cancel(color.red('Error: TMDB_API_KEY not found in .env'));
+    process.exit(1);
+  }
+
+  const s = spinner();
+  s.start(color.blue('› Searching TMDB TV (zh-CN)...'));
+  const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=zh-CN`;
+
+  try {
+    const data = await fetchJson(searchUrl);
+    s.stop(color.dim('Search complete'));
+
+    if (!data.results || data.results.length === 0) {
+      cancel(color.yellow('No series found.'));
+      process.exit(0);
+    }
+
+    const options = data.results.slice(0, 7).map((series) => {
+      const year = series.first_air_date
+        ? series.first_air_date.split('-')[0]
+        : 'N/A';
+      const overview = series.overview
+        ? `${series.overview.substring(0, 40).replace(/\n/g, '')}...`
+        : '';
+      return {
+        value: series,
+        label: `${series.name} (${year})`,
+        hint: overview,
+      };
+    });
+
+    const seriesZH = await select({
+      message: 'Select a series:',
+      options,
+    });
+    checkCancel(seriesZH);
+
+    // 使用 en-US 详情避免下载中文版海报；TMDB 会在缺图时回退到原始语言海报。
+    s.start(color.blue(`› Fetching details for "${seriesZH.name}"...`));
+    const detailUrl = `https://api.themoviedb.org/3/tv/${seriesZH.id}?api_key=${apiKey}&language=en-US`;
+    const seriesEN = await fetchJson(detailUrl);
+    s.stop(color.dim('Details fetched'));
+
+    const regularSeasons = (seriesEN.seasons || [])
+      .filter(
+        (season) =>
+          season.season_number > 0 &&
+          season.episode_count > 0,
+      )
+      .sort((a, b) => a.season_number - b.season_number);
+
+    if (regularSeasons.length === 0) {
+      cancel(color.yellow('No regular seasons found. Season 0 is ignored.'));
+      process.exit(0);
+    }
+
+    const slugName =
+      slugify(seriesEN.name || seriesEN.original_name, {
+        lower: true,
+        strict: true,
+      }) || `series-${seriesZH.id}`;
+    const posterFilename = `${slugName}.webp`;
+    const posterPath = path.join(PATHS.watchAssets, posterFilename);
+    const fileName = `${slugName}.yaml`;
+    const filePath = path.join(PATHS.watchContent, fileName);
+
+    if (!(await confirmOverwrite(filePath, fileName))) {
+      cancel('Aborted.');
+      process.exit(0);
+    }
+
+    const seasonYaml = regularSeasons
+      .map(
+        (season, index) =>
+          `  - number: ${season.season_number}\n    rating: ${index === 0 ? 0 : 'to-watch'}`,
+      )
+      .join('\n');
+
+    const yamlContent = `title: ${JSON.stringify(seriesZH.name)}
+originalTitle: ${JSON.stringify(seriesEN.original_name || seriesEN.name)}
+tmdbId: ${seriesZH.id}
+mediaType: series
+${seriesEN.first_air_date ? `releaseDate: ${JSON.stringify(seriesEN.first_air_date)}\n` : ''}coverImage: ${JSON.stringify(`../../assets/watch/${posterFilename}`)}
+shortReview: ""
+seasons:
+${seasonYaml}
+`;
+
+    await downloadPoster(seriesEN.poster_path, posterPath, s);
+    await fs.writeFile(filePath, yamlContent);
+
+    printResultTable('SERIES ENTRY CREATED', [
+      { label: 'Title', value: seriesZH.name },
+      { label: 'Original', value: seriesEN.original_name || seriesEN.name },
+      { label: 'Seasons', value: regularSeasons.length },
+      { label: 'Filename', value: color.underline(fileName) },
+      { label: 'Poster', value: color.dim(posterFilename) },
+    ]);
   } catch (error) {
     s.stop(color.red('Error occurred'));
     console.error(error);
@@ -334,8 +478,7 @@ async function handleMusic() {
     const neteaseLink = `https://music.163.com/#/search/m/?s=${encodeURIComponent(searchKey)}`;
     const qqLink = `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(searchKey)}`;
 
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayStr = getTodayString();
 
     // 获取歌曲的 30 秒试听直链
     const previewUrl = selectedTrack.previewUrl || "";

@@ -1,0 +1,151 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+import {
+  getLatestSeasonNumber,
+  getWatchScore,
+  getWatchSlug,
+  hasPendingSeason,
+} from "../utils/watch";
+
+interface Props {
+  post: CollectionEntry<"watch">;
+  eager?: boolean;
+}
+
+const { post, eager = false } = Astro.props;
+const { title, originalTitle, coverImage, mediaType, shortReview } = post.data;
+const slug = getWatchSlug(post);
+const score = getWatchScore(post.data);
+const pending = hasPendingSeason(post.data);
+const latestSeason = getLatestSeasonNumber(post.data);
+const typeLabel = mediaType === "movie" ? "Film" : "Series";
+const PosterElement = mediaType === "series" ? "a" : "button";
+---
+
+<article
+  class="group watch-card flex flex-col gap-3"
+  data-media-type={mediaType}
+  data-movie-card={mediaType === "movie" ? "" : undefined}
+>
+  <PosterElement
+    href={mediaType === "series" ? `/watch/series/${slug}/` : undefined}
+    type={mediaType === "movie" ? "button" : undefined}
+    class="block w-full overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] transition-transform duration-200 text-left"
+    aria-label={
+      mediaType === "series"
+        ? `查看《${title}》的季度记录`
+        : `查看《${title}》的短评`
+    }
+  >
+    <Image
+      src={coverImage}
+      alt={title}
+      width={600}
+      loading={eager ? "eager" : "lazy"}
+      class="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-105"
+    />
+
+    <div
+      class="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3"
+    >
+      {
+        mediaType === "series" && (
+          <span class="bg-ink-100/90 dark:bg-zinc-900/85 backdrop-blur-sm px-2 py-1 text-[10px] font-sans font-bold tracking-[0.18em] uppercase text-ink-700 dark:text-zinc-200 rounded-sm shadow-sm">
+            {typeLabel}
+          </span>
+        )
+      }
+
+      {
+        mediaType === "series" && latestSeason !== null && (
+          <span class="bg-ink-900/75 backdrop-blur-sm px-2 py-1 text-[10px] font-sans font-bold tracking-widest text-ink-100 rounded-sm shadow-sm">
+            S{String(latestSeason).padStart(2, "0")}
+          </span>
+        )
+      }
+    </div>
+
+    <div
+      class="absolute inset-0 flex flex-col justify-end p-4 bg-linear-to-t from-ink-900/95 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
+    >
+      <p class="text-ink-100 text-sm leading-relaxed line-clamp-5 drop-shadow-md">
+        {shortReview}
+      </p>
+      {
+        mediaType === "series" && (
+          <span class="mt-3 inline-flex items-center gap-1.5 text-[10px] font-sans tracking-[0.18em] uppercase text-ink-100/75">
+            Season Notes
+            <Icon name="mingcute:arrow-right-up-line" class="w-3.5 h-3.5" />
+          </span>
+        )
+      }
+    </div>
+  </PosterElement>
+
+  <div class="flex min-w-0 items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h2
+        class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-200 md:group-hover:text-vermilion active:text-vermilion transition-colors leading-tight line-clamp-1"
+      >
+        {
+          mediaType === "series" ? (
+            <a href={`/watch/series/${slug}/`}>{title}</a>
+          ) : (
+            title
+          )
+        }
+      </h2>
+      {
+        originalTitle && originalTitle !== title && (
+          <p class="mt-1 truncate text-[11px] font-sans tracking-wide text-ink-300 dark:text-zinc-500">
+            {originalTitle}
+          </p>
+        )
+      }
+    </div>
+
+    <div
+      class:list={[
+        "mt-0.5 shrink-0 text-xs font-sans font-semibold tracking-wide",
+        pending
+          ? "text-ink-400 dark:text-zinc-500"
+          : "text-yellow-600 dark:text-yellow-500",
+      ]}
+    >
+      {
+        pending ? (
+          <span>TO WATCH</span>
+        ) : score !== null ? (
+          <span>★ {score.toFixed(1)}</span>
+        ) : null
+      }
+    </div>
+  </div>
+</article>
+
+<script>
+  function initMovieCards() {
+    const cards = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        "[data-movie-card]:not([data-initialized])",
+      ),
+    );
+
+    cards.forEach((card) => {
+      card.dataset.initialized = "true";
+      const trigger = card.querySelector<HTMLButtonElement>("button");
+      trigger?.addEventListener("click", () => {
+        const wasActive = card.classList.contains("is-active");
+        document
+          .querySelectorAll("[data-movie-card].is-active")
+          .forEach((item) => item.classList.remove("is-active"));
+        if (!wasActive) card.classList.add("is-active");
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initMovieCards);
+  document.addEventListener("astro:page-load", initMovieCards);
+</script>

@@ -1,0 +1,16 @@
+---
+import { getCollection } from "astro:content";
+import WatchArchive from "../../layouts/WatchArchive.astro";
+
+export function getStaticPaths() {
+  return [
+    { params: { mediaType: "movie" } },
+    { params: { mediaType: "series" } },
+  ];
+}
+
+const activeType = Astro.params.mediaType as "movie" | "series";
+const watchPosts = await getCollection("watch");
+---
+
+<WatchArchive posts={watchPosts} activeType={activeType} />

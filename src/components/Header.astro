@@ -22,11 +22,10 @@ import Search from "./Search.astro";
         {/* 桌面端菜单 */}
         <ul class="hidden md:flex gap-6">
           <li><HeaderLink href="/">首页</HeaderLink></li>
-          <li><HeaderLink href="/blog/learn">学习笔记</HeaderLink></li>
-          <li><HeaderLink href="/blog/life">生活记录</HeaderLink></li>
-          <li><HeaderLink href="/movie">观影清单</HeaderLink></li>
-          <li><HeaderLink href="/music">音乐日历</HeaderLink></li>
-          <li><HeaderLink href="/about">关于我</HeaderLink></li>
+          <li><HeaderLink href="/blog">博客</HeaderLink></li>
+          <li><HeaderLink href="/watch">观影</HeaderLink></li>
+          <li><HeaderLink href="/music">音乐</HeaderLink></li>
+          <li><HeaderLink href="/about">关于</HeaderLink></li>
         </ul>
 
         {/* 图标区域 */}
@@ -98,37 +97,30 @@ import Search from "./Search.astro";
       </li>
       <li>
         <a
-          href="/blog/learn"
+          href="/blog"
           class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
-          >学习笔记</a
+          >博客</a
         >
       </li>
       <li>
         <a
-          href="/blog/life"
+          href="/watch"
           class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
-          >生活记录</a
-        >
-      </li>
-      <li>
-        <a
-          href="/movie"
-          class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
-          >观影清单</a
+          >观影</a
         >
       </li>
       <li>
         <a
           href="/music"
           class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
-          >音乐日历</a
+          >音乐</a
         >
       </li>
       <li>
         <a
           href="/about"
           class="mobile-link block py-3 border-b border-dashed border-ink-200 dark:border-zinc-800 hover:text-vermilion hover:pl-2 transition-all"
-          >关于我</a
+          >关于</a
         >
       </li>
     </ul>

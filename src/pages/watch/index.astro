@@ -1,0 +1,8 @@
+---
+import { getCollection } from "astro:content";
+import WatchArchive from "../../layouts/WatchArchive.astro";
+
+const watchPosts = await getCollection("watch");
+---
+
+<WatchArchive posts={watchPosts} activeType="all" />

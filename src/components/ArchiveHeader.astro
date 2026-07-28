@@ -1,0 +1,90 @@
+---
+import { Icon } from "astro-icon/components";
+import ArchiveFilter from "./ArchiveFilter.astro";
+import type {
+  ArchiveBreadcrumbItem,
+  ArchiveFilterItem,
+} from "../utils/archive";
+
+interface Props {
+  breadcrumbs: ArchiveBreadcrumbItem[];
+  title: string;
+  description: string;
+  count: number;
+  countIcon?: string;
+  filters?: ArchiveFilterItem[];
+  filterLabel?: string;
+  activeFilter?: string;
+}
+
+const {
+  breadcrumbs,
+  title,
+  description,
+  count,
+  countIcon = "mingcute:quill-pen-line",
+  filters = [],
+  filterLabel = "归档筛选",
+  activeFilter,
+} = Astro.props;
+---
+
+<header
+  class="mb-4 px-4 text-center md:text-left border-b border-ink-900 dark:border-zinc-700 pb-8 transition-colors"
+>
+  <nav
+    class="flex flex-wrap items-center justify-center md:justify-start gap-2 text-ink-500 dark:text-zinc-400 mb-4 text-sm tracking-widest uppercase transition-colors"
+    aria-label="面包屑"
+  >
+    {
+      breadcrumbs.map((item, index) => (
+        <>
+          {index > 0 && <span aria-hidden="true">/</span>}
+          {item.href ? (
+            <a href={item.href} class="hover:text-vermilion transition-colors">
+              {item.label}
+            </a>
+          ) : (
+            <span
+              class="text-ink-900 dark:text-zinc-100"
+              aria-current="page"
+            >
+              {item.label}
+            </span>
+          )}
+        </>
+      ))
+    }
+  </nav>
+
+  <h1
+    class="text-5xl md:text-7xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-4 tracking-tight transition-colors"
+  >
+    {title}
+  </h1>
+
+  <p
+    class="mx-auto md:mx-0 max-w-2xl text-ink-500 dark:text-zinc-400 leading-relaxed"
+  >
+    {description}
+  </p>
+
+  <div
+    class="mt-5 flex items-center justify-center md:justify-start gap-3 text-ink-500 dark:text-zinc-400 transition-colors"
+  >
+    <Icon name={countIcon} class="w-5 h-5" />
+    <p class="font-serif italic text-lg">
+      {count} {count === 1 ? "entry" : "entries"} collected.
+    </p>
+  </div>
+
+  {
+    filters.length > 0 && (
+      <ArchiveFilter
+        items={filters}
+        ariaLabel={filterLabel}
+        activeValue={activeFilter}
+      />
+    )
+  }
+</header>

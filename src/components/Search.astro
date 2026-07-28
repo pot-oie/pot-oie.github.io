@@ -269,8 +269,13 @@ import { Icon } from "astro-icon/components";
       return BLOG_SUMMARY_SEGMENTS.has(segment) ? "summary" : "detail";
     }
 
-    if (path === "/movie") return "summary";
-    if (/^\/movie\/\d+$/.test(path)) return "summary";
+    if (
+      path === "/watch" ||
+      path === "/watch/movie" ||
+      path === "/watch/series"
+    ) {
+      return "summary";
+    }
 
     if (path === "/music") return "summary";
     if (/^\/music\/[^/]+$/.test(path)) return "summary";

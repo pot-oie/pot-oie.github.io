@@ -4,8 +4,10 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCardForIndex from "../components/PostCardForIndex.astro";
 import RecentMusic from "../components/RecentMusic.astro";
-import MovieScroll from "../components/MovieScroll.astro";
+import WatchCard from "../components/WatchCard.astro";
+import WatchScroll from "../components/WatchScroll.astro";
 import { Icon } from "astro-icon/components";
+import { getWatchSortTime, hasPendingSeason } from "../utils/watch";
 
 // 获取博客文章
 const allPosts = await getCollection("blog", ({ data }) => {
@@ -26,14 +28,15 @@ if (allPosts.length > 0) {
   randomPostUrl = `/blog/${slug}/`;
 }
 
-// 获取电影
-const moviePosts = await getCollection("movie");
-const recentMovies = moviePosts
-  .sort(
-    (a, b) =>
-      new Date(b.data.viewingDate).valueOf() -
-      new Date(a.data.viewingDate).valueOf(),
-  )
+// 获取最近观影记录；仍有未开始季度的剧集优先展示
+const watchPosts = await getCollection("watch");
+const recentWatches = watchPosts
+  .sort((a, b) => {
+    const pendingDifference =
+      Number(hasPendingSeason(b.data)) - Number(hasPendingSeason(a.data));
+    if (pendingDifference !== 0) return pendingDifference;
+    return getWatchSortTime(b.data) - getWatchSortTime(a.data);
+  })
   .slice(0, 8);
 
 const pageTitle = "首页";
@@ -85,7 +88,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
                active:border-vermilion active:text-vermilion active:scale-95
                [&.is-active]:border-vermilion [&.is-active]:text-vermilion"
       >
-        View All Archives
+        View Blog / 全部文章
       </a>
 
       {/* 副操作：Random Walk (带图标) */}
@@ -102,7 +105,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
     </div>
   </section>
 
-  {/* --- Movie Section --- */}
+  {/* --- Watch Section --- */}
   <section class="py-12 md:py-16">
     <div
       class="flex justify-between items-baseline mb-12 border-b border-ink-900 dark:border-zinc-700 pb-4 transition-colors"
@@ -115,73 +118,37 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
 
       {/* 视图切换按钮 */}
       <button
-        id="movie-view-toggle"
+        id="watch-view-toggle"
         aria-label="切换视图"
         class="group text-ink-300 dark:text-zinc-500 hover:text-vermilion transition-all duration-300
                active:scale-90 active:text-vermilion translate-y-1"
       >
-        <Icon name="tabler:layout-grid" class="w-6 h-6" id="movie-icon-grid" />
+        <Icon name="tabler:layout-grid" class="w-6 h-6" id="watch-icon-grid" />
         <Icon
           name="tabler:movie"
           class="w-6 h-6 hidden"
-          id="movie-icon-scroll"
+          id="watch-icon-scroll"
         />
       </button>
     </div>
 
     {/* Grid View */}
     <div
-      id="movie-grid-view"
+      id="watch-grid-view"
       class="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-6 md:gap-y-12 transition-opacity duration-300"
     >
       {
-        recentMovies.map((movie) => {
-          return (
-            <div class="group movie-review-card">
-              <div
-                class="block overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] active:duration-150 transition-all duration-500 cursor-pointer"
-              >
-                <img
-                  src={movie.data.coverImage.src}
-                  alt={movie.data.title}
-                  loading="eager"
-                  decoding="async"
-                  class="w-full h-full object-cover transition-transform duration-700 
-                         md:group-hover:scale-105 group-active:scale-105 group-[.is-active]:scale-105
-                         active:duration-200 group-[.is-active]:duration-200"
-                />
-                <div
-                  class="absolute inset-0 flex items-end p-3 bg-linear-to-t from-ink-900/90 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
-                >
-                  <p class="text-ink-100 text-sm leading-relaxed line-clamp-5 drop-shadow-md">
-                    {movie.data.shortReview}
-                  </p>
-                </div>
-              </div>
-              <h3
-                class="mt-3 text-lg font-serif font-bold text-ink-900 dark:text-zinc-200 
-                       md:group-hover:text-vermilion 
-                       group-active:text-vermilion group-[.is-active]:text-vermilion
-                       transition-colors duration-300 active:duration-150 group-[.is-active]:duration-150"
-              >
-                {movie.data.title}
-              </h3>
-              <div class="flex text-yellow-600 dark:text-yellow-500 text-xs mt-1 gap-1">
-                <span>★ {movie.data.rating}</span>
-              </div>
-            </div>
-          );
-        })
+        recentWatches.map((post) => <WatchCard post={post} eager />)
       }
     </div>
 
     {/* Scroll View */}
     <div
-      id="movie-scroll-view"
+      id="watch-scroll-view"
       class="hidden transition-opacity duration-300 opacity-0"
     >
-      <div class="movie-scroll-wrapper flex justify-center py-12">
-        <MovieScroll posts={recentMovies} />
+      <div class="watch-scroll-wrapper flex justify-center py-12">
+        <WatchScroll posts={recentWatches} />
       </div>
     </div>
   </section>
@@ -222,12 +189,12 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       }
     });
 
-    // 电影视图切换逻辑
-    const toggleBtn = document.getElementById("movie-view-toggle");
-    const gridView = document.getElementById("movie-grid-view");
-    const scrollView = document.getElementById("movie-scroll-view");
-    const gridIcon = document.getElementById("movie-icon-grid");
-    const scrollIcon = document.getElementById("movie-icon-scroll");
+    // 观影视图切换逻辑
+    const toggleBtn = document.getElementById("watch-view-toggle");
+    const gridView = document.getElementById("watch-grid-view");
+    const scrollView = document.getElementById("watch-scroll-view");
+    const gridIcon = document.getElementById("watch-icon-grid");
+    const scrollIcon = document.getElementById("watch-icon-scroll");
 
     if (toggleBtn && gridView && scrollView && gridIcon && scrollIcon) {
       if (toggleBtn.dataset.listenerAttached !== "true") {
@@ -268,29 +235,18 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       }
     }
 
-    const movieCards = document.querySelectorAll(".movie-review-card");
-    movieCards.forEach((element) => {
-      const card = element as HTMLElement;
-      if (card.dataset.bound === "true") return;
-      card.dataset.bound = "true";
-
-      card.addEventListener("click", () => {
-        const wasActive = card.classList.contains("is-active");
-        movieCards.forEach((item) => item.classList.remove("is-active"));
-        if (!wasActive) card.classList.add("is-active");
-      });
-    });
-
-    // 通用延迟跳转逻辑 (电影卡片 + 底部按钮)
-    // 查找所有带 js-delayed-link 类的元素
+    // 通用延迟跳转逻辑
     const links = document.querySelectorAll(".js-delayed-link");
 
     links.forEach((link) => {
+      const element = link as HTMLElement;
+      if (element.dataset.bound === "true") return;
+      element.dataset.bound = "true";
+
       link.addEventListener("click", (e) => {
         const mouseEvent = e as MouseEvent;
         const target = e.currentTarget as HTMLAnchorElement;
 
-        // 查找是否在 group 中 (用于电影卡片激活父级)
         const groupContainer = target.closest(".group");
 
         // 检查是否已经激活，或者是否按下了 ctrl/command
@@ -305,7 +261,6 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
         // A. 激活自身 (用于 View All 和 Random Walk 保持颜色)
         target.classList.add("is-active");
 
-        // B. 如果有父级 Group 且不是链接本身 (用于电影卡片激活标题和图片)
         if (groupContainer && groupContainer !== target) {
           groupContainer.classList.add("is-active");
         }

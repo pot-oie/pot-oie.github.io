@@ -1,0 +1,115 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import ArchiveHeader from "../components/ArchiveHeader.astro";
+import WatchCard from "../components/WatchCard.astro";
+import { sortWatchEntries } from "../utils/watch";
+import type { ArchiveFilterItem } from "../utils/archive";
+
+type WatchArchiveType = "all" | "movie" | "series";
+
+interface Props {
+  posts: CollectionEntry<"watch">[];
+  activeType: WatchArchiveType;
+}
+
+const { posts, activeType } = Astro.props;
+
+const archiveMeta = {
+  all: {
+    title: "Watch / 观影",
+    description: "Fragments of time, captured in light.",
+    breadcrumb: "Watch",
+    countIcon: "mingcute:film-line",
+  },
+  movie: {
+    title: "Films / 电影",
+    description: "Films watched, rated, remembered.",
+    breadcrumb: "Films",
+    countIcon: "mingcute:movie-line",
+  },
+  series: {
+    title: "Series / 剧集",
+    description: "Stories followed season by season.",
+    breadcrumb: "Series",
+    countIcon: "mingcute:tv-2-line",
+  },
+} as const;
+
+const counts = {
+  all: posts.length,
+  movie: posts.filter((post) => post.data.mediaType === "movie").length,
+  series: posts.filter((post) => post.data.mediaType === "series").length,
+};
+
+const filters: ArchiveFilterItem[] = [
+  {
+    value: "all",
+    label: "全部",
+    icon: "mingcute:grid-line",
+    href: "/watch/",
+    count: counts.all,
+  },
+  {
+    value: "movie",
+    label: "电影",
+    icon: "mingcute:movie-line",
+    href: "/watch/movie/",
+    count: counts.movie,
+  },
+  {
+    value: "series",
+    label: "剧集",
+    icon: "mingcute:tv-2-line",
+    href: "/watch/series/",
+    count: counts.series,
+  },
+];
+
+const visiblePosts = sortWatchEntries(
+  activeType === "all"
+    ? posts
+    : posts.filter((post) => post.data.mediaType === activeType),
+);
+const meta = archiveMeta[activeType];
+const breadcrumbs =
+  activeType === "all"
+    ? [
+        { label: "Home", href: "/" },
+        { label: "Watch" },
+      ]
+    : [
+        { label: "Home", href: "/" },
+        { label: "Watch", href: "/watch/" },
+        { label: meta.breadcrumb },
+      ];
+---
+
+<BaseLayout title={meta.title} description={meta.description}>
+  <section class="py-8 md:py-16">
+    <ArchiveHeader
+      breadcrumbs={breadcrumbs}
+      title={meta.title}
+      description={meta.description}
+      count={visiblePosts.length}
+      countIcon={meta.countIcon}
+      filters={filters}
+      filterLabel="观影类型"
+      activeFilter={activeType}
+    />
+
+    {
+      visiblePosts.length > 0 ? (
+        <div class="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-12 mb-16">
+          {visiblePosts.map((post, index) => (
+            <WatchCard post={post} eager={index < 8} />
+          ))}
+        </div>
+      ) : (
+        <div class="px-4 py-10 border border-dashed border-ink-300 dark:border-zinc-600 text-ink-500 dark:text-zinc-400">
+          该分类暂时还没有观影记录。
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
