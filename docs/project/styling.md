@@ -91,8 +91,9 @@ Movie and series posters are shown in color by default. Cards retain the
 existing poster ratio, ink shadow, serif title, and vermilion hover treatment.
 The series badge and optional season marker stay visually secondary, while
 movie cards retain the earlier badge-free presentation. Movie short reviews
-appear in the hover/tap overlay. Series short reviews also appear on their
-detail pages.
+appear in the hover/tap overlay, preceded by the release year and the full
+`WATCHED YYYY.MM.DD` date when available. Series short reviews also appear on
+their detail pages.
 
 Series detail pages adapt the album article's two-column rhythm: a sticky poster
 on desktop and the record content on the right. They do not reuse
@@ -107,6 +108,12 @@ forming a separate full-width control band. Blog archive pagination continues
 that compact outlined treatment: numbered and previous/next links use ink
 borders, the active page uses a solid vermilion state, and unavailable edge
 controls remain visible but subdued.
+
+The watch archive appends its automatically derived `SINCE YYYY.MM` coverage
+metadata to the entry count. Movie and series routes show one boundary; the
+combined route labels both boundaries, moving them to a second centered line on
+small screens when needed. The coverage text remains unboxed so it cannot be
+mistaken for a filter.
 
 ## Code Blocks
 

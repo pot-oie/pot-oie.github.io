@@ -44,6 +44,26 @@ export function getWatchSortTime(data: WatchData): number {
     : (data.releaseDate?.valueOf() ?? 0);
 }
 
+export function getEarliestWatchFinishedDate(
+  entries: WatchEntry[],
+  mediaType: WatchData["mediaType"],
+): Date | null {
+  const timestamps = entries
+    .filter(
+      (entry) =>
+        entry.data.mediaType === mediaType && entry.data.finishedDate,
+    )
+    .map((entry) => entry.data.finishedDate!.valueOf());
+
+  return timestamps.length > 0 ? new Date(Math.min(...timestamps)) : null;
+}
+
+export function formatWatchSince(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}.${month}`;
+}
+
 export function sortWatchEntries(entries: WatchEntry[]): WatchEntry[] {
   return [...entries].sort((a, b) => {
     const pendingDifference =

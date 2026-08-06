@@ -45,6 +45,11 @@ The watch archive combines both media types and links between `/watch`,
 series are surfaced before completed records; completed records sort by
 `finishedDate`.
 
+Each archive header derives its `SINCE YYYY.MM` boundary from the earliest
+available `finishedDate` for that media type. The movie and series routes show
+their own boundary. The combined route shows both labeled boundaries and omits
+a media type when none of its records has a `finishedDate`.
+
 Watch cards keep posters in color and show `shortReview` in a desktop hover
 overlay. Movie cards keep the original hover/tap behavior and do not link to a
 detail page. Series cards link to a season-rating detail page under

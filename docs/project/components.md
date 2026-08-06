@@ -51,7 +51,8 @@ technical-post runtime entries.
 - `src/components/MusicCard.astro`: music item card.
 - `src/components/DownloadCard.astro`: document/download presentation card.
 - `src/components/ArchiveHeader.astro`: shared archive breadcrumbs, bilingual
-  title, description, full active-archive count, and filter placement.
+  title, description, full active-archive count, optional compact archive
+  metadata, and filter placement.
 - `src/components/ArchiveFilter.astro`: compact route-backed archive links with
   category counts and current-page state.
 - `src/components/BlogPagination.astro`: static previous/next and numbered links

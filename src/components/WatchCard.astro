@@ -15,13 +15,37 @@ interface Props {
 }
 
 const { post, eager = false } = Astro.props;
-const { title, originalTitle, coverImage, mediaType, shortReview } = post.data;
+const {
+  title,
+  originalTitle,
+  releaseDate,
+  finishedDate,
+  coverImage,
+  mediaType,
+  shortReview,
+} = post.data;
 const slug = getWatchSlug(post);
 const score = getWatchScore(post.data);
 const pending = hasPendingSeason(post.data);
 const latestSeason = getLatestSeasonNumber(post.data);
 const typeLabel = mediaType === "movie" ? "Film" : "Series";
 const PosterElement = mediaType === "series" ? "a" : "button";
+const releaseYear = releaseDate?.getFullYear();
+const releaseDateValue = releaseDate
+  ? [
+      releaseDate.getFullYear(),
+      String(releaseDate.getMonth() + 1).padStart(2, "0"),
+      String(releaseDate.getDate()).padStart(2, "0"),
+    ].join("-")
+  : null;
+const finishedDateLabel = finishedDate
+  ? [
+      finishedDate.getFullYear(),
+      String(finishedDate.getMonth() + 1).padStart(2, "0"),
+      String(finishedDate.getDate()).padStart(2, "0"),
+    ].join(".")
+  : null;
+const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
 ---
 
 <article
@@ -70,7 +94,29 @@ const PosterElement = mediaType === "series" ? "a" : "button";
     <div
       class="absolute inset-0 flex flex-col justify-end p-4 bg-linear-to-t from-ink-900/95 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
     >
-      <p class="text-ink-100 text-sm leading-relaxed line-clamp-5 drop-shadow-md">
+      {
+        mediaType === "movie" && (releaseYear || finishedDateLabel) && (
+          <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] font-sans font-semibold tracking-[0.14em] uppercase text-ink-100/70 drop-shadow-md">
+            {releaseYear && (
+              <time datetime={releaseDateValue!}>
+                {releaseYear}
+              </time>
+            )}
+            {releaseYear && finishedDateLabel && (
+              <span aria-hidden="true">·</span>
+            )}
+            {finishedDateLabel && (
+              <span class="inline-flex items-center gap-1.5">
+                <span>Watched</span>
+                <time datetime={finishedDateValue!}>
+                  {finishedDateLabel}
+                </time>
+              </span>
+            )}
+          </div>
+        )
+      }
+      <p class="text-ink-100 text-sm leading-relaxed line-clamp-4 drop-shadow-md">
         {shortReview}
       </p>
       {

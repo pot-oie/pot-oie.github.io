@@ -15,6 +15,7 @@ interface Props {
   filters?: ArchiveFilterItem[];
   filterLabel?: string;
   activeFilter?: string;
+  metadata?: string[];
 }
 
 const {
@@ -26,6 +27,7 @@ const {
   filters = [],
   filterLabel = "归档筛选",
   activeFilter,
+  metadata = [],
 } = Astro.props;
 ---
 
@@ -70,12 +72,39 @@ const {
   </p>
 
   <div
-    class="mt-5 flex items-center justify-center md:justify-start gap-3 text-ink-500 dark:text-zinc-400 transition-colors"
+    class="mt-5 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-2 text-ink-500 dark:text-zinc-400 transition-colors"
   >
-    <Icon name={countIcon} class="w-5 h-5" />
-    <p class="font-serif italic text-lg">
-      {count} {count === 1 ? "entry" : "entries"} collected.
-    </p>
+    <div class="flex items-center gap-3">
+      <Icon name={countIcon} class="w-5 h-5" />
+      <p class="font-serif italic text-lg">
+        {count} {count === 1 ? "entry" : "entries"} collected.
+      </p>
+    </div>
+
+    {
+      metadata.length > 0 && (
+        <div
+          class:list={[
+            "flex items-center justify-center md:justify-start gap-2 text-xs tracking-[0.14em] uppercase",
+            metadata.length > 1 && "basis-full sm:basis-auto",
+          ]}
+          aria-label="归档时间范围"
+        >
+          <span
+            class:list={[metadata.length > 1 && "hidden sm:inline"]}
+            aria-hidden="true"
+          >
+            ·
+          </span>
+          {metadata.map((item, index) => (
+            <>
+              {index > 0 && <span aria-hidden="true">·</span>}
+              <span>{item}</span>
+            </>
+          ))}
+        </div>
+      )
+    }
   </div>
 
   {
