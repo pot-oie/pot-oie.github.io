@@ -1,0 +1,67 @@
+---
+import type { SpaceContentCatalog } from "../../utils/space/catalog";
+import { SPACE_IDENTITY } from "../../utils/space/identity";
+
+interface Props { catalog: SpaceContentCatalog }
+const { catalog } = Astro.props;
+const writings = catalog.blogs.slice(0, 6);
+const covers = catalog.visuals.slice(0, 10);
+const watchCount = catalog.visuals.filter((record) => record.kind === "watch").length;
+const musicCount = catalog.visuals.length - watchCount;
+---
+
+<main class="space-archive">
+  <header class="space-archive__header">
+    <p>SPACE / BETWEEN EDITIONS</p>
+    <a href="/">[ RETURN_HOME ]</a>
+    <h1>SPACE</h1>
+    <p class="space-archive__status">VISUAL SYSTEM CLEARED<br />CONTENT CATALOG PRESERVED</p>
+  </header>
+
+  <section class="space-archive__ledger" aria-label="可复用内容资产统计">
+    <dl>
+      <div><dt>WRITINGS</dt><dd>{catalog.blogs.length}</dd></div>
+      <div><dt>WATCH COVERS</dt><dd>{watchCount}</dd></div>
+      <div><dt>MUSIC COVERS</dt><dd>{musicCount}</dd></div>
+      <div><dt>OPERATOR</dt><dd>{SPACE_IDENTITY.operator}</dd></div>
+    </dl>
+  </section>
+
+  <section class="space-archive__writings" aria-labelledby="space-writing-title">
+    <div class="space-archive__section-label">
+      <p>01 / RETAINED WRITINGS</p>
+      <h2 id="space-writing-title">Selected text remains available for the next edition.</h2>
+    </div>
+    <ol>
+      {writings.map((blog, index) => (
+        <li>
+          <a href={blog.href}>
+            <span>{String(index + 1).padStart(2, "0")} / {blog.categoryLabel}</span>
+            <strong>{blog.title}</strong>
+            <span>{blog.pubDate} · {blog.textLength} UNITS</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="space-archive__covers" aria-labelledby="space-cover-title">
+    <div class="space-archive__section-label">
+      <p>02 / RETAINED COVERS</p>
+      <h2 id="space-cover-title">Shared Watch and Music artwork is untouched.</h2>
+    </div>
+    <div class="space-archive__cover-grid">
+      {covers.map((record) => (
+        <figure class:list={["space-archive__cover", `space-archive__cover--${record.kind}`]}>
+          <img src={record.src} width={record.width} height={record.height} alt="" />
+          <figcaption><span>{record.kind.toUpperCase()}</span><strong>{record.title}</strong></figcaption>
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <footer class="space-archive__footer">
+    <span>REBUILD BASELINE / 2026</span>
+    <span>{SPACE_IDENTITY.location}</span>
+  </footer>
+</main>

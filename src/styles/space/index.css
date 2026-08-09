@@ -1,0 +1,91 @@
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/geist-mono/wght.css";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/inter";
+
+:root {
+  color-scheme: light;
+  background: #f1efe9;
+  color: #111;
+  font-family: "Inter Variable", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body { background: #f1efe9; }
+a { color: inherit; }
+
+.space-archive {
+  --rule: rgb(17 17 17 / 28%);
+  width: min(100%, 108rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(1rem, 2.4vw, 2.5rem);
+}
+
+.space-archive p, .space-archive h1, .space-archive h2,
+.space-archive dl, .space-archive ol, .space-archive figure { margin: 0; }
+.space-archive p, .space-archive span, .space-archive dt, .space-archive dd {
+  font-family: "Geist Mono Variable", monospace;
+  font-size: .66rem;
+  letter-spacing: .06em;
+}
+
+.space-archive__header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  min-height: 52svh;
+  align-content: space-between;
+  border-bottom: 1px solid #111;
+  padding-bottom: 1rem;
+}
+.space-archive__header > a { font: 650 .66rem/1 "Geist Mono Variable", monospace; text-decoration: none; }
+.space-archive__header h1 {
+  grid-column: 1 / -1;
+  align-self: end;
+  font-size: clamp(6rem, 25vw, 27rem);
+  font-weight: 850;
+  letter-spacing: -.09em;
+  line-height: .7;
+}
+.space-archive__status { justify-self: end; text-align: right; }
+
+.space-archive__ledger { border-bottom: 1px solid #111; }
+.space-archive__ledger dl { display: grid; grid-template-columns: repeat(4, 1fr); }
+.space-archive__ledger div { display: grid; min-height: 8rem; align-content: space-between; padding: .8rem; border-right: 1px solid var(--rule); }
+.space-archive__ledger div:last-child { border-right: 0; }
+.space-archive__ledger dd { font-size: clamp(1.6rem, 4vw, 4rem); font-weight: 750; letter-spacing: -.06em; }
+
+.space-archive__writings, .space-archive__covers {
+  display: grid;
+  grid-template-columns: minmax(14rem, .8fr) 2.2fr;
+  gap: clamp(2rem, 5vw, 7rem);
+  padding: clamp(3rem, 7vw, 8rem) 0;
+  border-bottom: 1px solid #111;
+}
+.space-archive__section-label { display: grid; align-content: start; gap: 1.2rem; }
+.space-archive__section-label h2 { max-width: 23rem; font-size: clamp(1.6rem, 3vw, 3.5rem); line-height: .95; letter-spacing: -.055em; }
+
+.space-archive__writings ol { list-style: none; padding: 0; border-top: 1px solid #111; }
+.space-archive__writings li { border-bottom: 1px solid var(--rule); }
+.space-archive__writings a { display: grid; grid-template-columns: 1fr 2fr auto; gap: 1rem; align-items: baseline; padding: 1rem 0; text-decoration: none; }
+.space-archive__writings strong { font-size: clamp(1rem, 1.6vw, 1.6rem); }
+
+.space-archive__cover-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; align-items: start; }
+.space-archive__cover img { display: block; width: 100%; height: auto; filter: saturate(.72); }
+.space-archive__cover figcaption { display: grid; gap: .25rem; padding-top: .55rem; }
+.space-archive__cover figcaption strong { overflow: hidden; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.space-archive__footer { display: flex; justify-content: space-between; padding-top: 1rem; }
+
+@media (max-width: 720px) {
+  .space-archive__header { min-height: 42svh; }
+  .space-archive__header h1 { font-size: 28vw; }
+  .space-archive__ledger dl { grid-template-columns: repeat(2, 1fr); }
+  .space-archive__ledger div:nth-child(2) { border-right: 0; }
+  .space-archive__ledger div:nth-child(-n + 2) { border-bottom: 1px solid var(--rule); }
+  .space-archive__writings, .space-archive__covers { grid-template-columns: 1fr; }
+  .space-archive__writings a { grid-template-columns: 1fr; gap: .35rem; }
+  .space-archive__cover-grid { grid-template-columns: repeat(2, 1fr); }
+  .space-archive__cover:nth-child(n + 7) { display: none; }
+}

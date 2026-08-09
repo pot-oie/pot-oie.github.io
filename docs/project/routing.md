@@ -8,6 +8,10 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 - `/about`: `src/pages/about.astro`
 - `/dashboard`: `src/pages/dashboard.astro`; private static analytics UI,
   excluded from sitemap and Pagefind content.
+- `/space`: `src/pages/space.astro`; standalone, noindex static rebuild baseline
+  with its own document layout and runtime. It is excluded from the sitemap and
+  Pagefind, emits `noindex, nofollow`, and deliberately bypasses
+  `BaseLayout.astro`, Astro View Transitions, and the global audio controller.
 - `/404`: `src/pages/404.astro`
 - `/rss.xml`: `src/pages/rss.xml.js`
 

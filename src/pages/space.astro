@@ -1,0 +1,44 @@
+---
+import { getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import SpaceArchive from "../components/space/SpaceArchive.astro";
+import SpaceLayout from "../layouts/SpaceLayout.astro";
+import { buildSpaceCatalog } from "../utils/space/buildSpaceCatalog";
+
+const [blogs, watches, tracks] = await Promise.all([
+  getCollection("blog"),
+  getCollection("watch"),
+  getCollection("music"),
+]);
+
+const catalog = await buildSpaceCatalog({
+  blogs,
+  watches,
+  music: tracks,
+  optimizeImage: async ({ kind, src }) => {
+    const width = 256;
+    const height = kind === "watch" ? 384 : 256;
+    const image = await getImage({
+      src,
+      width,
+      height,
+      format: "webp",
+      quality: 72,
+    });
+
+    return {
+      src: image.src,
+      width,
+      height,
+    };
+  },
+});
+
+---
+
+<SpaceLayout
+  title="Space — Between Editions"
+  description="A preserved content catalog awaiting a new visual edition."
+>
+  <SpaceArchive catalog={catalog} />
+</SpaceLayout>

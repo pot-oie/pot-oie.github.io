@@ -185,6 +185,14 @@ switching across View Transitions.
 `/dashboard/metrics.json`. A root `WeakSet` makes setup idempotent after
 `astro:page-load`. The Dashboard emits no analytics events.
 
+### Space
+
+`/space` uses a separate full-load document and does not participate in the
+normal Astro client runtime. Its current **Between Editions** page is static and
+responsive: there is no Canvas, custom RAF, scroll controller, preloader,
+audio, required gesture, local storage, or viewport rejection state. Normal
+links provide the only interaction.
+
 ## Scroll Boundaries
 
 Components with their own scroll surface should use `data-lenis-prevent` to avoid Lenis taking over nested scrolling.
