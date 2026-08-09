@@ -29,9 +29,12 @@ for poster selection, with original-language fallback. Like the album scraper,
 watch creation writes an editable draft instead of asking for ratings and
 reviews interactively. Movie drafts start with `rating: 0` and an empty review.
 Series drafts exclude Season 0, give the first regular season a `rating: 0`
-placeholder, mark every later regular season `to-watch`, leave `finishedDate`
-absent, and leave the review empty. The author replaces numeric placeholders
-for every season already started.
+placeholder, mark every later regular season `to-watch`, and leave reviews
+empty. They include a commented `finishedDate` template, download available
+regular-season posters, and write an optional `posterImage` on the matching
+season. The author replaces numeric placeholders for every season already
+started. Every generated season includes a commented `# shortReview: ""`
+template that the author can uncomment and fill in.
 
 `scripts/update-music.mjs` updates music records.
 

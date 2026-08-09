@@ -167,12 +167,17 @@ async function fetchJson(url) {
   return response.json();
 }
 
-async function downloadPoster(posterPath, destination, spinnerInstance) {
+async function downloadPoster(
+  posterPath,
+  destination,
+  spinnerInstance,
+  label = 'non-Chinese poster',
+) {
   if (!posterPath) {
     throw new Error('No non-Chinese poster is available for this title.');
   }
 
-  spinnerInstance.start(color.blue('› Downloading non-Chinese poster...'));
+  spinnerInstance.start(color.blue(`› Downloading ${label}...`));
   const posterUrl = `https://image.tmdb.org/t/p/w500${posterPath}`;
   const response = await fetch(posterUrl, { agent });
   if (!response.ok) {
@@ -373,30 +378,71 @@ async function handleSeries() {
       process.exit(0);
     }
 
+    await downloadPoster(seriesEN.poster_path, posterPath, s);
+
+    const seasonPosterFiles = new Map();
+    for (const season of regularSeasons) {
+      if (!season.poster_path) continue;
+
+      const seasonCode = String(season.season_number).padStart(2, '0');
+      const seasonPosterFilename = `${slugName}-s${seasonCode}.webp`;
+      const seasonPosterPath = path.join(
+        PATHS.watchAssets,
+        seasonPosterFilename,
+      );
+
+      try {
+        await downloadPoster(
+          season.poster_path,
+          seasonPosterPath,
+          s,
+          `Season ${seasonCode} poster`,
+        );
+        seasonPosterFiles.set(season.season_number, seasonPosterFilename);
+      } catch (error) {
+        s.stop(
+          color.yellow(
+            `Season ${seasonCode} poster skipped: ${error instanceof Error ? error.message : 'download failed'}`,
+          ),
+        );
+      }
+    }
+
     const seasonYaml = regularSeasons
-      .map(
-        (season, index) =>
-          `  - number: ${season.season_number}\n    rating: ${index === 0 ? 0 : 'to-watch'}`,
-      )
+      .map((season, index) => {
+        const poster = seasonPosterFiles.get(season.season_number);
+        const lines = [
+          `  - number: ${season.season_number}`,
+          `    rating: ${index === 0 ? 0 : 'to-watch'}`,
+        ];
+        if (poster) {
+          lines.push(
+            `    posterImage: ${JSON.stringify(`../../assets/watch/${poster}`)}`,
+          );
+        }
+        lines.push('    # shortReview: ""');
+        return lines.join('\n');
+      })
       .join('\n');
 
     const yamlContent = `title: ${JSON.stringify(seriesZH.name)}
 originalTitle: ${JSON.stringify(seriesEN.original_name || seriesEN.name)}
 tmdbId: ${seriesZH.id}
 mediaType: series
-${seriesEN.first_air_date ? `releaseDate: ${JSON.stringify(seriesEN.first_air_date)}\n` : ''}coverImage: ${JSON.stringify(`../../assets/watch/${posterFilename}`)}
+${seriesEN.first_air_date ? `releaseDate: ${JSON.stringify(seriesEN.first_air_date)}\n` : ''}# finishedDate: "YYYY-MM-DD"
+coverImage: ${JSON.stringify(`../../assets/watch/${posterFilename}`)}
 shortReview: ""
 seasons:
 ${seasonYaml}
 `;
 
-    await downloadPoster(seriesEN.poster_path, posterPath, s);
     await fs.writeFile(filePath, yamlContent);
 
     printResultTable('SERIES ENTRY CREATED', [
       { label: 'Title', value: seriesZH.name },
       { label: 'Original', value: seriesEN.original_name || seriesEN.name },
       { label: 'Seasons', value: regularSeasons.length },
+      { label: 'posters', value: seasonPosterFiles.size },
       { label: 'Filename', value: color.underline(fileName) },
       { label: 'Poster', value: color.dim(posterFilename) },
     ]);
