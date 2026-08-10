@@ -110,6 +110,8 @@ const watch = defineCollection({
             z.object({
               number: z.number().int().nonnegative(),
               rating: SEASON_RATING,
+              posterImage: image().optional(),
+              shortReview: z.string().optional(),
             }),
           )
           .optional(),

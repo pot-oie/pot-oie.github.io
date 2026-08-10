@@ -30,6 +30,10 @@ Current parked plans:
   accessibility documentation workstreams.
 - `plans/architecture-decision-records.md`: a lightweight ADR structure and
   adoption policy.
+- `plans/immersive-404.md`: a bounded interactive treatment for the existing
+  404 route that keeps recovery immediate and accessible.
+- `plans/article-level-experiences.md`: criteria and boundaries for
+  content-driven interactive article experiences.
 
 ## Documentation Layers
 

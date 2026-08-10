@@ -96,8 +96,10 @@ appear in the hover/tap overlay, preceded by the release year and the full
 their detail pages.
 
 Series detail pages adapt the album article's two-column rhythm: a sticky poster
-on desktop and the record content on the right. They do not reuse
-music-specific grayscale, vinyl, or playback effects.
+on desktop and the record content on the right. Season records form a restrained
+linear archive with small 2:3 posters, typographic fallbacks, rating rules, and
+optional review copy. They do not reuse music-specific grayscale, vinyl, or
+playback effects.
 
 Blog, learn, life, and watch archives share one header rhythm: hierarchical
 breadcrumbs, a bilingual serif title, one concise English description, the

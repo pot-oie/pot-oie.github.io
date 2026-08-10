@@ -32,8 +32,9 @@ Shared optional fields:
 - `finishedDate`
 
 Movies require a top-level `rating` and `finishedDate`. Series use a `seasons`
-array whose ratings are numbers from `0` to `5` or `to-watch`. Every season not
-yet started uses `to-watch`, so multiple trailing seasons may carry it. Once a
+array whose ratings are numbers from `0` to `5` or `to-watch`; each season may
+also define its own `posterImage` and `shortReview`. Every season not yet
+started uses `to-watch`, so multiple trailing seasons may carry it. Once a
 season is marked `to-watch`, all higher recorded seasons must use the same
 value. Each record still includes at least one numeric season rating. Series
 only set `finishedDate` after the final season is complete.
@@ -52,16 +53,19 @@ a media type when none of its records has a `finishedDate`.
 
 Watch cards keep posters in color and show `shortReview` in a desktop hover
 overlay. Movie cards keep the original hover/tap behavior and do not link to a
-detail page. Series cards link to a season-rating detail page under
-`/watch/series/[slug]`.
+detail page. Series cards link to a season archive detail page under
+`/watch/series/[slug]`, where each row combines its poster or numbered fallback,
+rating state, and optional short review.
 
 The interactive creation path in `scripts/new.mjs` searches TMDB for both
 movies and international series. It uses Chinese titles while deliberately
-avoiding Chinese-localized posters. Season 0 specials are excluded by default.
-As with the album scraper, generated files are drafts: ratings start at `0`,
-reviews are empty, series omit `finishedDate`, and the author completes the YAML
-after generation. A generated series gives its first regular season a numeric
-placeholder and marks every later regular season `to-watch`.
+avoiding Chinese-localized posters. Series creation also downloads the available
+regular-season posters from the English metadata response. Season 0 specials
+are excluded by default. As with the album scraper, generated files are drafts:
+ratings start at `0`, reviews are empty, and the author completes the YAML after
+generation. A generated series includes a commented `finishedDate` template,
+gives its first regular season a numeric placeholder, and marks every later
+regular season `to-watch`.
 
 ## Maintenance Notes
 

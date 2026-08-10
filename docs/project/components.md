@@ -132,7 +132,9 @@ Music components coordinate through global audio events handled by
 The home page owns a local grid/scroll toggle for recent watch records in
 `src/pages/index.astro`. `WatchArchive.astro` owns the route-backed media-type
 navigation. Movie cards retain the hover/tap short-review overlay; series cards
-link to details.
+link to details. `WatchDetail.astro` renders series seasons as linear archive
+rows with a season poster or numbered fallback, rating state, and optional
+season-specific short review.
 
 ### Article Demos
 

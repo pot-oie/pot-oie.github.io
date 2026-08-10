@@ -145,6 +145,11 @@ Series records require:
 - `seasons[].number`: a unique non-negative season number
 - `seasons[].rating`: a number between `0` and `5`, or `to-watch`
 
+Optional season fields:
+
+- `seasons[].posterImage`: a local season-poster asset
+- `seasons[].shortReview`: a short note for that season
+
 `to-watch` marks every season that has not been started. It may therefore appear
 on multiple seasons, but the values must form one trailing block: after the
 first `to-watch`, every higher recorded season must also be `to-watch`. Every
@@ -157,7 +162,9 @@ but the creation script excludes it by default.
 
 `coverImage` is required. Automated TMDB creation requests English metadata for
 poster selection, allowing TMDB to fall back to the original-language poster
-instead of downloading a Chinese-localized poster.
+instead of downloading a Chinese-localized poster. Series creation applies the
+same metadata choice to regular-season posters and writes `posterImage` only
+when a poster was downloaded successfully.
 
 ## Music Collection
 
