@@ -8,7 +8,7 @@ import {
   sortBlogPostsByPublicationDate,
   sortBlogPostsForArchive,
   type BlogPost,
-} from "../src/utils/blog";
+} from "../src/domain/blog";
 
 test("archive ordering prefers updatedDate while publication ordering ignores it", () => {
   const olderButUpdated = post("updated", "2026-01-01", {

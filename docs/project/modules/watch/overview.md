@@ -7,6 +7,8 @@ screen writing belongs in the `blog` collection.
 
 - Content: `src/content/watch`
 - Assets: `src/assets/watch`
+- Schema: `src/content-schema/watch.ts`
+- Domain: `src/domain/watch.ts`
 - Routes: `src/pages/watch/index.astro`, `src/pages/watch/[mediaType].astro`,
   `src/pages/watch/series/[...slug].astro`
 - Components: `src/components/WatchCard.astro`, `src/components/WatchScroll.astro`
@@ -57,6 +59,10 @@ detail page. Series cards link to a season archive detail page under
 `/watch/series/[slug]`, where each row combines its poster or numbered fallback,
 rating state, and optional short review.
 
+Routes load the `watch` collection and pass entries into layouts and
+components. Stable slug, score, pending-season, date-boundary, and ordering
+behavior lives in `src/domain/watch.ts`; UI files do not load the collection.
+
 The interactive creation path in `scripts/new.mjs` searches TMDB for both
 movies and international series. It uses Chinese titles while deliberately
 avoiding Chinese-localized posters. Series creation also downloads the available
@@ -69,5 +75,6 @@ regular season `to-watch`.
 
 ## Maintenance Notes
 
-- If changing watch fields, update `src/content.config.ts` and `docs/project/content-model.md`.
+- If changing watch fields, update `src/content-schema/watch.ts` and
+  `docs/project/content-model.md`.
 - If changing watch URLs, update `docs/project/routing.md`.

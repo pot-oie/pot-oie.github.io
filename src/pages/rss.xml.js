@@ -5,7 +5,7 @@ import {
 	getBlogPostHref,
 	getPublishedBlogPosts,
 	sortBlogPostsByPublicationDate,
-} from '../utils/blog';
+} from '../domain/blog';
 
 export async function GET(context) {
 	const blogEntries = await getCollection('blog');

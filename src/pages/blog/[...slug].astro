@@ -9,7 +9,7 @@ import {
   getPublishedBlogPosts,
   type BlogPost,
   type BlogSeries,
-} from "../../utils/blog";
+} from "../../domain/blog";
 
 export async function getStaticPaths() {
   const allPosts = await getCollection("blog");

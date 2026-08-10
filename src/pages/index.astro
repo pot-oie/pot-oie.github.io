@@ -11,8 +11,8 @@ import {
   getBlogPostHref,
   getPublishedBlogPosts,
   sortBlogPostsByPublicationDate,
-} from "../utils/blog";
-import { getWatchSortTime, hasPendingSeason } from "../utils/watch";
+} from "../domain/blog";
+import { getWatchSortTime, hasPendingSeason } from "../domain/watch";
 
 // 获取博客文章
 const blogEntries = await getCollection("blog");
@@ -38,6 +38,8 @@ const recentWatches = watchPosts
     return getWatchSortTime(b.data) - getWatchSortTime(a.data);
   })
   .slice(0, 8);
+
+const musicEntries = await getCollection("music");
 
 const pageTitle = "首页";
 const pageDescription = "Pot's Blog - 思想的流淌与记录";
@@ -173,7 +175,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       </h2>
     </div>
     <div class="max-w-2xl">
-      <RecentMusic />
+      <RecentMusic music={musicEntries} />
     </div>
   </section>
 </BaseLayout>

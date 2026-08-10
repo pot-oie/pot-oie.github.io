@@ -26,6 +26,14 @@ structures.
 
 `src/content` is the content source layer. Blog entries are MDX. Watch and music entries are YAML loaded through glob loaders.
 
+`src/content-schema` is the collection-schema layer. Each maintained content
+domain owns a focused schema module, while `src/content.config.ts` remains the
+small Astro composition root that exports the existing collection names.
+
+`src/domain` is the pure domain/query layer. It owns stable Blog and Watch
+filtering, ordering, relationships, and href behavior without loading
+collections itself.
+
 `src/styles` is the global style layer. `global.css` defines the theme tokens and site-wide behavior. `markdown.css` handles rendered article content.
 
 `src/scripts/runtime` is the browser-runtime layer. Focused modules own Lenis,
@@ -38,9 +46,11 @@ and route-local progressive enhancement. It does not share the normal site
 shell, Lenis, audio, analytics, or client-router runtime. See
 `modules/space/overview.md` for its component, data, and interaction boundaries.
 
-`src/utils` is the domain utility layer. Current examples include calendar
-helpers, blog taxonomy metadata, the typed blog domain/query layer, and shared
-SEO URL/image/structured-data helpers.
+`src/utils` contains cross-cutting helpers such as calendar calculations, Blog
+taxonomy metadata, content-integrity diagnostics, and shared SEO
+URL/image/structured-data helpers. Compatibility re-exports remain at
+`src/utils/blog.ts`, `src/utils/blogRoutes.ts`, and `src/utils/watch.ts` while
+callers migrate to `src/domain`.
 
 `src/assets` stores imported build-time assets for blog, watch, and music content. `public` stores files served as-is.
 
@@ -53,18 +63,22 @@ into `dist`.
 
 ## Data Flow
 
-Content starts in `src/content`. Collection schemas in `src/content.config.ts` validate fields and normalize some data at build time.
+Content starts in `src/content`. Focused collection schemas in
+`src/content-schema` validate fields and normalize some data at build time;
+`src/content.config.ts` only composes the `blog`, `watch`, and `music`
+collections Astro loads.
 
 Pages call `getCollection(...)` at route or build boundaries. Blog routes pass
-the loaded entries to pure functions in `src/utils/blog.ts`, which own published
+the loaded entries to pure functions in `src/domain/blog.ts`, which own published
 post filtering, archive ordering and counts, post URLs, and series assembly.
-`src/utils/blogRoutes.ts` owns archive route shapes, canonical pagination links,
+`src/domain/blogRoutes.ts` owns archive route shapes, canonical pagination links,
 and exact route sets derived from the published corpus; page generation, search
 classification, and content-reference validation share that policy.
 Other modules keep their transformations in their nearest domain utilities.
 
-Blog entry relationships are enforced by the collection schema and shared pure
-rules in `src/utils/blogIntegrity.ts`. Before Astro builds, a filesystem adapter
+Blog entry-local relationships are enforced by the collection schema and
+`src/content-schema/blogRelations.ts`; cross-entry rules remain in
+`src/utils/blogIntegrity.ts`. Before Astro builds, a filesystem adapter
 checks cross-entry series metadata, tag diagnostics, and reliable local
 references without network access.
 
@@ -106,8 +120,10 @@ through an exact Basic Auth-protected Nginx alias. See
 - `astro.config.mjs`
 - `package.json`
 - `src/content.config.ts`
-- `src/utils/blog.ts`
-- `src/utils/blogRoutes.ts`
+- `src/content-schema`
+- `src/domain/blog.ts`
+- `src/domain/blogRoutes.ts`
+- `src/domain/watch.ts`
 - `src/utils/blogIntegrity.ts`
 - `src/pages`
 - `src/layouts`

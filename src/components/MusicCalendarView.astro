@@ -1,6 +1,6 @@
 ---
 // src/components/MusicCalendarView.astro
-import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import MusicCalendar from "./MusicCalendar.astro";
 import {
@@ -12,12 +12,12 @@ import {
 
 export interface Props {
   targetMonthKey: string; // 例如 "24-03"
+  music: CollectionEntry<"music">[];
 }
 
-const { targetMonthKey } = Astro.props;
+const { targetMonthKey, music: rawMusic } = Astro.props;
 
 // 获取所有数据并推算所有存在的月份集合
-const rawMusic = await getCollection("music");
 const allMusic = rawMusic.filter((post) => !post.data.album);
 
 const monthsKeys = Array.from(

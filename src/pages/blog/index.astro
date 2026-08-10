@@ -5,7 +5,7 @@ import {
   getBlogRootArchive,
   getPaginatedBlogArchive,
   getPublishedBlogPosts,
-} from "../../utils/blog";
+} from "../../domain/blog";
 
 const allPosts = await getCollection("blog");
 const publishedPosts = getPublishedBlogPosts(allPosts);

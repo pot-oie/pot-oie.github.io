@@ -1,10 +1,12 @@
 ---
 // src/pages/music/index.astro
+import { getCollection } from "astro:content";
 import MusicCalendarView from "../../components/MusicCalendarView.astro";
 import { getMonthKey } from "../../utils/calendar";
 
 // 计算当前自然月，传给组件
 const currentMonthKey = getMonthKey(new Date());
+const music = await getCollection("music");
 ---
 
-<MusicCalendarView targetMonthKey={currentMonthKey} />
+<MusicCalendarView targetMonthKey={currentMonthKey} music={music} />

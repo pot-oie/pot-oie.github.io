@@ -1,6 +1,8 @@
 # Content Model
 
-Content is managed through Astro Content Collections in `src/content.config.ts`.
+Content is managed through Astro Content Collections. Focused definitions live
+under `src/content-schema`; `src/content.config.ts` composes and exports them
+under the stable `blog`, `watch`, and `music` collection names.
 
 ## Blog Collection
 
@@ -191,7 +193,9 @@ Fields:
 
 ## Maintenance Notes
 
-- Schema changes should be made in `src/content.config.ts`.
+- Schema changes should be made in the matching module under
+  `src/content-schema`; collection registration belongs in
+  `src/content.config.ts`.
 - Category and tag metadata changes should be made in `src/utils/blogTaxonomy.ts`.
 - Cross-entry rules live in `src/utils/blogIntegrity.ts`; filesystem scanning
   lives in `scripts/lib/blogContentFiles.ts`.

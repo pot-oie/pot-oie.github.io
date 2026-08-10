@@ -1,7 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
 import WatchDetail from "../../../layouts/WatchDetail.astro";
-import { getWatchSlug } from "../../../utils/watch";
+import { getWatchSlug } from "../../../domain/watch";
 
 export async function getStaticPaths() {
   const watchPosts = await getCollection("watch");

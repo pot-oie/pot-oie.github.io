@@ -10,7 +10,7 @@ import {
 import {
   getPublishedBlogArchiveRoutePaths,
   normalizeBlogRoutePath,
-} from "../../src/utils/blogRoutes";
+} from "../../src/domain/blogRoutes";
 
 type RawBlogData = {
   draft?: unknown;

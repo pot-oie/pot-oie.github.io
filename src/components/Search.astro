@@ -136,7 +136,7 @@ import { Icon } from "astro-icon/components";
     getSearchOutcomeEvent,
     trackAnalyticsEvent,
   } from "../scripts/runtime/analytics";
-  import { isBlogArchiveRoutePath } from "../utils/blogRoutes";
+  import { isBlogArchiveRoutePath } from "../domain/blogRoutes";
 
   let pagefind: typeof Pagefind | null = null;
   const MAX_VISIBLE_RESULTS = 10;

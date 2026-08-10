@@ -8,8 +8,9 @@ The blog module handles technical notes, life writing, album review posts, and m
 - Routes: `src/pages/blog`
 - Layouts: `src/layouts/TechPost.astro`, `src/layouts/LifePost.astro`, `src/layouts/AlbumPost.astro`
 - Cards: `src/components/PostCard.astro`, `src/components/PostCardForIndex.astro`, `src/components/BlogRowCard.astro`
-- Domain and queries: `src/utils/blog.ts`
-- Archive route rules: `src/utils/blogRoutes.ts`
+- Schema: `src/content-schema/blog.ts`
+- Domain and queries: `src/domain/blog.ts`
+- Archive route rules: `src/domain/blogRoutes.ts`
 - Integrity rules: `src/utils/blogIntegrity.ts`
 - Integrity scanner: `scripts/check-blog-content.ts`
 - Taxonomy: `src/utils/blogTaxonomy.ts`
@@ -17,7 +18,7 @@ The blog module handles technical notes, life writing, album review posts, and m
 ## Domain And Query Layer
 
 Blog collection reads stay in route entry points. After a route loads the
-collection, `src/utils/blog.ts` provides the typed, pure transformations shared
+collection, `src/domain/blog.ts` provides the typed, pure transformations shared
 by blog archives and detail routes:
 
 - published-post filtering treats only `draft: true` as unpublished
@@ -27,7 +28,7 @@ by blog archives and detail routes:
 - canonical post slugs and hrefs
 - ordered and section-grouped series navigation data
 
-`src/utils/blogRoutes.ts` is the shared route-policy layer for blog archives. It
+`src/domain/blogRoutes.ts` is the shared route-policy layer for blog archives. It
 owns canonical page links, registered archive route shapes, and the exact
 published route set derived from category counts. Static route generation,
 Pagefind result classification, and content-link validation use these rules

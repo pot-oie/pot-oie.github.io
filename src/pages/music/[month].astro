@@ -20,6 +20,7 @@ export async function getStaticPaths() {
 }
 
 const { month } = Astro.params;
+const music = await getCollection("music");
 ---
 
-<MusicCalendarView targetMonthKey={month} />
+<MusicCalendarView targetMonthKey={month} music={music} />

@@ -4,7 +4,7 @@ import {
   getPublishedBlogArchiveRoutePaths,
   isBlogArchiveRoutePath,
   normalizeBlogRoutePath,
-} from "../src/utils/blogRoutes";
+} from "../src/domain/blogRoutes";
 
 test("recognizes every generated blog archive route shape", () => {
   const archivePaths = [

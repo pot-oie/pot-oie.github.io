@@ -7,7 +7,7 @@ import {
   getBlogCategoryArchive,
   getPaginatedBlogArchive,
   getPublishedBlogPosts,
-} from "../../utils/blog";
+} from "../../domain/blog";
 
 export async function getStaticPaths() {
   const allPosts = await getCollection("blog");
