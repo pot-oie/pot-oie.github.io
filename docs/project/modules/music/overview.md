@@ -46,6 +46,9 @@ so components do not implement independent fallback rules.
 
 Music route and homepage entry points load the collection before passing it to
 the domain resolver and then to calendar and recent-listening components.
+The homepage deliberately limits `RecentMusic.astro` to the five newest
+standalone tracks and links to `/music` for the full archive; the compact rows
+keep the module proportional as the collection grows.
 `TrackControl.astro` is the one
 intentional component-level read: MDX authors supply a stable `trackId`, and
 the component resolves that isolated record without requiring every article

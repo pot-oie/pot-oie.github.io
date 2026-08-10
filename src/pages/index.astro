@@ -177,7 +177,19 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       </h2>
     </div>
     <div class="max-w-2xl">
-      <RecentMusic music={musicEntries} />
+      <RecentMusic music={musicEntries} limit={5} />
+      <div class="mt-8">
+        <a
+          href="/music"
+          class="js-delayed-link inline-flex items-center gap-2 text-sm font-serif font-bold tracking-widest uppercase text-ink-400 dark:text-zinc-500 transition-all group hover:text-vermilion dark:hover:text-vermilion active:text-vermilion active:scale-95 [&.is-active]:text-vermilion"
+        >
+          <span>View Music / 全部音乐</span>
+          <Icon
+            name="mingcute:arrow-right-line"
+            class="h-4 w-4 transition-transform group-hover:translate-x-1"
+          />
+        </a>
+      </div>
     </div>
   </section>
 </BaseLayout>

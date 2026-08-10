@@ -11,10 +11,12 @@ import {
 
 export interface Props {
   music: ResolvedMusicTrack[];
+  limit?: number;
 }
 
-const { music: allMusic } = Astro.props;
-const sortedMusic = sortMusicTracksByRecordedAt(getStandaloneTracks(allMusic));
+const { music: allMusic, limit } = Astro.props;
+const sortedMusic = sortMusicTracksByRecordedAt(getStandaloneTracks(allMusic))
+  .slice(0, limit);
 ---
 
 <div class="flex flex-col">
@@ -27,7 +29,7 @@ const sortedMusic = sortMusicTracksByRecordedAt(getStandaloneTracks(allMusic));
         data-artist={song.data.artist}
         data-cover={song.data.coverImage.src}
         data-audio-url={song.data.audioPreview}
-        class="group flex items-center gap-6 py-6 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 md:hover:pl-4"
+        class="group flex items-center gap-4 md:gap-5 py-4 border-b border-ink-300/20 dark:border-zinc-800 last:border-0 transition-all duration-500 md:hover:pl-3"
       >
         {/* === 1. 封面区域 === */}
         <div
@@ -42,14 +44,14 @@ const sortedMusic = sortMusicTracksByRecordedAt(getStandaloneTracks(allMusic));
             height={120}
             format="webp"
             loading="eager"
-            class="music-cover relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 shadow-sm md:group-hover:grayscale-0 md:group-hover:contrast-100 md:group-hover:shadow-md active:scale-95 group-[.is-playing]:grayscale-0 group-[.is-playing]:contrast-100 group-[.is-playing]:shadow-md"
+            class="music-cover relative z-10 w-14 h-14 md:w-16 md:h-16 rounded-sm object-cover filter grayscale contrast-125 transition-all duration-500 shadow-sm md:group-hover:grayscale-0 md:group-hover:contrast-100 md:group-hover:shadow-md active:scale-95 group-[.is-playing]:grayscale-0 group-[.is-playing]:contrast-100 group-[.is-playing]:shadow-md"
           />
         </div>
 
         {/* === 2. 中间文字与极简控制台 === */}
         <div class="grow min-w-0 flex flex-col justify-center gap-1 relative z-20 pointer-events-none md:pointer-events-auto">
           <h4
-            class="text-lg md:text-xl font-serif font-bold text-ink-900 dark:text-zinc-200 truncate transition-colors duration-300 md:group-hover:text-vermilion group-[.is-playing]:text-vermilion"
+            class="text-base md:text-lg font-serif font-bold text-ink-900 dark:text-zinc-200 truncate transition-colors duration-300 md:group-hover:text-vermilion group-[.is-playing]:text-vermilion"
             title={song.data.title}
           >
             {song.data.title}
