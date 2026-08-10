@@ -5,6 +5,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import color from 'picocolors';
+import { metadataScore, searchItunes } from './lib/musicMetadata.mjs';
 
 dotenv.config();
 
@@ -17,6 +18,12 @@ const __dirname = path.dirname(__filename);
 // 如果你的脚本放在项目根目录，这里可以直接用 __dirname。如果在 scripts 文件夹，保留 '..'
 const PROJECT_ROOT = path.join(__dirname, '..'); 
 const MUSIC_DIR = path.join(PROJECT_ROOT, 'src/content/music');
+
+async function fetchJson(url) {
+  const response = await fetch(url, { agent });
+  if (!response.ok) throw new Error(`Request failed (${response.status}): ${url}`);
+  return response.json();
+}
 
 async function main() {
   console.clear();
@@ -56,24 +63,25 @@ async function main() {
 
         process.stdout.write(color.dim(`› Searching preview for `) + color.cyan(`${title} - ${artist}... `));
 
-        // 3. 请求 iTunes API
-        const searchUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&country=CN&lang=zh_cn&limit=1`;
-        
         try {
-          const res = await fetch(searchUrl, { agent });
-          const data = await res.json();
+          const results = await searchItunes(fetchJson, { query, entity: 'song', limit: 5 });
+          const matches = results
+            .filter((result) => result.previewUrl)
+            .map((result) => ({ result, score: metadataScore(result, title, artist) }))
+            .sort((a, b) => b.score - a.score);
+          const best = matches[0];
 
-          if (data.resultCount > 0 && data.results[0].previewUrl) {
-            const previewUrl = data.results[0].previewUrl;
+          if (best && best.score >= 7) {
+            const previewUrl = best.result.previewUrl;
             
             // 4. 将 audioPreview 插入到 recordedAt 所在行的下方
             content = content.replace(/^(recordedAt:.*)$/m, `$1\naudioPreview: "${previewUrl}"`);
             
             await fs.writeFile(filePath, content);
-            console.log(color.green('✔ Updated'));
+            console.log(color.green(`✔ Updated (${best.result.storefront})`));
             updatedCount++;
           } else {
-            console.log(color.yellow('⚠ No preview API found'));
+            console.log(color.yellow('⚠ No reliable preview match found'));
             failedCount++;
           }
         } catch (fetchErr) {

@@ -40,15 +40,28 @@ started. Every generated season includes a commented `# shortReview: ""`
 template that the author can uncomment and fill in.
 
 `scripts/new.mjs` writes standalone Music records with a `recordedAt` listening
-date and their own cover.
+date and their own cover. Music search merges CN, HK, TW, JP, KR, and US iTunes
+storefronts, prioritizing JP or KR for Japanese or Korean input. Shared slug
+generation uses Pinyin for Chinese, lightweight Kana/Hangul romanization for
+Japanese/Korean, and the iTunes identifier when no safe Latin slug is possible.
+Track and album selectors use a fixed eight-row scrolling viewport so terminal
+resizing cannot expand the prompt into stale, previously clipped rows.
 
 `scripts/update-music.mjs` recursively updates track previews and inserts them
-after `recordedAt`.
+after `recordedAt`. It searches the same storefront set and only accepts a
+preview when title and artist metadata produce a reliable match.
 
-`scripts/fetch-album.mjs` fetches album data, writes the authoritative album
-record under `src/content/albums`, writes nested tracks using `albumId`,
+`scripts/fetch-album.mjs` searches the shared storefront set, fetches album
+data, writes the authoritative album record under `src/content/albums`, and
+writes nested tracks using `albumId`,
 `trackNumber`, and `recordedAt`, and creates a linked Blog review draft. Album
-tracks inherit the album cover instead of duplicating `coverImage`.
+tracks inherit the album cover instead of duplicating `coverImage`. If the
+selected storefront exposes album metadata but no tracks, lookup retries the
+same collection across every supported storefront. It also performs a second,
+larger search using the selected album title plus artist, then tries reliable
+same-title, same-artist regional collection IDs before failing. Because Apple's
+lookup endpoint sometimes returns only the album wrapper, each attempt can also
+recover tracks through a song search filtered back to the exact collection ID.
 
 `scripts/check-blog-content.ts` is the `check:content` entry point. It scans
 Blog MDX plus Album/Music YAML sources and delegates pure

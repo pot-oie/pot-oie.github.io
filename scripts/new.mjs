@@ -5,7 +5,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import slugify from 'slugify';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { pinyin } from 'pinyin-pro';
+import { generateMusicSlug, searchItunes } from './lib/musicMetadata.mjs';
 import { intro, outro, select, text, confirm, spinner, isCancel, cancel } from '@clack/prompts';
 import color from 'picocolors';
 import sharp from 'sharp';
@@ -464,49 +464,38 @@ async function handleMusic() {
   checkCancel(query);
 
   const s = spinner();
-  s.start(color.blue('› Searching iTunes (CN)...'));
-  
-  const searchUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&country=CN&lang=zh_cn&limit=5`;
+  s.start(color.blue('› Searching iTunes (CN / HK / TW / JP / KR / US)...'));
   
   try {
-    const res = await fetch(searchUrl, { agent });
-    const data = await res.json();
+    const results = await searchItunes(fetchJson, { query, entity: 'song', limit: 5 });
     s.stop(color.dim('Search complete'));
 
-    if (data.resultCount === 0) {
+    if (results.length === 0) {
       cancel(color.yellow('No music found.'));
       process.exit(0);
     }
 
-    const options = data.results.map((t) => {
+    const options = results.map((t) => {
       const year = t.releaseDate ? t.releaseDate.split('-')[0] : '';
       return {
         value: t,
         label: `${t.trackName} - ${t.artistName}`,
-        hint: `Album: ${t.collectionName || 'Single'} (${year})`
+        hint: `${t.storefront} · Album: ${t.collectionName || 'Single'} (${year})`
       };
     });
 
     const selectedTrack = await select({
       message: 'Select a track:',
       options: options,
+      maxItems: 8,
     });
     checkCancel(selectedTrack);
 
-    // 清洗逻辑
-    let cleanTitle = selectedTrack.trackName;
-    cleanTitle = cleanTitle.replace(/\（.*?\）/g, '').replace(/\(.*?\)/g, '');
-    cleanTitle = cleanTitle.replace(/\s(feat|ft)\.?\s.*/i, '');
-    cleanTitle = cleanTitle.trim();
-
-    const pinyinArray = pinyin(cleanTitle, { toneType: 'none', type: 'array', v: true });
-    
-    let pinyinSlug = slugify(pinyinArray.join('-'), { lower: true, strict: true });
-    if (pinyinSlug.length > 40) {
-      pinyinSlug = pinyinSlug.slice(0, 40).replace(/-$/, '');
-    }
-    
-    const baseFilename = pinyinSlug || 'unnamed-track';
+    const baseFilename = generateMusicSlug(
+      selectedTrack.trackName,
+      selectedTrack.trackId,
+      selectedTrack.storefront,
+    );
     const coverFilename = `${baseFilename}.jpg`;
     const coverPath = path.join(PATHS.musicAssets, coverFilename);
     const yamlFileName = `${baseFilename}.yaml`;

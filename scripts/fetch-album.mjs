@@ -1,9 +1,12 @@
 import fs from "fs-extra";
 import path from "path";
 import fetch from "node-fetch";
-import slugify from "slugify";
 import { fileURLToPath } from "url";
-import { pinyin } from "pinyin-pro";
+import {
+  fetchAlbumTracks,
+  generateMusicSlug,
+  searchItunes,
+} from "./lib/musicMetadata.mjs";
 import {
   intro,
   outro,
@@ -37,24 +40,10 @@ function checkCancel(value) {
   }
 }
 
-// 转拼音 Slug 工具
-function generateSlug(text) {
-  let cleanText = text
-    .replace(/\（.*?\）/g, "")
-    .replace(/\(.*?\)/g, "")
-    .trim();
-  const pinyinArray = pinyin(cleanText, {
-    toneType: "none",
-    type: "array",
-    v: true,
-  });
-  let pinyinSlug = slugify(pinyinArray.join("-"), {
-    lower: true,
-    strict: true,
-  });
-  return pinyinSlug.length > 40
-    ? pinyinSlug.slice(0, 40).replace(/-$/, "")
-    : pinyinSlug || "unnamed";
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Request failed (${response.status}): ${url}`);
+  return response.json();
 }
 
 // ================= 专辑抓取逻辑 =================
@@ -72,68 +61,60 @@ async function handleAlbum() {
   });
   checkCancel(query);
 
-  // === 设置地区 ===
-  const STORE_REGION = "HK"; // 换成 'TW' 也可以
-  const STORE_LANG = "zh_hk"; // 换成 'zh_tw' 也可以
-  // ===================================
-
   const s = spinner();
-  s.start(color.blue(`› Searching iTunes Albums (${STORE_REGION})...`));
-
-  // 第一步：搜索专辑 (使用变量)
-  const searchUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&country=${STORE_REGION}&lang=${STORE_LANG}&limit=5`;
+  s.start(color.blue("› Searching iTunes Albums (CN / HK / TW / JP / KR / US)..."));
 
   try {
-    const res = await fetch(searchUrl);
-    const data = await res.json();
+    const results = await searchItunes(fetchJson, { query, entity: "album", limit: 5 });
     s.stop(color.dim("Album search complete"));
 
-    if (data.resultCount === 0) {
-      cancel(color.yellow(`No albums found in ${STORE_REGION} region.`));
+    if (results.length === 0) {
+      cancel(color.yellow("No albums found in the supported storefronts."));
       process.exit(0);
     }
 
-    const options = data.results.map((album) => {
+    const options = results.map((album) => {
       const year = album.releaseDate ? album.releaseDate.split("-")[0] : "";
       return {
         value: album,
         label: `${album.collectionName} - ${album.artistName}`,
-        hint: `${album.trackCount} tracks (${year})`,
+        hint: `${album.storefront} · ${album.trackCount} tracks (${year})`,
       };
     });
 
     // 2. 选择专辑
-    const selectedAlbum = await select({
+    let selectedAlbum = await select({
       message: "Select an album:",
       options: options,
+      maxItems: 8,
     });
     checkCancel(selectedAlbum);
 
-    // 3. 根据 collectionId 获取专辑下所有曲目 (使用变量)
-    s.start(color.blue("› Fetching tracklist..."));
-    const lookupUrl = `https://itunes.apple.com/lookup?id=${selectedAlbum.collectionId}&entity=song&country=${STORE_REGION}&lang=${STORE_LANG}`;
-
-    const lookupRes = await fetch(lookupUrl);
-    const lookupData = await lookupRes.json();
-
-    const tracks = lookupData.results
-      .filter((item) => item.wrapperType === "track")
-      .sort((a, b) => a.trackNumber - b.trackNumber);
-
-    s.stop(color.dim(`Fetched ${tracks.length} tracks`));
-
-    if (tracks.length === 0) {
-      console.log(color.red(`\nError: API 返回了 0 首歌。`));
-      console.log(
-        color.yellow(
-          `请在浏览器中打开此链接查看苹果的原始数据:\n${lookupUrl}\n`,
-        ),
-      );
-      process.exit(1);
-    }
+    // 3. 用完整专辑名和艺人补搜 regional collection ID，再执行跨区 lookup。
+    s.start(color.blue("› Fetching tracklist across storefronts..."));
+    const preciseResults = await searchItunes(fetchJson, {
+      query: `${selectedAlbum.collectionName} ${selectedAlbum.artistName}`,
+      entity: "album",
+      limit: 20,
+    });
+    const resolvedAlbum = await fetchAlbumTracks(
+      fetchJson,
+      selectedAlbum,
+      [...results, ...preciseResults],
+    );
+    selectedAlbum = {
+      ...resolvedAlbum.album,
+      storefront: resolvedAlbum.storefront,
+    };
+    const tracks = resolvedAlbum.tracks;
+    s.stop(color.dim(`Fetched ${tracks.length} tracks (${resolvedAlbum.storefront})`));
 
     // 4. 准备目录结构
-    const albumSlug = generateSlug(selectedAlbum.collectionName);
+    const albumSlug = generateMusicSlug(
+      selectedAlbum.collectionName,
+      selectedAlbum.collectionId,
+      selectedAlbum.storefront,
+    );
     const albumContentDir = path.join(PATHS.musicContent, albumSlug);
     const albumAssetsDir = path.join(PATHS.musicAssets, albumSlug);
     const albumEntityPath = path.join(PATHS.albumContent, `${albumSlug}.yaml`);
@@ -174,7 +155,11 @@ releaseDate: ${releaseDate}
     for (const track of tracks) {
       const rawName =
         track.trackName || track.trackCensoredName || "Unknown Track";
-      const trackSlug = generateSlug(rawName);
+      const trackSlug = generateMusicSlug(
+        rawName,
+        track.trackId,
+        selectedAlbum.storefront,
+      );
 
       const trackNum = track.trackNumber;
       const trackNumberFormatted = String(trackNum).padStart(2, "0");
