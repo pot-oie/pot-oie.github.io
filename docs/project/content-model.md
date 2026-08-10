@@ -2,7 +2,29 @@
 
 Content is managed through Astro Content Collections. Focused definitions live
 under `src/content-schema`; `src/content.config.ts` composes and exports them
-under the stable `blog`, `watch`, and `music` collection names.
+under the `blog`, `blogSeries`, `watch`, `music`, and `albums` collection names.
+
+## Blog Series Collection
+
+Source directory: `src/content/blog-series`
+
+File type: YAML, YML, or JSON
+
+Required field: `title`
+
+Optional fields:
+
+- `description`
+- `sections`
+
+Each item in `sections`, when present, requires:
+
+- `id`
+- `title`
+- `order`
+
+Every section ID and positive integer order is unique within its series. The
+record filename without its data-file extension is the stable series ID.
 
 ## Blog Collection
 
@@ -26,8 +48,7 @@ Optional fields:
 - `draft`
 - `lifeCategory`
 - `techCategory`
-- `albumTitle`
-- `albumArtist`
+- `albumId`
 - `tags`
 - `series`
 
@@ -38,8 +59,8 @@ Category rules:
 - `techCategory` and `lifeCategory` are mutually exclusive; each is only valid
   for its matching primary category.
 - `series` is only valid for `learn` entries.
-- `lifeCategory: "album"` requires both `albumTitle` and `albumArtist`.
-- `albumTitle` and `albumArtist` are invalid on non-album entries.
+- `lifeCategory: "album"` requires `albumId` referencing an `albums` record.
+- `albumId` is invalid on non-album entries.
 
 Current technical categories:
 
@@ -63,22 +84,20 @@ warnings.
 
 Technical learning-note series can use `series` to opt into article-to-article navigation on the detail page:
 
-- `series.key`: stable grouping key shared by every post in the same set.
-- `series.title`: display title for the set.
-- `series.section.title`: optional second-level group title shown inside the series navigation.
-- `series.section.order`: positive integer used for ordering second-level groups.
+- `series.id`: stable ID of a record in `blogSeries`.
+- `series.section`: optional section ID declared by that series record.
 - `series.subtitle`: optional per-post label shown in the series navigation.
-- `series.order`: positive integer used for ordering within its group.
+- `series.order`: positive integer used for ordering within its section, or in
+  the unsectioned scope when `series.section` is absent.
 
 Draft posts may carry `series` metadata, but detail-page navigation only lists published posts.
 
-Across all entries sharing a `series.key`:
+Across all entries sharing a `series.id`:
 
-- `series.title` must be consistent.
-- one `series.section.order` must map to one section title, and one section
-  title must map to one order.
-- `series.order` must be unique inside its section; unsectioned series entries
-  share one unsectioned ordering scope.
+- the referenced series record must exist;
+- `series.section`, when present, must exist in that series record;
+- `series.order` must be unique inside its section; unsectioned members share
+  one unsectioned ordering scope.
 
 These cross-entry rules include drafts so conflicts are caught before a draft
 is published.
@@ -106,7 +125,8 @@ midnight with the `+08:00` offset.
 `npm run check:content` validates cross-entry metadata and reliable local
 references before the Astro build:
 
-- series title, section, and item-order consistency
+- series and section references plus item-order consistency
+- album-review references, Music album references, and duplicate album track numbers
 - tag normalization, normalized duplicates, and unknown-tag diagnostics
 - Markdown links to published blog routes
 - Markdown images, relative imports, and `heroImage` / `coverImage` files
@@ -125,27 +145,35 @@ Source directory: `src/content/watch`
 
 File type: YAML, YML, or JSON
 
-Shared fields:
+The Watch schema is a strict discriminated union keyed by `mediaType`. Shared
+fields are:
 
 - `title`
-- `originalTitle`
-- `tmdbId`
 - `mediaType`: `movie` or `series`
-- `releaseDate`
-- `finishedDate`
 - `coverImage`
 - `shortReview`
+
+Shared optional fields:
+
+- `originalTitle`
+- `tmdbId`
+- `releaseDate`
 
 Movie records require:
 
 - `rating`: between `0` and `5`
 - `finishedDate`
 
+Movie records cannot define `seasons`.
+
 Series records require:
 
 - `seasons`: a non-empty list of season records
 - `seasons[].number`: a unique non-negative season number
 - `seasons[].rating`: a number between `0` and `5`, or `to-watch`
+
+Series records cannot define a top-level `rating`. Their `finishedDate` remains
+optional and is valid only when no season is `to-watch`.
 
 Optional season fields:
 
@@ -168,6 +196,25 @@ instead of downloading a Chinese-localized poster. Series creation applies the
 same metadata choice to regular-season posters and writes `posterImage` only
 when a poster was downloaded successfully.
 
+## Albums Collection
+
+Source directory: `src/content/albums`
+
+File type: YAML, YML, or JSON
+
+Each record is the authoritative identity for one album. Its filename without
+the data-file extension is the stable album ID.
+
+Required fields:
+
+- `title`
+- `artist`
+- `coverImage`
+- `releaseDate`
+
+Albums do not have standalone public routes. Album-review Blog posts and album
+tracks reference the same record through `albumId`.
+
 ## Music Collection
 
 Source directory: `src/content/music`
@@ -176,14 +223,18 @@ File type: YAML, YML, or JSON
 
 Music entries are loaded through `glob` with the pattern `**/*.{yaml,yml,json}`.
 
-Fields:
+Required fields:
 
 - `title`
 - `artist`
-- `album`
-- `trackNumber`
-- `coverImage`
-- `pubDate`
+- `recordedAt`: the date the listening record was kept, not the release date
+
+Optional fields:
+
+- `albumId`
+- `trackNumber`: a positive integer, unique within an album when present
+- `coverImage`: required in practice for standalone tracks; album tracks fall
+  back to their album's cover
 - `audioPreview`
 - `links.spotify`
 - `links.netease`
@@ -198,7 +249,9 @@ Fields:
   `src/content.config.ts`.
 - Category and tag metadata changes should be made in `src/utils/blogTaxonomy.ts`.
 - Cross-entry rules live in `src/utils/blogIntegrity.ts`; filesystem scanning
-  lives in `scripts/lib/blogContentFiles.ts`.
+  lives in `scripts/lib/blogContentFiles.ts`. Album/Music relationships are
+  validated by `src/utils/musicIntegrity.ts` and
+  `scripts/lib/musicContentFiles.ts`.
 - Update this document when fields, category requirements, or collection loading behavior changes.
 - Run `npm test` and `npm run build` after content schema or integrity changes.
 

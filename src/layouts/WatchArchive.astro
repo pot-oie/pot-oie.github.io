@@ -5,12 +5,10 @@ import ArchiveHeader from "../components/ArchiveHeader.astro";
 import WatchCard from "../components/WatchCard.astro";
 import {
   formatWatchSince,
-  getEarliestWatchFinishedDate,
-  sortWatchEntries,
+  resolveWatchArchive,
+  type WatchArchiveType,
 } from "../domain/watch";
 import type { ArchiveFilterItem } from "../utils/archive";
-
-type WatchArchiveType = "all" | "movie" | "series";
 
 interface Props {
   posts: CollectionEntry<"watch">[];
@@ -40,16 +38,7 @@ const archiveMeta = {
   },
 } as const;
 
-const counts = {
-  all: posts.length,
-  movie: posts.filter((post) => post.data.mediaType === "movie").length,
-  series: posts.filter((post) => post.data.mediaType === "series").length,
-};
-
-const sinceDates = {
-  movie: getEarliestWatchFinishedDate(posts, "movie"),
-  series: getEarliestWatchFinishedDate(posts, "series"),
-};
+const { cards, counts, sinceDates } = resolveWatchArchive(posts, activeType);
 
 const sinceMetadata =
   activeType === "all"
@@ -87,11 +76,6 @@ const filters: ArchiveFilterItem[] = [
   },
 ];
 
-const visiblePosts = sortWatchEntries(
-  activeType === "all"
-    ? posts
-    : posts.filter((post) => post.data.mediaType === activeType),
-);
 const meta = archiveMeta[activeType];
 const breadcrumbs =
   activeType === "all"
@@ -112,7 +96,7 @@ const breadcrumbs =
       breadcrumbs={breadcrumbs}
       title={meta.title}
       description={meta.description}
-      count={visiblePosts.length}
+      count={cards.length}
       countIcon={meta.countIcon}
       filters={filters}
       filterLabel="观影类型"
@@ -121,10 +105,10 @@ const breadcrumbs =
     />
 
     {
-      visiblePosts.length > 0 ? (
+      cards.length > 0 ? (
         <div class="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-12 mb-16">
-          {visiblePosts.map((post, index) => (
-            <WatchCard post={post} eager={index < 8} />
+          {cards.map((watch, index) => (
+            <WatchCard watch={watch} eager={index < 8} />
           ))}
         </div>
       ) : (

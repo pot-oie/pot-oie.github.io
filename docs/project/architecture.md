@@ -24,11 +24,13 @@ structures.
 
 `src/components` is the reusable UI and interaction layer. It includes site chrome, cards, search, music controls, table of contents, and article-specific demos.
 
-`src/content` is the content source layer. Blog entries are MDX. Watch and music entries are YAML loaded through glob loaders.
+`src/content` is the content source layer. Blog entries are MDX. Watch, Music,
+first-class Blog series, and Album entries are data files loaded through glob
+loaders where appropriate.
 
 `src/content-schema` is the collection-schema layer. Each maintained content
 domain owns a focused schema module, while `src/content.config.ts` remains the
-small Astro composition root that exports the existing collection names.
+small Astro composition root that exports the registered collection names.
 
 `src/domain` is the pure domain/query layer. It owns stable Blog and Watch
 filtering, ordering, relationships, and href behavior without loading
@@ -77,7 +79,10 @@ post filtering, archive ordering and counts, post URLs, and series assembly.
 `src/domain/blogRoutes.ts` owns archive route shapes, canonical pagination links,
 and exact route sets derived from the published corpus; page generation, search
 classification, and content-reference validation share that policy.
-Other modules keep their transformations in their nearest domain utilities.
+Music routes resolve tracks through `src/domain/music.ts`, including album
+relationships and the album-cover fallback, before passing view models to
+components. Other modules keep their transformations in their nearest domain
+utilities.
 
 Blog entry-local relationships are enforced by the collection schema and
 `src/content-schema/blogRelations.ts`; cross-entry rules remain in

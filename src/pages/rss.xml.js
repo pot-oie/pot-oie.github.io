@@ -1,5 +1,6 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
+import { getWatchHref } from '../domain/watch';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import {
 	getBlogPostHref,
@@ -28,15 +29,13 @@ export async function GET(context) {
 			title: `[观影] ${post.data.title}`,
 			description: post.data.shortReview,
 			pubDate: post.data.finishedDate ?? post.data.releaseDate,
-			link: post.data.mediaType === 'series'
-				? `/watch/series/${post.id.replace(/\.(yaml|yml|json)$/i, '')}/`
-				: `/watch/movie/`,
+			link: getWatchHref(post),
 			customData: `<category>Watch</category>`
 		})).filter((post) => post.pubDate),
 		...music.map((post) => ({
 			title: `[听歌] ${post.data.title} - ${post.data.artist}`,
 			description: `本月听了：${post.data.title}`,
-			pubDate: post.data.pubDate,
+			pubDate: post.data.recordedAt,
 			link: `/music/`, // 音乐目前是按月展示，可以导向音乐首页或月份页
 			customData: `<category>Music</category>`
 		}))

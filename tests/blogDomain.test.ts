@@ -5,9 +5,11 @@ import {
   getBlogArchivePageHref,
   getPaginatedBlogArchive,
   getBlogSeriesForPost,
+  getPublishedBlogPosts,
   sortBlogPostsByPublicationDate,
   sortBlogPostsForArchive,
   type BlogPost,
+  type BlogSeriesDefinition,
 } from "../src/domain/blog";
 
 test("archive ordering prefers updatedDate while publication ordering ignores it", () => {
@@ -32,19 +34,19 @@ test("archive ordering prefers updatedDate while publication ordering ignores it
 
 test("series assembly orders sections and items and marks the current post", () => {
   const current = post("foundations-2", "2026-01-02", {
-    series: series("Course", "Foundations", 1, 2),
+    series: series("foundations", 2),
   });
   const entries = [
     post("advanced-1", "2026-01-03", {
-      series: series("Course", "Advanced", 2, 1),
+      series: series("advanced", 1),
     }),
     current,
     post("foundations-1", "2026-01-01", {
-      series: series("Course", "Foundations", 1, 1),
+      series: series("foundations", 1),
     }),
   ];
 
-  const result = getBlogSeriesForPost(entries, current);
+  const result = getBlogSeriesForPost(entries, [seriesDefinition()], current);
 
   assert.ok(result);
   assert.deepEqual(
@@ -67,6 +69,37 @@ test("series assembly orders sections and items and marks the current post", () 
   );
   assert.equal(result.items.filter((item) => item.current).length, 1);
   assert.equal(result.items[1].current, true);
+});
+
+test("series assembly keeps unsectioned ordering and excludes drafts", () => {
+  const current = post("published-2", "2026-01-02", {
+    series: { id: "notes", subtitle: "Two", order: 2 },
+  });
+  const entries = getPublishedBlogPosts([
+    current,
+    post("draft-1", "2026-01-01", {
+      draft: true,
+      series: { id: "notes", subtitle: "Draft", order: 1 },
+    }),
+    post("published-1", "2025-12-31", {
+      series: { id: "notes", subtitle: "One", order: 1 },
+    }),
+  ]);
+  const definition = {
+    id: "notes.yaml",
+    collection: "blogSeries",
+    data: { title: "Notes" },
+  } as BlogSeriesDefinition;
+
+  const result = getBlogSeriesForPost(entries, [definition], current);
+
+  assert.ok(result);
+  assert.deepEqual(result.items.map((item) => item.href), [
+    "/blog/published-1/",
+    "/blog/published-2/",
+  ]);
+  assert.equal(result.sections[0].title, "未分组");
+  assert.equal(result.key, "notes");
 });
 
 test("archive pagination keeps page one canonical and links middle pages", () => {
@@ -146,19 +179,27 @@ function post(
 }
 
 function series(
-  title: string,
-  sectionTitle: string,
-  sectionOrder: number,
+  section: string,
   order: number,
 ): NonNullable<BlogPost["data"]["series"]> {
   return {
-    key: "course",
-    title,
-    section: {
-      title: sectionTitle,
-      order: sectionOrder,
-    },
-    subtitle: `${sectionTitle} ${order}`,
+    id: "course",
+    section,
+    subtitle: `${section} ${order}`,
     order,
   };
+}
+
+function seriesDefinition(): BlogSeriesDefinition {
+  return {
+    id: "course.yaml",
+    collection: "blogSeries",
+    data: {
+      title: "Course",
+      sections: [
+        { id: "foundations", title: "Foundations", order: 1 },
+        { id: "advanced", title: "Advanced", order: 2 },
+      ],
+    },
+  } as BlogSeriesDefinition;
 }

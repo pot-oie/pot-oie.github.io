@@ -21,39 +21,36 @@ test("reports mutually exclusive categories and album requirements", () => {
       lifeCategory: "album",
       techCategory: "ai",
       series: {
-        key: "course",
-        title: "Course",
+        id: "course",
         order: 1,
       },
     }).map((issue) => issue.field),
-    ["techCategory", "series", "albumTitle", "albumArtist"],
+    ["techCategory", "series", "albumId"],
   );
 
   assert.deepEqual(
     validateBlogEntryRelations({
       category: "life",
       lifeCategory: "daily",
-      albumTitle: "Wrong field",
+      albumId: "wrong-album",
     }).map((issue) => issue.field),
-    ["albumTitle"],
+    ["albumId"],
   );
 });
 
 test("accepts consistent series metadata", () => {
   const diagnostics = validateBlogIntegrity([
     entry("one", {
-      key: "course",
-      title: "Course",
-      section: { title: "Basics", order: 1 },
+      id: "course",
+      section: "basics",
       order: 1,
     }),
     entry("two", {
-      key: "course",
-      title: "Course",
-      section: { title: "Basics", order: 1 },
+      id: "course",
+      section: "basics",
       order: 2,
     }),
-  ]);
+  ], [definition()]);
 
   assert.equal(
     diagnostics.filter((diagnostic) => diagnostic.severity === "error").length,
@@ -61,36 +58,55 @@ test("accepts consistent series metadata", () => {
   );
 });
 
-test("reports title, section, and duplicate position conflicts", () => {
+test("reports missing series, missing sections, and duplicate positions including drafts", () => {
   const diagnostics = validateBlogIntegrity([
     entry("one", {
-      key: "course",
-      title: "Course",
-      section: { title: "Basics", order: 1 },
+      id: "course",
+      section: "basics",
       order: 1,
     }),
     entry("two", {
-      key: "course",
-      title: "Different title",
-      section: { title: "Advanced", order: 1 },
+      id: "course",
+      section: "basics",
       order: 1,
-    }),
+    }, true),
     entry("three", {
-      key: "course",
-      title: "Course",
-      section: { title: "Basics", order: 2 },
+      id: "course",
+      section: "missing",
       order: 1,
     }),
-  ]);
+    entry("four", { id: "missing", order: 1 }),
+  ], [definition()]);
 
   const fields = diagnostics
     .filter((diagnostic) => diagnostic.severity === "error")
     .map((diagnostic) => diagnostic.field);
 
-  assert.ok(fields.includes("series.title"));
-  assert.ok(fields.includes("series.section.title"));
-  assert.ok(fields.includes("series.section.order"));
+  assert.ok(fields.includes("series.id"));
+  assert.ok(fields.includes("series.section"));
   assert.ok(fields.includes("series.order"));
+});
+
+test("rejects non-positive series and section order", () => {
+  const diagnostics = validateBlogIntegrity(
+    [entry("invalid-order", { id: "course", section: "basics", order: 0 })],
+    [
+      {
+        id: "course",
+        title: "Course",
+        sections: [{ id: "basics", title: "Basics", order: -1 }],
+      },
+    ],
+  );
+
+  assert.equal(
+    diagnostics.filter(
+      (diagnostic) =>
+        diagnostic.severity === "error" &&
+        diagnostic.field.includes("order"),
+    ).length,
+    2,
+  );
 });
 
 test("diagnoses normalization and duplicates without blocking unknown tags", () => {
@@ -129,9 +145,18 @@ test("diagnoses normalization and duplicates without blocking unknown tags", () 
 function entry(
   id: string,
   series: NonNullable<BlogIntegrityEntry["data"]["series"]>,
+  draft = false,
 ): BlogIntegrityEntry {
   return {
     id,
-    data: { series },
+    data: { draft, series },
+  };
+}
+
+function definition() {
+  return {
+    id: "course",
+    title: "Course",
+    sections: [{ id: "basics", title: "Basics", order: 1 }],
   };
 }

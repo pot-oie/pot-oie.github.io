@@ -19,13 +19,19 @@ export type BlogIntegrityDiagnostic = {
 };
 
 export type BlogIntegritySeries = {
-  key: string;
+  id: string;
+  section?: string;
+  order: number;
+};
+
+export type BlogIntegritySeriesDefinition = {
+  id: string;
   title: string;
-  section?: {
+  sections?: {
+    id: string;
     title: string;
     order: number;
-  };
-  order: number;
+  }[];
 };
 
 export type BlogIntegrityEntry = {
@@ -35,8 +41,7 @@ export type BlogIntegrityEntry = {
     category?: string;
     lifeCategory?: string;
     techCategory?: string;
-    albumTitle?: string;
-    albumArtist?: string;
+    albumId?: string;
     tags?: string[];
     series?: BlogIntegritySeries;
   };
@@ -44,11 +49,12 @@ export type BlogIntegrityEntry = {
 
 export function validateBlogIntegrity(
   entries: readonly BlogIntegrityEntry[],
+  seriesDefinitions: readonly BlogIntegritySeriesDefinition[] = [],
 ): BlogIntegrityDiagnostic[] {
   return [
     ...validateEntryRelationDiagnostics(entries),
     ...validateTagDiagnostics(entries),
-    ...validateSeriesDiagnostics(entries),
+    ...validateSeriesDiagnostics(entries, seriesDefinitions),
   ].sort(compareDiagnostics);
 }
 
@@ -114,86 +120,108 @@ function validateTagDiagnostics(
 
 function validateSeriesDiagnostics(
   entries: readonly BlogIntegrityEntry[],
+  seriesDefinitions: readonly BlogIntegritySeriesDefinition[],
 ): BlogIntegrityDiagnostic[] {
   const diagnostics: BlogIntegrityDiagnostic[] = [];
-  const seriesGroups = new Map<string, BlogIntegrityEntry[]>();
+  const definitionsById = new Map<string, BlogIntegritySeriesDefinition>();
+  const itemByPosition = new Map<string, BlogIntegrityEntry>();
 
-  for (const entry of entries) {
-    const seriesKey = entry.data.series?.key;
-    if (!seriesKey) continue;
+  for (const definition of seriesDefinitions) {
+    if (definitionsById.has(definition.id)) {
+      diagnostics.push({
+        severity: "error",
+        entryId: `blog-series:${definition.id}`,
+        field: "id",
+        message: `系列 id "${definition.id}" 重复。`,
+      });
+      continue;
+    }
+    definitionsById.set(definition.id, definition);
 
-    const group = seriesGroups.get(seriesKey) ?? [];
-    group.push(entry);
-    seriesGroups.set(seriesKey, group);
+    const sectionIds = new Set<string>();
+    const sectionOrders = new Set<number>();
+    for (const section of definition.sections ?? []) {
+      if (!Number.isInteger(section.order) || section.order <= 0) {
+        diagnostics.push({
+          severity: "error",
+          entryId: `blog-series:${definition.id}`,
+          field: "sections.order",
+          message: `分组 "${section.id}" 的 order 必须是正整数。`,
+        });
+      }
+      if (sectionIds.has(section.id)) {
+        diagnostics.push({
+          severity: "error",
+          entryId: `blog-series:${definition.id}`,
+          field: "sections.id",
+          message: `分组 id "${section.id}" 重复。`,
+        });
+      }
+      sectionIds.add(section.id);
+
+      if (sectionOrders.has(section.order)) {
+        diagnostics.push({
+          severity: "error",
+          entryId: `blog-series:${definition.id}`,
+          field: "sections.order",
+          message: `分组 order ${section.order} 重复。`,
+        });
+      }
+      sectionOrders.add(section.order);
+    }
   }
 
-  for (const [seriesKey, seriesEntries] of seriesGroups) {
-    const firstEntry = seriesEntries[0];
-    const expectedTitle = firstEntry.data.series!.title;
-    const sectionTitleByOrder = new Map<number, BlogIntegrityEntry>();
-    const sectionOrderByTitle = new Map<string, BlogIntegrityEntry>();
-    const itemByPosition = new Map<string, BlogIntegrityEntry>();
+  for (const entry of entries) {
+    const series = entry.data.series;
+    if (!series) continue;
 
-    for (const entry of seriesEntries) {
-      const series = entry.data.series!;
+    if (!Number.isInteger(series.order) || series.order <= 0) {
+      diagnostics.push({
+        severity: "error",
+        entryId: entry.id,
+        field: "series.order",
+        message: "系列成员 order 必须是正整数。",
+      });
+      continue;
+    }
 
-      if (series.title !== expectedTitle) {
-        diagnostics.push({
-          severity: "error",
-          entryId: entry.id,
-          field: "series.title",
-          message: `系列 "${seriesKey}" 的标题应为 "${expectedTitle}"，与 ${firstEntry.id} 保持一致。`,
-        });
-      }
+    const definition = definitionsById.get(series.id);
+    if (!definition) {
+      diagnostics.push({
+        severity: "error",
+        entryId: entry.id,
+        field: "series.id",
+        message: `引用的系列 "${series.id}" 不存在。`,
+      });
+      continue;
+    }
 
-      if (series.section) {
-        const sameOrderEntry = sectionTitleByOrder.get(series.section.order);
-        if (
-          sameOrderEntry &&
-          sameOrderEntry.data.series!.section!.title !== series.section.title
-        ) {
-          diagnostics.push({
-            severity: "error",
-            entryId: entry.id,
-            field: "series.section.title",
-            message: `系列 "${seriesKey}" 的 section.order ${series.section.order} 已由 ${sameOrderEntry.id} 用于 "${sameOrderEntry.data.series!.section!.title}"。`,
-          });
-        } else {
-          sectionTitleByOrder.set(series.section.order, entry);
-        }
+    if (
+      series.section &&
+      !definition.sections?.some((section) => section.id === series.section)
+    ) {
+      diagnostics.push({
+        severity: "error",
+        entryId: entry.id,
+        field: "series.section",
+        message: `系列 "${series.id}" 中不存在分组 "${series.section}"。`,
+      });
+      continue;
+    }
 
-        const sameTitleEntry = sectionOrderByTitle.get(series.section.title);
-        if (
-          sameTitleEntry &&
-          sameTitleEntry.data.series!.section!.order !== series.section.order
-        ) {
-          diagnostics.push({
-            severity: "error",
-            entryId: entry.id,
-            field: "series.section.order",
-            message: `系列 "${seriesKey}" 的分组 "${series.section.title}" 应使用 order ${sameTitleEntry.data.series!.section!.order}，与 ${sameTitleEntry.id} 保持一致。`,
-          });
-        } else {
-          sectionOrderByTitle.set(series.section.title, entry);
-        }
-      }
+    const sectionPosition = series.section ?? "unsectioned";
+    const itemPosition = `${series.id}:${sectionPosition}:item:${series.order}`;
+    const duplicateEntry = itemByPosition.get(itemPosition);
 
-      const sectionPosition = series.section
-        ? `section:${series.section.order}`
-        : "unsectioned";
-      const itemPosition = `${sectionPosition}:item:${series.order}`;
-      const duplicateEntry = itemByPosition.get(itemPosition);
-
-      if (duplicateEntry) {
-        diagnostics.push({
-          severity: "error",
-          entryId: entry.id,
-          field: "series.order",
-          message: `系列 "${seriesKey}" 的同一分组中 order ${series.order} 已被 ${duplicateEntry.id} 使用。`,
-        });
-      } else {
-        itemByPosition.set(itemPosition, entry);
-      }
+    if (duplicateEntry) {
+      diagnostics.push({
+        severity: "error",
+        entryId: entry.id,
+        field: "series.order",
+        message: `系列 "${series.id}" 的同一分组中 order ${series.order} 已被 ${duplicateEntry.id} 使用。`,
+      });
+    } else {
+      itemByPosition.set(itemPosition, entry);
     }
   }
 

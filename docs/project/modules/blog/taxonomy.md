@@ -1,6 +1,7 @@
 # Blog Taxonomy
 
-Blog taxonomy is defined in `src/utils/blogTaxonomy.ts` and enforced by `src/content.config.ts`.
+Blog taxonomy is defined in `src/utils/blogTaxonomy.ts` and enforced by
+`src/content-schema/blog.ts`.
 
 ## Technical Categories
 
@@ -33,7 +34,7 @@ Source of truth:
 
 - Registry and aliases: `src/utils/blogTaxonomy.ts`
 - Rendering usage: `src/layouts/TechPost.astro`
-- Content schema transform: `src/content.config.ts`
+- Content schema transform: `src/content-schema/blog.ts`
 
 Tags currently describe and decorate individual technical articles. They do not
 generate archive filters or standalone routes. A future Tags module is expected

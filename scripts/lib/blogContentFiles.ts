@@ -6,6 +6,7 @@ import {
   type BlogIntegrityDiagnostic,
   type BlogIntegrityEntry,
   type BlogIntegritySeries,
+  type BlogIntegritySeriesDefinition,
 } from "../../src/utils/blogIntegrity";
 import {
   getPublishedBlogArchiveRoutePaths,
@@ -17,8 +18,7 @@ type RawBlogData = {
   category?: unknown;
   lifeCategory?: unknown;
   techCategory?: unknown;
-  albumTitle?: unknown;
-  albumArtist?: unknown;
+  albumId?: unknown;
   tags?: unknown;
   series?: unknown;
   heroImage?: unknown;
@@ -33,6 +33,7 @@ type BlogSourceEntry = BlogIntegrityEntry & {
 
 export type BlogContentCheckResult = {
   entries: BlogSourceEntry[];
+  seriesDefinitions: BlogIntegritySeriesDefinition[];
   diagnostics: BlogIntegrityDiagnostic[];
 };
 
@@ -40,6 +41,7 @@ export async function checkBlogContent(
   projectRoot: string,
 ): Promise<BlogContentCheckResult> {
   const contentRoot = path.join(projectRoot, "src/content/blog");
+  const seriesRoot = path.join(projectRoot, "src/content/blog-series");
   const sourcePaths = await findMdxFiles(contentRoot);
   const entries: BlogSourceEntry[] = [];
   const diagnostics: BlogIntegrityDiagnostic[] = [];
@@ -72,6 +74,16 @@ export async function checkBlogContent(
       continue;
     }
 
+    const series = getSeries(rawData.series);
+    if (rawData.series !== undefined && !series) {
+      diagnostics.push({
+        severity: "error",
+        entryId: relativePath,
+        field: "series",
+        message: "series 必须包含有效的 id、可选 section 与整数 order。",
+      });
+    }
+
     entries.push({
       id: relativePath,
       absolutePath,
@@ -82,15 +94,20 @@ export async function checkBlogContent(
         category: getString(rawData.category),
         lifeCategory: getString(rawData.lifeCategory),
         techCategory: getString(rawData.techCategory),
-        albumTitle: getString(rawData.albumTitle),
-        albumArtist: getString(rawData.albumArtist),
+        albumId: getString(rawData.albumId),
         tags: getStringArray(rawData.tags),
-        series: getSeries(rawData.series),
+        series,
       },
     });
   }
 
-  diagnostics.push(...validateBlogIntegrity(entries));
+  const seriesDefinitions = await readBlogSeriesDefinitions(
+    projectRoot,
+    seriesRoot,
+    diagnostics,
+  );
+
+  diagnostics.push(...validateBlogIntegrity(entries, seriesDefinitions));
   diagnostics.push(
     ...(await validateReferences(projectRoot, entries)),
   );
@@ -105,7 +122,45 @@ export async function checkBlogContent(
     );
   });
 
-  return { entries, diagnostics };
+  return { entries, seriesDefinitions, diagnostics };
+}
+
+async function readBlogSeriesDefinitions(
+  projectRoot: string,
+  seriesRoot: string,
+  diagnostics: BlogIntegrityDiagnostic[],
+): Promise<BlogIntegritySeriesDefinition[]> {
+  const definitions: BlogIntegritySeriesDefinition[] = [];
+
+  for (const absolutePath of await findDataFiles(seriesRoot)) {
+    const entryId = toPosixPath(path.relative(projectRoot, absolutePath));
+    let data: unknown;
+    try {
+      data = parse(await readFile(absolutePath, "utf8"));
+    } catch (error) {
+      diagnostics.push({
+        severity: "error",
+        entryId,
+        field: "data",
+        message: `YAML 解析失败：${getErrorMessage(error)}`,
+      });
+      continue;
+    }
+
+    const definition = getSeriesDefinition(absolutePath, seriesRoot, data);
+    if (!definition) {
+      diagnostics.push({
+        severity: "error",
+        entryId,
+        field: "data",
+        message: "系列记录必须包含有效的 title 与 sections。",
+      });
+      continue;
+    }
+    definitions.push(definition);
+  }
+
+  return definitions;
 }
 
 function parseMdxSource(
@@ -348,31 +403,71 @@ async function findMdxFiles(directory: string): Promise<string[]> {
   return results.sort();
 }
 
+async function findDataFiles(directory: string): Promise<string[]> {
+  let entries;
+  try {
+    entries = await readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    if (isNodeError(error) && error.code === "ENOENT") return [];
+    throw error;
+  }
+
+  return entries
+    .filter((entry) => entry.isFile() && /\.(yaml|yml|json)$/i.test(entry.name))
+    .map((entry) => path.join(directory, entry.name))
+    .sort();
+}
+
 function getSeries(value: unknown): BlogIntegritySeries | undefined {
   if (!isRecord(value)) return undefined;
   if (
-    typeof value.key !== "string" ||
-    typeof value.title !== "string" ||
-    typeof value.order !== "number"
+    typeof value.id !== "string" ||
+    value.id.trim().length === 0 ||
+    typeof value.order !== "number" ||
+    !Number.isInteger(value.order) ||
+    (value.section !== undefined &&
+      (typeof value.section !== "string" || value.section.trim().length === 0))
   ) {
     return undefined;
   }
 
-  const section =
-    isRecord(value.section) &&
-    typeof value.section.title === "string" &&
-    typeof value.section.order === "number"
-      ? {
-          title: value.section.title,
-          order: value.section.order,
-        }
-      : undefined;
+  return {
+    id: value.id,
+    order: value.order,
+    section: getString(value.section),
+  };
+}
+
+function getSeriesDefinition(
+  absolutePath: string,
+  seriesRoot: string,
+  value: unknown,
+): BlogIntegritySeriesDefinition | undefined {
+  if (!isRecord(value) || typeof value.title !== "string") return undefined;
+  if (value.sections !== undefined && !Array.isArray(value.sections)) {
+    return undefined;
+  }
+
+  const sections = (value.sections ?? []).map((section) => {
+    if (
+      !isRecord(section) ||
+      typeof section.id !== "string" ||
+      typeof section.title !== "string" ||
+      typeof section.order !== "number"
+    ) {
+      return undefined;
+    }
+    return { id: section.id, title: section.title, order: section.order };
+  });
+  if (sections.some((section) => section === undefined)) return undefined;
 
   return {
-    key: value.key,
+    id: toPosixPath(path.relative(seriesRoot, absolutePath)).replace(
+      /\.(yaml|yml|json)$/i,
+      "",
+    ),
     title: value.title,
-    order: value.order,
-    section,
+    sections: sections as BlogIntegritySeriesDefinition["sections"],
   };
 }
 
@@ -388,6 +483,10 @@ function getString(value: unknown): string | undefined {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }
 
 function stripAngleBrackets(value: string): string {

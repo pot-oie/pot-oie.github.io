@@ -12,7 +12,8 @@ import {
   getPublishedBlogPosts,
   sortBlogPostsByPublicationDate,
 } from "../domain/blog";
-import { getWatchSortTime, hasPendingSeason } from "../domain/watch";
+import { resolveWatchCards, sortWatchEntries } from "../domain/watch";
+import { resolveMusicTracks } from "../domain/music";
 
 // 获取博客文章
 const blogEntries = await getCollection("blog");
@@ -30,16 +31,15 @@ if (allPosts.length > 0) {
 
 // 获取最近观影记录；仍有未开始季度的剧集优先展示
 const watchPosts = await getCollection("watch");
-const recentWatches = watchPosts
-  .sort((a, b) => {
-    const pendingDifference =
-      Number(hasPendingSeason(b.data)) - Number(hasPendingSeason(a.data));
-    if (pendingDifference !== 0) return pendingDifference;
-    return getWatchSortTime(b.data) - getWatchSortTime(a.data);
-  })
-  .slice(0, 8);
+const recentWatches = resolveWatchCards(
+  sortWatchEntries(watchPosts).slice(0, 8),
+);
 
-const musicEntries = await getCollection("music");
+const [musicTracks, albums] = await Promise.all([
+  getCollection("music"),
+  getCollection("albums"),
+]);
+const musicEntries = resolveMusicTracks(musicTracks, albums);
 
 const pageTitle = "首页";
 const pageDescription = "Pot's Blog - 思想的流淌与记录";
@@ -147,7 +147,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       class="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-6 md:gap-x-6 md:gap-y-12 transition-opacity duration-300"
     >
       {
-        recentWatches.map((post) => <WatchCard post={post} eager />)
+        recentWatches.map((watch) => <WatchCard watch={watch} eager />)
       }
     </div>
 
@@ -157,7 +157,7 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       class="hidden transition-opacity duration-300 opacity-0"
     >
       <div class="watch-scroll-wrapper flex justify-center py-12">
-        <WatchScroll posts={recentWatches} />
+        <WatchScroll watches={recentWatches} />
       </div>
     </div>
   </section>

@@ -10,10 +10,10 @@ export const music = defineCollection({
     z.object({
       title: z.string(),
       artist: z.string(),
-      album: z.string().optional(),
-      trackNumber: z.number().optional(),
-      coverImage: image(),
-      pubDate: z.coerce.date(),
+      albumId: z.string().trim().min(1).optional(),
+      trackNumber: z.number().int().positive().optional(),
+      coverImage: image().optional(),
+      recordedAt: z.coerce.date(),
       audioPreview: z.string().optional(),
       links: z
         .object({

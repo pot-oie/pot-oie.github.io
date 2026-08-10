@@ -1,9 +1,8 @@
 title: "早到的u"
 artist: "Gareth.T"
-album: "THE PROTÉGÉ"
+albumId: "t-h-e-p-r-o-t-e-g-e"
 trackNumber: 5
-coverImage: "../../../assets/music/t-h-e-p-r-o-t-e-g-e/cover.jpg"
-pubDate: 2026-03-30
+recordedAt: 2026-03-30
 audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1d/08/6a/1d086a85-fbe8-cdc9-94dd-97904635f0f7/mzaf_8017902476942301457.plus.aac.p.m4a"
 links:
   spotify: ""

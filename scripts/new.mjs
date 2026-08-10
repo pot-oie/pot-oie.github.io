@@ -532,7 +532,7 @@ async function handleMusic() {
     const yamlContent = `title: "${selectedTrack.trackName}"
 artist: "${selectedTrack.artistName}"
 coverImage: "../../assets/music/${coverFilename}"
-pubDate: ${todayStr}
+recordedAt: ${todayStr}
 audioPreview: "${previewUrl}"
 links:
   spotify: "${spotifyLink}"

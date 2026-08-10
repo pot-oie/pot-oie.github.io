@@ -2,21 +2,19 @@
 // src/components/RecentMusic.astro
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
-import type { CollectionEntry } from "astro:content";
 import QRCodeTooltip from "./QRCodeTooltip.astro";
+import {
+  getStandaloneTracks,
+  sortMusicTracksByRecordedAt,
+  type ResolvedMusicTrack,
+} from "../domain/music";
 
 export interface Props {
-  music: CollectionEntry<"music">[];
+  music: ResolvedMusicTrack[];
 }
 
 const { music: allMusic } = Astro.props;
-// 过滤掉带有 album 字段的条目，只保留单曲
-const singleMusic = allMusic.filter((song) => !song.data.album);
-
-const sortedMusic = singleMusic.sort(
-  (a, b) =>
-    new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
-);
+const sortedMusic = sortMusicTracksByRecordedAt(getStandaloneTracks(allMusic));
 ---
 
 <div class="flex flex-col">

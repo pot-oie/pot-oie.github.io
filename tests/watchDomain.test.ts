@@ -1,17 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { CollectionEntry } from "astro:content";
 import {
+  getSeriesAverage,
+  getWatchHref,
   getWatchSlug,
+  resolveWatchArchive,
+  resolveWatchCard,
+  resolveWatchDetail,
   sortWatchEntries,
+  type MovieWatchEntry,
+  type SeriesWatchEntry,
   type WatchEntry,
 } from "../src/domain/watch";
 
 test("watch sorting keeps pending series first and completed records newest first", () => {
   const entries = [
-    watchEntry("older.yaml", "movie", "2025-01-01"),
-    watchEntry("newer.yaml", "movie", "2026-01-01"),
-    watchEntry("pending.yaml", "series", undefined, [
+    movieEntry("older.yaml", "2025-01-01"),
+    movieEntry("newer.yaml", "2026-01-01"),
+    seriesEntry("pending.yaml", undefined, [
       { number: 1, rating: 4 },
       { number: 2, rating: "to-watch" },
     ]),
@@ -23,32 +29,106 @@ test("watch sorting keeps pending series first and completed records newest firs
   );
 });
 
-test("watch slugs preserve nested IDs while removing source extensions", () => {
+test("watch hrefs preserve nested IDs and public route behavior", () => {
+  const series = seriesEntry("nested/example.yml", undefined, [
+    { number: 1, rating: 4 },
+  ]);
+
+  assert.equal(getWatchSlug(series), "nested/example");
+  assert.equal(getWatchHref(series), "/watch/series/nested/example/");
   assert.equal(
-    getWatchSlug(watchEntry("series/example.yml", "series", undefined, [
-      { number: 1, rating: 4 },
-    ])),
-    "series/example",
+    getWatchHref(movieEntry("film.json", "2026-01-01")),
+    "/watch/movie/",
   );
 });
 
-function watchEntry(
-  id: string,
-  mediaType: "movie" | "series",
-  finishedDate?: string,
-  seasons?: Array<{ number: number; rating: number | "to-watch" }>,
-): WatchEntry {
+test("card and detail projections resolve scores, pending state, and seasons", () => {
+  const series = seriesEntry("show.yaml", undefined, [
+    { number: 3, rating: "to-watch" },
+    { number: 1, rating: 4 },
+    { number: 2, rating: 5 },
+  ]);
+
+  assert.equal(getSeriesAverage(series.data), 4.5);
+  assert.deepEqual(resolveWatchCard(series), {
+    entry: series,
+    data: series.data,
+    slug: "show",
+    href: "/watch/series/show/",
+    score: 4.5,
+    pending: true,
+    latestSeason: 3,
+    isSeries: true,
+  });
+
+  const detail = resolveWatchDetail(series);
+  assert.equal(detail.score, 4.5);
+  assert.equal(detail.pending, true);
+  assert.deepEqual(
+    detail.sortedSeasons.map((season) => season.number),
+    [1, 2, 3],
+  );
+});
+
+test("archive projection filters, orders, counts, and derives date boundaries", () => {
+  const entries: WatchEntry[] = [
+    movieEntry("old.yaml", "2025-01-15"),
+    movieEntry("new.yaml", "2026-02-01"),
+    seriesEntry("done.yaml", "2025-04-20", [{ number: 1, rating: 4 }]),
+    seriesEntry("pending.yaml", undefined, [
+      { number: 1, rating: 4 },
+      { number: 2, rating: "to-watch" },
+    ]),
+  ];
+
+  const archive = resolveWatchArchive(entries, "series");
+  assert.deepEqual(archive.counts, { all: 4, movie: 2, series: 2 });
+  assert.deepEqual(
+    archive.cards.map((card) => card.entry.id),
+    ["pending.yaml", "done.yaml"],
+  );
+  assert.equal(
+    archive.sinceDates.movie?.toISOString(),
+    "2025-01-15T00:00:00.000Z",
+  );
+  assert.equal(
+    archive.sinceDates.series?.toISOString(),
+    "2025-04-20T00:00:00.000Z",
+  );
+});
+
+function movieEntry(id: string, finishedDate: string): MovieWatchEntry {
   return {
     id,
     collection: "watch",
     data: {
       title: id,
-      mediaType,
-      coverImage: { src: "/cover.webp", width: 1, height: 1, format: "webp" },
+      mediaType: "movie",
+      coverImage: image,
       shortReview: "",
-      rating: mediaType === "movie" ? 4 : undefined,
+      rating: 4,
+      finishedDate: new Date(finishedDate),
+    },
+  } as MovieWatchEntry;
+}
+
+function seriesEntry(
+  id: string,
+  finishedDate: string | undefined,
+  seasons: Array<{ number: number; rating: number | "to-watch" }>,
+): SeriesWatchEntry {
+  return {
+    id,
+    collection: "watch",
+    data: {
+      title: id,
+      mediaType: "series",
+      coverImage: image,
+      shortReview: "",
       finishedDate: finishedDate ? new Date(finishedDate) : undefined,
       seasons,
     },
-  } as CollectionEntry<"watch">;
+  } as SeriesWatchEntry;
 }
+
+const image = { src: "/cover.webp", width: 1, height: 1, format: "webp" } as const;

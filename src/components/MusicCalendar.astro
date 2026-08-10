@@ -1,16 +1,16 @@
 ---
 // src/components/MusicCalendar.astro
-import type { CollectionEntry } from "astro:content";
 import { getImage } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import MusicCard from "./MusicCard.astro";
+import type { ResolvedMusicTrack } from "../domain/music";
 
 interface Props {
   title: string;
   dayNames: string[];
   firstDayOfWeek: number;
   daysInMonth: number;
-  musicMap: Map<number, CollectionEntry<"music">>;
+  musicMap: Map<number, ResolvedMusicTrack>;
   todayDate: number;
   trailingCellsCount: number;
   prevMonthUrl: string | null;

@@ -23,7 +23,7 @@ async function main() {
   console.log(color.bgBlue(color.bold(color.white('  MUSIC BATCH UPDATER  '))) + '\n');
 
   try {
-    const files = await fs.readdir(MUSIC_DIR);
+    const files = await fs.readdir(MUSIC_DIR, { recursive: true });
     const yamlFiles = files.filter(f => f.endsWith('.yaml') || f.endsWith('.mdx') || f.endsWith('.md'));
     
     if (yamlFiles.length === 0) {
@@ -66,9 +66,8 @@ async function main() {
           if (data.resultCount > 0 && data.results[0].previewUrl) {
             const previewUrl = data.results[0].previewUrl;
             
-            // 4. 将 audioPreview 插入到 pubDate 所在行的下方
-            // 使用多行模式匹配 pubDate 行，并在其后拼接 audioPreview
-            content = content.replace(/^(pubDate:.*)$/m, `$1\naudioPreview: "${previewUrl}"`);
+            // 4. 将 audioPreview 插入到 recordedAt 所在行的下方
+            content = content.replace(/^(recordedAt:.*)$/m, `$1\naudioPreview: "${previewUrl}"`);
             
             await fs.writeFile(filePath, content);
             console.log(color.green('✔ Updated'));

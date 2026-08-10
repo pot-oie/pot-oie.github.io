@@ -3,12 +3,16 @@
 import { getCollection } from "astro:content";
 import MusicCalendarView from "../../components/MusicCalendarView.astro";
 import { getMonthKey } from "../../utils/calendar";
+import { getStandaloneTracks, resolveMusicTracks } from "../../domain/music";
 
 export async function getStaticPaths() {
-  const rawMusic = await getCollection("music");
-  const allMusic = rawMusic.filter((post) => !post.data.album);
+  const [rawMusic, albums] = await Promise.all([
+    getCollection("music"),
+    getCollection("albums"),
+  ]);
+  const allMusic = getStandaloneTracks(resolveMusicTracks(rawMusic, albums));
   const months = new Set(
-    allMusic.map((post) => getMonthKey(post.data.pubDate)),
+    allMusic.map((post) => getMonthKey(post.data.recordedAt)),
   );
 
   // 确保当月即使没有数据也能生成一个空日历页
@@ -20,7 +24,11 @@ export async function getStaticPaths() {
 }
 
 const { month } = Astro.params;
-const music = await getCollection("music");
+const [rawMusic, albums] = await Promise.all([
+  getCollection("music"),
+  getCollection("albums"),
+]);
+const music = resolveMusicTracks(rawMusic, albums);
 ---
 
 <MusicCalendarView targetMonthKey={month} music={music} />

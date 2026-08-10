@@ -9,7 +9,9 @@ import { Icon } from "astro-icon/components";
 import { LIFE_CATEGORY_META_LIST } from "../consts";
 import type { ArticleSeo } from "../utils/seo";
 
-type Props = CollectionEntry<"blog">["data"];
+type Props = CollectionEntry<"blog">["data"] & {
+  album: CollectionEntry<"albums">;
+};
 
 const {
   title,
@@ -19,12 +21,13 @@ const {
   heroImage,
   coverImage,
   tags = [],
-  albumTitle = "Unknown Album",
-  albumArtist = "Unknown Artist",
+  album,
 } = Astro.props;
 
-const displayCover = heroImage;
-const socialImage = heroImage ?? coverImage;
+const displayCover = heroImage ?? album.data.coverImage;
+const socialImage = heroImage ?? coverImage ?? album.data.coverImage;
+const albumTitle = album.data.title;
+const albumArtist = album.data.artist;
 const categoryMeta = LIFE_CATEGORY_META_LIST.find(
   (item) => item.key === "album",
 );

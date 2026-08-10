@@ -19,6 +19,7 @@ export {
 } from "./blogRoutes";
 
 export type BlogPost = CollectionEntry<"blog">;
+export type BlogSeriesDefinition = CollectionEntry<"blogSeries">;
 export type BlogArchiveCategory = "learn" | "life";
 
 export type BlogArchiveModel = {
@@ -210,30 +211,52 @@ export function getPaginatedBlogArchive(
 
 export function getBlogSeriesForPost(
   publishedPosts: readonly BlogPost[],
+  seriesDefinitions: readonly BlogSeriesDefinition[],
   currentPost: BlogPost,
 ): BlogSeries | undefined {
   const currentSeries = currentPost.data.series;
   if (!currentSeries) return undefined;
 
+  const definition = seriesDefinitions.find(
+    (entry) => getBlogSeriesDefinitionId(entry) === currentSeries.id,
+  );
+  if (!definition) {
+    throw new Error(
+      `Blog post "${currentPost.id}" references missing series "${currentSeries.id}".`,
+    );
+  }
+
   const items = publishedPosts
-    .filter((post) => post.data.series?.key === currentSeries.key)
-    .sort(compareSeriesPosts)
-    .map<BlogSeriesItem>((post) => ({
-      title: post.data.title,
-      subtitle: post.data.series?.subtitle,
-      href: getBlogPostHref(post),
-      order: post.data.series?.order ?? 0,
-      sectionTitle: post.data.series?.section?.title,
-      sectionOrder: post.data.series?.section?.order,
-      current: post.id === currentPost.id,
-    }));
+    .filter((post) => post.data.series?.id === currentSeries.id)
+    .sort((a, b) => compareSeriesPosts(a, b, definition))
+    .map<BlogSeriesItem>((post) => {
+      const membership = post.data.series!;
+      const section = getBlogSeriesSection(definition, membership.section, post.id);
+
+      return {
+        title: post.data.title,
+        subtitle: membership.subtitle,
+        href: getBlogPostHref(post),
+        order: membership.order,
+        sectionTitle: section?.title,
+        sectionOrder: section?.order,
+        current: post.id === currentPost.id,
+      };
+    });
 
   return {
-    key: currentSeries.key,
-    title: currentSeries.title,
+    // Keep the pre-migration key stable for reading-navigation storage.
+    key: currentSeries.id,
+    title: definition.data.title,
     items,
     sections: groupBlogSeriesItems(items),
   };
+}
+
+export function getBlogSeriesDefinitionId(
+  definition: BlogSeriesDefinition,
+): string {
+  return definition.id.replace(/\.(yaml|yml|json)$/i, "");
 }
 
 function getBlogRootFilters(
@@ -298,10 +321,16 @@ function getBlogCategoryFilters(
   ];
 }
 
-function compareSeriesPosts(a: BlogPost, b: BlogPost): number {
+function compareSeriesPosts(
+  a: BlogPost,
+  b: BlogPost,
+  definition: BlogSeriesDefinition,
+): number {
   const sectionOrderDiff =
-    (a.data.series?.section?.order ?? Number.MAX_SAFE_INTEGER) -
-    (b.data.series?.section?.order ?? Number.MAX_SAFE_INTEGER);
+    (getBlogSeriesSection(definition, a.data.series?.section, a.id)?.order ??
+      Number.MAX_SAFE_INTEGER) -
+    (getBlogSeriesSection(definition, b.data.series?.section, b.id)?.order ??
+      Number.MAX_SAFE_INTEGER);
   if (sectionOrderDiff !== 0) return sectionOrderDiff;
 
   const itemOrderDiff =
@@ -310,6 +339,22 @@ function compareSeriesPosts(a: BlogPost, b: BlogPost): number {
   if (itemOrderDiff !== 0) return itemOrderDiff;
 
   return a.data.pubDate.valueOf() - b.data.pubDate.valueOf();
+}
+
+function getBlogSeriesSection(
+  definition: BlogSeriesDefinition,
+  sectionId: string | undefined,
+  postId: string,
+): NonNullable<BlogSeriesDefinition["data"]["sections"]>[number] | undefined {
+  if (!sectionId) return undefined;
+
+  const section = definition.data.sections?.find((item) => item.id === sectionId);
+  if (!section) {
+    throw new Error(
+      `Blog post "${postId}" references missing section "${sectionId}" in series "${getBlogSeriesDefinitionId(definition)}".`,
+    );
+  }
+  return section;
 }
 
 function groupBlogSeriesItems(

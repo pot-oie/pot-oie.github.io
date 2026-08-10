@@ -1,19 +1,13 @@
 ---
 import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
-import type { CollectionEntry } from "astro:content";
-import {
-  getLatestSeasonNumber,
-  getWatchScore,
-  getWatchSlug,
-  hasPendingSeason,
-} from "../domain/watch";
+import type { WatchCardModel } from "../domain/watch";
 
 export interface Props {
-  posts: CollectionEntry<"watch">[];
+  watches: WatchCardModel[];
 }
 
-const { posts } = Astro.props;
+const { watches } = Astro.props;
 ---
 
 <div class="relative w-full group/scroll">
@@ -32,31 +26,27 @@ const { posts } = Astro.props;
     data-lenis-prevent
   >
     {
-      posts.map((post) => {
-        const slug = getWatchSlug(post);
-        const score = getWatchScore(post.data);
-        const pending = hasPendingSeason(post.data);
-        const latestSeason = getLatestSeasonNumber(post.data);
-        const isSeries = post.data.mediaType === "series";
+      watches.map((watch) => {
+        const { data, href, score, pending, latestSeason, isSeries } = watch;
         const CardElement = isSeries ? "a" : "button";
 
         return (
           <CardElement
-            href={isSeries ? `/watch/series/${slug}/` : undefined}
+            href={href ?? undefined}
             type={!isSeries ? "button" : undefined}
             data-scroll-movie={!isSeries ? "" : undefined}
             class="scroll-card relative shrink-0 snap-center w-40 md:w-[200px] aspect-2/3 group/card transition-all duration-500 ease-out active:scale-95 md:hover:scale-105 md:hover:-translate-y-2 z-0 md:hover:z-10 select-none text-left"
             draggable="false"
             aria-label={
               isSeries
-                ? `查看《${post.data.title}》的季度记录`
-                : `查看《${post.data.title}》的短评`
+                ? `查看《${data.title}》的季度记录`
+                : `查看《${data.title}》的短评`
             }
           >
             <div class="w-full h-full overflow-hidden rounded-sm shadow-ink relative">
               <Image
-                src={post.data.coverImage}
-                alt={post.data.title}
+                src={data.coverImage}
+                alt={data.title}
                 width={600}
                 loading="eager"
                 class="w-full h-full object-cover transition-all duration-700 pointer-events-none"
@@ -95,7 +85,7 @@ const { posts } = Astro.props;
 
               <div class="absolute inset-0 p-3 bg-linear-to-t from-ink-900/95 via-ink-900/55 to-transparent flex flex-col justify-end transition-opacity duration-300 opacity-0 md:group-hover/card:opacity-100 group-[.is-active]/card:opacity-100">
                 <h4 class="text-ink-100 font-serif text-sm font-bold leading-tight line-clamp-2 drop-shadow-md">
-                  {post.data.title}
+                  {data.title}
                   {
                     latestSeason !== null && (
                       <span class="ml-1 text-ink-100/65">
@@ -105,7 +95,7 @@ const { posts } = Astro.props;
                   }
                 </h4>
                 <p class="mt-1 text-ink-100/90 text-xs leading-relaxed line-clamp-4 drop-shadow-md">
-                  {post.data.shortReview}
+                  {data.shortReview}
                 </p>
               </div>
             </div>

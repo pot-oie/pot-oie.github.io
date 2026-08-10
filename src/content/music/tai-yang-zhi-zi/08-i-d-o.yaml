@@ -1,9 +1,8 @@
 title: "I Do"
 artist: "周杰倫"
-album: "太陽之子"
+albumId: "tai-yang-zhi-zi"
 trackNumber: 8
-coverImage: "../../../assets/music/tai-yang-zhi-zi/cover.jpg"
-pubDate: 2026-03-28
+recordedAt: 2026-03-28
 audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/21/92/20219257-49cc-b57f-5795-938208b5f7ca/mzaf_1479255466516434993.plus.aac.p.m4a"
 links:
   spotify: ""

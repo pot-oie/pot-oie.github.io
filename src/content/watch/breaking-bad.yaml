@@ -1,0 +1,29 @@
+title: "绝命毒师"
+originalTitle: "Breaking Bad"
+tmdbId: 1396
+mediaType: series
+releaseDate: "2008-01-20"
+# finishedDate: "YYYY-MM-DD"
+coverImage: "../../assets/watch/breaking-bad.webp"
+shortReview: ""
+seasons:
+  - number: 1
+    rating: 0
+    posterImage: "../../assets/watch/breaking-bad-s01.webp"
+    # shortReview: ""
+  - number: 2
+    rating: 1
+    posterImage: "../../assets/watch/breaking-bad-s02.webp"
+    # shortReview: ""
+  - number: 3
+    rating: 1
+    posterImage: "../../assets/watch/breaking-bad-s03.webp"
+    # shortReview: ""
+  - number: 4
+    rating: 3.5
+    posterImage: "../../assets/watch/breaking-bad-s04.webp"
+    shortReview: "完全登味。"
+  - number: 5
+    rating: to-watch
+    posterImage: "../../assets/watch/breaking-bad-s05.webp"
+    # shortReview: ""

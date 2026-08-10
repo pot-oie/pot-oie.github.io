@@ -1,9 +1,8 @@
 title: "湘女多情"
 artist: "周杰倫"
-album: "太陽之子"
+albumId: "tai-yang-zhi-zi"
 trackNumber: 4
-coverImage: "../../../assets/music/tai-yang-zhi-zi/cover.jpg"
-pubDate: 2026-03-28
+recordedAt: 2026-03-28
 audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/e3/3d/17e33d64-ec35-39fd-8fe0-0be7cfbe88d7/mzaf_14433049365019002284.plus.aac.p.m4a"
 links:
   spotify: ""

@@ -3,10 +3,15 @@
 import { getCollection } from "astro:content";
 import MusicCalendarView from "../../components/MusicCalendarView.astro";
 import { getMonthKey } from "../../utils/calendar";
+import { resolveMusicTracks } from "../../domain/music";
 
 // 计算当前自然月，传给组件
 const currentMonthKey = getMonthKey(new Date());
-const music = await getCollection("music");
+const [tracks, albums] = await Promise.all([
+  getCollection("music"),
+  getCollection("albums"),
+]);
+const music = resolveMusicTracks(tracks, albums);
 ---
 
 <MusicCalendarView targetMonthKey={currentMonthKey} music={music} />

@@ -5,6 +5,7 @@ The blog module handles technical notes, life writing, album review posts, and m
 ## Source Areas
 
 - Content: `src/content/blog`
+- Series metadata: `src/content/blog-series`
 - Routes: `src/pages/blog`
 - Layouts: `src/layouts/TechPost.astro`, `src/layouts/LifePost.astro`, `src/layouts/AlbumPost.astro`
 - Cards: `src/components/PostCard.astro`, `src/components/PostCardForIndex.astro`, `src/components/BlogRowCard.astro`
@@ -26,7 +27,8 @@ by blog archives and detail routes:
 - archive filters and counts computed from the full published collection
 - archive pagination slices and static page-link models
 - canonical post slugs and hrefs
-- ordered and section-grouped series navigation data
+- resolution of first-class series definitions into ordered and
+  section-grouped series navigation data
 
 `src/domain/blogRoutes.ts` is the shared route-policy layer for blog archives. It
 owns canonical page links, registered archive route shapes, and the exact
@@ -37,7 +39,8 @@ instead of maintaining separate path heuristics.
 Archive order represents the latest visible activity: `updatedDate` is used
 when present, otherwise `pubDate`, with newest entries first. Publication order
 is a separate explicit operation that ignores `updatedDate`. Series order is
-ascending by `series.section.order`, then `series.order`, then `pubDate`;
+ascending by the referenced section's `order`, then `series.order`, then
+`pubDate`;
 unsectioned entries sort after numbered sections. Equal sort keys preserve
 collection input order.
 
@@ -45,8 +48,11 @@ The series navigation types also live in this domain layer. Rendering
 components consume the assembled model and do not query or regroup collection
 entries themselves.
 
-Entry-local category and album relationships are shared by the Astro schema and
-the content integrity layer. Cross-entry series conflicts, tag diagnostics, and
+Entry-local category and album-review relationships are shared by the Astro
+schema and the content integrity layer. Album reviews use `albumId` to resolve
+their sidebar title, artist, and cover from the first-class Album collection.
+Broken series/section references, duplicate member
+positions, tag diagnostics, and
 reliable link/asset references are checked by `npm run check:content`; the
 production build runs this check automatically.
 
@@ -58,7 +64,10 @@ Blog entries are MDX files with frontmatter validated by the `blog` collection s
 - Life posts use `category: "life"` and must set `lifeCategory`.
 - Draft posts should use `draft: true`.
 - Tags are optional, normalized, and rendered in technical post layouts.
-- Technical posts can opt into same-series navigation with `series.key`, `series.title`, `series.subtitle`, and `series.order`. Long series can add `series.section.title` and `series.section.order` for a second-level grouped guide.
+- Technical posts can opt into same-series navigation with `series.id`,
+  `series.subtitle`, and `series.order`. Long series can reference a declared
+  section through `series.section`; titles and section ordering live in the
+  matching `blogSeries` record.
 
 ## Rendering
 
@@ -66,7 +75,9 @@ Technical posts use `TechPost.astro`, which includes:
 
 - category and tag pills
 - optional hero image
-- optional left-side series navigation for published posts sharing the same `series.key`; entries can be grouped by `series.section`, and item labels use each post's `series.subtitle`
+- optional left-side series navigation for published posts sharing the same
+  `series.id`; entries can be grouped by their resolved section, and item labels
+  use each post's `series.subtitle`
 - table of contents; on mobile, series navigation and the table of contents share one two-sided toggle panel when both are available
 - bottom previous/next links for posts that belong to a multi-post series
 - `TechnicalReadingRuntime.astro` for desktop/mobile series state, persisted

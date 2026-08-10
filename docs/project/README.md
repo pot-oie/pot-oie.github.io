@@ -19,6 +19,12 @@ This directory is the maintained knowledge base for the blog repository. It is o
 12. `modules/space/overview.md`: understand the isolated `/space` implementation contract.
 13. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
 
+Completed implementation plans:
+
+- `plans/content-architecture-refactor.md`: staged multi-agent migration for
+  first-class Blog series and albums, tightened domain boundaries, and annual
+  Space editions, completed and accepted on 2026-08-10.
+
 Current parked plans:
 
 - `plans/series-and-tags-discovery.md`: future independent Series and Tags

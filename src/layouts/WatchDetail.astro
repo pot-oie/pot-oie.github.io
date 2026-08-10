@@ -1,38 +1,27 @@
 ---
 import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import {
-  getSeriesAverage,
-  hasPendingSeason,
-} from "../domain/watch";
+import type { WatchDetailModel } from "../domain/watch";
 
 interface Props {
-  post: CollectionEntry<"watch">;
+  watch: WatchDetailModel;
 }
 
-const { post } = Astro.props;
+const { watch } = Astro.props;
 const {
   title,
   originalTitle,
-  mediaType,
   releaseDate,
   finishedDate,
-  rating,
-  seasons = [],
   coverImage,
   shortReview,
-} = post.data;
+} = watch.data;
 
-const isSeries = mediaType === "series";
-const sortedSeasons = [...seasons].sort((a, b) => a.number - b.number);
-const averageRating = getSeriesAverage(post.data);
-const pending = hasPendingSeason(post.data);
+const { sortedSeasons, score: averageRating, pending } = watch;
 const releaseYear = releaseDate?.getFullYear();
-const description =
-  shortReview || `${title}的${isSeries ? "剧集" : "电影"}观影记录`;
+const description = shortReview || `${title}的剧集观影记录`;
 ---
 
 <BaseLayout title={`${title} - 观影记录`} description={description}>
@@ -68,7 +57,7 @@ const description =
               <span
                 class="bg-ink-100/90 dark:bg-zinc-900/85 backdrop-blur-sm px-2 py-1 text-[10px] font-sans font-bold tracking-[0.18em] uppercase text-ink-700 dark:text-zinc-200 rounded-sm shadow-sm"
               >
-                {isSeries ? "Series" : "Film"}
+                Series
               </span>
               {
                 pending && (
@@ -86,37 +75,22 @@ const description =
             >
               {
                 [
-                  isSeries ? "Series" : "Film",
+                  "Series",
                   releaseYear ? String(releaseYear) : null,
                 ]
                   .filter(Boolean)
                   .join(" · ")
               }
             </p>
-            {
-              !isSeries && rating !== undefined && (
-                <div class="flex items-baseline gap-2 text-vermilion">
-                  <Icon name="mingcute:star-fill" class="w-4 h-4" />
-                  <span class="font-serif text-3xl font-black italic">
-                    {rating.toFixed(1)}
-                  </span>
-                  <span class="text-xs text-ink-300 dark:text-zinc-500">/ 5</span>
-                </div>
-              )
-            }
-            {
-              isSeries && averageRating !== null && (
-                <div class="flex items-baseline gap-2 text-vermilion">
-                  <span class="text-[10px] font-sans tracking-widest uppercase">
-                    Avg.
-                  </span>
-                  <span class="font-serif text-3xl font-black italic">
-                    {averageRating.toFixed(1)}
-                  </span>
-                  <span class="text-xs text-ink-300 dark:text-zinc-500">/ 5</span>
-                </div>
-              )
-            }
+            <div class="flex items-baseline gap-2 text-vermilion">
+              <span class="text-[10px] font-sans tracking-widest uppercase">
+                Avg.
+              </span>
+              <span class="font-serif text-3xl font-black italic">
+                {averageRating.toFixed(1)}
+              </span>
+              <span class="text-xs text-ink-300 dark:text-zinc-500">/ 5</span>
+            </div>
           </div>
         </div>
       </aside>
@@ -131,7 +105,7 @@ const description =
             {
               releaseDate && (
                 <span class="inline-flex items-center gap-2">
-                  <span>{isSeries ? "Premiered" : "Released"}</span>
+                  <span>Premiered</span>
                   <FormattedDate date={releaseDate} />
                 </span>
               )
@@ -170,9 +144,7 @@ const description =
           }
         </header>
 
-        {
-          isSeries && (
-            <section aria-labelledby="season-ratings-title">
+        <section aria-labelledby="season-ratings-title">
               <div class="mb-6 flex items-end justify-between gap-4">
                 <div>
                   <p class="text-[10px] font-sans tracking-[0.24em] uppercase text-ink-300 dark:text-zinc-500">
@@ -254,9 +226,7 @@ const description =
                   );
                 })}
               </div>
-            </section>
-          )
-        }
+        </section>
       </article>
     </div>
   </div>

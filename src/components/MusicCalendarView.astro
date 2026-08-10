@@ -1,6 +1,5 @@
 ---
 // src/components/MusicCalendarView.astro
-import type { CollectionEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import MusicCalendar from "./MusicCalendar.astro";
 import {
@@ -9,19 +8,20 @@ import {
   buildMusicMap,
   DAY_NAMES,
 } from "../utils/calendar";
+import { getStandaloneTracks, type ResolvedMusicTrack } from "../domain/music";
 
 export interface Props {
   targetMonthKey: string; // 例如 "24-03"
-  music: CollectionEntry<"music">[];
+  music: ResolvedMusicTrack[];
 }
 
 const { targetMonthKey, music: rawMusic } = Astro.props;
 
 // 获取所有数据并推算所有存在的月份集合
-const allMusic = rawMusic.filter((post) => !post.data.album);
+const allMusic = getStandaloneTracks(rawMusic);
 
 const monthsKeys = Array.from(
-  new Set(allMusic.map((post) => getMonthKey(post.data.pubDate))),
+  new Set(allMusic.map((post) => getMonthKey(post.data.recordedAt))),
 );
 
 // 确保目标月份一定在列表中（即使当月还没有发过音乐）
@@ -39,7 +39,7 @@ const nextKey = monthsKeys[currentIndex - 1] || null;
 
 // 过滤当前目标月数据
 const musicForThisMonth = allMusic.filter(
-  (post) => getMonthKey(post.data.pubDate) === targetMonthKey,
+  (post) => getMonthKey(post.data.recordedAt) === targetMonthKey,
 );
 
 // 计算日历网格参数

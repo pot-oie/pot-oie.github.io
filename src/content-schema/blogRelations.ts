@@ -2,8 +2,7 @@ export type BlogEntryRelationData = {
   category?: string;
   lifeCategory?: string;
   techCategory?: string;
-  albumTitle?: string;
-  albumArtist?: string;
+  albumId?: string;
   series?: unknown;
 };
 
@@ -11,8 +10,7 @@ export type BlogEntryRelationIssue = {
   field:
     | "lifeCategory"
     | "techCategory"
-    | "albumTitle"
-    | "albumArtist"
+    | "albumId"
     | "series";
   message: string;
 };
@@ -61,29 +59,17 @@ export function validateBlogEntryRelations(
   const isAlbum =
     data.category === "life" && data.lifeCategory === "album";
   if (isAlbum) {
-    if (!data.albumTitle) {
+    if (!data.albumId) {
       issues.push({
-        field: "albumTitle",
-        message: "album 文章必须设置 albumTitle。",
-      });
-    }
-    if (!data.albumArtist) {
-      issues.push({
-        field: "albumArtist",
-        message: "album 文章必须设置 albumArtist。",
+        field: "albumId",
+        message: "album 文章必须设置 albumId。",
       });
     }
   } else {
-    if (data.albumTitle) {
+    if (data.albumId) {
       issues.push({
-        field: "albumTitle",
-        message: "albumTitle 只能用于 life/album 文章。",
-      });
-    }
-    if (data.albumArtist) {
-      issues.push({
-        field: "albumArtist",
-        message: "albumArtist 只能用于 life/album 文章。",
+        field: "albumId",
+        message: "albumId 只能用于 life/album 文章。",
       });
     }
   }

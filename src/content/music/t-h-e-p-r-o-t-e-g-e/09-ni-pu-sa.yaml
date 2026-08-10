@@ -1,9 +1,8 @@
 title: "泥菩薩"
 artist: "Gareth.T"
-album: "THE PROTÉGÉ"
+albumId: "t-h-e-p-r-o-t-e-g-e"
 trackNumber: 9
-coverImage: "../../../assets/music/t-h-e-p-r-o-t-e-g-e/cover.jpg"
-pubDate: 2026-03-30
+recordedAt: 2026-03-30
 audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4d/9d/a4/4d9da4b7-ad6a-df02-9666-6e4cc2c6107a/mzaf_8606878301960233461.plus.aac.p.m4a"
 links:
   spotify: ""

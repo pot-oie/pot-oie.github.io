@@ -1,0 +1,32 @@
+title: 机器学习
+sections:
+  - id: fundamentals
+    title: 机器学习基础
+    order: 1
+  - id: deep-learning
+    title: 深度学习基础
+    order: 2
+  - id: cnn
+    title: CNN 基础
+    order: 3
+  - id: gnn
+    title: GNN 基础
+    order: 4
+  - id: rnn
+    title: RNN 基础
+    order: 5
+  - id: generative-models
+    title: 生成模型基础
+    order: 6
+  - id: transformer
+    title: Transformer 基础
+    order: 7
+  - id: llm
+    title: LLM 基础
+    order: 8
+  - id: diffusion
+    title: 扩散模型基础
+    order: 9
+  - id: semi-supervised
+    title: 半监督学习
+    order: 10

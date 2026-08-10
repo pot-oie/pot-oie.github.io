@@ -1,15 +1,26 @@
 import process from "node:process";
 import { checkBlogContent } from "./lib/blogContentFiles";
+import { checkMusicContent } from "./lib/musicContentFiles";
 
-const result = await checkBlogContent(process.cwd());
-const errors = result.diagnostics.filter(
+const blogResult = await checkBlogContent(process.cwd());
+const musicResult = await checkMusicContent(
+  process.cwd(),
+  blogResult.entries.map((entry) => ({
+    id: entry.id,
+    isAlbumReview:
+      entry.data.category === "life" && entry.data.lifeCategory === "album",
+    albumId: entry.data.albumId,
+  })),
+);
+const diagnostics = [...blogResult.diagnostics, ...musicResult.diagnostics];
+const errors = diagnostics.filter(
   (diagnostic) => diagnostic.severity === "error",
 );
-const warnings = result.diagnostics.filter(
+const warnings = diagnostics.filter(
   (diagnostic) => diagnostic.severity === "warning",
 );
 
-for (const diagnostic of result.diagnostics) {
+for (const diagnostic of diagnostics) {
   const label = diagnostic.severity === "error" ? "ERROR" : "WARN";
   console.log(
     `${label} ${diagnostic.entryId} [${diagnostic.field}] ${diagnostic.message}`,
@@ -17,7 +28,7 @@ for (const diagnostic of result.diagnostics) {
 }
 
 console.log(
-  `Blog content integrity: ${result.entries.length} entries, ${errors.length} errors, ${warnings.length} warnings.`,
+  `Content integrity: ${blogResult.entries.length} blog entries, ${musicResult.tracks.length} tracks, ${musicResult.albums.length} albums, ${errors.length} errors, ${warnings.length} warnings.`,
 );
 
 if (errors.length > 0) {

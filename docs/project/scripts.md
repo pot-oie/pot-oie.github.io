@@ -7,8 +7,8 @@ Project scripts are defined in `package.json`. Content automation scripts live i
 - `npm run dev`: start Astro development server.
 - `npm run build`: validate blog content, run `astro build`, then generate the
   Pagefind index with `pagefind --site dist`.
-- `npm run check:content`: validate blog entry relationships, cross-entry series
-  metadata, tags, internal blog links, and reliable local asset references.
+- `npm run check:content`: validate Blog relationships and references plus
+  Album/Music cross-collection references and album track-number uniqueness.
 - `npm test`: run the Node test suite through the lightweight `tsx` TypeScript
   loader, then run the Python analytics fixture tests.
 - `npm run preview`: preview the built site.
@@ -28,23 +28,36 @@ TMDB search uses Chinese metadata for the display title and English metadata
 for poster selection, with original-language fallback. Like the album scraper,
 watch creation writes an editable draft instead of asking for ratings and
 reviews interactively. Movie drafts start with `rating: 0` and an empty review.
+They also include the required `finishedDate` and never emit `seasons`, matching
+the movie branch of the Watch discriminated union.
 Series drafts exclude Season 0, give the first regular season a `rating: 0`
 placeholder, mark every later regular season `to-watch`, and leave reviews
-empty. They include a commented `finishedDate` template, download available
+empty. They never emit a top-level `rating`. They include a commented
+`finishedDate` template, download available
 regular-season posters, and write an optional `posterImage` on the matching
 season. The author replaces numeric placeholders for every season already
 started. Every generated season includes a commented `# shortReview: ""`
 template that the author can uncomment and fill in.
 
-`scripts/update-music.mjs` updates music records.
+`scripts/new.mjs` writes standalone Music records with a `recordedAt` listening
+date and their own cover.
 
-`scripts/fetch-album.mjs` fetches album data.
+`scripts/update-music.mjs` recursively updates track previews and inserts them
+after `recordedAt`.
 
-`scripts/check-blog-content.ts` scans all blog MDX sources and delegates pure
+`scripts/fetch-album.mjs` fetches album data, writes the authoritative album
+record under `src/content/albums`, writes nested tracks using `albumId`,
+`trackNumber`, and `recordedAt`, and creates a linked Blog review draft. Album
+tracks inherit the album cover instead of duplicating `coverImage`.
+
+`scripts/check-blog-content.ts` is the `check:content` entry point. It scans
+Blog MDX plus Album/Music YAML sources and delegates pure
 metadata checks to `src/utils/blogIntegrity.ts`. It prints actionable
 `entry [field] message` diagnostics and exits nonzero when errors exist.
 Warnings do not block builds. Its filesystem adapter is
-`scripts/lib/blogContentFiles.ts`. Internal blog links are checked against the
+`scripts/lib/blogContentFiles.ts`; Album/Music files use
+`scripts/lib/musicContentFiles.ts` and `src/utils/musicIntegrity.ts`. Internal
+blog links are checked against the
 exact published article and archive route set; archive paths and page counts
 come from `src/utils/blogRoutes.ts`, so nonexistent categories and out-of-range
 pages fail validation.

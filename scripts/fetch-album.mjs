@@ -21,6 +21,7 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, "..");
 
 const PATHS = {
+  albumContent: path.join(PROJECT_ROOT, "src/content/albums"),
   musicContent: path.join(PROJECT_ROOT, "src/content/music"),
   musicAssets: path.join(PROJECT_ROOT, "src/assets/music"),
 };
@@ -135,6 +136,7 @@ async function handleAlbum() {
     const albumSlug = generateSlug(selectedAlbum.collectionName);
     const albumContentDir = path.join(PATHS.musicContent, albumSlug);
     const albumAssetsDir = path.join(PATHS.musicAssets, albumSlug);
+    const albumEntityPath = path.join(PATHS.albumContent, `${albumSlug}.yaml`);
 
     fs.ensureDirSync(albumContentDir);
     fs.ensureDirSync(albumAssetsDir);
@@ -157,6 +159,14 @@ async function handleAlbum() {
     s.start(color.green("› Generating YAML files & Collecting track IDs..."));
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const releaseDate = selectedAlbum.releaseDate?.split("T")[0] ?? todayStr;
+
+    const albumContent = `title: "${selectedAlbum.collectionName}"
+artist: "${selectedAlbum.artistName}"
+coverImage: "../../assets/music/${albumSlug}/cover.jpg"
+releaseDate: ${releaseDate}
+`;
+    await fs.writeFile(albumEntityPath, albumContent);
 
     // 用于存储生成的 MDX 正文内容
     let mdxTrackList = "";
@@ -186,10 +196,9 @@ async function handleAlbum() {
 
       const yamlContent = `title: "${rawName}"
 artist: "${artistsName}"
-album: "${selectedAlbum.collectionName}"
+albumId: "${albumSlug}"
 trackNumber: ${trackNum}
-coverImage: "../../../assets/music/${albumSlug}/cover.jpg"
-pubDate: ${todayStr}
+recordedAt: ${todayStr}
 audioPreview: "${previewUrl}"
 links:
   spotify: "${spotifyLink}"
@@ -218,8 +227,7 @@ pubDate: "${todayStr}"
 category: "life"
 lifeCategory: "album"
 heroImage: "../../assets/music/${albumSlug}/cover.jpg"
-albumTitle: "${selectedAlbum.collectionName}"
-albumArtist: "${selectedAlbum.artistName}"
+albumId: "${albumSlug}"
 ---
 import TrackControl from "../../components/TrackControl.astro";
 import ScoreBox from "../../components/ScoreBox.astro";

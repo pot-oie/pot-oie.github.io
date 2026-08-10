@@ -1,5 +1,5 @@
 // src/utils/calendar.ts
-import type { CollectionEntry } from "astro:content";
+import type { ResolvedMusicTrack } from "../domain/music";
 
 // 提取常量
 export const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -25,10 +25,10 @@ export function getCalendarGrid(year: number, monthIndex: number) {
 }
 
 // 将当月的音乐数组转换为以日期 (日) 为键的 Map
-export function buildMusicMap(musicList: CollectionEntry<"music">[]) {
-  const musicMap = new Map<number, CollectionEntry<"music">>();
+export function buildMusicMap(musicList: ResolvedMusicTrack[]) {
+  const musicMap = new Map<number, ResolvedMusicTrack>();
   for (const post of musicList) {
-    musicMap.set(post.data.pubDate.getDate(), post);
+    musicMap.set(post.data.recordedAt.getDate(), post);
   }
   return musicMap;
 }

@@ -1,9 +1,8 @@
 title: "淘金小鎮"
 artist: "周杰倫"
-album: "太陽之子"
+albumId: "tai-yang-zhi-zi"
 trackNumber: 11
-coverImage: "../../../assets/music/tai-yang-zhi-zi/cover.jpg"
-pubDate: 2026-03-28
+recordedAt: 2026-03-28
 audioPreview: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1b/ec/8c/1bec8c78-adaf-a7a0-a329-bf49b30a0042/mzaf_8961429164266300001.plus.aac.p.m4a"
 links:
   spotify: ""

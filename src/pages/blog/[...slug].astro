@@ -10,32 +10,43 @@ import {
   type BlogPost,
   type BlogSeries,
 } from "../../domain/blog";
+import type { AlbumEntry } from "../../domain/music";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("blog");
+  const [allPosts, seriesDefinitions, albums] = await Promise.all([
+    getCollection("blog"),
+    getCollection("blogSeries"),
+    getCollection("albums"),
+  ]);
   const posts = getPublishedBlogPosts(allPosts);
+  const albumMap = new Map(albums.map((album) => [album.id, album]));
 
   return posts.map((post) => ({
     params: { slug: post.id.replace(/\.mdx?$/, "") },
     props: {
       post,
-      series: getBlogSeriesForPost(posts, post),
+      series: getBlogSeriesForPost(posts, seriesDefinitions, post),
+      album: post.data.albumId ? albumMap.get(post.data.albumId) : undefined,
     },
   }));
 }
 type Props = {
   post: BlogPost;
   series?: BlogSeries;
+  album?: AlbumEntry;
 };
 
-const { post, series } = Astro.props;
+const { post, series, album } = Astro.props;
+if (post.data.lifeCategory === "album" && !album) {
+  throw new Error(`Album review "${post.id}" references a missing album.`);
+}
 const { Content, headings } = await render(post);
 ---
 
 {
   post.data.category === "life" ? (
     post.data.lifeCategory === "album" ? (
-      <AlbumPost {...post.data}>
+      <AlbumPost {...post.data} album={album!}>
         <Content />
       </AlbumPost>
     ) : (

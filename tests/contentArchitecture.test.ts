@@ -6,8 +6,14 @@ import * as legacyBlogDomain from "../src/utils/blog";
 import * as watchDomain from "../src/domain/watch";
 import * as legacyWatchDomain from "../src/utils/watch";
 
-test("keeps the existing collection names", () => {
-  assert.deepEqual(CONTENT_COLLECTION_NAMES, ["blog", "watch", "music"]);
+test("keeps domain collection names and registers first-class series and albums", () => {
+  assert.deepEqual(CONTENT_COLLECTION_NAMES, [
+    "blog",
+    "blogSeries",
+    "watch",
+    "music",
+    "albums",
+  ]);
 });
 
 test("keeps compatibility exports for moved domain modules", () => {

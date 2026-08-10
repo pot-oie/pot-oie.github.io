@@ -30,8 +30,7 @@ export const blog = defineCollection({
         category: BLOG_CATEGORIES,
         lifeCategory: LIFE_CATEGORIES.optional(),
         techCategory: TECH_CATEGORY_ENUM.optional(),
-        albumTitle: z.string().trim().min(1).optional(),
-        albumArtist: z.string().trim().min(1).optional(),
+        albumId: z.string().trim().min(1).optional(),
         tags: z
           .array(z.string().trim().min(1))
           .optional()
@@ -41,14 +40,8 @@ export const blog = defineCollection({
           }),
         series: z
           .object({
-            key: z.string().trim().min(1),
-            title: z.string().trim().min(1),
-            section: z
-              .object({
-                title: z.string().trim().min(1),
-                order: z.number().int().positive(),
-              })
-              .optional(),
+            id: z.string().trim().min(1),
+            section: z.string().trim().min(1).optional(),
             subtitle: z.string().trim().min(1).optional(),
             order: z.number().int().positive(),
           })

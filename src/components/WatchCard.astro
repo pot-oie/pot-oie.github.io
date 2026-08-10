@@ -1,20 +1,14 @@
 ---
 import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
-import {
-  getLatestSeasonNumber,
-  getWatchScore,
-  getWatchSlug,
-  hasPendingSeason,
-} from "../domain/watch";
+import type { WatchCardModel } from "../domain/watch";
 
 interface Props {
-  post: CollectionEntry<"watch">;
+  watch: WatchCardModel;
   eager?: boolean;
 }
 
-const { post, eager = false } = Astro.props;
+const { watch, eager = false } = Astro.props;
 const {
   title,
   originalTitle,
@@ -23,11 +17,8 @@ const {
   coverImage,
   mediaType,
   shortReview,
-} = post.data;
-const slug = getWatchSlug(post);
-const score = getWatchScore(post.data);
-const pending = hasPendingSeason(post.data);
-const latestSeason = getLatestSeasonNumber(post.data);
+} = watch.data;
+const { href, score, pending, latestSeason } = watch;
 const typeLabel = mediaType === "movie" ? "Film" : "Series";
 const PosterElement = mediaType === "series" ? "a" : "button";
 const releaseYear = releaseDate?.getFullYear();
@@ -54,7 +45,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
   data-movie-card={mediaType === "movie" ? "" : undefined}
 >
   <PosterElement
-    href={mediaType === "series" ? `/watch/series/${slug}/` : undefined}
+    href={href ?? undefined}
     type={mediaType === "movie" ? "button" : undefined}
     class="block w-full overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] transition-transform duration-200 text-left"
     aria-label={
@@ -137,7 +128,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
       >
         {
           mediaType === "series" ? (
-            <a href={`/watch/series/${slug}/`}>{title}</a>
+            <a href={href!}>{title}</a>
           ) : (
             title
           )

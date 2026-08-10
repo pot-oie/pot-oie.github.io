@@ -1,24 +1,29 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import WatchDetail from "../../../layouts/WatchDetail.astro";
-import { getWatchSlug } from "../../../domain/watch";
+import {
+  getWatchSlug,
+  isSeriesWatchEntry,
+  resolveWatchDetail,
+  type WatchDetailModel,
+} from "../../../domain/watch";
 
 export async function getStaticPaths() {
   const watchPosts = await getCollection("watch");
 
   return watchPosts
-    .filter((post) => post.data.mediaType === "series")
+    .filter(isSeriesWatchEntry)
     .map((post) => ({
-    params: { slug: getWatchSlug(post) },
-    props: { post },
+      params: { slug: getWatchSlug(post) },
+      props: { watch: resolveWatchDetail(post) },
     }));
 }
 
 interface Props {
-  post: CollectionEntry<"watch">;
+  watch: WatchDetailModel;
 }
 
-const { post } = Astro.props;
+const { watch } = Astro.props;
 ---
 
-<WatchDetail post={post} />
+<WatchDetail watch={watch} />
