@@ -159,9 +159,11 @@ and concrete art direction remain edition-owned. Covers never
 define the visual template for the annual documents and contain no generated
 typography; all titles and metadata remain HTML. Desktop entries show the cover
 alone until hover or keyboard focus reveals a masked, shadowed left metadata
-panel with a diagonal fade; compact layouts keep the same panel visible. Cover
-cards sit above the global paper-noise overlay and retain high-density image
-sources so the artwork stays crisp. The authoritative prompt and series constraints live in
+panel with a diagonal fade; compact layouts keep the same panel visible with a
+smaller edition title and metadata scale. The card border stays constant and no
+outer box shadow is applied at rest or on hover. Cover cards sit above the
+global paper-noise overlay and retain high-density image sources so the artwork
+stays crisp. The authoritative prompt and series constraints live in
 `modules/space/overview.md`.
 
 `/space/2026` is isolated through `src/layouts/space/Space2026Layout.astro` and

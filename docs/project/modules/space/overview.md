@@ -83,10 +83,11 @@ Without JavaScript, the same content remains available as linear semantic HTML.
 The `/space` index uses `BaseLayout.astro` and the same `ArchiveHeader` title,
 breadcrumb, count, border, and responsive rhythm as Blog and Watch archives.
 Its edition covers remain content inside that shared archive language rather
-than defining a separate page shell. Space appears in desktop and mobile Header navigation between Music and
-About, and is indexable in both the sitemap and Pagefind. The homepage Space
-hero bypasses the index and resolves the registry's current edition, so marking
-a future registry entry as current updates that destination automatically.
+than defining a separate page shell. Space appears in desktop and mobile Header
+navigation between Music and About, and is indexable in both the sitemap and
+Pagefind. The homepage Space hero bypasses the index and resolves the registry's
+current edition, so marking a future registry entry as current updates that
+destination automatically.
 
 The 2026 edition uses `src/layouts/space/Space2026Layout.astro` and
 `src/styles/space/2026.css`, not the normal site shell or global runtime.
@@ -119,13 +120,15 @@ year, period, description, and interaction affordances remain semantic HTML.
 The cover fills each card edge to edge. On hover-capable desktop layouts, the
 card initially shows only the artwork; hover or keyboard focus slides a left
 metadata panel into view. Compact layouts keep that panel visible because they
-cannot depend on hover. The panel background owns a diagonal masked fade and
-edge shadow so it remains readable without forming a hard vertical boundary.
-Cards keep their neutral border on hover and use shadow alone for feedback;
-there is no separate corner arrow affordance. The registry description is not
-repeated in the card. The cover series is held together by
-its editorial role, composition system, landscape specification, and
-typography-free presentation—not by a required palette, texture, or medium.
+cannot depend on hover, and reduce the edition label, title, and period scale so
+the status remains aligned with the title. The panel background owns a diagonal
+masked fade and local edge shadow so it remains readable without forming a hard
+vertical boundary. Cards keep their neutral border and add no outer box shadow
+in either the resting or hover state; there is no separate corner arrow
+affordance. The registry description is not repeated in the card. The cover
+series is held together by its editorial role, composition system, landscape
+specification, and typography-free presentation—not by a required palette,
+texture, or medium.
 
 Cover source files use a `16:5` aspect ratio and remain visually active across
 the full canvas. CSS alone owns the metadata fade and readability treatment.

@@ -1,5 +1,5 @@
 import type { ImageMetadata } from "astro";
-import space2026Cover from "../../assets/space/2026-concept-02-structural-field.png";
+import space2026Cover from "../../assets/space/2026-concept.png";
 import { SPACE_EDITIONS, type SpaceEditionSummary } from "./editions";
 
 export type SpaceEditionWithCover = SpaceEditionSummary & {
