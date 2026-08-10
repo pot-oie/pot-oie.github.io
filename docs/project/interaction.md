@@ -187,11 +187,12 @@ switching across View Transitions.
 
 ### Space
 
-`/space` uses a separate full-load document and does not participate in the
-normal Astro client runtime. Its current **Between Editions** page is static and
-responsive: there is no Canvas, custom RAF, scroll controller, preloader,
-audio, required gesture, local storage, or viewport rejection state. Normal
-links provide the only interaction.
+`/space` is a separate full-load document. Its route-local state machine owns
+native-scroll chapter observation, hashes/history, focus isolation, detail
+scroll locking, transition fallback, local preview audio, and Colophon restart.
+It creates no storage keys or custom events and does not intercept wheel or
+touch input. The complete interaction contract lives in
+`modules/space/overview.md`.
 
 ## Scroll Boundaries
 

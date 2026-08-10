@@ -190,3 +190,13 @@ Fields:
   lives in `scripts/lib/blogContentFiles.ts`.
 - Update this document when fields, category requirements, or collection loading behavior changes.
 - Run `npm test` and `npm run build` after content schema or integrity changes.
+
+## Space Build Projection
+
+`/space` adds no collection. Its edition configuration references Blog content,
+defines presentation-only project and Direction data, and sets random draw
+limits. The resolver validates those references and projects eligible annual
+Watch and Music pools into browser-safe records; each pool must contain at
+least eight entries. Source collections remain authoritative for titles,
+dates, ratings, posters, previews, routes, and publication state. See
+`modules/space/overview.md` for the full edition contract.

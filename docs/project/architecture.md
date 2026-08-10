@@ -12,13 +12,15 @@ This project is a personal content site built with Astro 5. It combines a blog a
 - RSS through `src/pages/rss.xml.js`.
 - Pagefind for static full-site search after production build. Indexing is scoped to the shared `main[data-pagefind-body]` region so global chrome and search modal copy do not pollute excerpts.
 - `astro-icon` with Iconify icon sets.
-- Lenis and Astro View Transitions for page interaction polish.
+- Lenis and Astro View Transitions for normal-site interaction polish.
 
 ## Repository Layers
 
 `src/pages` is the route layer. Astro files here define URLs and assemble data, layouts, and components.
 
-`src/layouts` is the page skeleton layer. Layouts such as `BaseLayout.astro`, `TechPost.astro`, `LifePost.astro`, and `AlbumPost.astro` define major page structures.
+`src/layouts` is the page skeleton layer. Layouts such as `BaseLayout.astro`,
+`TechPost.astro`, `LifePost.astro`, and `AlbumPost.astro` define normal page
+structures.
 
 `src/components` is the reusable UI and interaction layer. It includes site chrome, cards, search, music controls, table of contents, and article-specific demos.
 
@@ -30,6 +32,11 @@ This project is a personal content site built with Astro 5. It combines a blog a
 search-result hash scrolling, anonymous analytics, persistent audio, math overflow,
 and the article image lightbox; small Astro runtime components compose them at
 page boundaries.
+
+`/space` is an isolated static document with build-time collection projection
+and route-local progressive enhancement. It does not share the normal site
+shell, Lenis, audio, analytics, or client-router runtime. See
+`modules/space/overview.md` for its component, data, and interaction boundaries.
 
 `src/utils` is the domain utility layer. Current examples include calendar
 helpers, blog taxonomy metadata, the typed blog domain/query layer, and shared
@@ -88,7 +95,9 @@ through an exact Basic Auth-protected Nginx alias. See
   all initializers are safe to call again after `astro:page-load`.
 - Anonymous analytics use a tab-scoped `sessionStorage` ID and never persist
   metric data in the browser.
-- `astro.config.mjs` filters `/dashboard` from sitemap generation.
+- `astro.config.mjs` filters `/dashboard` and `/space` from sitemap generation.
+- `SpaceLayout.astro` is a self-contained document and intentionally does not
+  import `BaseHead.astro` or global CSS.
 - `npm run build` validates blog content, runs `astro build`, then runs
   `pagefind --site dist`.
 

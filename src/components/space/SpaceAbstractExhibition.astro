@@ -1,0 +1,52 @@
+---
+import type { ResolvedSpaceEdition } from "../../utils/space/edition";
+
+interface Props { edition: ResolvedSpaceEdition }
+const { edition } = Astro.props;
+const [learning] = edition.chapters;
+---
+
+<div class="abstract-exhibition" data-abstract-exhibition>
+  <div class="abstract-stage" data-abstract-stage>
+    <section class="space-view abstract abstract--learning" id="learning" data-space-view="abstract" data-chapter="0" aria-labelledby="learning-title">
+      <div class="abstract-art learning-art" aria-hidden="true"><i class="learning-art__blue"></i><i class="learning-art__yellow"></i><i class="learning-art__black"></i><i class="learning-art__orb orb--a"></i><i class="learning-art__orb orb--b"></i><i class="learning-art__line line--a"></i><i class="learning-art__line line--b"></i></div>
+      <div class="abstract-copy"><p>01 / LEARNING</p><h1 id="learning-title" tabindex="-1">FORM<br /><em>RELATION</em><br />MEMORY</h1></div>
+    </section>
+
+    <section class="space-view abstract abstract--film" id="film" data-space-view="abstract" data-chapter="1" aria-labelledby="film-title">
+      <div class="abstract-art film-art" aria-hidden="true"><i class="film-art__red"></i><i class="film-art__disc"></i><i class="film-art__bar bar--a"></i><i class="film-art__bar bar--b"></i><i class="film-art__line"></i></div>
+      <div class="abstract-copy"><p>02 / FILM</p><h1 id="film-title" tabindex="-1">FRAME<br /><em>CUT</em><br />AFTERIMAGE</h1></div>
+    </section>
+
+    <section class="space-view abstract abstract--music" id="music" data-space-view="abstract" data-chapter="2" aria-labelledby="music-title">
+      <div class="abstract-art music-art" aria-hidden="true"><i class="music-art__ring ring--a"></i><i class="music-art__ring ring--b"></i><i class="music-art__ring ring--c"></i><i class="music-art__bar"></i><i class="music-art__dots"></i></div>
+      <div class="abstract-copy"><p>03 / MUSIC</p><h1 id="music-title" tabindex="-1">PULSE<br /><em>INTERVAL</em><br />RETURN</h1></div>
+    </section>
+
+    <section class="space-view abstract abstract--development" id="development" data-space-view="abstract" data-chapter="3" aria-labelledby="development-title">
+      <div class="abstract-art development-art" aria-hidden="true"><i class="development-art__grid"></i><i class="development-art__emerald"></i><i class="development-art__orange"></i><i class="development-art__mint"></i><i class="development-art__line"></i></div>
+      <div class="abstract-copy"><p>04 / DEVELOPMENT</p><h1 id="development-title" tabindex="-1">SYSTEM<br /><em>TOOL</em><br />ITERATION</h1></div>
+    </section>
+
+    <section class="space-view abstract abstract--direction" id="direction" data-space-view="abstract" data-chapter="4" aria-labelledby="direction-title">
+      <div class="abstract-art direction-art" aria-hidden="true"><i class="direction-art__wedge"></i><i class="direction-art__silver"></i><i class="direction-art__line"></i></div>
+      <div class="abstract-copy"><p>05 / DIRECTION</p><h1 id="direction-title" tabindex="-1">ATTENTION<br /><em>VECTOR</em><br />NOW</h1></div>
+    </section>
+
+    <div class="stage-chrome" data-stage-chrome>
+      <div class="stage-chrome__top"><span>SPACE / {edition.period}</span></div>
+      <div class="scroll-feedback" aria-hidden="true"><i class="scroll-feedback__fill"></i></div>
+      <div class="stage-chrome__bottom">
+        <div class="chapter-readout"><span data-chapter-position>01 / 05</span><strong data-chapter-name>{learning.name}</strong></div>
+        <nav class="exhibition-directory" aria-label="Space exhibition directory">
+          <ol>{edition.chapters.map((chapter, index) => <li><button type="button" data-space-action="chapter" data-target-chapter={index} data-chapter-id={chapter.id} data-chapter-name={chapter.name} data-chapter-summary={chapter.summary} data-chapter-action={chapter.action} data-transition-color={chapter.transition.color} data-transition-direction={chapter.transition.direction} data-transition-rotation={chapter.transition.rotation} aria-label={`${chapter.number} ${chapter.name} — ${chapter.summary}`}><span>{chapter.number}</span><strong>{chapter.name}</strong></button></li>)}</ol>
+        </nav>
+        <button type="button" class="detail-action" data-space-action="open"><small data-detail-kicker>CONCRETE SPACE 01</small><strong data-detail-label>{learning.action}</strong><span aria-hidden="true">↗</span></button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="abstract-rail" data-abstract-rail hidden aria-hidden="true">
+    {edition.chapters.map((chapter, index) => <li data-space-step={index}><span>{chapter.number}</span><strong>{chapter.name}</strong><span>{chapter.summary}</span></li>)}
+  </ol>
+</div>

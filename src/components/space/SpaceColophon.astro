@@ -1,0 +1,12 @@
+---
+import type { ResolvedSpaceEdition } from "../../utils/space/edition";
+
+interface Props { edition: ResolvedSpaceEdition }
+const { edition } = Astro.props;
+---
+
+<section class="space-colophon" id="colophon" aria-labelledby="colophon-title">
+  <div class="colophon-copy"><p>SPACE / EDITION 01<br />{edition.period}</p><h2 id="colophon-title">A record of attention,<br />not a complete portrait.</h2><p>{edition.identity.operatorLatin}<br />{edition.identity.role.replace(" / ", " · ")}<br />{edition.identity.location}</p></div>
+  <div class="colophon-index" aria-hidden="true">{edition.chapters.map(() => <i></i>)}</div>
+  <div class="colophon-actions"><button type="button" data-space-action="revisit">REVISIT FROM 01</button></div>
+</section>

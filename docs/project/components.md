@@ -104,6 +104,13 @@ Search is mounted through the header/site shell. Runtime behavior is documented 
 The Dashboard has explicit loading, empty, failed, and stale states. It neither
 reads nor clears localStorage and must not introduce a client chart dependency.
 
+### Space
+
+`SpaceEdition.astro` is a composition shell. `SpaceAbstractExhibition.astro`,
+`SpaceDetails.astro`, `SpaceCloseButton.astro`, and `SpaceColophon.astro` own the
+four visual boundaries; `src/scripts/spaceEdition.ts` owns the page state
+machine. See `modules/space/overview.md` for the complete ownership table.
+
 ### Music
 
 - `src/components/RecentMusic.astro`: recent listening module and richer playback controls.

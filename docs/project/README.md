@@ -16,7 +16,8 @@ This directory is the maintained knowledge base for the blog repository. It is o
 10. `analytics.md`: understand anonymous event collection, aggregation,
     privacy, and Dashboard operations.
 11. `modules/*/overview.md`: understand each content module in more detail.
-12. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
+12. `modules/space/overview.md`: understand the isolated `/space` implementation contract.
+13. `plans/*`: understand approved multi-stage improvements and their execution boundaries.
 
 Current parked plans:
 

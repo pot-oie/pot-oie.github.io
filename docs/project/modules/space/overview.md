@@ -1,45 +1,81 @@
 # Space Module
 
-`/space` is currently a deliberately minimal **Between Editions** page. The
-previous four-act Canvas exhibition has been retired so a future visual concept
-can start without compatibility constraints or dormant animation code.
+`/space` is the isolated `2025.08—2026.08` annual edition. Five abstract
+chapters open five concrete spaces: Articles, Film, Music, Development, and
+Direction. An unnumbered Colophon ends the document.
 
-## Current Route
+This file is the authoritative Space reference. General project documents only
+record the route's cross-module boundary.
 
-- `src/pages/space.astro` reads the existing Blog, Watch, and Music collections.
-- `src/utils/space/buildSpaceCatalog.ts` projects those collections into a small
-  server-side catalog of writing excerpts and optimized cover images.
-- `src/components/space/SpaceArchive.astro` renders the catalog as static,
-  responsive editorial HTML.
-- `src/layouts/SpaceLayout.astro` remains isolated from the normal site shell,
-  global CSS, Lenis, global audio, Astro client navigation, and Pagefind.
-- The route remains `noindex, nofollow` and excluded from the sitemap.
+## Ownership
 
-There is no client payload, Canvas, custom animation loop, scroll director,
-preloader, audio pipeline, or mandatory interaction. The current page is a
-working content baseline, not the visual direction for the next edition.
+| Source | Responsibility |
+| --- | --- |
+| `src/pages/space.astro` | Load collections, optimize eligible posters, and compose the route. |
+| `src/utils/space/edition.ts` | Own identity, chapter copy and transitions, selection limits, crop exceptions, projects, and Direction states. |
+| `src/utils/space/resolveSpaceEdition.ts` | Validate edition data and project Blog, Watch, and Music entries into browser-safe records. |
+| `src/components/space/SpaceEdition.astro` | Compose the page shell. |
+| `SpaceAbstractExhibition.astro` | Render abstract views, rail, directory, progress, and detail entry. |
+| `SpaceDetails.astro` | Render all concrete content spaces and local Music audio. |
+| `SpaceCloseButton.astro` | Own the shared detail Close control. |
+| `SpaceColophon.astro` | Render the normal-flow ending. |
+| `src/scripts/spaceEdition.ts` | Own chapter state, history, focus, rail observation, transitions, and audio behavior. |
+| `src/scripts/space/randomizeEditionMedia.ts` | Apply the per-refresh Film and Music draws to candidate DOM. |
+| `src/styles/space/index.css` | Own the isolated responsive visual system. |
 
-## Preserved Material
+## Data Contract
 
-- all source Blog, Watch, and Music entries;
-- all shared poster and album-cover files under `src/assets`;
-- published-blog filtering and stable Blog URLs;
-- MDX plain-text extraction for clean excerpts;
-- explicit Space category labels and the maintained operator identity;
-- Astro image optimization for a compact cover catalog;
-- the isolated document layout and route boundary.
+- The edition period and five-chapter order are fixed.
+- Articles are six explicit published Blog references with Space-only display
+  copy; Blog frontmatter remains authoritative for routes and publication.
+- Film candidates are annual movie records with a poster and numeric rating.
+  Every full refresh draws eight records and assigns them to eight authored
+  layout slots. Crop exceptions remain explicit configuration.
+- Music candidates are annual records with previews. Every full refresh draws
+  eight; artist and date limits prevent avoidable concentration.
+- Development is five explicit project links. Direction is five qualitative
+  states with no percentages.
+- Fewer than eight eligible Film or Music candidates, invalid articles, empty
+  project URLs, or an invalid edition shape fail the build.
 
-## Removed Legacy System
+The browser receives projected records, not collection entries or Blog bodies.
+Selection geometry never becomes random: only Film/Music record assignment
+changes on refresh.
 
-The retired system included the Optical Track, winding record, Orbital Record,
-mechanical handoff, Kinetic Mobile, Grid Lock, and Colophon runtime; its Canvas
-systems, geometry and physics helpers, responsive session planners, visual
-signal quantizer, preloader/chrome views, scroll controller, and focused tests
-were removed together. Its two implementation plans were also removed because
-they described constraints that no longer apply.
+## Interaction Contract
 
-See `docs/project/plans/space-rebuild-inventory.md` for the reusable inventory
-and boundaries for the next concept.
+- Native document scrolling moves through five `100svh` rail steps. A sticky
+  stage shows the active abstract chapter; Lenis and wheel/touch interception
+  are not used.
+- The directory and Arrow keys navigate without wrapping. Chapter hashes use
+  `#learning` through `#direction`; detail hashes append `-detail`.
+- A detail owns native scrolling in a fixed surface. Opening pushes history;
+  Escape, Back, or the shared Close returns to the same chapter and restores
+  rail position and focus.
+- Inactive views and the background document are `hidden`/`inert` as
+  appropriate. Detail focus cannot reach the abstract stage or Colophon.
+- One opaque transition plane animates only `transform` and `opacity`; reduced
+  motion uses short fades.
+- Film and Music randomize once during each full-page initialization. Music
+  playback is local, non-persistent, and stops when its detail is left or the
+  page is hidden.
+- A fixed top-left Home link remains available in abstract, detail, and
+  Colophon states. After Direction, the sticky stage releases into the
+  `100svh` Colophon; its only local action restarts from Learning.
+
+Without JavaScript, the same content remains available as linear semantic HTML.
+
+## Presentation Contract
+
+Space uses `SpaceLayout.astro` and `src/styles/space/index.css`, not the normal
+site shell or global runtime. Abstract scenes share geometric typography;
+concrete spaces intentionally use distinct visual systems. Persistent abstract
+chrome stays limited to Home, chapter position, the `01—05` directory, one
+detail entry action, and a hairline progress indicator. Each detail has one
+Close; only Articles, Film, and Music link onward to archives.
+
+The route is `noindex, nofollow`, omitted from sitemap and Pagefind, and does
+not use the global Lenis, audio, analytics, or Astro client-router runtime.
 
 ## Verification
 
@@ -48,3 +84,7 @@ npm test
 npx tsc --noEmit
 npm run build
 ```
+
+When behavior or responsive styling changes, additionally review direct hashes,
+keyboard focus, Escape/Back, reduced motion, compact layout, and the Colophon
+at the document bottom.

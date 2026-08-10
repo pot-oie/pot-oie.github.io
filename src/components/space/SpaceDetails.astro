@@ -1,0 +1,46 @@
+---
+import type { ResolvedSpaceEdition } from "../../utils/space/edition";
+import SpaceCloseButton from "./SpaceCloseButton.astro";
+
+interface Props { edition: ResolvedSpaceEdition }
+const { edition } = Astro.props;
+const pad = (index: number) => String(index + 1).padStart(2, "0");
+---
+
+<section class="space-view detail articles-space" id="learning-detail" data-space-view="detail" data-chapter="0" aria-labelledby="learning-detail-title">
+  <SpaceCloseButton />
+  <div class="articles-layout">
+    <div class="articles-intro"><p>READING INDEX / 2025—2026</p><h2 id="learning-detail-title" tabindex="-1">Articles as a field<br />of connected thought.</h2></div>
+    <ol class="articles-index">{edition.articles.map((article, index) => <li><a href={article.href} data-article-link={index}><span>{pad(index)}</span><strong>{article.title}</strong><p>{article.summary}</p><i>READ ↗</i></a></li>)}</ol>
+    <div class="articles-field" aria-hidden="true">{edition.articles.map((article, index) => <span class={`fragment fragment--${index + 1}`} data-article-fragment={index}>{article.title}</span>)}</div>
+  </div>
+  <footer class="detail-footer"><a class="archive-continuation" href="/blog/"><small>LEAVE THE EDITION</small><strong>CONTINUE TO BLOG ARCHIVE ↗</strong></a><span>{edition.period}</span></footer>
+</section>
+
+<section class="space-view detail film-space" id="film-detail" data-space-view="detail" data-chapter="1" aria-labelledby="film-detail-title">
+  <SpaceCloseButton />
+  <div class="film-heading"><h2 id="film-detail-title" tabindex="-1">EIGHT<br />FRAGMENTS</h2></div>
+  <div class="film-montage">{edition.films.map((item, index) => <figure class:list={["film-poster", index < edition.randomSelection.filmCount && `film-poster--${index + 1}`]} data-film-candidate data-media-id={item.id} hidden={index >= edition.randomSelection.filmCount}><img src={item.poster.src} srcset={item.poster.srcset} sizes="(max-width: 959px) 46vw, 28vw" width={item.poster.width} height={item.poster.height} alt={`${item.title}海报`} loading="lazy" style={item.objectPosition ? `object-position:${item.objectPosition}` : undefined} /><figcaption><strong>{item.title}</strong><span>{item.rating}</span></figcaption></figure>)}</div>
+  <footer class="detail-footer"><a class="archive-continuation" href="/watch/movie/"><small>LEAVE THE EDITION</small><strong>CONTINUE TO WATCH ARCHIVE ↗</strong></a><span>{edition.period}</span></footer>
+</section>
+
+<section class="space-view detail music-space" id="music-detail" data-space-view="detail" data-chapter="2" aria-labelledby="music-detail-title">
+  <SpaceCloseButton />
+  <div class="music-heading"><h2 id="music-detail-title" tabindex="-1">MUSIC</h2><div class="score-header" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+  <ol class="track-list">{edition.tracks.map((track, index) => <li data-track-candidate data-track-row={index} data-media-id={track.id} data-track-artist={track.artist.trim().toLocaleLowerCase()} data-track-date={track.date} hidden={index >= edition.randomSelection.trackCount}><span class="track-number">{pad(index)}</span><div class="track-info"><strong>{track.title}</strong><p>{track.artist} <i>·</i> {track.date}</p></div><button type="button" class="track-play" data-track-play={index} data-preview={track.audioPreview} aria-label={`播放 ${track.title}`}><span aria-hidden="true">▶</span></button><div class="track-score" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><a class="track-fallback" href={track.audioPreview} target="_blank" rel="noopener">PREVIEW FILE ↗</a></li>)}</ol>
+  <audio data-space-audio preload="none"></audio>
+  <footer class="detail-footer"><a class="archive-continuation" href="/music/"><small>LEAVE THE EDITION</small><strong>CONTINUE TO MUSIC ARCHIVE ↗</strong></a><span>{edition.period}</span></footer>
+</section>
+
+<section class="space-view detail development-space" id="development-detail" data-space-view="detail" data-chapter="3" aria-labelledby="development-detail-title">
+  <SpaceCloseButton />
+  <h2 id="development-detail-title" tabindex="-1">PROJECT<br />ANCHORS</h2>
+  <svg class="trajectory-field" viewBox="0 0 1200 760" role="presentation" aria-hidden="true"><path d="M80 145C260 38 374 292 522 190S780 68 1115 205"/><path d="M95 610C310 720 365 420 585 515S830 690 1125 500"/><path d="M190 90V650M605 70V690M1010 90V650"/><circle cx="190" cy="145" r="8"/><circle cx="475" cy="224" r="8"/><circle cx="605" cy="515" r="8"/><circle cx="890" cy="164" r="8"/><circle cx="1010" cy="544" r="8"/></svg>
+  <ol class="project-anchors">{edition.projects.map((project, index) => <li class={`project-anchor project-anchor--${index + 1}`}><a href={project.url} target={project.url.startsWith("http") ? "_blank" : undefined} rel={project.url.startsWith("http") ? "noopener" : undefined}><span>{pad(index)}</span>{project.label}</a></li>)}</ol>
+</section>
+
+<section class="space-view detail direction-space" id="direction-detail" data-space-view="detail" data-chapter="4" aria-labelledby="direction-detail-title">
+  <SpaceCloseButton />
+  <h2 id="direction-detail-title" class="sr-only" tabindex="-1">Current direction and present emphasis</h2>
+  <div class="direction-fields">{edition.direction.map((item, index) => <div class={`direction-field direction-field--${index + 1}`}><span class="direction-state">{item.state}</span><strong>{item.label}</strong></div>)}</div>
+</section>

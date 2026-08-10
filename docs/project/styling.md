@@ -147,6 +147,15 @@ compact bars, and reading completion uses a CSS conic ring. Panels retain strong
 contrast in dark mode, motion respects `prefers-reduced-motion`, and the mobile
 layout reduces type and card density without hiding any metric.
 
+## Standalone Space System
+
+`/space` is isolated through `SpaceLayout.astro` and
+`src/styles/space/index.css`. It has chapter-specific abstract palettes,
+distinct concrete-space systems, separately authored desktop/compact layouts,
+and one low-density Colophon. Inter, Geist Mono, and Noto Serif SC are its only
+faces; enhanced motion changes only transform and opacity. Detailed visual and
+interaction invariants live in `modules/space/overview.md`.
+
 ## Maintenance Rules
 
 - Keep new UI aligned with the ink grayscale and vermilion accent system.

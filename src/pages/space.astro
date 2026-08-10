@@ -1,9 +1,10 @@
 ---
 import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
-import SpaceArchive from "../components/space/SpaceArchive.astro";
+import SpaceEdition from "../components/space/SpaceEdition.astro";
 import SpaceLayout from "../layouts/SpaceLayout.astro";
-import { buildSpaceCatalog } from "../utils/space/buildSpaceCatalog";
+import { SPACE_EDITION } from "../utils/space/edition";
+import { resolveSpaceEdition } from "../utils/space/resolveSpaceEdition";
 
 const [blogs, watches, tracks] = await Promise.all([
   getCollection("blog"),
@@ -11,25 +12,22 @@ const [blogs, watches, tracks] = await Promise.all([
   getCollection("music"),
 ]);
 
-const catalog = await buildSpaceCatalog({
+const edition = await resolveSpaceEdition({
+  config: SPACE_EDITION,
   blogs,
   watches,
-  music: tracks,
-  optimizeImage: async ({ kind, src }) => {
-    const width = 256;
-    const height = kind === "watch" ? 384 : 256;
-    const image = await getImage({
-      src,
-      width,
-      height,
-      format: "webp",
-      quality: 72,
-    });
+  tracks,
+  optimizePoster: async (src) => {
+    const [compact, large] = await Promise.all([
+      getImage({ src, width: 480, height: 720, format: "webp", quality: 76, fit: "cover" }),
+      getImage({ src, width: 900, height: 1350, format: "webp", quality: 80, fit: "cover" }),
+    ]);
 
     return {
-      src: image.src,
-      width,
-      height,
+      src: large.src,
+      srcset: `${compact.src} 480w, ${large.src} 900w`,
+      width: 900,
+      height: 1350,
     };
   },
 });
@@ -37,8 +35,8 @@ const catalog = await buildSpaceCatalog({
 ---
 
 <SpaceLayout
-  title="Space — Between Editions"
-  description="A preserved content catalog awaiting a new visual edition."
+  title="Space 2025.08—2026.08 — 桂圆子"
+  description="Learning, film, music, development, and direction in the 2025.08—2026.08 Space edition."
 >
-  <SpaceArchive catalog={catalog} />
+  <SpaceEdition edition={edition} />
 </SpaceLayout>

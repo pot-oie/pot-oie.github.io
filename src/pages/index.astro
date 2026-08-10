@@ -49,10 +49,18 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
     <h1
       class="text-6xl md:text-8xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-6 tracking-tight transition-colors"
     >
-      Pot's <span
-        class="text-ink-300 dark:text-zinc-500 italic transition-colors"
-        >Space</span
+      Pot's <a
+        href="/space"
+        data-astro-reload
+        aria-label="进入 Pot's Space 沉浸式页面"
+        class="group relative inline-block !text-ink-300 dark:!text-zinc-500 italic transition-colors hover:!text-vermilion dark:hover:!text-vermilion focus-visible:!text-vermilion"
       >
+        Space
+        <span
+          class="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-vermilion transition-transform duration-500 group-hover:scale-x-100 group-focus-visible:scale-x-100"
+          aria-hidden="true"
+        ></span>
+      </a>
     </h1>
     <p
       class="text-xl md:text-2xl text-ink-500 dark:text-zinc-400 max-w-xl leading-relaxed font-serif transition-colors"
