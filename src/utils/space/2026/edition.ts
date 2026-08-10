@@ -1,3 +1,4 @@
+/** Edition-owned configuration for the 2025.08—2026.08 publication. */
 export const SPACE_EDITION = {
   id: "space-2025-2026",
   period: "2025.08—2026.08",

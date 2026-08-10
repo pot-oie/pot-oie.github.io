@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { SPACE_EDITION } from "../src/utils/space/edition";
+import { SPACE_EDITION } from "../src/utils/space/2026/edition";
 import { selectDiverseRandom, shuffle } from "../src/utils/space/randomSelection";
-import { resolveSpaceEdition } from "../src/utils/space/resolveSpaceEdition";
+import { resolveSpaceEdition } from "../src/utils/space/2026/resolveSpaceEdition";
 
 const blog = (id: string, draft = false) => ({ id, body: "", data: { title: id, pubDate: new Date("2026-01-01"), category: "learn", techCategory: "ai", draft } });
 const film = (id: string) => ({ id, data: { title: id, mediaType: "movie", rating: 4, finishedDate: new Date("2026-01-10"), coverImage: { src: `/${id}.webp`, width: 600, height: 900, format: "webp" } } });
-const track = (id: string, audioPreview = `https://example.com/${id}.m4a`, artist = "Artist", day = 4) => ({ id, data: { title: id, artist, pubDate: new Date(`2026-03-${String(day).padStart(2, "0")}`), audioPreview } });
+const track = (id: string, audioPreview = `https://example.com/${id}.m4a`, artist = "Artist", day = 4) => ({ id, data: { title: id, artist, recordedAt: new Date(`2026-03-${String(day).padStart(2, "0")}`), audioPreview } });
 
 function sources() {
   return {

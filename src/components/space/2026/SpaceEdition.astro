@@ -1,5 +1,5 @@
 ---
-import type { ResolvedSpaceEdition } from "../../utils/space/edition";
+import type { ResolvedSpaceEdition } from "../../../utils/space/2026/edition";
 import SpaceAbstractExhibition from "./SpaceAbstractExhibition.astro";
 import SpaceColophon from "./SpaceColophon.astro";
 import SpaceDetails from "./SpaceDetails.astro";
@@ -10,7 +10,7 @@ const { edition } = Astro.props;
 
 <main class="space-edition" data-space-edition data-film-count={edition.randomSelection.filmCount} data-track-count={edition.randomSelection.trackCount} data-track-artist-limit={edition.randomSelection.maxTracksPerArtist} data-track-date-limit={edition.randomSelection.maxTracksPerDate} data-pagefind-ignore>
   <p class="space-skip"><a href="#learning-detail">跳到内容空间</a></p>
-  <a class="space-home" href="/">← HOME</a>
+  <a class="space-home" href="/space" data-astro-reload>← SPACE INDEX</a>
   <div class="space-linear-intro" aria-hidden="true"><span>SPACE / {edition.period}</span><span>{edition.identity.operatorLatin} · {edition.identity.location}</span></div>
 
   <SpaceAbstractExhibition edition={edition} />
@@ -22,6 +22,6 @@ const { edition } = Astro.props;
 </main>
 
 <script>
-  import { initializeSpaceEdition } from "../../scripts/spaceEdition";
+  import { initializeSpaceEdition } from "../../../scripts/space/2026";
   initializeSpaceEdition();
 </script>

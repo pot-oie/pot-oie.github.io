@@ -1,4 +1,4 @@
-import { selectDiverseRandom, shuffle } from "../../utils/space/randomSelection";
+import { selectDiverseRandom, shuffle } from "../../../utils/space/randomSelection";
 
 export function randomizeEditionMedia(root: HTMLElement): void {
   const filmCount = Number(root.dataset.filmCount);

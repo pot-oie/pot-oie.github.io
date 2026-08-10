@@ -41,10 +41,13 @@ search-result hash scrolling, anonymous analytics, persistent audio, math overfl
 and the article image lightbox; small Astro runtime components compose them at
 page boundaries.
 
-`/space` is an isolated static document with build-time collection projection
-and route-local progressive enhancement. It does not share the normal site
-shell, Lenis, audio, analytics, or client-router runtime. See
-`modules/space/overview.md` for its component, data, and interaction boundaries.
+Space is an annual publication family. `/space` is a normal `BaseLayout.astro`
+index backed by a typed edition registry, while each `/space/<edition-year>`
+route is an edition-owned static document with build-time collection projection
+and route-local progressive enhancement. Annual documents do not share the
+normal site shell, Lenis, audio, analytics, or client-router runtime. See
+`modules/space/overview.md` for the route, component, data, and interaction
+boundaries.
 
 `src/utils` contains cross-cutting helpers such as calendar calculations, Blog
 taxonomy metadata, content-integrity diagnostics, and shared SEO
@@ -109,9 +112,10 @@ through an exact Basic Auth-protected Nginx alias. See
   all initializers are safe to call again after `astro:page-load`.
 - Anonymous analytics use a tab-scoped `sessionStorage` ID and never persist
   metric data in the browser.
-- `astro.config.mjs` filters `/dashboard` and `/space` from sitemap generation.
-- `SpaceLayout.astro` is a self-contained document and intentionally does not
-  import `BaseHead.astro` or global CSS.
+- `astro.config.mjs` filters `/dashboard` and the current `/space/2026` annual
+  document from sitemap generation; the `/space` edition index is included.
+- `src/layouts/space/Space2026Layout.astro` is a self-contained annual document
+  and intentionally does not import `BaseHead.astro` or global CSS.
 - `npm run build` validates blog content, runs `astro build`, then runs
   `pagefind --site dist`.
 

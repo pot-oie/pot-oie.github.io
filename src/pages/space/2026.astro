@@ -1,10 +1,10 @@
 ---
 import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
-import SpaceEdition from "../components/space/SpaceEdition.astro";
-import SpaceLayout from "../layouts/SpaceLayout.astro";
-import { SPACE_EDITION } from "../utils/space/edition";
-import { resolveSpaceEdition } from "../utils/space/resolveSpaceEdition";
+import SpaceEdition from "../../components/space/2026/SpaceEdition.astro";
+import Space2026Layout from "../../layouts/space/Space2026Layout.astro";
+import { SPACE_EDITION } from "../../utils/space/2026/edition";
+import { resolveSpaceEdition } from "../../utils/space/2026/resolveSpaceEdition";
 
 const [blogs, watches, tracks] = await Promise.all([
   getCollection("blog"),
@@ -34,9 +34,9 @@ const edition = await resolveSpaceEdition({
 
 ---
 
-<SpaceLayout
+<Space2026Layout
   title="Space 2025.08—2026.08 — 桂圆子"
   description="Learning, film, music, development, and direction in the 2025.08—2026.08 Space edition."
 >
   <SpaceEdition edition={edition} />
-</SpaceLayout>
+</Space2026Layout>

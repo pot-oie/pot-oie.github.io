@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
 import type { CollectionEntry } from "astro:content";
-import { getBlogPostHref } from "../blog";
+import { getBlogPostHref } from "../../../domain/blog";
 import type { ResolvedSpaceEdition, SpaceEditionConfig, SpacePosterVariant } from "./edition";
 
 export interface ResolveSpaceEditionOptions {
@@ -77,7 +77,7 @@ export async function resolveSpaceEdition({
   }));
 
   const trackPool = tracks
-    .filter((entry) => Boolean(entry.data.audioPreview?.trim()) && isInEditionPeriod(entry.data.pubDate))
+    .filter((entry) => Boolean(entry.data.audioPreview?.trim()) && isInEditionPeriod(entry.data.recordedAt))
     .sort((a, b) => sourceId(a.id).localeCompare(sourceId(b.id), "en-US"));
   if (trackPool.length < config.randomSelection.trackCount) {
     throw new Error(`Space edition requires at least ${config.randomSelection.trackCount} eligible tracks.`);
@@ -87,7 +87,7 @@ export async function resolveSpaceEdition({
       id: sourceId(entry.id),
       title: entry.data.title,
       artist: entry.data.artist,
-      date: entry.data.pubDate.toISOString().slice(0, 10).replaceAll("-", "."),
+      date: entry.data.recordedAt.toISOString().slice(0, 10).replaceAll("-", "."),
       audioPreview: entry.data.audioPreview!,
     };
   });

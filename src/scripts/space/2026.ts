@@ -1,4 +1,4 @@
-import { randomizeEditionMedia } from "./space/randomizeEditionMedia";
+import { randomizeEditionMedia } from "./2026/randomizeEditionMedia";
 
 type Mode = "abstract" | "detail";
 type Phase = "idle" | "covering" | "revealing";
@@ -203,7 +203,6 @@ export function initializeSpaceEdition(): void {
       }
 
       if (destination.mode === "detail") newView.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
-      if (options.restoreFocus) openDetailButton.focus({ preventScroll: true });
       statusRegion.textContent = destination.mode === "detail" ? `${preset.name} 具象空间已打开` : `${preset.name}，${preset.summary}`;
     } finally {
       transitionPlane.hidden = true;
@@ -211,6 +210,9 @@ export function initializeSpaceEdition(): void {
       views.forEach((view) => { view.style.opacity = ""; view.style.transform = ""; view.getAnimations().forEach((animation) => animation.cancel()); });
       state.phase = "idle";
       setBusy(false);
+      if (options.restoreFocus && state.mode === "abstract") {
+        openDetailButton.focus({ preventScroll: true });
+      }
       if (pendingEscape && state.mode === "detail") {
         pendingEscape = false;
         void closeDetail();
@@ -327,9 +329,16 @@ export function initializeSpaceEdition(): void {
     const initial = parseHash(chapters);
     scrollToStep(initial.chapter);
     railScrollPosition = window.scrollY;
-    render(initial, false);
+    render(initial, initial.mode === "detail");
     history.replaceState({ space: true }, "", hashFor(initial.mode, initial.chapter));
-    if (initial.mode === "detail") suspendRail(); else observeRail();
+    if (initial.mode === "detail") {
+      suspendRail();
+      window.requestAnimationFrame(() => {
+        viewFor("detail", initial.chapter)?.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+      });
+    } else {
+      observeRail();
+    }
   } catch {
     delete root.dataset.enhanced;
     document.documentElement.style.overflow = "";

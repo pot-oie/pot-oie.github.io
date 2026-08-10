@@ -8,6 +8,12 @@ import rehypeKatex from 'rehype-katex';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 
+/** @param {string} page */
+export function shouldIncludeInSitemap(page) {
+  const pathname = new URL(page, 'https://passpot.cn').pathname.replace(/\/+$/, '') || '/';
+  return !pathname.startsWith('/dashboard') && pathname !== '/space/2026';
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://passpot.cn',
@@ -27,8 +33,7 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      filter: (page) =>
-        !page.includes('/dashboard') && !page.includes('/space'),
+      filter: shouldIncludeInSitemap,
     }),
     icon()
   ],

@@ -8,13 +8,18 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 - `/about`: `src/pages/about.astro`
 - `/dashboard`: `src/pages/dashboard.astro`; private static analytics UI,
   excluded from sitemap and Pagefind content.
-- `/space`: `src/pages/space.astro`; standalone `2025.08—2026.08` edition with
-  five abstract chapters, five corresponding detail hashes, and an unnumbered
-  normal-flow Colophon at the document end. Valid hashes are
+- `/space`: `src/pages/space/index.astro`; normal `BaseLayout.astro` edition
+  index backed by `src/utils/space/editions.ts`. It is the stable Header and
+  homepage destination, is included in the sitemap and Pagefind, and explicitly
+  emits `index, follow`.
+- `/space/2026`: `src/pages/space/2026.astro`; standalone `2025.08—2026.08`
+  edition with five abstract chapters, five corresponding detail hashes, and
+  an unnumbered normal-flow Colophon at the document end. Valid hashes are
   `#learning`, `#film`, `#music`, `#development`, `#direction`, and each value
-  with `-detail`. It remains excluded from the sitemap and Pagefind, emits
-  `noindex, nofollow`, and bypasses `BaseLayout.astro`, Astro View Transitions,
-  and the global audio controller.
+  with `-detail`. It emits `index, follow`, is linked from the edition index,
+  and is deliberately omitted from both the sitemap and Pagefind to avoid
+  indexing duplicate projected domain content. It bypasses `BaseLayout.astro`,
+  Astro View Transitions, and the global audio controller.
 - `/404`: `src/pages/404.astro`
 - `/rss.xml`: `src/pages/rss.xml.js`
 
@@ -72,6 +77,16 @@ interaction.
 - `/music/[month]`: `src/pages/music/[month].astro`
 
 Music routes read from the `music` content collection, including nested YAML files loaded by the glob loader.
+
+## Space Route Boundary
+
+The stable index and isolated annual documents intentionally use different
+page shells. Links from normal pages to `/space` use the Astro client router.
+Links from `/space` into an edition, and the edition's `← SPACE INDEX` link back,
+carry `data-astro-reload` so global and edition-owned styles and runtimes cross
+the boundary through a full document load. Future editions must add one typed
+registry entry and one matching `src/pages/space/<year>.astro` route; they are
+not required to reuse the 2026 layout or components.
 
 ## Route Maintenance
 

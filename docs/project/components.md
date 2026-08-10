@@ -15,8 +15,9 @@ This document maps the component layer and records ownership boundaries. Use it 
 - `src/components/Footer.astro`: site footer.
 
 These components are part of the site shell and should stay broadly content-agnostic.
-The primary content navigation is Blog, Watch, Music, and About; Blog owns the
-learn/life split inside its archive.
+The primary content navigation is Blog, Watch, Music, Space, and About; Blog
+owns the learn/life split inside its archive. Space links to its stable edition
+index rather than directly to an annual document.
 
 ### Runtime Composition
 
@@ -106,10 +107,15 @@ reads nor clears localStorage and must not introduce a client chart dependency.
 
 ### Space
 
-`SpaceEdition.astro` is a composition shell. `SpaceAbstractExhibition.astro`,
-`SpaceDetails.astro`, `SpaceCloseButton.astro`, and `SpaceColophon.astro` own the
-four visual boundaries; `src/scripts/spaceEdition.ts` owns the page state
-machine. See `modules/space/overview.md` for the complete ownership table.
+`src/pages/space/index.astro` renders the normal-shell edition list from the
+small typed registry in `src/utils/space/editions.ts`.
+
+The current annual document is edition-owned under `src/components/space/2026`.
+`SpaceEdition.astro` is its composition shell; `SpaceAbstractExhibition.astro`,
+`SpaceDetails.astro`, `SpaceCloseButton.astro`, and `SpaceColophon.astro` own its
+four visual boundaries. `src/scripts/space/2026.ts` owns that edition's page
+state machine. These components are not a generic annual template. See
+`modules/space/overview.md` for the complete ownership table.
 
 ### Music
 

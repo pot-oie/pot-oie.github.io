@@ -187,12 +187,17 @@ switching across View Transitions.
 
 ### Space
 
-`/space` is a separate full-load document. Its route-local state machine owns
-native-scroll chapter observation, hashes/history, focus isolation, detail
-scroll locking, transition fallback, local preview audio, and Colophon restart.
-It creates no storage keys or custom events and does not intercept wheel or
-touch input. The complete interaction contract lives in
-`modules/space/overview.md`.
+`/space` is a normal client-routed index with no Space-specific browser state.
+Opening `/space/2026` from that index performs a full document load through an
+explicit `data-astro-reload` boundary.
+
+`/space/2026` has an edition-local state machine that owns native-scroll chapter
+observation, hashes/history, focus isolation, detail scroll locking, transition
+fallback, local preview audio, and Colophon restart. It creates no storage keys
+or custom events and does not intercept wheel or touch input. Its persistent
+Home action returns to `/space`, also through a full document load, so the
+normal global runtime is initialized cleanly. The complete interaction contract
+lives in `modules/space/overview.md`.
 
 ## Scroll Boundaries
 
