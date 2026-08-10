@@ -10,7 +10,10 @@ const { edition } = Astro.props;
 
 <main class="space-edition" data-space-edition data-film-count={edition.randomSelection.filmCount} data-track-count={edition.randomSelection.trackCount} data-track-artist-limit={edition.randomSelection.maxTracksPerArtist} data-track-date-limit={edition.randomSelection.maxTracksPerDate} data-pagefind-ignore>
   <p class="space-skip"><a href="#learning-detail">跳到内容空间</a></p>
-  <a class="space-home" href="/space" data-astro-reload>← SPACE INDEX</a>
+  <nav class="space-back-nav" aria-label="返回导航">
+    <a href="/" data-astro-reload>← HOME</a>
+    <a href="/space" data-astro-reload>← SPACE INDEX</a>
+  </nav>
   <div class="space-linear-intro" aria-hidden="true"><span>SPACE / {edition.period}</span><span>{edition.identity.operatorLatin} · {edition.identity.location}</span></div>
 
   <SpaceAbstractExhibition edition={edition} />

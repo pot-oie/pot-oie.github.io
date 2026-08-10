@@ -21,7 +21,10 @@ a { text-decoration-thickness: .08em; text-underline-offset: .2em; }
 .space-edition button:disabled { cursor: not-allowed; opacity: .28; }
 .space-skip { position: fixed; top: .5rem; left: 50%; z-index: 100; transform: translateY(-200%); background: #fff; padding: .75rem 1rem; }
 .space-skip:focus-within { transform: translate(-50%,0); }
-.space-home { position:fixed;top:max(20px,env(safe-area-inset-top));left:var(--inset);z-index:60;display:inline-flex;align-items:center;min-height:2.5rem;padding:.65rem .75rem;border:1px solid #171817;background:#f1ede2;color:#171817;font:700 .62rem/1 var(--mono);letter-spacing:.08em;text-decoration:none;box-shadow:0 0 0 1px #f1ede255 }
+.space-back-nav { position:fixed;top:max(20px,env(safe-area-inset-top));left:var(--inset);z-index:60;display:flex;align-items:center;gap:.7rem;color:#fff;mix-blend-mode:difference;font:700 .62rem/1 var(--mono);letter-spacing:.08em }
+.space-back-nav a { display:inline-flex;align-items:center;min-height:2rem;padding:.25rem 0;border-bottom:1px solid transparent;text-decoration:none;transition:border-color .2s ease }
+.space-back-nav a+a::before { content:"/";margin-right:.7rem;opacity:.45 }
+.space-back-nav a:hover,.space-back-nav a:focus-visible { border-bottom-color:currentColor }
 .space-linear-intro { display: flex; justify-content: space-between; padding: 4.75rem var(--inset) 1rem; font: 650 .69rem/1 var(--mono); letter-spacing: .06em; }
 .abstract-stage { position: relative; }
 .abstract-rail { list-style: none; padding: 0; }
@@ -200,7 +203,9 @@ a { text-decoration-thickness: .08em; text-underline-offset: .2em; }
 
 @media (max-width: 959px) {
   .space-edition { --inset: clamp(18px,5vw,28px); }
-  .space-home { min-height:2.25rem;padding:.55rem .65rem;font-size:.56rem }
+  .space-back-nav { gap:.55rem;font-size:.52rem }
+  .space-back-nav a { min-height:1.75rem }
+  .space-back-nav a+a::before { margin-right:.55rem }
   .space-linear-intro { font-size: .6rem; }
   .abstract { padding: 4.5rem var(--inset) 12rem; }
   .abstract-copy { align-self: start!important; width: 100%!important; margin: 12vh 0 0!important; }

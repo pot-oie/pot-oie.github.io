@@ -1,85 +1,195 @@
 ---
+import { Image } from "astro:assets";
+import ArchiveHeader from "../../components/ArchiveHeader.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCurrentSpaceEdition, SPACE_EDITIONS } from "../../utils/space/editions";
+import {
+  getCurrentSpaceEdition,
+  SPACE_EDITIONS,
+} from "../../utils/space/editions";
+import { SPACE_EDITIONS_WITH_COVERS } from "../../utils/space/editionCovers";
 
 const currentEdition = getCurrentSpaceEdition();
 const pageTitle = "Space — 桂圆子";
-const pageDescription = "Space 是桂圆子的年度出版物：以独立的视觉与交互，记录每一年正在发生的学习、观看、聆听、开发与方向。";
+const pageDescription =
+  "Space 是桂圆子的年度出版物：以独立的视觉与交互，记录每一年正在发生的学习、观看、聆听、开发与方向。";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <meta slot="head" name="robots" content="index, follow" />
 
-  <section class="py-16 md:py-24" aria-labelledby="space-index-title">
-    <p class="mb-5 text-xs font-semibold tracking-[0.24em] text-vermilion uppercase">
-      Annual Editions / 年度版本
-    </p>
-    <h1
-      id="space-index-title"
-      class="max-w-3xl font-serif text-5xl font-bold tracking-tight text-ink-900 transition-colors md:text-7xl dark:text-zinc-100"
-    >
-      Space
-    </h1>
-    <p
-      class="mt-8 max-w-2xl font-serif text-lg leading-8 text-ink-500 transition-colors md:text-xl dark:text-zinc-400"
-    >
-      一份按年展开的注意力记录。每个版本独立呈现当年的学习、观看、聆听、开发与方向，也保留属于自己的视觉语言。
-    </p>
-    <p class="mt-5 text-sm tracking-wide text-ink-400 dark:text-zinc-500">
-      Current edition / 当前版本：<a
-        href={currentEdition.href}
-        data-astro-reload
-        class="font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:text-vermilion focus-visible:text-vermilion dark:text-zinc-300 dark:decoration-zinc-600"
-      >{currentEdition.title} · {currentEdition.period}</a>
-    </p>
-  </section>
+  <section class="py-8 md:py-16" aria-label="Space 年鉴">
+    <ArchiveHeader
+      breadcrumbs={[{ label: "Home", href: "/" }, { label: "Space" }]}
+      title="Space / 年鉴"
+      description="All in a year."
+      count={SPACE_EDITIONS.length}
+      countIcon="mingcute:book-6-line"
+      metadata={[`Current ${currentEdition.year} · ${currentEdition.period}`]}
+    />
 
-  <section class="pb-20 md:pb-28" aria-labelledby="space-editions-title">
-    <div class="flex items-end justify-between border-b border-ink-900 pb-4 dark:border-zinc-700">
-      <h2 id="space-editions-title" class="text-sm font-bold tracking-[0.18em] text-ink-900 uppercase dark:text-zinc-100">
-        Editions / 版本
-      </h2>
-      <span class="text-xs tracking-[0.18em] text-ink-400 dark:text-zinc-500">
-        {String(SPACE_EDITIONS.length).padStart(2, "0")}
-      </span>
-    </div>
-
-    <ol class="divide-y divide-ink-200 dark:divide-zinc-800">
-      {SPACE_EDITIONS.map((edition, index) => (
-        <li>
-          <a
-            href={edition.href}
-            data-astro-reload
-            class="group grid gap-5 py-8 transition-colors md:grid-cols-[4rem_1fr_auto] md:items-center md:py-10"
-            aria-label={`打开 ${edition.title}，${edition.period}`}
-          >
-            <span class="text-xs font-semibold tracking-[0.18em] text-ink-300 transition-colors group-hover:text-vermilion dark:text-zinc-600">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span>
-              <span class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                <strong class="font-serif text-3xl text-ink-900 transition-colors group-hover:text-vermilion md:text-4xl dark:text-zinc-100">
-                  {edition.title}
-                </strong>
-                {edition.current && (
-                  <small class="border border-vermilion px-2 py-1 text-[0.62rem] font-bold tracking-[0.16em] text-vermilion uppercase">
-                    Current
-                  </small>
-                )}
+    <ol class="space-edition-list mx-auto max-w-4xl" aria-label="Space 年度版本">
+      {
+        SPACE_EDITIONS_WITH_COVERS.map((edition, index) => (
+          <li>
+            <a
+              href={edition.href}
+              data-astro-reload
+              class:list={[
+                "space-edition-card group",
+                edition.cover && "space-edition-card--illustrated",
+              ]}
+              aria-label={`打开 ${edition.title}，${edition.period}`}
+            >
+              {edition.cover && (
+                <span class="space-edition-visual" aria-hidden="true">
+                  <Image
+                    src={edition.cover}
+                    alt=""
+                    widths={[896, 1344, 1792, 2243]}
+                    sizes="(min-width: 768px) 56rem, 100vw"
+                    format="webp"
+                    quality={95}
+                    class="space-edition-image"
+                  />
+                </span>
+              )}
+              <span class="space-edition-copy">
+                <span class="mb-3 block text-xs font-semibold tracking-[0.18em] text-ink-300 dark:text-zinc-600">
+                  Edition {String(index + 1).padStart(2, "0")}
+                </span>
+                <span class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                  <strong class="font-serif text-3xl text-ink-900 md:text-4xl dark:text-zinc-100">
+                    {edition.title}
+                  </strong>
+                  {edition.current && (
+                    <small class="border border-vermilion px-2 py-1 text-[0.62rem] font-bold tracking-[0.16em] text-vermilion uppercase">
+                      Current
+                    </small>
+                  )}
+                </span>
+                <span class="mt-3 block text-sm font-semibold tracking-[0.12em] text-ink-500 dark:text-zinc-400">
+                  {edition.period}
+                </span>
               </span>
-              <span class="mt-3 block text-sm font-semibold tracking-[0.12em] text-ink-500 dark:text-zinc-400">
-                {edition.period}
-              </span>
-              <span class="mt-4 block max-w-xl text-sm leading-7 text-ink-500 dark:text-zinc-400">
-                {edition.description}
-              </span>
-            </span>
-            <span class="justify-self-start text-xl text-ink-300 transition-all group-hover:translate-x-1 group-hover:text-vermilion md:justify-self-end dark:text-zinc-600" aria-hidden="true">
-              ↗
-            </span>
-          </a>
-        </li>
-      ))}
+            </a>
+          </li>
+        ))
+      }
     </ol>
   </section>
 </BaseLayout>
+
+<style>
+  .space-edition-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .space-edition-card {
+    --space-edition-surface: var(--bg-card);
+    position: relative;
+    z-index: 10000;
+    display: block;
+    min-height: 9.5rem;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    box-shadow: 0 18px 50px -42px rgb(var(--color-rgb-shadow) / 0.55);
+    transition: box-shadow 300ms ease;
+  }
+
+  .space-edition-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    min-height: inherit;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .space-edition-card--illustrated .space-edition-copy {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(94%, 32rem);
+    padding-right: 5rem;
+    isolation: isolate;
+  }
+
+  .space-edition-card--illustrated .space-edition-copy::before {
+    position: absolute;
+    z-index: -1;
+    inset: -1px -6rem -1px -1px;
+    content: "";
+    background: var(--space-edition-surface);
+    filter: drop-shadow(18px 6px 18px rgb(var(--color-rgb-shadow) / 0.24));
+    -webkit-mask-image: linear-gradient(
+      118deg,
+      var(--mask-visible-stop) 0%,
+      var(--mask-visible-stop) 60%,
+      transparent 82%
+    );
+    mask-image: linear-gradient(
+      118deg,
+      var(--mask-visible-stop) 0%,
+      var(--mask-visible-stop) 60%,
+      transparent 82%
+    );
+    pointer-events: none;
+  }
+
+  .space-edition-visual {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .space-edition-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (hover: hover) {
+    .space-edition-card:hover {
+      box-shadow: 0 20px 42px -28px rgb(var(--color-rgb-shadow) / 0.48);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .space-edition-card--illustrated {
+      min-height: 11rem;
+    }
+
+    .space-edition-card--illustrated .space-edition-copy {
+      width: min(62%, 34rem);
+      padding: 1.75rem 7rem 1.75rem 3rem;
+    }
+  }
+
+  @media (min-width: 48rem) and (hover: hover) {
+    .space-edition-card--illustrated .space-edition-copy {
+      opacity: 0;
+      transform: translateX(-105%);
+      transition:
+        opacity 260ms ease,
+        transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .space-edition-card--illustrated:is(:hover, :focus-visible) .space-edition-copy {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .space-edition-card,
+    .space-edition-copy {
+      transition-duration: 1ms;
+    }
+  }
+</style>

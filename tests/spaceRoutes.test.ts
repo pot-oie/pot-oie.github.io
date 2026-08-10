@@ -47,14 +47,21 @@ test("Space index and every registered annual route have Astro entry points", ()
 });
 
 test("Space route boundaries keep the index searchable and the edition isolated", () => {
+  const homepage = readFileSync(`${projectRoot}/src/pages/index.astro`, "utf8");
   const index = readFileSync(`${projectRoot}/src/pages/space/index.astro`, "utf8");
   const edition = readFileSync(`${projectRoot}/src/pages/space/2026.astro`, "utf8");
   const shell = readFileSync(`${projectRoot}/src/components/space/2026/SpaceEdition.astro`, "utf8");
   const layout = readFileSync(`${projectRoot}/src/layouts/space/Space2026Layout.astro`, "utf8");
 
+  assert.match(homepage, /getCurrentSpaceEdition/);
+  assert.match(homepage, /href=\{currentSpaceEdition\.href\}/);
+  assert.match(homepage, /data-astro-reload/);
   assert.match(index, /BaseLayout/);
+  assert.match(index, /ArchiveHeader/);
   assert.match(index, /data-astro-reload/);
   assert.doesNotMatch(edition, /BaseLayout/);
+  assert.match(shell, /href="\/" data-astro-reload>← HOME/);
+  assert.match(shell, /href="\/space" data-astro-reload>← SPACE INDEX/);
   assert.match(shell, /data-pagefind-ignore/);
   assert.match(layout, /name="robots" content="index, follow"/);
 });

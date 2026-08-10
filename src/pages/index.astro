@@ -14,6 +14,7 @@ import {
 } from "../domain/blog";
 import { resolveWatchCards, sortWatchEntries } from "../domain/watch";
 import { resolveMusicTracks } from "../domain/music";
+import { getCurrentSpaceEdition } from "../utils/space/editions";
 
 // 获取博客文章
 const blogEntries = await getCollection("blog");
@@ -40,6 +41,7 @@ const [musicTracks, albums] = await Promise.all([
   getCollection("albums"),
 ]);
 const musicEntries = resolveMusicTracks(musicTracks, albums);
+const currentSpaceEdition = getCurrentSpaceEdition();
 
 const pageTitle = "首页";
 const pageDescription = "Pot's Blog - 思想的流淌与记录";
@@ -52,8 +54,9 @@ const pageDescription = "Pot's Blog - 思想的流淌与记录";
       class="text-6xl md:text-8xl font-serif font-bold text-ink-900 dark:text-zinc-100 mb-6 tracking-tight transition-colors"
     >
       Pot's <a
-        href="/space"
-        aria-label="浏览 Pot's Space 年度版本"
+        href={currentSpaceEdition.href}
+        aria-label={`浏览 Pot's Space ${currentSpaceEdition.year} 年度版本`}
+        data-astro-reload
         class="group relative inline-block !text-ink-300 dark:!text-zinc-500 italic transition-colors hover:!text-vermilion dark:hover:!text-vermilion focus-visible:!text-vermilion"
       >
         Space

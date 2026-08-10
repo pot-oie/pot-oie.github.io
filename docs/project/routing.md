@@ -9,9 +9,10 @@ Astro file routing maps files in `src/pages` to site URLs. Dynamic routes are us
 - `/dashboard`: `src/pages/dashboard.astro`; private static analytics UI,
   excluded from sitemap and Pagefind content.
 - `/space`: `src/pages/space/index.astro`; normal `BaseLayout.astro` edition
-  index backed by `src/utils/space/editions.ts`. It is the stable Header and
-  homepage destination, is included in the sitemap and Pagefind, and explicitly
-  emits `index, follow`.
+  index backed by `src/utils/space/editions.ts`. It is the stable Header
+  destination, is included in the sitemap and Pagefind, and explicitly emits
+  `index, follow`. The homepage hero resolves the registry's current edition
+  and links directly to its annual route.
 - `/space/2026`: `src/pages/space/2026.astro`; standalone `2025.08—2026.08`
   edition with five abstract chapters, five corresponding detail hashes, and
   an unnumbered normal-flow Colophon at the document end. Valid hashes are
@@ -81,10 +82,11 @@ Music routes read from the `music` content collection, including nested YAML fil
 ## Space Route Boundary
 
 The stable index and isolated annual documents intentionally use different
-page shells. Links from normal pages to `/space` use the Astro client router.
-Links from `/space` into an edition, and the edition's `← SPACE INDEX` link back,
-carry `data-astro-reload` so global and edition-owned styles and runtimes cross
-the boundary through a full document load. Future editions must add one typed
+page shells. Header links to `/space` use the Astro client router. The homepage
+hero links directly to the registry's current edition. That link, links from
+`/space` into an edition, and the edition's `← HOME` and `← SPACE INDEX` links carry
+`data-astro-reload` so global and edition-owned styles and runtimes cross the
+boundary through a full document load. Future editions must add one typed
 registry entry and one matching `src/pages/space/<year>.astro` route; they are
 not required to reuse the 2026 layout or components.
 

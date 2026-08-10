@@ -14,6 +14,7 @@ record the route's cross-module boundary.
 | --- | --- |
 | `src/pages/space/index.astro` | Render the index in `BaseLayout.astro` and link every registered edition. |
 | `src/utils/space/editions.ts` | Define the small typed public registry and enforce exactly one current edition. |
+| `src/utils/space/editionCovers.ts` | Attach Astro image metadata without making the pure registry depend on image loaders. |
 | `src/pages/space/2026.astro` | Load collections, optimize eligible posters, and compose the 2026 route. |
 | `src/utils/space/2026/edition.ts` | Own 2026 identity, chapter copy and transitions, selection limits, crop exceptions, projects, and Direction states. |
 | `src/utils/space/2026/resolveSpaceEdition.ts` | Validate 2026 data and project Blog, Watch, and Music entries into browser-safe records. |
@@ -69,8 +70,9 @@ changes on refresh.
 - Film and Music randomize once during each full-page initialization. Music
   playback is local, non-persistent, and stops when its detail is left or the
   page is hidden.
-- A fixed top-left `← SPACE INDEX` link remains available in abstract, detail,
-  and Colophon states and performs a full document load back to `/space`. After
+- Fixed top-left `← HOME` and `← SPACE INDEX` links remain available in abstract,
+  detail, and Colophon states and perform full document loads back to `/` and
+  `/space`. After
   Direction, the sticky stage releases into the `100svh` Colophon; its only
   local action restarts from Learning.
 
@@ -78,10 +80,13 @@ Without JavaScript, the same content remains available as linear semantic HTML.
 
 ## Presentation Contract
 
-The `/space` index uses `BaseLayout.astro` and the normal ink-and-vermilion site
-system. It appears in desktop and mobile Header navigation between Music and
-About, is the homepage Space target, and is indexable in both the sitemap and
-Pagefind.
+The `/space` index uses `BaseLayout.astro` and the same `ArchiveHeader` title,
+breadcrumb, count, border, and responsive rhythm as Blog and Watch archives.
+Its edition covers remain content inside that shared archive language rather
+than defining a separate page shell. Space appears in desktop and mobile Header navigation between Music and
+About, and is indexable in both the sitemap and Pagefind. The homepage Space
+hero bypasses the index and resolves the registry's current edition, so marking
+a future registry entry as current updates that destination automatically.
 
 The 2026 edition uses `src/layouts/space/Space2026Layout.astro` and
 `src/styles/space/2026.css`, not the normal site shell or global runtime.
@@ -97,6 +102,37 @@ edition shell carries `data-pagefind-ignore`, preventing projected Blog, Watch,
 and Music content from becoming duplicate search entries. It does not use the
 global Lenis, audio, analytics, or Astro client-router runtime. Links crossing
 between the normal site shell and the annual document use `data-astro-reload`.
+
+### Edition Cover System
+
+Each annual edition may have one generated cover image on the `/space` index.
+The index remains part of the normal site system; the image supplies edition
+identity without turning the index into a second annual-document experience.
+All edition covers must begin with the following shared style prompt. A short
+year-specific concept may be appended after it, but must not replace or weaken
+these series constraints.
+
+> 为年度文化出版物系列创作一张经过明确艺术指导的编辑设计横幅。使用 16:5 超宽画幅，建议输出 3200×1000 px，最低不得小于 1920×600 px，画面必须延伸至四边。画面从左至右都必须具有明确、可辨认的视觉内容，不为网页文字预留空白或低细节安全区；任何单一纯背景区域不得大于画面的约 12%。使用中大型构成贯穿全幅，并允许图形在四边大胆裁切；主要视觉焦点可以偏离中心，但不能让其余区域退化为装饰性留白。画面应具有清晰的主次关系和非对称构图；缩小为约 560×175 px 时仍能辨认主要视觉。单张图片能够独立成立，多年份并列时也应呈现为同一出版系列。不要生成任何文字、字母、数字、标志、水印、界面、边框、实体书样机或摄影棚展示场景。标题、年份、时间跨度与状态信息将由网页 HTML 单独排版。颜色、材质、媒介、光线与具体视觉内容由当年 edition 单独定义。
+
+The generated asset is visual material, not a finished card. Edition title,
+year, period, description, and interaction affordances remain semantic HTML.
+The cover fills each card edge to edge. On hover-capable desktop layouts, the
+card initially shows only the artwork; hover or keyboard focus slides a left
+metadata panel into view. Compact layouts keep that panel visible because they
+cannot depend on hover. The panel background owns a diagonal masked fade and
+edge shadow so it remains readable without forming a hard vertical boundary.
+Cards keep their neutral border on hover and use shadow alone for feedback;
+there is no separate corner arrow affordance. The registry description is not
+repeated in the card. The cover series is held together by
+its editorial role, composition system, landscape specification, and
+typography-free presentation—not by a required palette, texture, or medium.
+
+Cover source files use a `16:5` aspect ratio and remain visually active across
+the full canvas. CSS alone owns the metadata fade and readability treatment.
+Cover cards render above the global paper-noise overlay and provide source
+widths up to the original asset for crisp high-density displays. New covers
+should be reviewed at both source size and the approximate `560 × 175 px`
+rendered size before registration.
 
 ## Verification
 
