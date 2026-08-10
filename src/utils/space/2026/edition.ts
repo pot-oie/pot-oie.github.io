@@ -10,8 +10,8 @@ export const SPACE_EDITION = {
   },
   chapters: [
     { id: "learning", number: "01", name: "LEARNING", label: "LEARNING / NOTES & ARTICLES", summary: "Notes and selected articles", action: "ENTER ARTICLES", measure: "06 SELECTED TEXTS", keywords: "MODEL · RELATION · MEMORY", transition: { color: "#1646a0", direction: "lr", rotation: 0 } },
-    { id: "film", number: "02", name: "FILM", label: "WATCH / SELECTED RECORDS", summary: "A partial viewing record", action: "ENTER FILM MONTAGE", measure: "08 VIEWING RECORDS", keywords: "FRAME · CUT · AFTERIMAGE", transition: { color: "#e54a2c", direction: "diag-up", rotation: -12 } },
-    { id: "music", number: "03", name: "MUSIC", label: "LISTEN / SELECTED TRACKS", summary: "Tracks retained by date", action: "ENTER MUSIC SCORE", measure: "08 TRACK PREVIEWS", keywords: "PULSE · INTERVAL · RETURN", transition: { color: "#1fcbd0", direction: "bt", rotation: 0 } },
+    { id: "film", number: "02", name: "FILM", label: "WATCH / SELECTED RECORDS", summary: "A partial viewing record", action: "ENTER FILM MONTAGE", measure: "06 VIEWING RECORDS", keywords: "FRAME · CUT · AFTERIMAGE", transition: { color: "#e54a2c", direction: "diag-up", rotation: -12 } },
+    { id: "music", number: "03", name: "MUSIC", label: "LISTEN / SELECTED TRACKS", summary: "Tracks retained by date", action: "ENTER MUSIC SCORE", measure: "06 TRACK PREVIEWS", keywords: "PULSE · INTERVAL · RETURN", transition: { color: "#1fcbd0", direction: "bt", rotation: 0 } },
     { id: "development", number: "04", name: "DEVELOPMENT", label: "MAKE / DEVELOPMENT & TOOLS", summary: "Selected things made along the way", action: "ENTER PROJECT SYSTEM", measure: "05 PROJECT ANCHORS", keywords: "SYSTEM · TOOL · ITERATION", transition: { color: "#087e62", direction: "rl", rotation: 0 } },
     { id: "direction", number: "05", name: "DIRECTION", label: "VECTOR / CURRENT DIRECTION", summary: "What currently receives attention", action: "ENTER DIRECTION FIELD", measure: "05 EMPHASIS FIELDS", keywords: "ATTENTION · VECTOR · NOW", transition: { color: "#c6ef26", direction: "diag-up", rotation: -10 } },
   ],
@@ -24,8 +24,8 @@ export const SPACE_EDITION = {
     { sourceId: "SQL-source", title: "散落的数据库课程资料", summary: "一份课程材料的重新整理与共享。" },
   ],
   randomSelection: {
-    filmCount: 8,
-    trackCount: 8,
+    filmCount: 6,
+    trackCount: 6,
     maxTracksPerArtist: 2,
     maxTracksPerDate: 2,
   },

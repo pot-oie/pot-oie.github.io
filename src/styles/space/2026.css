@@ -197,6 +197,52 @@ a { text-decoration-thickness: .08em; text-underline-offset: .2em; }
 [data-enhanced="true"] .abstract-rail > li { display: grid; align-content: center; height: 100svh; padding: var(--inset); opacity: 0; }
 [data-enhanced="true"] .detail { position: fixed; inset: 0; z-index: 30; height: 100svh; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 
+@media (min-width: 960px) {
+  [data-enhanced="true"] .detail { display:flex;flex-direction:column;overflow:hidden }
+  [data-enhanced="true"] .detail-header { flex:0 0 0 }
+  [data-enhanced="true"] .detail-footer { flex:0 0 auto;margin-top:clamp(.65rem,1.5vh,1.25rem);padding-top:.6rem }
+  [data-enhanced="true"] .archive-continuation { gap:.25rem;padding:.35rem 0 }
+  [data-enhanced="true"] .archive-continuation strong { font-size:clamp(.9rem,1.25vw,1.2rem) }
+
+  [data-enhanced="true"] .articles-layout { flex:1;min-height:0;gap:clamp(2rem,4vw,4.5rem);padding-top:clamp(5.5rem,11vh,7rem);overflow:hidden }
+  [data-enhanced="true"] .articles-intro { position:relative;top:0 }
+  [data-enhanced="true"] .articles-intro h2 { margin-top:clamp(.8rem,2vh,1.3rem);font-size:clamp(2.5rem,6vh,4.6rem) }
+  [data-enhanced="true"] .articles-index { align-self:stretch;display:grid;grid-template-rows:repeat(6,minmax(0,1fr));min-height:0 }
+  [data-enhanced="true"] .articles-index li { min-height:0 }
+  [data-enhanced="true"] .articles-index a { height:100%;grid-template-columns:2.4rem minmax(0,1fr) auto;align-content:center;gap:.25rem 1rem;padding:clamp(.4rem,.8vh,.7rem) 0 }
+  [data-enhanced="true"] .articles-index strong { font-size:clamp(1.1rem,1.55vw,1.6rem) }
+  [data-enhanced="true"] .articles-index p { max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.84rem;line-height:1.45 }
+  [data-enhanced="true"] .articles-field { inset:2.5rem 0 0 34% }
+
+  [data-enhanced="true"] .film-heading { flex:0 0 auto;padding:clamp(3rem,6vh,4.5rem) 0 clamp(.75rem,1.8vh,1.25rem) }
+  [data-enhanced="true"] .film-heading h2 { font-size:clamp(3.25rem,8vh,5.8rem);line-height:.72 }
+  [data-enhanced="true"] .film-montage { flex:1;min-height:0;width:min(100%,72rem);grid-template-rows:repeat(8,minmax(0,1fr));gap:clamp(4px,.55vw,9px) }
+  [data-enhanced="true"] .film-poster--1 { grid-area:1/1/5/4 }
+  [data-enhanced="true"] .film-poster--2 { grid-area:2/4/9/7 }
+  [data-enhanced="true"] .film-poster--3 { grid-area:1/7/5/10 }
+  [data-enhanced="true"] .film-poster--4 { grid-area:5/1/9/4 }
+  [data-enhanced="true"] .film-poster--5 { grid-area:1/10/6/13 }
+  [data-enhanced="true"] .film-poster--6 { grid-area:5/7/9/11 }
+  [data-enhanced="true"] .film-poster figcaption { padding:.45rem .55rem }
+
+  [data-enhanced="true"] .music-heading { flex:0 0 auto;padding:clamp(3rem,6vh,4.5rem) 0 clamp(.7rem,1.8vh,1.2rem) }
+  [data-enhanced="true"] .music-heading h2 { font-size:clamp(3rem,7vh,5rem) }
+  [data-enhanced="true"] .track-list { flex:1;display:grid;grid-template-rows:repeat(6,minmax(0,1fr));min-height:0 }
+  [data-enhanced="true"] .track-list li { min-height:0;padding:.25rem 0 }
+  [data-enhanced="true"] .track-number { font-size:clamp(1.4rem,3.2vh,2.2rem) }
+  [data-enhanced="true"] .track-info strong { font-size:clamp(.92rem,2.2vh,1.25rem) }
+  [data-enhanced="true"] .track-info p { margin-top:.25rem;font-size:.72rem }
+  [data-enhanced="true"] .track-score i:nth-child(2),[data-enhanced="true"] .track-score i:nth-child(5) { height:clamp(1rem,3.5vh,1.7rem) }
+
+  [data-enhanced="true"] .development-space > h2 { flex:0 0 auto;padding-top:clamp(3rem,7vh,5rem);font-size:clamp(3.5rem,9vh,6.5rem) }
+  [data-enhanced="true"] .project-anchors { flex:1;min-height:0 }
+  [data-enhanced="true"] .project-anchor a { font-size:clamp(1.8rem,5.5vh,3.4rem) }
+
+  [data-enhanced="true"] .direction-fields { flex:1;min-height:0;grid-template-rows:1.2fr 1fr .8fr;margin:clamp(6.5rem,14vh,8.5rem) auto clamp(2rem,5vh,3.5rem) }
+  [data-enhanced="true"] .direction-field strong { font-size:clamp(1.5rem,4.5vh,3.4rem) }
+  [data-enhanced="true"] .direction-field--1 strong { font-size:clamp(3rem,8vh,5.6rem) }
+}
+
 @media (min-width: 960px) and (max-width: 1199px) {
   .abstract--film .abstract-copy { width:62%;margin-left:38% }
 }

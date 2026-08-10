@@ -77,7 +77,7 @@ export async function resolveSpaceEdition({
   }));
 
   const trackPool = tracks
-    .filter((entry) => Boolean(entry.data.audioPreview?.trim()) && isInEditionPeriod(entry.data.recordedAt))
+    .filter((entry) => !entry.data.albumId && Boolean(entry.data.audioPreview?.trim()) && isInEditionPeriod(entry.data.recordedAt))
     .sort((a, b) => sourceId(a.id).localeCompare(sourceId(b.id), "en-US"));
   if (trackPool.length < config.randomSelection.trackCount) {
     throw new Error(`Space edition requires at least ${config.randomSelection.trackCount} eligible tracks.`);

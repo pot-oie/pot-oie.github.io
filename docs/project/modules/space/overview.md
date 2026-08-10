@@ -39,14 +39,14 @@ different components, utilities, scripts, styles, and interaction patterns.
 - Articles are six explicit published Blog references with Space-only display
   copy; Blog frontmatter remains authoritative for routes and publication.
 - Film candidates are annual movie records with a poster and numeric rating.
-  Every full refresh draws eight records and assigns them to eight authored
+  Every full refresh draws six records and assigns them to six authored
   layout slots. Crop exceptions remain explicit configuration.
-- Music candidates are annual records selected by `recordedAt` with previews.
-  Every full refresh draws eight; artist and recorded-date limits prevent
-  avoidable concentration.
+- Music candidates are standalone annual records selected by `recordedAt` with
+  previews; records carrying `albumId` are excluded. Every full refresh draws
+  six; artist and recorded-date limits prevent avoidable concentration.
 - Development is five explicit project links. Direction is five qualitative
   states with no percentages.
-- Fewer than eight eligible Film or Music candidates, invalid articles, empty
+- Fewer than six eligible Film or Music candidates, invalid articles, empty
   project URLs, or an invalid edition shape fail the build.
 
 The browser receives projected records, not collection entries or Blog bodies.
@@ -70,6 +70,9 @@ changes on refresh.
 - Film and Music randomize once during each full-page initialization. Music
   playback is local, non-persistent, and stops when its detail is left or the
   page is hidden.
+- Enhanced details at desktop widths compose their complete content within one
+  viewport and do not require internal scrolling. Compact layouts retain native
+  detail scrolling so typography and controls are never compressed to fit.
 - Fixed top-left `← HOME` and `← SPACE INDEX` links remain available in abstract,
   detail, and Colophon states and perform full document loads back to `/` and
   `/space`. After

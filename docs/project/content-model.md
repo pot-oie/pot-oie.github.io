@@ -260,7 +260,8 @@ Optional fields:
 `/space` adds no collection. Its edition configuration references Blog content,
 defines presentation-only project and Direction data, and sets random draw
 limits. The resolver validates those references and projects eligible annual
-Watch and Music pools into browser-safe records; each pool must contain at
-least eight entries. Source collections remain authoritative for titles,
-dates, ratings, posters, previews, routes, and publication state. See
+Watch and standalone Music pools into browser-safe records; Music records with
+`albumId` are excluded, and each pool must contain at least eight entries.
+Source collections remain authoritative for titles, dates, ratings, posters,
+previews, routes, and publication state. See
 `modules/space/overview.md` for the full edition contract.

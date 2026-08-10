@@ -19,7 +19,7 @@ const pad = (index: number) => String(index + 1).padStart(2, "0");
 
 <section class="space-view detail film-space" id="film-detail" data-space-view="detail" data-chapter="1" aria-labelledby="film-detail-title">
   <SpaceCloseButton />
-  <div class="film-heading"><h2 id="film-detail-title" tabindex="-1">EIGHT<br />FRAGMENTS</h2></div>
+  <div class="film-heading"><h2 id="film-detail-title" tabindex="-1">{String(edition.randomSelection.filmCount).padStart(2, "0")}<br />FRAGMENTS</h2></div>
   <div class="film-montage">{edition.films.map((item, index) => <figure class:list={["film-poster", index < edition.randomSelection.filmCount && `film-poster--${index + 1}`]} data-film-candidate data-media-id={item.id} hidden={index >= edition.randomSelection.filmCount}><img src={item.poster.src} srcset={item.poster.srcset} sizes="(max-width: 959px) 46vw, 28vw" width={item.poster.width} height={item.poster.height} alt={`${item.title}海报`} loading="lazy" style={item.objectPosition ? `object-position:${item.objectPosition}` : undefined} /><figcaption><strong>{item.title}</strong><span>{item.rating}</span></figcaption></figure>)}</div>
   <footer class="detail-footer"><a class="archive-continuation" href="/watch/movie/"><small>LEAVE THE EDITION</small><strong>CONTINUE TO WATCH ARCHIVE ↗</strong></a><span>{edition.period}</span></footer>
 </section>
