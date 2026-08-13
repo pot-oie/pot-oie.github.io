@@ -68,9 +68,9 @@ and `/blog/tags/*` paths are not reserved.
 - `/watch/series/[slug]`: `src/pages/watch/series/[...slug].astro`
 
 Watch routes read from the `watch` content collection. The archive filter uses
-real static routes for all records, movies, and series. Only series generate
-detail pages for per-season ratings; movies keep their list-card short-review
-interaction.
+real static routes for all records, movies, and series. Only season-rated series
+generate detail pages; movies and overall-rated series keep their list-card
+short-review interaction.
 
 ## Music Routes
 

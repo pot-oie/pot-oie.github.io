@@ -7,8 +7,12 @@ export type WatchData = WatchEntry["data"];
 export type WatchMediaType = WatchData["mediaType"];
 export type MovieWatchData = Extract<WatchData, { mediaType: "movie" }>;
 export type SeriesWatchData = Extract<WatchData, { mediaType: "series" }>;
+export type SeasonSeriesWatchData = Extract<SeriesWatchData, { seasons: unknown }>;
 export type MovieWatchEntry = WatchEntry & { data: MovieWatchData };
 export type SeriesWatchEntry = WatchEntry & { data: SeriesWatchData };
+export type SeasonSeriesWatchEntry = WatchEntry & {
+  data: SeasonSeriesWatchData;
+};
 export type WatchArchiveType = "all" | WatchMediaType;
 
 export interface WatchCardModel {
@@ -23,14 +27,14 @@ export interface WatchCardModel {
 }
 
 export interface WatchDetailModel {
-  entry: SeriesWatchEntry;
-  data: SeriesWatchData;
+  entry: SeasonSeriesWatchEntry;
+  data: SeasonSeriesWatchData;
   slug: string;
   href: string;
   score: number;
   pending: boolean;
   latestSeason: number;
-  sortedSeasons: SeriesWatchData["seasons"];
+  sortedSeasons: SeasonSeriesWatchData["seasons"];
 }
 
 export interface WatchArchiveModel {
@@ -49,17 +53,23 @@ export function isSeriesWatchEntry(
   return entry.data.mediaType === "series";
 }
 
+export function isSeasonSeriesWatchEntry(
+  entry: WatchEntry,
+): entry is SeasonSeriesWatchEntry {
+  return entry.data.mediaType === "series" && "seasons" in entry.data;
+}
+
 export function getWatchSlug(entry: WatchEntry): string {
   return entry.id.replace(/\.(yaml|yml|json)$/i, "");
 }
 
 export function getWatchHref(entry: WatchEntry): string {
-  return isSeriesWatchEntry(entry)
+  return isSeasonSeriesWatchEntry(entry)
     ? `/watch/series/${getWatchSlug(entry)}/`
-    : "/watch/movie/";
+    : `/watch/${entry.data.mediaType}/`;
 }
 
-export function getSeriesAverage(data: SeriesWatchData): number {
+export function getSeriesAverage(data: SeasonSeriesWatchData): number {
   const ratings = data.seasons
     .map((season) => season.rating)
     .filter((rating): rating is number => typeof rating === "number");
@@ -68,21 +78,22 @@ export function getSeriesAverage(data: SeriesWatchData): number {
 }
 
 export function getWatchScore(data: WatchData): number {
-  return data.mediaType === "movie" ? data.rating : getSeriesAverage(data);
+  return "rating" in data ? data.rating : getSeriesAverage(data);
 }
 
 export function hasPendingSeason(data: WatchData): boolean {
   return (
-    data.mediaType === "series" &&
+    data.mediaType === "series" && "seasons" in data &&
     data.seasons.some((season) => season.rating === "to-watch")
   );
 }
 
-export function getLatestSeasonNumber(data: SeriesWatchData): number;
+export function getLatestSeasonNumber(data: SeasonSeriesWatchData): number;
+export function getLatestSeasonNumber(data: Exclude<WatchData, SeasonSeriesWatchData>): null;
 export function getLatestSeasonNumber(data: MovieWatchData): null;
 export function getLatestSeasonNumber(data: WatchData): number | null;
 export function getLatestSeasonNumber(data: WatchData): number | null {
-  return data.mediaType === "series"
+  return data.mediaType === "series" && "seasons" in data
     ? Math.max(...data.seasons.map((season) => season.number))
     : null;
 }
@@ -123,11 +134,12 @@ export function sortWatchEntries(entries: WatchEntry[]): WatchEntry[] {
 
 export function resolveWatchCard(entry: WatchEntry): WatchCardModel {
   const isSeries = isSeriesWatchEntry(entry);
+  const hasDetails = isSeasonSeriesWatchEntry(entry);
   return {
     entry,
     data: entry.data,
     slug: getWatchSlug(entry),
-    href: isSeries ? getWatchHref(entry) : null,
+    href: hasDetails ? getWatchHref(entry) : null,
     score: getWatchScore(entry.data),
     pending: hasPendingSeason(entry.data),
     latestSeason: getLatestSeasonNumber(entry.data),
@@ -140,7 +152,7 @@ export function resolveWatchCards(entries: WatchEntry[]): WatchCardModel[] {
 }
 
 export function resolveWatchDetail(
-  entry: SeriesWatchEntry,
+  entry: SeasonSeriesWatchEntry,
 ): WatchDetailModel {
   return {
     entry,

@@ -5,6 +5,8 @@ import { createWatchRecordSchema } from "./watchRecord";
 export { createWatchRecordSchema } from "./watchRecord";
 export type {
   MovieRecord,
+  OverallSeriesRecord,
+  SeasonSeriesRecord,
   SeriesRecord,
   WatchRecord,
   WatchSeason,

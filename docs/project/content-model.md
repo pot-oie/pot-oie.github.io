@@ -166,14 +166,21 @@ Movie records require:
 
 Movie records cannot define `seasons`.
 
-Series records require:
+Series records use exactly one of two rating modes. Overall-rated series
+require:
+
+- `rating`: between `0` and `5`
+- no `seasons`
+
+Season-rated series require:
 
 - `seasons`: a non-empty list of season records
 - `seasons[].number`: a unique non-negative season number
 - `seasons[].rating`: a number between `0` and `5`, or `to-watch`
 
-Series records cannot define a top-level `rating`. Their `finishedDate` remains
-optional and is valid only when no season is `to-watch`.
+Season-rated series cannot define a top-level `rating`. Series `finishedDate`
+remains optional; for season-rated records it is valid only when no season is
+`to-watch`.
 
 Optional season fields:
 

@@ -34,13 +34,3 @@ src/content/blog/ssl-01-overview.mdx
 src/content/blog/ssl-02-generative-em.mdx
 src/content/blog/ssl-03-low-density-separation.mdx
 src/content/blog/ssl-04-graph-smoothness.mdx
-
-# local watch records and artwork
-src/content/watch/breaking-bad.yaml
-src/content/watch/friends.yaml
-src/content/watch/how-i-met-your-mother.yaml
-src/content/watch/the-office.yaml
-src/assets/watch/breaking-bad*.webp
-src/assets/watch/friends*.webp
-src/assets/watch/how-i-met-your-mother*.webp
-src/assets/watch/the-office*.webp

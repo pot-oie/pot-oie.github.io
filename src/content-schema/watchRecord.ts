@@ -36,7 +36,7 @@ export function createWatchRecordSchema<TImage extends z.ZodTypeAny>(
     })
     .strict();
 
-  const seriesSchema = z
+  const seasonSeriesSchema = z
     .object({
       ...sharedFields,
       mediaType: z.literal("series"),
@@ -46,10 +46,20 @@ export function createWatchRecordSchema<TImage extends z.ZodTypeAny>(
     })
     .strict();
 
+  const overallSeriesSchema = z
+    .object({
+      ...sharedFields,
+      mediaType: z.literal("series"),
+      finishedDate: z.coerce.date().optional(),
+      rating: z.number().min(0).max(5),
+      seasons: z.never().optional(),
+    })
+    .strict();
+
   return z
-    .discriminatedUnion("mediaType", [movieSchema, seriesSchema])
+    .union([movieSchema, seasonSeriesSchema, overallSeriesSchema])
     .superRefine((value, ctx) => {
-      if (value.mediaType !== "series" || !value.seasons) return;
+      if (value.mediaType !== "series" || !("seasons" in value)) return;
 
       const seasonNumbers = value.seasons.map((season) => season.number);
       if (new Set(seasonNumbers).size !== seasonNumbers.length) {
@@ -104,4 +114,6 @@ type TestableWatchRecord = z.output<
 export type WatchRecord = TestableWatchRecord;
 export type MovieRecord = Extract<WatchRecord, { mediaType: "movie" }>;
 export type SeriesRecord = Extract<WatchRecord, { mediaType: "series" }>;
-export type WatchSeason = SeriesRecord["seasons"][number];
+export type SeasonSeriesRecord = Extract<SeriesRecord, { seasons: unknown }>;
+export type OverallSeriesRecord = Extract<SeriesRecord, { rating: number }>;
+export type WatchSeason = SeasonSeriesRecord["seasons"][number];

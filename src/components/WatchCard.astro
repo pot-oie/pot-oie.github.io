@@ -20,7 +20,8 @@ const {
 } = watch.data;
 const { href, score, pending, latestSeason } = watch;
 const typeLabel = mediaType === "movie" ? "Film" : "Series";
-const PosterElement = mediaType === "series" ? "a" : "button";
+const hasDetails = href !== null;
+const PosterElement = hasDetails ? "a" : "button";
 const releaseYear = releaseDate?.getFullYear();
 const releaseDateValue = releaseDate
   ? [
@@ -42,14 +43,14 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
 <article
   class="group watch-card flex flex-col gap-3"
   data-media-type={mediaType}
-  data-movie-card={mediaType === "movie" ? "" : undefined}
+  data-watch-review-card={!hasDetails ? "" : undefined}
 >
   <PosterElement
     href={href ?? undefined}
-    type={mediaType === "movie" ? "button" : undefined}
+    type={!hasDetails ? "button" : undefined}
     class="block w-full overflow-hidden rounded-sm shadow-ink relative aspect-2/3 active:scale-[0.98] transition-transform duration-200 text-left"
     aria-label={
-      mediaType === "series"
+      hasDetails
         ? `查看《${title}》的季度记录`
         : `查看《${title}》的短评`
     }
@@ -86,7 +87,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
       class="absolute inset-0 flex flex-col justify-end p-4 bg-linear-to-t from-ink-900/95 via-ink-900/55 to-transparent opacity-0 md:group-hover:opacity-100 group-[.is-active]:opacity-100 transition-opacity duration-300"
     >
       {
-        mediaType === "movie" && (releaseYear || finishedDateLabel) && (
+        !hasDetails && (releaseYear || finishedDateLabel) && (
           <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] font-sans font-semibold tracking-[0.14em] uppercase text-ink-100/70 drop-shadow-md">
             {releaseYear && (
               <time datetime={releaseDateValue!}>
@@ -107,11 +108,11 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
           </div>
         )
       }
-      <p class="text-ink-100 text-sm leading-relaxed line-clamp-4 drop-shadow-md">
+      <p class="text-ink-100 text-sm leading-relaxed line-clamp-7 drop-shadow-md">
         {shortReview}
       </p>
       {
-        mediaType === "series" && (
+        hasDetails && (
           <span class="mt-3 inline-flex items-center gap-1.5 text-[10px] font-sans tracking-[0.18em] uppercase text-ink-100/75">
             Season Notes
             <Icon name="mingcute:arrow-right-up-line" class="w-3.5 h-3.5" />
@@ -127,7 +128,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
         class="text-lg font-serif font-bold text-ink-900 dark:text-zinc-200 md:group-hover:text-vermilion active:text-vermilion transition-colors leading-tight line-clamp-1"
       >
         {
-          mediaType === "series" ? (
+          hasDetails ? (
             <a href={href!}>{title}</a>
           ) : (
             title
@@ -166,7 +167,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
   function initMovieCards() {
     const cards = Array.from(
       document.querySelectorAll<HTMLElement>(
-        "[data-movie-card]:not([data-initialized])",
+        "[data-watch-review-card]:not([data-initialized])",
       ),
     );
 
@@ -176,7 +177,7 @@ const finishedDateValue = finishedDateLabel?.replaceAll(".", "-") ?? null;
       trigger?.addEventListener("click", () => {
         const wasActive = card.classList.contains("is-active");
         document
-          .querySelectorAll("[data-movie-card].is-active")
+          .querySelectorAll("[data-watch-review-card].is-active")
           .forEach((item) => item.classList.remove("is-active"));
         if (!wasActive) card.classList.add("is-active");
       });

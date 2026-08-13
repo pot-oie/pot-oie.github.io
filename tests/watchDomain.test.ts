@@ -37,9 +37,27 @@ test("watch hrefs preserve nested IDs and public route behavior", () => {
   assert.equal(getWatchSlug(series), "nested/example");
   assert.equal(getWatchHref(series), "/watch/series/nested/example/");
   assert.equal(
+    getWatchHref(overallSeriesEntry("sitcom.yaml", "2026-01-02")),
+    "/watch/series/",
+  );
+  assert.equal(
     getWatchHref(movieEntry("film.json", "2026-01-01")),
     "/watch/movie/",
   );
+});
+
+test("overall-rated series stay in the series archive without a detail link", () => {
+  const series = overallSeriesEntry("sitcom.yaml", "2026-01-02");
+  assert.deepEqual(resolveWatchCard(series), {
+    entry: series,
+    data: series.data,
+    slug: "sitcom",
+    href: null,
+    score: 4.5,
+    pending: false,
+    latestSeason: null,
+    isSeries: true,
+  });
 });
 
 test("card and detail projections resolve scores, pending state, and seasons", () => {
@@ -127,6 +145,24 @@ function seriesEntry(
       shortReview: "",
       finishedDate: finishedDate ? new Date(finishedDate) : undefined,
       seasons,
+    },
+  } as SeriesWatchEntry;
+}
+
+function overallSeriesEntry(
+  id: string,
+  finishedDate: string | undefined,
+): SeriesWatchEntry {
+  return {
+    id,
+    collection: "watch",
+    data: {
+      title: id,
+      mediaType: "series",
+      coverImage: image,
+      shortReview: "",
+      finishedDate: finishedDate ? new Date(finishedDate) : undefined,
+      rating: 4.5,
     },
   } as SeriesWatchEntry;
 }

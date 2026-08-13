@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import WatchDetail from "../../../layouts/WatchDetail.astro";
 import {
   getWatchSlug,
-  isSeriesWatchEntry,
+  isSeasonSeriesWatchEntry,
   resolveWatchDetail,
   type WatchDetailModel,
 } from "../../../domain/watch";
@@ -12,7 +12,7 @@ export async function getStaticPaths() {
   const watchPosts = await getCollection("watch");
 
   return watchPosts
-    .filter(isSeriesWatchEntry)
+    .filter(isSeasonSeriesWatchEntry)
     .map((post) => ({
       params: { slug: getWatchSlug(post) },
       props: { watch: resolveWatchDetail(post) },

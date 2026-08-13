@@ -28,17 +28,18 @@ const { watches } = Astro.props;
     {
       watches.map((watch) => {
         const { data, href, score, pending, latestSeason, isSeries } = watch;
-        const CardElement = isSeries ? "a" : "button";
+        const hasDetails = href !== null;
+        const CardElement = hasDetails ? "a" : "button";
 
         return (
           <CardElement
             href={href ?? undefined}
-            type={!isSeries ? "button" : undefined}
-            data-scroll-movie={!isSeries ? "" : undefined}
+            type={!hasDetails ? "button" : undefined}
+            data-scroll-review={!hasDetails ? "" : undefined}
             class="scroll-card relative shrink-0 snap-center w-40 md:w-[200px] aspect-2/3 group/card transition-all duration-500 ease-out active:scale-95 md:hover:scale-105 md:hover:-translate-y-2 z-0 md:hover:z-10 select-none text-left"
             draggable="false"
             aria-label={
-              isSeries
+              hasDetails
                 ? `查看《${data.title}》的季度记录`
                 : `查看《${data.title}》的短评`
             }
@@ -94,7 +95,7 @@ const { watches } = Astro.props;
                     )
                   }
                 </h4>
-                <p class="mt-1 text-ink-100/90 text-xs leading-relaxed line-clamp-4 drop-shadow-md">
+                <p class="mt-1 text-ink-100/90 text-xs leading-relaxed line-clamp-6 drop-shadow-md">
                   {data.shortReview}
                 </p>
               </div>
@@ -179,7 +180,7 @@ const { watches } = Astro.props;
                 return;
               }
 
-              if (!card.hasAttribute("data-scroll-movie")) return;
+              if (!card.hasAttribute("data-scroll-review")) return;
               const wasActive = card.classList.contains("is-active");
               scrollContainer
                 .querySelectorAll(".scroll-card.is-active")

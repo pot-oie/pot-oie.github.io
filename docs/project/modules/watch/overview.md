@@ -36,9 +36,10 @@ Shared optional fields:
 - `releaseDate`
 
 Movies require a top-level `rating` and `finishedDate` and cannot define
-`seasons`. Series cannot define a top-level `rating` and instead use a `seasons`
-array whose ratings are numbers from `0` to `5` or `to-watch`; each season may
-also define its own `posterImage` and `shortReview`. Every season not yet
+`seasons`. Series use exactly one rating mode: an overall top-level `rating`
+without `seasons`, or a `seasons` array without a top-level rating. Season
+ratings are numbers from `0` to `5` or `to-watch`; each season may also define
+its own `posterImage` and `shortReview`. Every season not yet
 started uses `to-watch`, so multiple trailing seasons may carry it. Once a
 season is marked `to-watch`, all higher recorded seasons must use the same
 value. Each record still includes at least one numeric season rating. Series
@@ -57,10 +58,10 @@ their own boundary. The combined route shows both labeled boundaries and omits
 a media type when none of its records has a `finishedDate`.
 
 Watch cards keep posters in color and show `shortReview` in a desktop hover
-overlay. Movie cards keep the original hover/tap behavior and do not link to a
-detail page. Series cards link to a season archive detail page under
-`/watch/series/[slug]`, where each row combines its poster or numbered fallback,
-rating state, and optional short review.
+overlay. Movies and overall-rated series use the same hover/tap behavior and do
+not link to a detail page. Season-rated series link to a season archive detail
+page under `/watch/series/[slug]`, where each row combines its poster or numbered
+fallback, rating state, and optional short review.
 
 Routes load the `watch` collection at build boundaries. Stable hrefs, slugs,
 scores, pending-season state, latest-season state, date boundaries, ordering,

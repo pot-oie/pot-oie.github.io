@@ -11,7 +11,7 @@ const shared = {
   shortReview: "",
 };
 
-test("watch schema parses explicit movie and series variants", () => {
+test("watch schema parses movie and both series variants", () => {
   const movie = schema.parse({
     ...shared,
     mediaType: "movie",
@@ -26,11 +26,18 @@ test("watch schema parses explicit movie and series variants", () => {
       { number: 2, rating: "to-watch" },
     ],
   });
+  const overallSeries = schema.parse({
+    ...shared,
+    mediaType: "series",
+    rating: 4.5,
+  });
 
   assert.equal(movie.mediaType, "movie");
   assert.equal(movie.rating, 4.5);
   assert.equal(series.mediaType, "series");
   assert.equal(series.seasons.length, 2);
+  assert.equal(overallSeries.mediaType, "series");
+  assert.equal(overallSeries.rating, 4.5);
 });
 
 test("movie records require rating and finishedDate and reject series fields", () => {
@@ -86,7 +93,7 @@ test("watch ratings and season numbers retain their numeric bounds", () => {
   );
 });
 
-test("series records reject movie rating and duplicate season numbers", () => {
+test("series records reject mixing overall ratings with seasons and duplicate season numbers", () => {
   assert.equal(
     schema.safeParse({
       ...shared,
@@ -105,6 +112,21 @@ test("series records reject movie rating and duplicate season numbers", () => {
         { number: 1, rating: 3 },
       ],
     }).success,
+    false,
+  );
+});
+
+test("overall series require a bounded rating and reject seasons", () => {
+  assert.equal(
+    schema.safeParse({ ...shared, mediaType: "series", rating: 0 }).success,
+    true,
+  );
+  assert.equal(
+    schema.safeParse({ ...shared, mediaType: "series", rating: 5.5 }).success,
+    false,
+  );
+  assert.equal(
+    schema.safeParse({ ...shared, mediaType: "series" }).success,
     false,
   );
 });
